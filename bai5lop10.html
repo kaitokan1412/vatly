@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,900;1,700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- PeerJS (Real-time WebRTC Multiplayer không cần server riêng) -->
+    <!-- PeerJS WebRTC Network -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -25,11 +25,10 @@
             font-family: 'Chakra Petch', sans-serif;
         }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
-        /* Kahoot shapes & buttons */
         .btn-kahoot-red {
             background: linear-gradient(135deg, #e11d48, #be123c);
             box-shadow: 0 6px 0 #881337;
@@ -49,13 +48,6 @@
         .btn-kahoot-red:active, .btn-kahoot-blue:active, .btn-kahoot-yellow:active, .btn-kahoot-green:active {
             transform: translateY(4px);
             box-shadow: 0 2px 0 rgba(0,0,0,0.4);
-        }
-        @keyframes pulseGlow {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 15px #facc15); }
-        }
-        .pulse-glow {
-            animation: pulseGlow 1.5s infinite;
         }
     </style>
 </head>
@@ -79,7 +71,7 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <button id="sfxBtn" onclick="toggleSFX()" class="p-2 w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center justify-center transition text-amber-400" title="Bật/Tắt âm thanh">
+            <button id="sfxBtn" onclick="toggleSFX()" class="p-2 w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center justify-center transition text-amber-400">
                 <i class="fa-solid fa-music" id="sfxIcon"></i>
             </button>
             <button onclick="window.location.reload()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition text-slate-300">
@@ -89,34 +81,27 @@
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl w-full mx-auto justify-center">
 
-        <!-- ================= 0. CHỌN VAI TRÒ BAN ĐẦU ================= -->
+        <!-- 0. CHỌN VAI TRÒ BAN ĐẦU -->
         <section id="roleSelectScreen" class="w-full max-w-xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto">
             <span class="px-4 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-widest border border-amber-500/40 inline-flex items-center gap-1.5">
                 <i class="fa-solid fa-gamepad text-amber-400"></i> Nền Tảng Đua Trực Tuyến Live
             </span>
             <h2 class="text-2xl sm:text-4xl font-racing font-black mt-3 text-white">CHỌN CHẾ ĐỘ THAM GIA</h2>
-            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh quét link bằng điện thoại để vào đua!</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh quét mã bằng điện thoại để vào đua!</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Host Mode -->
                 <button onclick="initHostMode()" class="p-6 rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-500 hover:to-purple-600 border-2 border-indigo-400/50 shadow-xl transition transform hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 group">
-                    <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl group-hover:rotate-6 transition">
-                        📽️
-                    </div>
+                    <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl group-hover:rotate-6 transition">📽️</div>
                     <div>
                         <h3 class="text-lg font-racing font-black text-white uppercase">MÁY CHIẾU</h3>
                         <p class="text-[11px] text-indigo-200 mt-0.5">Dành cho Giáo viên tạo phòng</p>
                     </div>
                 </button>
 
-                <!-- Player Mode -->
                 <button onclick="initPlayerMode()" class="p-6 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 border-2 border-emerald-400/50 shadow-xl transition transform hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 group">
-                    <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl group-hover:-rotate-6 transition">
-                        📱
-                    </div>
+                    <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl group-hover:-rotate-6 transition">📱</div>
                     <div>
                         <h3 class="text-lg font-racing font-black text-white uppercase">ĐIỆN THOẠI</h3>
                         <p class="text-[11px] text-emerald-200 mt-0.5">Dành cho Học sinh / Đội thi</p>
@@ -125,20 +110,19 @@
             </div>
         </section>
 
-        <!-- ============================================================== -->
-        <!-- ====================== GIAO DIỆN HOST (MÁY CHIẾU) ============= -->
-        <!-- ============================================================== -->
-
-        <!-- 1. HOST LOBBY (PHÒNG CHỜ MÁY CHIẾU) -->
+        <!-- ==================== GIAO DIỆN HOST (MÁY CHIẾU) ==================== -->
         <section id="hostLobbyScreen" class="w-full max-w-4xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto text-center hidden">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
                 <div class="text-left">
-                    <span class="text-xs uppercase font-extrabold text-slate-400">MÃ PIN PHÒNG ĐUA</span>
+                    <span class="text-xs uppercase font-extrabold text-slate-400 flex items-center gap-2">
+                        MÃ PIN PHÒNG ĐUA
+                        <span id="hostStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                    </span>
                     <div class="flex items-center gap-3 mt-1">
                         <span id="hostPinDisplay" class="text-4xl sm:text-6xl font-racing font-black text-amber-400 tracking-widest bg-slate-900 px-5 py-1.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                            ----
+                            ĐANG KẾT NỐI...
                         </span>
-                        <button onclick="copyJoinLink()" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold" title="Sao chép link">
+                        <button onclick="copyJoinLink()" id="btnCopyLink" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold hidden" title="Sao chép link">
                             <i class="fa-solid fa-link text-base"></i>
                         </button>
                     </div>
@@ -152,9 +136,8 @@
                 </div>
             </div>
 
-            <!-- List of joined teams -->
             <div class="min-h-[160px] max-h-[260px] overflow-y-auto p-4 rounded-2xl bg-slate-900/80 border border-slate-800 mb-6 flex flex-wrap gap-3 items-center justify-center" id="hostPlayerListContainer">
-                <p class="text-sm text-slate-500 italic" id="emptyPlayerMsg">Đang chờ học sinh quét mã và nhập tên đội vào phòng...</p>
+                <p class="text-sm text-slate-500 italic" id="emptyPlayerMsg">Đang chuẩn bị phòng máy chủ...</p>
             </div>
 
             <div class="flex justify-center">
@@ -165,16 +148,13 @@
             </div>
         </section>
 
-        <!-- 2. HOST QUESTION SCREEN (CÂU HỎI TRÊN MÁY CHIẾU) -->
+        <!-- HOST QUESTION SCREEN -->
         <section id="hostQuestionScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 hidden">
-            <!-- Header & Timer -->
             <div class="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <span id="hostQCategory" class="px-3 py-1 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs sm:text-sm font-bold uppercase">Trắc nghiệm</span>
                     <span id="hostQCounter" class="text-sm sm:text-base font-racing font-black text-slate-400">CÂU 1/10</span>
                 </div>
-
-                <!-- Circular style timer -->
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-slate-900 border border-slate-700 shadow-inner">
                         <i class="fa-solid fa-stopwatch text-amber-400 text-xl"></i>
@@ -186,14 +166,10 @@
                 </div>
             </div>
 
-            <!-- Question Title Box -->
             <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl text-center min-h-[140px] flex items-center justify-center">
-                <h2 id="hostQuestionTitle" class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-snug">
-                    Đang tải câu hỏi...
-                </h2>
+                <h2 id="hostQuestionTitle" class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-snug">Đang tải câu hỏi...</h2>
             </div>
 
-            <!-- 4 Kahoot-style options on projector -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4" id="hostOptionsContainer">
                 <div class="p-5 rounded-3xl btn-kahoot-red flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
                     <span class="w-10 h-10 rounded-2xl bg-black/20 flex items-center justify-center text-2xl">▲</span>
@@ -214,17 +190,13 @@
             </div>
         </section>
 
-        <!-- 3. HOST ROUND LEADERBOARD (BẢNG XẾP HẠNG GIỮA CÁC CÂU) -->
+        <!-- HOST ROUND LEADERBOARD -->
         <section id="hostLeaderboardScreen" class="w-full max-w-3xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto hidden">
             <span class="px-4 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black uppercase tracking-widest border border-indigo-500/40 inline-flex items-center gap-1.5 mb-2">
                 <i class="fa-solid fa-ranking-star text-amber-400"></i> BẢNG ĐIỂM TẠM THỜI
             </span>
             <h2 class="text-2xl sm:text-4xl font-racing font-black text-white mb-6">TOP DẪN ĐẦU ĐƯỜNG ĐUA</h2>
-
-            <div id="hostLeaderboardList" class="flex flex-col gap-3 mb-6">
-                <!-- Top 5 teams injected -->
-            </div>
-
+            <div id="hostLeaderboardList" class="flex flex-col gap-3 mb-6"></div>
             <div class="flex justify-center">
                 <button onclick="hostNextQuestion()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-lg shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-2">
                     <span>CÂU HỎI TIẾP THEO</span>
@@ -233,27 +205,17 @@
             </div>
         </section>
 
-        <!-- 4. HOST FINAL PODIUM & TEACHER STATISTICS (VINH DANH & THỐNG KÊ CHI TIẾT) -->
+        <!-- HOST FINAL SCREEN & STATISTICS -->
         <section id="hostFinalScreen" class="w-full max-w-4xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/40 my-auto hidden">
-            <!-- Top Header Podium -->
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-3">
-                    🏆
-                </div>
-                <h2 class="text-3xl sm:text-5xl font-racing font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-400 uppercase">
-                    CHUNG CUỘC ĐƯỜNG ĐUA
-                </h2>
-                <p id="hostFinalWinner" class="text-xl sm:text-2xl font-racing font-bold text-amber-300 mt-1">
-                    Chúc mừng Đội Vô Địch!
-                </p>
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-3">🏆</div>
+                <h2 class="text-3xl sm:text-5xl font-racing font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-400 uppercase">CHUNG CUỘC ĐƯỜNG ĐUA</h2>
+                <p id="hostFinalWinner" class="text-xl sm:text-2xl font-racing font-bold text-amber-300 mt-1">Chúc mừng Đội Vô Địch!</p>
             </div>
 
-            <!-- HIGHLIGHT ĐỘI NHANH NHẤT (SPEED KING AWARD) -->
             <div class="p-4 rounded-2xl bg-gradient-to-r from-orange-950/80 to-amber-950/80 border-2 border-orange-500/60 flex items-center justify-between mb-6 shadow-xl">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-orange-500 text-white flex items-center justify-center text-2xl shadow-lg">
-                        ⚡
-                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-orange-500 text-white flex items-center justify-center text-2xl shadow-lg">⚡</div>
                     <div>
                         <span class="text-[10px] uppercase font-black tracking-widest text-orange-400 block">DANH HIỆU TIA CHỚP PHẢN XẠ</span>
                         <h4 id="hostFastestTeamName" class="text-base sm:text-lg font-racing font-black text-white">Đội Tia Chớp</h4>
@@ -265,7 +227,6 @@
                 </div>
             </div>
 
-            <!-- BẢNG TỔNG HỢP CHI TIẾT DÀNH CHO GIÁO VIÊN -->
             <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 mb-6">
                 <h4 class="text-xs font-racing font-bold uppercase text-slate-400 mb-3 flex items-center justify-between">
                     <span>BẢNG THỐNG KÊ SƯ PHẠM CHI TIẾT</span>
@@ -283,9 +244,7 @@
                                 <th class="p-2.5 rounded-r-xl text-right">Tỉ Lệ</th>
                             </tr>
                         </thead>
-                        <tbody id="hostStatsTableBody" class="divide-y divide-slate-800 font-semibold">
-                            <!-- Injected dynamically -->
-                        </tbody>
+                        <tbody id="hostStatsTableBody" class="divide-y divide-slate-800 font-semibold"></tbody>
                     </table>
                 </div>
             </div>
@@ -297,70 +256,53 @@
             </div>
         </section>
 
-        <!-- ============================================================== -->
-        <!-- ==================== GIAO DIỆN HỌC SINH (GAMEPAD) ============= -->
-        <!-- ============================================================== -->
-
-        <!-- 1. PLAYER ENTER PIN & NAME -->
+        <!-- ==================== GIAO DIỆN HỌC SINH (GAMEPAD) ==================== -->
         <section id="playerJoinScreen" class="w-full max-w-md mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto hidden text-center">
-            <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-3 text-3xl">
-                📱
-            </div>
+            <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-3 text-3xl">📱</div>
             <h2 class="text-2xl font-racing font-black text-white">VÀO PHÒNG ĐUA</h2>
             <p class="text-xs text-slate-300 mb-6">Nhập mã PIN từ máy chiếu và đặt tên nhóm để tham gia</p>
 
             <div class="flex flex-col gap-3.5 text-left mb-6">
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Mã PIN 4 số</label>
-                    <input type="number" id="playerPinInput" placeholder="Ví dụ: 8899" 
-                        class="w-full px-4 py-3 rounded-2xl bg-slate-900 text-white font-racing font-bold text-xl border-2 border-slate-700 focus:border-amber-400 focus:outline-none text-center tracking-widest">
+                    <input type="text" id="playerPinInput" placeholder="Ví dụ: 8899" maxlength="6"
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-900 text-white font-racing font-bold text-2xl border-2 border-slate-700 focus:border-amber-400 focus:outline-none text-center tracking-widest">
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Tên Đội / Nhóm của bạn</label>
-                    <input type="text" id="playerNameInput" placeholder="Nhập tên nhóm (VD: Nhóm 1)..." 
+                    <input type="text" id="playerNameInput" placeholder="Nhập tên nhóm (VD: Nhóm 1)..." maxlength="20"
                         class="w-full px-4 py-3 rounded-2xl bg-slate-900 text-white font-bold text-base border-2 border-slate-700 focus:border-amber-400 focus:outline-none">
                 </div>
             </div>
 
-            <button onclick="playerJoinRoom()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-racing font-black text-lg shadow-lg hover:scale-[1.02] active:scale-95 transition">
-                THAM GIA NGAY
+            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-racing font-black text-lg shadow-lg hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2">
+                <span>THAM GIA NGAY</span>
             </button>
+            <p id="playerConnectStatusMsg" class="text-xs text-amber-400 mt-3 font-semibold hidden">Đang kết nối vào phòng...</p>
         </section>
 
-        <!-- 2. PLAYER WAITING IN LOBBY -->
+        <!-- PLAYER LOBBY -->
         <section id="playerLobbyScreen" class="w-full max-w-md mx-auto glass-panel p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto text-center hidden">
             <div class="text-6xl mb-4 animate-bounce">🏎️</div>
             <h3 class="text-xs font-racing uppercase text-slate-400 font-bold">BẠN ĐÃ THAM GIA THÀNH CÔNG</h3>
             <h2 id="playerMyNameDisplay" class="text-2xl font-racing font-black text-emerald-400 my-1">TÊN ĐỘI</h2>
-            <p class="text-xs text-slate-300 mt-4 leading-relaxed">
-                Hãy nhìn lên màn hình máy chiếu.<br>Cuộc đua sẽ bắt đầu khi giáo viên bấm nút Xuất phát!
-            </p>
+            <p class="text-xs text-slate-300 mt-4 leading-relaxed">Hãy nhìn lên màn hình máy chiếu.<br>Cuộc đua sẽ bắt đầu khi giáo viên bấm Xuất phát!</p>
         </section>
 
-        <!-- 3. PLAYER GAMEPAD (4 NÚT BẤM KAHOOT) -->
+        <!-- PLAYER GAMEPAD -->
         <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
             <div class="glass-panel p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-xs">
                 <span id="playerGameTeamName" class="font-racing font-black text-amber-400">ĐỘI CỦA BẠN</span>
                 <span id="playerGameScore" class="font-racing font-bold text-slate-300">0 Điểm</span>
             </div>
 
-            <!-- 4 Colored Action Buttons -->
             <div class="grid grid-cols-2 gap-3 h-[320px] sm:h-[380px]" id="playerButtonGrid">
-                <button onclick="playerSendAnswer(0)" class="btn-kahoot-red rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">
-                    ▲
-                </button>
-                <button onclick="playerSendAnswer(1)" class="btn-kahoot-blue rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">
-                    ◆
-                </button>
-                <button onclick="playerSendAnswer(2)" class="btn-kahoot-yellow rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">
-                    ●
-                </button>
-                <button onclick="playerSendAnswer(3)" class="btn-kahoot-green rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">
-                    ■
-                </button>
+                <button onclick="playerSendAnswer(0)" class="btn-kahoot-red rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">▲</button>
+                <button onclick="playerSendAnswer(1)" class="btn-kahoot-blue rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">◆</button>
+                <button onclick="playerSendAnswer(2)" class="btn-kahoot-yellow rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">●</button>
+                <button onclick="playerSendAnswer(3)" class="btn-kahoot-green rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">■</button>
             </div>
 
-            <!-- Player Submitted State -->
             <div id="playerSubmittedOverlay" class="glass-panel p-6 rounded-3xl border border-slate-700 text-center hidden">
                 <div class="text-4xl mb-2">⏳</div>
                 <h4 class="font-racing font-black text-lg text-white">ĐÃ GỬI ĐÁP ÁN!</h4>
@@ -368,7 +310,7 @@
             </div>
         </section>
 
-        <!-- 4. PLAYER ROUND FEEDBACK -->
+        <!-- PLAYER FEEDBACK -->
         <section id="playerFeedbackScreen" class="w-full max-w-md mx-auto glass-panel p-8 rounded-3xl shadow-2xl text-center my-auto hidden">
             <div id="playerFeedbackIcon" class="text-6xl mb-2">🎉</div>
             <h2 id="playerFeedbackTitle" class="text-2xl sm:text-3xl font-racing font-black text-white mb-1">CHÍNH XÁC!</h2>
@@ -378,8 +320,135 @@
 
     </main>
 
-    <!-- AUDIO SYNTHESIZER (Không cần file ngoài) -->
+    <!-- PEERJS & GAMEPAD CONTROLLER LOGIC -->
     <script>
+        // CẤU HÌNH WEBRTC GOOGLE STUN SERVERS CHỐNG CHẶN MẠNG TRƯỜNG HỌC / 4G
+        const PEER_CONFIG = {
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    { urls: 'stun:stun3.l.google.com:19302' },
+                    { urls: 'stun:stun4.l.google.com:19302' }
+                ],
+                sdpSemantics: 'unified-plan'
+            }
+        };
+
+        const QUESTIONS_DATA = [
+            {
+                category: "Lý thuyết Vận tốc",
+                title: "Tính chất nào sau đây là của vận tốc nhưng KHÔNG PHẢI tính chất của tốc độ?",
+                options: [
+                    "Đặc trưng cho sự nhanh chậm",
+                    "Có đơn vị là km/h hoặc m/s",
+                    "Không thể có độ lớn bằng 0",
+                    "Có hướng (phương và chiều) xác định"
+                ],
+                correct: 3
+            },
+            {
+                category: "Dụng cụ đo",
+                title: "Đồng hồ đo tốc độ (tốc kế) trên xe máy, ô tô cho biết đại lượng nào?",
+                options: [
+                    "Vận tốc tức thời",
+                    "Tốc độ tức thời",
+                    "Vận tốc trung bình",
+                    "Tốc độ trung bình"
+                ],
+                correct: 1
+            },
+            {
+                category: "Đặc điểm Vận tốc",
+                title: "Phát biểu nào sau đây về vận tốc và tốc độ là ĐÚNG?",
+                options: [
+                    "Độ lớn vận tốc trung bình luôn bằng tốc độ trung bình",
+                    "Độ lớn vận tốc tức thời luôn bằng tốc độ tức thời",
+                    "Vận tốc trung bình luôn luôn bằng tốc độ trung bình",
+                    "Vận tốc tức thời luôn có giá trị dương"
+                ],
+                correct: 1
+            },
+            {
+                category: "Tổng hợp Vận tốc",
+                title: "Một người bơi trong nước yên lặng với 1 m/s. Nếu bơi xuôi dòng nước chảy 1 m/s thì vận tốc tối đa đạt được là:",
+                options: [
+                    "0 m/s",
+                    "1 m/s",
+                    "2 m/s",
+                    "-2 m/s"
+                ],
+                correct: 2
+            },
+            {
+                category: "Bài toán Chuyển động",
+                title: "Ca nô chạy trong nước yên lặng đạt 21,5 km/h. Xuôi dòng 1 giờ rồi quay lại mất 2 giờ về vị trí cũ. Vận tốc dòng nước là:",
+                options: [
+                    "7,17 km/h",
+                    "21,5 km/h",
+                    "30,7 km/h",
+                    "17 km/h"
+                ],
+                correct: 0
+            },
+            {
+                category: "Độ dịch chuyển",
+                title: "Một người đi từ nhà đến chợ cách 300 m, đến công viên cách 200 m rồi quay về nhà. Độ dịch chuyển tổng cộng là:",
+                options: [
+                    "1000 m",
+                    "600 m",
+                    "500 m",
+                    "0 m"
+                ],
+                correct: 3
+            },
+            {
+                category: "Vận tốc tương đối",
+                title: "Hai xe chạy cùng chiều trên đường thẳng với vận tốc 120 km/h và 80 km/h. Vận tốc xe 1 so với xe 2 là:",
+                options: [
+                    "40 km/h",
+                    "200 km/h",
+                    "-40 km/h",
+                    "100 km/h"
+                ],
+                correct: 0
+            },
+            {
+                category: "Thời gian chuyển động",
+                title: "Máy bay bay với tốc độ 800 km/h trên quãng đường 1400 km. Thời gian bay là:",
+                options: [
+                    "1 giờ 20 phút",
+                    "1 giờ 30 phút",
+                    "1 giờ 45 phút",
+                    "2 giờ"
+                ],
+                correct: 2
+            },
+            {
+                category: "Đổi đơn vị tốc độ",
+                title: "Tốc độ 72 km/h tương ứng với bao nhiêu mét trên giây (m/s)?",
+                options: [
+                    "15 m/s",
+                    "20 m/s",
+                    "25 m/s",
+                    "30 m/s"
+                ],
+                correct: 1
+            },
+            {
+                category: "Tổng hợp vuông góc",
+                title: "Ca nô chạy hướng Đông với 10 m/s, nước chảy hướng Nam với 10 m/s. Vận tốc của ca nô đối với bờ là:",
+                options: [
+                    "20 m/s",
+                    "10√2 m/s",
+                    "0 m/s",
+                    "15 m/s"
+                ],
+                correct: 1
+            }
+        ];
+
         let audioCtx = null;
         let sfxEnabled = true;
 
@@ -429,135 +498,15 @@
             sfxEnabled = !sfxEnabled;
             document.getElementById('sfxIcon').className = sfxEnabled ? "fa-solid fa-music text-amber-400" : "fa-solid fa-volume-xmark text-slate-500";
         }
-    </script>
 
-    <!-- NGÂN HÀNG CÂU HỎI VẬT LÝ 10 (CHỦ ĐỀ 5: TỐC ĐỘ & VẬN TỐC) -->
-    <script>
-        const QUESTIONS_DATA = [
-            {
-                category: "Lý thuyết Vận tốc",
-                title: "Tính chất nào sau đây là của vận tốc nhưng KHÔNG PHẢI tính chất của tốc độ?",
-                options: [
-                    "Đặc trưng cho sự nhanh chậm",
-                    "Có đơn vị là km/h hoặc m/s",
-                    "Không thể có độ lớn bằng 0",
-                    "Có hướng (phương và chiều) xác định"
-                ],
-                correct: 3 // D
-            },
-            {
-                category: "Dụng cụ đo",
-                title: "Đồng hồ đo tốc độ (tốc kế) trên xe máy, ô tô cho biết đại lượng nào?",
-                options: [
-                    "Vận tốc tức thời",
-                    "Tốc độ tức thời",
-                    "Vận tốc trung bình",
-                    "Tốc độ trung bình"
-                ],
-                correct: 1 // B
-            },
-            {
-                category: "Đặc điểm Vận tốc",
-                title: "Phát biểu nào sau đây về vận tốc và tốc độ là ĐÚNG?",
-                options: [
-                    "Độ lớn vận tốc trung bình luôn bằng tốc độ trung bình",
-                    "Độ lớn vận tốc tức thời luôn bằng tốc độ tức thời",
-                    "Vận tốc trung bình luôn luôn bằng tốc độ trung bình",
-                    "Vận tốc tức thời luôn có giá trị dương"
-                ],
-                correct: 1 // B
-            },
-            {
-                category: "Tổng hợp Vận tốc",
-                title: "Một người bơi trong nước yên lặng với 1 m/s. Nếu bơi xuôi dòng nước chảy 1 m/s thì vận tốc tối đa đạt được là:",
-                options: [
-                    "0 m/s",
-                    "1 m/s",
-                    "2 m/s",
-                    "-2 m/s"
-                ],
-                correct: 2 // C (1+1=2)
-            },
-            {
-                category: "Bài toán Chuyển động",
-                title: "Ca nô chạy trong nước yên lặng đạt 21,5 km/h. Xuôi dòng 1 giờ rồi quay lại mất 2 giờ về vị trí cũ. Vận tốc dòng nước là:",
-                options: [
-                    "7,17 km/h",
-                    "21,5 km/h",
-                    "30,7 km/h",
-                    "17 km/h"
-                ],
-                correct: 0 // A
-            },
-            {
-                category: "Độ dịch chuyển",
-                title: "Một người đi từ nhà đến chợ cách 300 m, đến công viên cách 200 m rồi quay về nhà. Độ dịch chuyển tổng cộng là:",
-                options: [
-                    "1000 m",
-                    "600 m",
-                    "500 m",
-                    "0 m"
-                ],
-                correct: 3 // D
-            },
-            {
-                category: "Vận tốc tương đối",
-                title: "Hai xe chạy cùng chiều trên đường thẳng với vận tốc 120 km/h và 80 km/h. Vận tốc xe 1 so với xe 2 là:",
-                options: [
-                    "40 km/h",
-                    "200 km/h",
-                    "-40 km/h",
-                    "100 km/h"
-                ],
-                correct: 0 // A (120-80=40)
-            },
-            {
-                category: "Thời gian chuyển động",
-                title: "Máy bay bay với tốc độ 800 km/h trên quãng đường 1400 km. Thời gian bay là:",
-                options: [
-                    "1 giờ 20 phút",
-                    "1 giờ 30 phút",
-                    "1 giờ 45 phút",
-                    "2 giờ"
-                ],
-                correct: 2 // C (1.75h)
-            },
-            {
-                category: "Đổi đơn vị tốc độ",
-                title: "Tốc độ 72 km/h tương ứng với bao nhiêu mét trên giây (m/s)?",
-                options: [
-                    "15 m/s",
-                    "20 m/s",
-                    "25 m/s",
-                    "30 m/s"
-                ],
-                correct: 1 // B (72 / 3.6 = 20)
-            },
-            {
-                category: "Tổng hợp vuông góc",
-                title: "Ca nô chạy hướng Đông với 10 m/s, nước chảy hướng Nam với 10 m/s. Vận tốc của ca nô đối với bờ là:",
-                options: [
-                    "20 m/s",
-                    "10√2 m/s",
-                    "0 m/s",
-                    "15 m/s"
-                ],
-                correct: 1 // B
-            }
-        ];
-    </script>
-
-    <!-- MULTIPLAYER REALTIME CORE LOGIC (PEERJS) -->
-    <script>
         let isHost = false;
         let peer = null;
         let hostConn = null;
         let roomPin = "";
-        let hostConnections = {}; // id -> conn
+        let hostConnections = {};
 
-        // State Machine
         let hostState = {
-            players: {}, // id -> { name, score, streak, correctCount, totalResponseTime, questionsAnswered, currentAnswer, responseTime }
+            players: {},
             currentQIndex: 0,
             timer: 20,
             timerInterval: null,
@@ -576,22 +525,23 @@
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
         }
 
-        // ==================== HOST LOGIC ====================
+        // ==================== HOST ====================
         function initHostMode() {
             isHost = true;
             hideAllScreens();
             document.getElementById('hostLobbyScreen').classList.remove('hidden');
 
-            // Tạo mã PIN 4 số ngẫu nhiên
             roomPin = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById('hostPinDisplay').innerText = roomPin;
+            const hostPeerId = "ddkt" + roomPin;
 
-            // Khởi tạo Peer Host: ID có tiền tố cố định theo mã PIN
-            const hostPeerId = "duongdua_pin_" + roomPin;
-            peer = new Peer(hostPeerId);
+            // Khởi tạo Peer với STUN configuration
+            peer = new Peer(hostPeerId, PEER_CONFIG);
 
             peer.on('open', (id) => {
-                console.log("Host Peer Sẵn sàng:", id);
+                document.getElementById('hostPinDisplay').innerText = roomPin;
+                document.getElementById('btnCopyLink').classList.remove('hidden');
+                document.getElementById('hostStatusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
+                document.getElementById('emptyPlayerMsg').innerText = "Đang chờ học sinh nhập mã PIN " + roomPin + " và tên đội...";
             });
 
             peer.on('connection', (conn) => {
@@ -608,7 +558,11 @@
             });
 
             peer.on('error', (err) => {
-                console.warn("Peer error, thử tạo lại...", err);
+                console.error("Host Peer error:", err);
+                if (err.type === 'unavailable-id') {
+                    // Trùng ID, tự đổi mã PIN mới
+                    initHostMode();
+                }
             });
         }
 
@@ -645,7 +599,6 @@
                     if (isCorrect) {
                         p.streak++;
                         p.correctCount++;
-                        // Điểm tốc độ: tối đa 1000 điểm, giảm dần theo thời gian phản xạ
                         const speedFactor = Math.max(0.1, (hostState.timer / 20));
                         const gained = Math.round(500 + 500 * speedFactor + (p.streak >= 2 ? p.streak * 30 : 0));
                         p.score += gained;
@@ -657,7 +610,6 @@
 
                     updateHostAnsweredCounter();
 
-                    // Nếu tất cả các đội đều đã nộp bài trước khi hết giờ
                     const totalPlayers = Object.keys(hostState.players).length;
                     const answeredPlayers = Object.values(hostState.players).filter(pl => pl.currentAnswer !== null).length;
                     if (answeredPlayers >= totalPlayers && totalPlayers > 0) {
@@ -711,7 +663,6 @@
                 document.getElementById(`optText${idx}`).innerText = opt;
             });
 
-            // Reset player answers
             Object.values(hostState.players).forEach(p => {
                 p.currentAnswer = null;
             });
@@ -722,7 +673,6 @@
 
             broadcastToPlayers({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
 
-            // Start 20s countdown
             hostState.timer = 20;
             hostState.startTime = Date.now();
             document.getElementById('hostTimerText').innerText = hostState.timer;
@@ -793,7 +743,6 @@
                 document.getElementById('hostFinalWinner').innerText = `🏆 CHÚC MỪNG ${sorted[0].name.toUpperCase()} ĐÃ VÔ ĐỊCH!`;
             }
 
-            // TÌM ĐỘI CÓ TỐC ĐỘ PHẢN XẠ NHANH NHẤT
             let fastestTeam = null;
             let minAvgTime = 9999;
 
@@ -810,7 +759,6 @@
                 document.getElementById('hostFastestTimeVal').innerText = `${minAvgTime.toFixed(2)} giây / câu`;
             }
 
-            // BẢNG THỐNG KÊ CHI TIẾT
             const tbody = document.getElementById('hostStatsTableBody');
             tbody.innerHTML = '';
 
@@ -842,16 +790,15 @@
         function copyJoinLink() {
             const url = window.location.href.split('?')[0] + `?pin=${roomPin}`;
             navigator.clipboard.writeText(url);
-            alert("Đã sao chép link tham gia phòng đua: " + url);
+            alert("Đã sao chép đường dẫn: " + url);
         }
 
-        // ==================== PLAYER LOGIC ====================
+        // ==================== PLAYER ====================
         function initPlayerMode() {
             isHost = false;
             hideAllScreens();
             document.getElementById('playerJoinScreen').classList.remove('hidden');
 
-            // Tự động điền PIN nếu có trên URL (?pin=1234)
             const params = new URLSearchParams(window.location.search);
             if (params.get('pin')) {
                 document.getElementById('playerPinInput').value = params.get('pin');
@@ -861,31 +808,57 @@
         function playerJoinRoom() {
             const pin = document.getElementById('playerPinInput').value.trim();
             const name = document.getElementById('playerNameInput').value.trim();
+            const statusMsg = document.getElementById('playerConnectStatusMsg');
+            const submitBtn = document.getElementById('btnPlayerJoinSubmit');
 
             if (!pin || !name) {
-                alert("Vui lòng nhập đầy đủ mã PIN và Tên Đội!");
+                alert("Vui lòng nhập đầy đủ Mã PIN và Tên Đội!");
                 return;
             }
+
+            statusMsg.classList.remove('hidden');
+            statusMsg.innerText = "Đang kết nối tới máy chiếu...";
+            submitBtn.disabled = true;
 
             playerState.myName = name;
             document.getElementById('playerMyNameDisplay').innerText = name;
             document.getElementById('playerGameTeamName').innerText = name;
 
-            peer = new Peer();
+            // Khởi tạo Peer của Player kèm cấu hình STUN
+            peer = new Peer(PEER_CONFIG);
+
             peer.on('open', (id) => {
                 playerState.myId = id;
-                const hostPeerId = "duongdua_pin_" + pin;
-                hostConn = peer.connect(hostPeerId);
+                const hostPeerId = "ddkt" + pin;
+
+                // Kết nối với cờ reliable: true
+                hostConn = peer.connect(hostPeerId, { reliable: true });
+
+                const connTimeout = setTimeout(() => {
+                    if (!hostConn || !hostConn.open) {
+                        statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mạng bị chặn. Vui lòng kiểm tra lại mã PIN!";
+                        submitBtn.disabled = false;
+                    }
+                }, 6000);
 
                 hostConn.on('open', () => {
+                    clearTimeout(connTimeout);
+                    statusMsg.innerText = "✅ Kết nối thành công! Đang vào phòng...";
                     hostConn.send({ type: 'PLAYER_JOIN', name: name });
                 });
 
                 hostConn.on('data', handlePlayerIncomingData);
 
-                hostConn.on('error', () => {
-                    alert("Không tìm thấy phòng với mã PIN này. Vui lòng kiểm tra lại màn hình máy chiếu!");
+                hostConn.on('error', (err) => {
+                    clearTimeout(connTimeout);
+                    statusMsg.innerText = "❌ Lỗi kết nối. Vui lòng thử lại!";
+                    submitBtn.disabled = false;
                 });
+            });
+
+            peer.on('error', (err) => {
+                statusMsg.innerText = "❌ Lỗi kết nối mạng: " + err.type;
+                submitBtn.disabled = false;
             });
         }
 
@@ -948,7 +921,6 @@
             }
         }
 
-        // Auto-detect URL parameter to open Player Mode directly
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
             if (params.get('pin')) {
