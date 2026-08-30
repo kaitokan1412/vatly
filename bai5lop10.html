@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,900;1,700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- MQTT WebSocket Client (Thay thế WebRTC, xuyên tường lửa 4G/Wi-Fi) -->
+    <!-- MQTT WebSocket Client (Xuyên tường lửa 4G / Wi-Fi trường học) -->
     <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -29,7 +29,7 @@
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
-        /* Kahoot 4-button layout styles */
+        /* Kahoot 4-Button Color Schemes */
         .btn-kahoot-red {
             background: linear-gradient(135deg, #e11d48, #be123c);
             box-shadow: 0 6px 0 #881337;
@@ -50,6 +50,10 @@
             transform: translateY(4px);
             box-shadow: 0 2px 0 rgba(0,0,0,0.4);
         }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen flex flex-col selection:bg-amber-500 selection:text-black">
@@ -66,7 +70,7 @@
                 </h1>
                 <p class="text-[10px] md:text-xs text-slate-400 font-bold flex items-center gap-1.5">
                     <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Vật Lý 10 • Chủ Đề 5: Tốc Độ & Vận Tốc
+                    Vật Lý 10 • Chủ Đề 5: Tốc Độ & Vận Tốc (100% Trắc Nghiệm)
                 </p>
             </div>
         </div>
@@ -84,13 +88,13 @@
 
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl w-full mx-auto justify-center">
 
-        <!-- 0. MÀN HÌNH CHỌN CHẾ ĐỘ -->
+        <!-- 0. CHỌN CHẾ ĐỘ THAM GIA -->
         <section id="roleSelectScreen" class="w-full max-w-xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto">
             <span class="px-4 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-widest border border-amber-500/40 inline-flex items-center gap-1.5">
-                <i class="fa-solid fa-cloud-bolt text-amber-400"></i> Cloud Real-Time Network
+                <i class="fa-solid fa-cloud-bolt text-amber-400"></i> Cloud Real-Time Live Quiz
             </span>
             <h2 class="text-2xl sm:text-4xl font-racing font-black mt-3 text-white">CHỌN CHẾ ĐỘ THAM GIA</h2>
-            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh mở điện thoại nhập mã PIN để vào đua!</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh quét mã bằng điện thoại để vào đua!</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button onclick="initHostMode()" class="p-6 rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-500 hover:to-purple-600 border-2 border-indigo-400/50 shadow-xl transition transform hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 group">
@@ -112,7 +116,7 @@
         </section>
 
         <!-- ==================== GIAO DIỆN HOST (MÁY CHIẾU) ==================== -->
-        <!-- 1. HOST LOBBY -->
+        <!-- 1. HOST LOBBY (PHÒNG CHỜ) -->
         <section id="hostLobbyScreen" class="w-full max-w-4xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto text-center hidden">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
                 <div class="text-left">
@@ -150,7 +154,7 @@
             </div>
         </section>
 
-        <!-- 2. HOST QUESTION SCREEN -->
+        <!-- 2. HOST QUESTION SCREEN (CÂU HỎI TRÊN MÁY CHIẾU) -->
         <section id="hostQuestionScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 hidden">
             <div class="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
@@ -192,7 +196,7 @@
             </div>
         </section>
 
-        <!-- 3. HOST ROUND LEADERBOARD -->
+        <!-- 3. HOST LEADERBOARD GIỮA CÁC CÂU -->
         <section id="hostLeaderboardScreen" class="w-full max-w-3xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto hidden">
             <span class="px-4 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black uppercase tracking-widest border border-indigo-500/40 inline-flex items-center gap-1.5 mb-2">
                 <i class="fa-solid fa-ranking-star text-amber-400"></i> BẢNG ĐIỂM TẠM THỜI
@@ -207,8 +211,8 @@
             </div>
         </section>
 
-        <!-- 4. HOST FINAL SCREEN & STATISTICS -->
-        <section id="hostFinalScreen" class="w-full max-w-4xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/40 my-auto hidden">
+        <!-- 4. HOST FINAL SCREEN & THỐNG KÊ CHI TIẾT SƯ PHẠM -->
+        <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/40 my-6 hidden">
             <div class="text-center mb-6">
                 <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-3">🏆</div>
                 <h2 class="text-3xl sm:text-5xl font-racing font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-400 uppercase">CHUNG CUỘC ĐƯỜNG ĐUA</h2>
@@ -230,10 +234,10 @@
                 </div>
             </div>
 
-            <!-- BẢNG THỐNG KÊ CHI TIẾT SƯ PHẠM -->
+            <!-- BẢNG 1: TỔNG HỢP XẾP HẠNG -->
             <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 mb-6">
                 <h4 class="text-xs font-racing font-bold uppercase text-slate-400 mb-3 flex items-center justify-between">
-                    <span>BẢNG THỐNG KÊ SƯ PHẠM CHI TIẾT</span>
+                    <span>1. BẢNG XẾP HẠNG & TỈ LỆ CHÍNH XÁC</span>
                     <span class="text-[10px] text-slate-500">Độ chính xác + Tốc độ</span>
                 </h4>
                 <div class="overflow-x-auto">
@@ -251,6 +255,38 @@
                         <tbody id="hostStatsTableBody" class="divide-y divide-slate-800 font-semibold"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- BẢNG 2: MA TRẬN ĐÚNG / SAI TỪNG CÂU HỎI THEO ĐỘI -->
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 mb-6">
+                <h4 class="text-xs font-racing font-bold uppercase text-slate-400 mb-3 flex items-center justify-between">
+                    <span>2. MA TRẬN KẾT QUẢ ĐÚNG / SAI CỦA TỪNG ĐỘI</span>
+                    <span class="text-[10px] text-slate-400 flex items-center gap-2">
+                        <span class="inline-flex items-center text-emerald-400 font-bold">✓ Đúng</span>
+                        <span class="inline-flex items-center text-rose-400 font-bold">✗ Sai</span>
+                        <span class="inline-flex items-center text-slate-500 font-bold">- Hết giờ</span>
+                    </span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-center text-xs">
+                        <thead class="bg-slate-800/80 text-slate-300 text-[11px] uppercase font-racing">
+                            <tr id="hostMatrixHeaderRow">
+                                <th class="p-2.5 text-left rounded-l-xl">Tên Đội</th>
+                                <th class="p-2.5 rounded-r-xl">Tổng Đúng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostMatrixTableBody" class="divide-y divide-slate-800 font-bold"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BẢNG 3: PHÂN TÍCH CHI TIẾT TỪNG CÂU HỎI -->
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 mb-6">
+                <h4 class="text-xs font-racing font-bold uppercase text-slate-400 mb-3 flex items-center justify-between">
+                    <span>3. BẢNG PHÂN TÍCH CHI TIẾT THEO TỪNG CÂU HỎI</span>
+                    <span class="text-[10px] text-slate-500">Giúp giáo viên củng cố bài giảng</span>
+                </h4>
+                <div id="hostQuestionAnalysisContainer" class="flex flex-col gap-3"></div>
             </div>
 
             <div class="flex justify-center gap-3">
@@ -327,71 +363,121 @@
 
     <!-- CORE SYSTEM SCRIPT -->
     <script>
-        // NGÂN HÀNG CÂU HỎI VẬT LÝ 10
+        // NGÂN HÀNG CÂU HỎI TRẮC NGHIỆM 4 LỰA CHỌN (A, B, C, D)
         const QUESTIONS_DATA = [
             {
                 category: "Lý thuyết Vận tốc",
                 title: "Tính chất nào sau đây là của vận tốc nhưng KHÔNG PHẢI tính chất của tốc độ?",
-                options: ["Đặc trưng cho sự nhanh chậm", "Có đơn vị là km/h hoặc m/s", "Không thể có độ lớn bằng 0", "Có hướng (phương và chiều) xác định"],
-                correct: 3
+                options: [
+                    "Đặc trưng cho sự nhanh chậm của chuyển động",
+                    "Có đơn vị là km/h hoặc m/s",
+                    "Không thể có độ lớn bằng 0",
+                    "Có hướng (phương và chiều) xác định"
+                ],
+                correct: 3 // D
             },
             {
                 category: "Dụng cụ đo",
-                title: "Đồng hồ đo tốc độ (tốc kế) trên xe máy, ô tô cho biết đại lượng nào?",
-                options: ["Vận tốc tức thời", "Tốc độ tức thời", "Vận tốc trung bình", "Tốc độ trung bình"],
-                correct: 1
+                title: "Đồng hồ đo tốc độ (tốc kế) gắn trên xe máy, ô tô cho biết đại lượng nào?",
+                options: [
+                    "Vận tốc tức thời",
+                    "Tốc độ tức thời",
+                    "Vận tốc trung bình",
+                    "Tốc độ trung bình"
+                ],
+                correct: 1 // B
             },
             {
                 category: "Đặc điểm Vận tốc",
                 title: "Phát biểu nào sau đây về vận tốc và tốc độ là ĐÚNG?",
-                options: ["Độ lớn vận tốc trung bình luôn bằng tốc độ trung bình", "Độ lớn vận tốc tức thời luôn bằng tốc độ tức thời", "Vận tốc trung bình luôn luôn bằng tốc độ trung bình", "Vận tốc tức thời luôn có giá trị dương"],
-                correct: 1
+                options: [
+                    "Độ lớn vận tốc trung bình luôn bằng tốc độ trung bình",
+                    "Độ lớn vận tốc tức thời luôn bằng tốc độ tức thời",
+                    "Vận tốc trung bình luôn luôn bằng tốc độ trung bình",
+                    "Vận tốc tức thời luôn có giá trị dương"
+                ],
+                correct: 1 // B
             },
             {
                 category: "Tổng hợp Vận tốc",
                 title: "Một người bơi trong nước yên lặng với 1 m/s. Nếu bơi xuôi dòng nước chảy 1 m/s thì vận tốc tối đa đạt được là:",
-                options: ["0 m/s", "1 m/s", "2 m/s", "-2 m/s"],
-                correct: 2
+                options: [
+                    "0 m/s",
+                    "1 m/s",
+                    "2 m/s",
+                    "-2 m/s"
+                ],
+                correct: 2 // C
             },
             {
-                category: "Bài toán Chuyển động",
+                category: "Bài toán Chuyển động trên sông",
                 title: "Ca nô chạy trong nước yên lặng đạt 21,5 km/h. Xuôi dòng 1 giờ rồi quay lại mất 2 giờ về vị trí cũ. Vận tốc dòng nước là:",
-                options: ["7,17 km/h", "21,5 km/h", "30,7 km/h", "17 km/h"],
-                correct: 0
+                options: [
+                    "7,17 km/h",
+                    "21,5 km/h",
+                    "30,7 km/h",
+                    "17 km/h"
+                ],
+                correct: 0 // A
             },
             {
                 category: "Độ dịch chuyển",
                 title: "Một người đi từ nhà đến chợ cách 300 m, đến công viên cách 200 m rồi quay về nhà. Độ dịch chuyển tổng cộng là:",
-                options: ["1000 m", "600 m", "500 m", "0 m"],
-                correct: 3
+                options: [
+                    "1000 m",
+                    "600 m",
+                    "500 m",
+                    "0 m"
+                ],
+                correct: 3 // D
             },
             {
                 category: "Vận tốc tương đối",
                 title: "Hai xe chạy cùng chiều trên đường thẳng với vận tốc 120 km/h và 80 km/h. Vận tốc xe 1 so với xe 2 là:",
-                options: ["40 km/h", "200 km/h", "-40 km/h", "100 km/h"],
-                correct: 0
+                options: [
+                    "40 km/h",
+                    "200 km/h",
+                    "-40 km/h",
+                    "100 km/h"
+                ],
+                correct: 0 // A
             },
             {
                 category: "Thời gian chuyển động",
                 title: "Máy bay bay với tốc độ 800 km/h trên quãng đường 1400 km. Thời gian bay là:",
-                options: ["1 giờ 20 phút", "1 giờ 30 phút", "1 giờ 45 phút", "2 giờ"],
-                correct: 2
+                options: [
+                    "1 giờ 20 phút",
+                    "1 giờ 30 phút",
+                    "1 giờ 45 phút",
+                    "2 giờ"
+                ],
+                correct: 2 // C
             },
             {
                 category: "Đổi đơn vị tốc độ",
                 title: "Tốc độ 72 km/h tương ứng với bao nhiêu mét trên giây (m/s)?",
-                options: ["15 m/s", "20 m/s", "25 m/s", "30 m/s"],
-                correct: 1
+                options: [
+                    "15 m/s",
+                    "20 m/s",
+                    "25 m/s",
+                    "30 m/s"
+                ],
+                correct: 1 // B
             },
             {
                 category: "Tổng hợp vuông góc",
                 title: "Ca nô chạy hướng Đông với 10 m/s, nước chảy hướng Nam với 10 m/s. Vận tốc của ca nô đối với bờ là:",
-                options: ["20 m/s", "10√2 m/s", "0 m/s", "15 m/s"],
-                correct: 1
+                options: [
+                    "20 m/s",
+                    "10√2 m/s",
+                    "0 m/s",
+                    "15 m/s"
+                ],
+                correct: 1 // B
             }
         ];
 
-        // ÂM THANH HIỆU ỨNG TỰ ĐỘNG
+        // HỆ THỐNG ÂM THANH TỰ ĐỘNG
         let audioCtx = null;
         let sfxEnabled = true;
 
@@ -443,7 +529,6 @@
         }
 
         // ================= MQTT CLOUD WEBSOCKET CLIENT =================
-        // Dùng cổng WSS tiêu chuẩn (8084) chạy mượt mà trên 4G/5G và mọi mạng trường học
         const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
         
         let mqttClient = null;
@@ -483,7 +568,6 @@
 
             mqttClient.on('connect', () => {
                 console.log("Host MQTT Đã kết nối thành công!");
-                // Host lắng nghe tin nhắn gửi đến phòng từ học sinh
                 const playerTopic = `duongdua/${roomPin}/player`;
                 mqttClient.subscribe(playerTopic, { qos: 1 });
             });
@@ -515,12 +599,12 @@
                         totalResponseTime: 0,
                         questionsAnswered: 0,
                         currentAnswer: null,
-                        responseTime: 0
+                        responseTime: 0,
+                        answerHistory: {}
                     };
                     Sound.tick();
                     updateHostLobbyUI();
                 }
-                // Phản hồi xác nhận cho điện thoại học sinh
                 hostPublish({ type: 'JOIN_ACK', playerId: data.playerId, roomPin: roomPin });
             }
             else if (data.type === 'PLAYER_ANSWER') {
@@ -534,6 +618,12 @@
 
                     const q = QUESTIONS_DATA[hostState.currentQIndex];
                     const isCorrect = (data.choice === q.correct);
+
+                    p.answerHistory[hostState.currentQIndex] = {
+                        choice: data.choice,
+                        isCorrect: isCorrect,
+                        time: timeTaken
+                    };
 
                     if (isCorrect) {
                         p.streak++;
@@ -638,6 +728,15 @@
 
                 if (hostState.timer <= 0) {
                     clearInterval(hostState.timerInterval);
+                    Object.values(hostState.players).forEach(p => {
+                        if (p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
+                            p.answerHistory[hostState.currentQIndex] = {
+                                choice: null,
+                                isCorrect: false,
+                                time: 20
+                            };
+                        }
+                    });
                     hostShowLeaderboard();
                 }
             }, 1000);
@@ -696,6 +795,7 @@
                 document.getElementById('hostFinalWinner').innerText = `🏆 CHÚC MỪNG ${sorted[0].name.toUpperCase()} ĐÃ VÔ ĐỊCH!`;
             }
 
+            // TÌM ĐỘI NHANH NHẤT
             let fastestTeam = null;
             let minAvgTime = 9999;
 
@@ -712,8 +812,9 @@
                 document.getElementById('hostFastestTimeVal').innerText = `${minAvgTime.toFixed(2)} giây / câu`;
             }
 
-            const tbody = document.getElementById('hostStatsTableBody');
-            tbody.innerHTML = '';
+            // 1. BẢNG TỔNG HỢP XẾP HẠNG
+            const tbodyStats = document.getElementById('hostStatsTableBody');
+            tbodyStats.innerHTML = '';
 
             sorted.forEach((p, idx) => {
                 const avgSpeed = p.questionsAnswered > 0 ? (p.totalResponseTime / p.questionsAnswered).toFixed(2) : "0.00";
@@ -728,7 +829,101 @@
                     <td class="p-2.5 text-center font-mono text-cyan-300">${avgSpeed}s</td>
                     <td class="p-2.5 text-right font-bold text-emerald-400">${acc}%</td>
                 `;
-                tbody.appendChild(tr);
+                tbodyStats.appendChild(tr);
+            });
+
+            // 2. MA TRẬN ĐÚNG / SAI TỪNG CÂU HỎI
+            const matrixHeaderRow = document.getElementById('hostMatrixHeaderRow');
+            matrixHeaderRow.innerHTML = '<th class="p-2.5 text-left rounded-l-xl">Tên Đội</th>';
+            QUESTIONS_DATA.forEach((_, qIdx) => {
+                matrixHeaderRow.innerHTML += `<th class="p-2.5 text-center">C${qIdx + 1}</th>`;
+            });
+            matrixHeaderRow.innerHTML += '<th class="p-2.5 text-center rounded-r-xl">Tổng Đúng</th>';
+
+            const matrixTableBody = document.getElementById('hostMatrixTableBody');
+            matrixTableBody.innerHTML = '';
+
+            sorted.forEach((p) => {
+                const tr = document.createElement('tr');
+                let rowHtml = `<td class="p-2.5 text-left font-bold text-white">${p.name}</td>`;
+                
+                QUESTIONS_DATA.forEach((_, qIdx) => {
+                    const ans = p.answerHistory[qIdx];
+                    if (!ans || ans.choice === null) {
+                        rowHtml += `<td class="p-2 text-center text-slate-500 font-bold">-</td>`;
+                    } else if (ans.isCorrect) {
+                        rowHtml += `<td class="p-2 text-center"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs">✓</span></td>`;
+                    } else {
+                        rowHtml += `<td class="p-2 text-center"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 text-xs">✗</span></td>`;
+                    }
+                });
+
+                rowHtml += `<td class="p-2.5 text-center font-racing text-amber-300">${p.correctCount}/${QUESTIONS_DATA.length}</td>`;
+                tr.innerHTML = rowHtml;
+                matrixTableBody.appendChild(tr);
+            });
+
+            // 3. BẢNG PHÂN TÍCH CHI TIẾT TỪNG CÂU HỎI
+            const analysisContainer = document.getElementById('hostQuestionAnalysisContainer');
+            analysisContainer.innerHTML = '';
+
+            const letterMap = ["A", "B", "C", "D"];
+
+            QUESTIONS_DATA.forEach((q, qIdx) => {
+                const correctTeams = [];
+                const wrongTeams = [];
+
+                sorted.forEach(p => {
+                    const ans = p.answerHistory[qIdx];
+                    if (ans && ans.isCorrect) {
+                        correctTeams.push(p.name);
+                    } else {
+                        wrongTeams.push(p.name);
+                    }
+                });
+
+                const correctCount = correctTeams.length;
+                const totalCount = sorted.length;
+                const percent = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+                const correctOptionText = q.options[q.correct];
+
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col gap-2.5 text-xs sm:text-sm";
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 font-racing font-bold text-xs">CÂU ${qIdx + 1}</span>
+                            <span class="text-xs text-slate-400 font-semibold">${q.category}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-400 font-bold">Tỉ lệ đúng:</span>
+                            <span class="font-racing font-black ${percent >= 60 ? 'text-emerald-400' : 'text-rose-400'} text-sm">${percent}% (${correctCount}/${totalCount} Đội)</span>
+                        </div>
+                    </div>
+
+                    <div class="font-bold text-white text-sm sm:text-base leading-snug">
+                        ${q.title}
+                    </div>
+
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-emerald-500/40 text-emerald-300 font-semibold text-xs flex items-center gap-2">
+                        <span class="font-black px-2 py-0.5 rounded bg-emerald-500 text-slate-950">${letterMap[q.correct]}</span>
+                        <span>Đáp án đúng: <strong>${correctOptionText}</strong></span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                        <div class="p-2 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
+                            <span class="text-emerald-400 font-bold block mb-1">✓ Đội trả lời ĐÚNG (${correctTeams.length}):</span>
+                            <span class="text-slate-200">${correctTeams.length > 0 ? correctTeams.join(', ') : '<em class="text-slate-500">Không có</em>'}</span>
+                        </div>
+                        <div class="p-2 rounded-xl bg-rose-950/40 border border-rose-500/30">
+                            <span class="text-rose-400 font-bold block mb-1">✗ Đội trả lời SAI / HẾT GIỜ (${wrongTeams.length}):</span>
+                            <span class="text-slate-200">${wrongTeams.length > 0 ? wrongTeams.join(', ') : '<em class="text-slate-500">Không có</em>'}</span>
+                        </div>
+                    </div>
+                `;
+
+                analysisContainer.appendChild(card);
             });
 
             hostPublish({ type: 'FINAL_PODIUM' });
@@ -777,10 +972,8 @@
 
             mqttClient.on('connect', () => {
                 console.log("Player MQTT Đã kết nối!");
-                // Lắng nghe lệnh từ Host
                 const hostTopic = `duongdua/${roomPin}/host`;
                 mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
-                    // Gửi yêu cầu vào phòng cho Host
                     playerPublish({
                         type: 'PLAYER_JOIN',
                         playerId: playerState.playerId,
