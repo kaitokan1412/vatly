@@ -50,7 +50,7 @@
             0% { transform: scale(1) skewX(0deg); opacity: 0.85; }
             100% { transform: scale(1.25) skewX(-4deg); opacity: 1; }
         }
-        /* PHONG CÁCH NÚT BẤM CYBER RACING MỚI (CHỐNG TRÙNG LẶP KAHOOT) */
+        /* PHONG CÁCH NÚT BẤM CYBER RACING */
         .btn-race-a {
             background: linear-gradient(135deg, #8b5cf6, #6d28d9);
             box-shadow: 0 6px 0 #4c1d95;
@@ -201,31 +201,42 @@
                 <h2 id="hostQuestionTitle" class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-snug">Đang tải câu hỏi...</h2>
             </div>
 
-            <!-- 4 NÚT HIỂN THỊ ĐÁP ÁN GIAO DIỆN CYBER GRAND PRIX MỚI -->
+            <!-- 4 NÚT HIỂN THỊ ĐÁP ÁN: KÝ TỰ A, B, C, D VỚI NGÔI SAO 3, 4, 5, 6 CÁNH -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4" id="hostOptionsContainer">
+                <!-- CÂU A: NGÔI SAO 3 CÁNH -->
                 <div class="p-5 rounded-3xl btn-race-a flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300">
-                        ⚡ A
+                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300 gap-1.5 flex-shrink-0">
+                        <svg class="w-6 h-6 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
+                        <span>A</span>
                     </div>
-                    <span id="optText0">Đáp án A</span>
+                    <span id="optText0" class="flex-1">Đáp án A</span>
                 </div>
+
+                <!-- CÂU B: NGÔI SAO 4 CÁNH -->
                 <div class="p-5 rounded-3xl btn-race-b flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200">
-                        🚀 B
+                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200 gap-1.5 flex-shrink-0">
+                        <svg class="w-6 h-6 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
+                        <span>B</span>
                     </div>
-                    <span id="optText1">Đáp án B</span>
+                    <span id="optText1" class="flex-1">Đáp án B</span>
                 </div>
+
+                <!-- CÂU C: NGÔI SAO 5 CÁNH -->
                 <div class="p-5 rounded-3xl btn-race-c flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200">
-                        🔥 C
+                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200 gap-1.5 flex-shrink-0">
+                        <svg class="w-6 h-6 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
+                        <span>C</span>
                     </div>
-                    <span id="optText2">Đáp án C</span>
+                    <span id="optText2" class="flex-1">Đáp án C</span>
                 </div>
+
+                <!-- CÂU D: NGÔI SAO 6 CÁNH -->
                 <div class="p-5 rounded-3xl btn-race-d flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200">
-                        🏁 D
+                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200 gap-1.5 flex-shrink-0">
+                        <svg class="w-6 h-6 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
+                        <span>D</span>
                     </div>
-                    <span id="optText3">Đáp án D</span>
+                    <span id="optText3" class="flex-1">Đáp án D</span>
                 </div>
             </div>
         </section>
@@ -389,7 +400,7 @@
             <p class="text-xs text-slate-300 mt-4 leading-relaxed" id="playerLobbySubText">Hãy nhìn lên màn hình máy chiếu.<br>Cuộc đua sẽ bắt đầu khi giáo viên bấm Xuất phát!</p>
         </section>
 
-        <!-- 3. PLAYER GAMEPAD (4 NÚT CYBER RACING MỚI) -->
+        <!-- 3. PLAYER GAMEPAD (4 NÚT KÝ TỰ A, B, C, D VỚI NGÔI SAO TƯƠNG ỨNG) -->
         <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
             <div class="glass-panel p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-xs">
                 <span id="playerGameTeamName" class="font-racing font-black text-amber-400 flex items-center gap-1.5">
@@ -399,23 +410,30 @@
                 <span id="playerGameScore" class="font-racing font-bold text-slate-300">0 Điểm</span>
             </div>
 
-            <!-- 4 NÚT TAY CẦM CYBER RACING -->
+            <!-- 4 NÚT TAY CẦM CHỈ HIỂN THỊ KÝ TỰ A, B, C, D VÀ CÁC NGÔI SAO -->
             <div class="grid grid-cols-2 gap-3.5 h-[320px] sm:h-[380px]" id="playerButtonGrid">
-                <button onclick="playerSendAnswer(0)" class="btn-race-a rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
-                    <span class="text-3xl sm:text-4xl font-racing font-black text-yellow-300">⚡ A</span>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-violet-200">Nitro</span>
+                <!-- NÚT A: NGÔI SAO 3 CÁNH -->
+                <button onclick="playerSendAnswer(0)" class="btn-race-a rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
+                    <svg class="w-8 h-8 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
+                    <span class="text-4xl sm:text-5xl font-racing font-black text-yellow-300">A</span>
                 </button>
-                <button onclick="playerSendAnswer(1)" class="btn-race-b rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
-                    <span class="text-3xl sm:text-4xl font-racing font-black text-cyan-100">🚀 B</span>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-200">Phản Lực</span>
+
+                <!-- NÚT B: NGÔI SAO 4 CÁNH -->
+                <button onclick="playerSendAnswer(1)" class="btn-race-b rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
+                    <svg class="w-8 h-8 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
+                    <span class="text-4xl sm:text-5xl font-racing font-black text-cyan-100">B</span>
                 </button>
-                <button onclick="playerSendAnswer(2)" class="btn-race-c rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
-                    <span class="text-3xl sm:text-4xl font-racing font-black text-amber-100">🔥 C</span>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-orange-200">Bốc Hỏa</span>
+
+                <!-- NÚT C: NGÔI SAO 5 CÁNH -->
+                <button onclick="playerSendAnswer(2)" class="btn-race-c rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
+                    <svg class="w-8 h-8 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
+                    <span class="text-4xl sm:text-5xl font-racing font-black text-amber-100">C</span>
                 </button>
-                <button onclick="playerSendAnswer(3)" class="btn-race-d rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
-                    <span class="text-3xl sm:text-4xl font-racing font-black text-emerald-100">🏁 D</span>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-200">Về Đích</span>
+
+                <!-- NÚT D: NGÔI SAO 6 CÁNH -->
+                <button onclick="playerSendAnswer(3)" class="btn-race-d rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
+                    <svg class="w-8 h-8 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
+                    <span class="text-4xl sm:text-5xl font-racing font-black text-emerald-100">D</span>
                 </button>
             </div>
 
@@ -447,6 +465,14 @@
             { emoji: '🛸', bg: 'from-orange-600 to-amber-500', border: 'border-orange-500', name: 'Phi Thuyền Cam' },
             { emoji: '🏎️', bg: 'from-blue-600 to-indigo-500', border: 'border-blue-500', name: 'Chiến Hạm Đại Dương' },
             { emoji: '🚙', bg: 'from-teal-600 to-emerald-500', border: 'border-teal-500', name: 'Bão Táp Ngọc Bích' }
+        ];
+
+        // MẢNG CHỨA SVG CỦA CÁC NGÔI SAO 3, 4, 5, 6 CÁNH
+        const STAR_SVGS = [
+            `<svg class="w-4 h-4 inline-block text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>`,
+            `<svg class="w-4 h-4 inline-block text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>`,
+            `<svg class="w-4 h-4 inline-block text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>`,
+            `<svg class="w-4 h-4 inline-block text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>`
         ];
 
         // 100% CÂU HỎI TRẮC NGHIỆM VẬT LÝ 10
@@ -945,6 +971,7 @@
                 document.getElementById('hostFinalWinner').innerText = `🏆 CHÚC MỪNG ${sorted[0].name.toUpperCase()} ĐÃ VÔ ĐỊCH!`;
             }
 
+            // TÌM ĐỘI NHANH NHẤT
             let fastestTeam = null;
             let minAvgTime = 9999;
 
@@ -961,6 +988,7 @@
                 document.getElementById('hostFastestTimeVal').innerText = `${minAvgTime.toFixed(2)} giây / câu`;
             }
 
+            // 1. BẢNG TỔNG HỢP XẾP HẠNG
             const tbodyStats = document.getElementById('hostStatsTableBody');
             tbodyStats.innerHTML = '';
 
@@ -1053,7 +1081,10 @@
                     </div>
 
                     <div class="p-2.5 rounded-xl bg-slate-900 border border-emerald-500/40 text-emerald-300 font-semibold text-xs flex items-center gap-2">
-                        <span class="font-black px-2 py-0.5 rounded bg-emerald-500 text-slate-950">${letterMap[q.correct]}</span>
+                        <span class="font-black px-2 py-0.5 rounded bg-emerald-500 text-slate-950 flex items-center gap-1">
+                            ${STAR_SVGS[q.correct]}
+                            <span>${letterMap[q.correct]}</span>
+                        </span>
                         <span>Đáp án đúng: <strong>${correctOptionText}</strong></span>
                     </div>
 
