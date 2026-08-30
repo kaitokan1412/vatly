@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Đường Đua Kiến Thức - Vật Lý 10 (Trình Chiếu Màn Hình Lớp Học)</title>
+    <title>Đường Đua Kiến Thức - Vật Lý 10: Tốc Độ & Vận Tốc</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -32,8 +32,8 @@
             animation: roadMove 0.6s linear infinite;
         }
         .nitro-glow {
-            filter: drop-shadow(0 0 15px #38bdf8) drop-shadow(0 0 25px #f97316);
-            transform: scale(1.08);
+            filter: drop-shadow(0 0 16px #38bdf8) drop-shadow(0 0 32px #f97316);
+            transform: scale(1.06);
         }
         .flame-effect {
             filter: drop-shadow(0 0 8px #f97316);
@@ -41,41 +41,23 @@
         }
         @keyframes flicker {
             0% { transform: scale(1) skewX(0deg); opacity: 0.85; }
-            100% { transform: scale(1.3) skewX(-6deg); opacity: 1; }
+            100% { transform: scale(1.25) skewX(-4deg); opacity: 1; }
         }
         .glass-panel {
             background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.14);
         }
-        @keyframes activePulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.94; transform: scale(1.015); }
+        .active-lane {
+            box-shadow: 0 0 25px rgba(250, 204, 21, 0.6), inset 0 0 15px rgba(250, 204, 21, 0.3);
+            border-color: #facc15 !important;
+            transform: scale(1.015);
+            z-index: 20;
         }
-        .active-turn-pulse {
-            animation: activePulse 1.6s infinite ease-in-out;
-        }
-        .lane-active {
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
-            border-color: #38bdf8 !important;
-            opacity: 1 !important;
-            transform: scale(1.01);
-            transition: all 0.35s ease;
-        }
-        .lane-inactive {
+        .dimmed-lane {
             opacity: 0.45;
-            transition: all 0.35s ease;
+            filter: grayscale(40%);
         }
-        /* Big Turn Splash Animations */
-        @keyframes popIn {
-            0% { transform: scale(0.65); opacity: 0; }
-            70% { transform: scale(1.04); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .turn-splash-pop {
-            animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        /* Matching Drag and Drop styles */
         .drop-target {
             border: 2px dashed #475569;
             transition: all 0.25s ease;
@@ -90,96 +72,105 @@
             background: rgba(34, 197, 94, 0.2);
         }
         .item-selected {
-            outline: 3px solid #38bdf8;
+            ring: 3px solid #38bdf8;
             background-color: #312e81 !important;
             transform: scale(1.04);
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 999px;
         }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen flex flex-col overflow-x-hidden selection:bg-amber-500 selection:text-black">
 
     <!-- TOP NAVIGATION BAR -->
-    <header class="w-full bg-slate-900/95 border-b border-slate-800 px-4 md:px-8 py-3 flex justify-between items-center z-40 sticky top-0 shadow-lg backdrop-blur">
-        <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
-                <i class="fa-solid fa-flag-checkered text-2xl text-white"></i>
+    <header class="w-full bg-slate-900/95 border-b border-slate-800 px-3 md:px-6 py-2.5 flex justify-between items-center z-40 sticky top-0 shadow-lg backdrop-blur">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                <i class="fa-solid fa-flag-checkered text-xl text-white"></i>
             </div>
             <div>
-                <h1 class="font-racing font-black text-lg md:text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400 uppercase">
+                <h1 class="font-racing font-black text-base md:text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400 uppercase">
                     ĐƯỜNG ĐUA KIẾN THỨC
                 </h1>
-                <p class="text-xs text-slate-400 font-bold flex items-center gap-1.5">
+                <p class="text-[10px] md:text-xs text-slate-400 font-bold flex items-center gap-1.5">
                     <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Vật Lý 10 • Tốc Độ, Vận Tốc & Tổng Hợp Vận Tốc (Màn Hình Trình Chiếu)</span>
+                    Vật Lý 10 • Chủ Đề 5: Tốc Độ & Vận Tốc (Bộ Đề Độc Lập)
                 </p>
             </div>
         </div>
 
-        <div class="flex items-center gap-3">
-            <!-- SFX Button -->
-            <button id="sfxBtn" onclick="toggleSFX()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center gap-2 transition text-amber-400 active:scale-95 shadow" title="Bật/Tắt âm thanh hiệu ứng">
+        <div class="flex items-center gap-2">
+            <button id="sfxBtn" onclick="toggleSFX()" class="p-2 w-9 h-9 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center justify-center transition text-amber-400 active:scale-95" title="Bật/Tắt âm thanh">
                 <i class="fa-solid fa-music" id="sfxIcon"></i>
-                <span class="hidden sm:inline">Âm Thanh</span>
             </button>
-            <!-- Reset Button -->
-            <button onclick="showCustomModal()" class="px-3.5 py-2 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-xs font-bold border border-rose-500/40 flex items-center gap-1.5 transition text-white active:scale-95 shadow-lg shadow-rose-600/30">
+            <button onclick="showCustomModal('reset')" class="px-3 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs font-bold border border-rose-500/40 flex items-center gap-1.5 transition text-white active:scale-95">
                 <i class="fa-solid fa-rotate-right"></i>
-                <span>Chơi Lại</span>
+                <span class="hidden md:inline">Chơi lại</span>
             </button>
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col p-3 sm:p-5 max-w-7xl w-full mx-auto justify-center">
+    <main class="flex-1 flex flex-col p-2 sm:p-4 max-w-7xl w-full mx-auto justify-center relative">
 
-        <!-- ================= 1. SETUP / LOBBY SCREEN (SINGLE SCREEN ONLY) ================= -->
-        <section id="setupScreen" class="w-full max-w-3xl mx-auto glass-panel p-6 sm:p-9 rounded-3xl shadow-2xl border border-slate-700/60 my-auto">
-            <div class="text-center mb-6">
-                <span class="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-widest border border-amber-500/40 inline-flex items-center gap-1.5">
-                    <i class="fa-solid fa-tv text-amber-400"></i> Trình Chiếu Trực Tiếp Trên Lớp
+        <!-- GIANT TURN SPLASH OVERLAY -->
+        <div id="turnSplashOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center hidden">
+            <div class="relative flex flex-col items-center text-center p-6 sm:p-10 max-w-2xl w-full mx-4 rounded-3xl border-4 shadow-2xl animate-fade-in" id="turnSplashBox">
+                <span class="px-5 py-1.5 rounded-full bg-black/40 text-amber-300 font-racing font-black text-sm sm:text-base uppercase tracking-widest border border-white/20 mb-3">
+                    🏁 CHUYỂN LƯỢT ĐUA MỚI
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-racing font-black mt-3 text-white tracking-wide">THIẾT LẬP ĐỘI THI ĐẤU</h2>
-                <p class="text-sm text-slate-300 mt-1.5 max-w-lg mx-auto">Chọn từ 2 đến 4 đội tranh tài. Các đội lần lượt trả lời câu hỏi hiển thị trên màn hình để điều khiển xe về đích!</p>
+                <div id="turnSplashAvatar" class="text-7xl sm:text-9xl mb-3 animate-bounce">🏎️</div>
+                <h3 class="text-xs sm:text-sm font-racing uppercase font-bold text-slate-300 tracking-wider">ĐÃ ĐẾN LƯỢT THI ĐẤU CỦA:</h3>
+                <h2 id="turnSplashName" class="text-3xl sm:text-5xl md:text-6xl font-racing font-black uppercase text-white tracking-wide my-2 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                    ĐỘI TIA CHỚP
+                </h2>
+                <p id="turnSplashStats" class="text-sm sm:text-base text-slate-200 font-bold mb-6">
+                    Câu hỏi số: 1/10 • Điểm: 0
+                </p>
+                <div class="flex items-center gap-3">
+                    <button onclick="dismissTurnSplash()" class="px-8 py-3.5 rounded-2xl bg-white text-slate-950 font-racing font-black text-base sm:text-lg shadow-xl hover:scale-105 active:scale-95 transition flex items-center gap-2">
+                        <span>BẮT ĐẦU CÂU HỎI NGAY</span>
+                        <i class="fa-solid fa-bolt text-amber-500"></i>
+                    </button>
+                </div>
+                <span id="turnSplashAutoTimer" class="text-xs text-slate-400 mt-3 italic font-semibold">Tự động bắt đầu sau 3 giây...</span>
+            </div>
+        </div>
+
+        <!-- 1. SETUP / LOBBY SCREEN -->
+        <section id="setupScreen" class="w-full max-w-3xl mx-auto glass-panel p-5 sm:p-8 rounded-3xl shadow-2xl border border-slate-700/60 my-auto">
+            <div class="text-center mb-6">
+                <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-black uppercase tracking-widest border border-amber-500/40 inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-fire text-amber-400"></i> Grand Prix Vật Lý 10
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-racing font-black mt-2.5 text-white tracking-wide">THIẾT LẬP ĐỘI ĐUA</h2>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-md mx-auto">
+                    Mỗi đội được bốc <strong>10 câu hỏi độc lập không trùng lặp</strong> từ ngân hàng đề thi!
+                </p>
             </div>
 
-            <!-- Choose team count buttons -->
+            <!-- Team count selection -->
             <div class="mb-6">
                 <label class="block text-xs font-extrabold uppercase text-slate-400 mb-2.5 text-center tracking-wider">Số Lượng Đội Tham Gia</label>
-                <div class="grid grid-cols-3 gap-3.5 max-w-md mx-auto">
-                    <button type="button" onclick="setTeamCount(2)" id="btnTeams2" class="py-3 rounded-2xl border-2 border-indigo-500 bg-indigo-600/40 text-white font-racing font-bold text-base sm:text-lg transition shadow-lg">2 ĐỘI</button>
-                    <button type="button" onclick="setTeamCount(3)" id="btnTeams3" class="py-3 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-slate-400 font-racing font-bold text-base sm:text-lg transition">3 ĐỘI</button>
-                    <button type="button" onclick="setTeamCount(4)" id="btnTeams4" class="py-3 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-slate-400 font-racing font-bold text-base sm:text-lg transition">4 ĐỘI</button>
+                <div class="grid grid-cols-3 gap-3 max-w-sm mx-auto">
+                    <button type="button" onclick="setTeamCount(2)" id="btnTeams2" class="py-2.5 rounded-2xl border-2 border-indigo-500 bg-indigo-600/40 text-white font-racing font-bold text-base transition shadow-lg">2 ĐỘI</button>
+                    <button type="button" onclick="setTeamCount(3)" id="btnTeams3" class="py-2.5 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-slate-400 font-racing font-bold text-base transition">3 ĐỘI</button>
+                    <button type="button" onclick="setTeamCount(4)" id="btnTeams4" class="py-2.5 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-slate-400 font-racing font-bold text-base transition">4 ĐỘI</button>
                 </div>
             </div>
 
-            <!-- Teams Configuration Cards -->
-            <div id="teamsConfigContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <!-- Injected via JS -->
-            </div>
+            <div id="teamsConfigContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6"></div>
 
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-5 border-t border-slate-800">
-                <div class="text-xs sm:text-sm text-slate-400 flex items-center gap-2">
-                    <i class="fa-solid fa-flag text-amber-400"></i>
-                    <span>Chặng đua: <strong>10 Câu hỏi chuẩn bài học</strong></span>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800">
+                <div class="text-xs text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-shuffle text-amber-400"></i>
+                    <span>Ngân hàng: <strong>> 45 câu hỏi chuẩn hóa</strong></span>
                 </div>
-                <button onclick="startCountdown()" class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white font-racing font-black text-lg sm:text-xl tracking-wider shadow-xl shadow-orange-500/30 hover:scale-105 active:scale-95 transition flex items-center justify-center gap-3">
-                    <span>BẮT ĐẦU CUỘC ĐUA</span>
+                <button onclick="startCountdown()" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white font-racing font-black text-lg tracking-wider shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition flex items-center justify-center gap-3">
+                    <span>XUẤT PHÁT NGAY</span>
                     <i class="fa-solid fa-bolt text-yellow-200"></i>
                 </button>
             </div>
         </section>
 
-        <!-- ================= 2. COUNTDOWN OVERLAY ================= -->
+        <!-- 2. COUNTDOWN OVERLAY -->
         <div id="countdownOverlay" class="fixed inset-0 z-50 bg-slate-950/95 flex flex-col items-center justify-center hidden">
             <div class="relative flex flex-col items-center">
                 <div id="countdownNumber" class="text-8xl sm:text-9xl font-racing font-black text-amber-400 drop-shadow-[0_0_45px_rgba(245,158,11,0.9)] animate-pulse">
@@ -191,174 +182,117 @@
             </div>
         </div>
 
-        <!-- ================= GIANT TURN ANNOUNCEMENT OVERLAY ================= -->
-        <div id="turnSplashOverlay" class="fixed inset-0 z-40 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 hidden">
-            <div id="turnSplashCard" class="max-w-2xl w-full p-6 sm:p-10 rounded-3xl border-4 border-rose-500 bg-gradient-to-b from-rose-950 via-slate-900 to-slate-950 text-center shadow-2xl relative overflow-hidden turn-splash-pop">
-                <div class="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-300 mb-2 flex items-center justify-center gap-2">
-                    <span class="inline-block w-3 h-3 rounded-full bg-yellow-300 animate-ping"></span>
-                    <span>THÔNG BÁO LƯỢT ĐIỀU KHIỂN XE</span>
-                </div>
-
-                <div class="my-4">
-                    <div id="turnSplashAvatar" class="text-6xl sm:text-8xl mx-auto my-2 filter drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] animate-bounce">
-                        🏎️
-                    </div>
-                    <div class="text-xs uppercase text-slate-400 font-extrabold tracking-wider mt-2">ĐÃ ĐẾN LƯỢT CỦA</div>
-                    <h2 id="turnSplashTeamName" class="text-3xl sm:text-5xl font-racing font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-white to-amber-400 uppercase tracking-wide mt-1">
-                        ĐỘI TIA CHỚP
-                    </h2>
-                </div>
-
-                <div class="flex items-center justify-center gap-4 my-4 p-3 rounded-2xl bg-black/40 border border-white/10 max-w-sm mx-auto text-xs sm:text-sm font-bold text-slate-300">
-                    <div>Thứ hạng: <strong id="turnSplashRank" class="text-yellow-300 font-racing">#1</strong></div>
-                    <div>•</div>
-                    <div>Tiến độ: <strong id="turnSplashProgress" class="text-cyan-300 font-racing">0%</strong></div>
-                    <div>•</div>
-                    <div>Điểm: <strong id="turnSplashScore" class="text-emerald-300 font-racing">0 pts</strong></div>
-                </div>
-
-                <div class="mt-6 flex flex-col items-center gap-2">
-                    <button onclick="dismissTurnSplash()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-base sm:text-lg tracking-wider shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition flex items-center gap-2">
-                        <span>BẮT ĐẦU CÂU HỎI</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                    <span class="text-[11px] text-slate-400">Tự động vào câu hỏi sau <strong id="turnSplashAutoTimer" class="text-amber-300">(3s)</strong></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= 3. GAMEPLAY SCREEN (MAIN PROJECTOR VIEW) ================= -->
+        <!-- 3. GAMEPLAY SCREEN -->
         <section id="gameplayScreen" class="w-full flex flex-col gap-4 hidden">
             
             <!-- RACETRACK VIEWPORT -->
-            <div class="w-full bg-slate-900 rounded-3xl p-3.5 sm:p-4 border border-slate-800 shadow-2xl relative overflow-hidden">
+            <div class="w-full bg-slate-900 rounded-3xl p-3 sm:p-4 border border-slate-800 shadow-2xl relative overflow-hidden">
                 <div class="flex justify-between items-center mb-2 px-1">
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-racing font-black uppercase text-slate-400 tracking-wider">ĐƯỜNG ĐUA TRỰC QUAN</span>
-                        <span id="currentTurnBadge" class="px-3.5 py-1 rounded-full text-xs font-black uppercase bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 animate-pulse">
+                        <span id="currentTurnBadge" class="px-3 py-0.5 rounded-full text-[11px] font-black uppercase bg-indigo-500/30 text-indigo-300 border border-indigo-500/40">
                             Lượt: Đội Đỏ
                         </span>
                     </div>
-                    <div class="flex items-center gap-2 text-xs sm:text-sm font-racing font-bold text-slate-400">
+                    <div class="flex items-center gap-2 text-xs font-racing font-bold text-slate-400">
                         <i class="fa-solid fa-flag-checkered text-amber-400"></i>
                         <span>VẠCH ĐÍCH: 100%</span>
                     </div>
                 </div>
 
-                <!-- RACETRACK LANES CONTAINER -->
-                <div id="trackLanesContainer" class="flex flex-col gap-2.5 py-1">
-                    <!-- Dynamically created lanes -->
-                </div>
+                <div id="trackLanesContainer" class="flex flex-col gap-2.5 py-1"></div>
             </div>
 
             <!-- QUESTION AREA & SCORE PANEL -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 
-                <!-- Left Column: Question Card (8 cols) -->
-                <div id="questionCardContainer" class="lg:col-span-8 glass-panel rounded-3xl p-5 sm:p-7 border-2 border-slate-800 shadow-xl relative transition-all duration-500">
+                <div id="mainQuestionCard" class="lg:col-span-8 glass-panel rounded-3xl p-4 sm:p-7 border-2 border-slate-700 shadow-2xl relative transition-all duration-300">
                     
-                    <!-- PROMINENT TURN ANNOUNCEMENT BANNER -->
-                    <div id="turnAlertBanner" class="w-full p-3.5 sm:p-4 rounded-2xl mb-4 bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 flex items-center justify-between shadow-xl shadow-rose-600/20 transition-all duration-500 border border-white/30 active-turn-pulse">
+                    <!-- Turn Alert Banner -->
+                    <div id="turnAlertBanner" class="w-full p-3 sm:p-4 rounded-2xl mb-4 flex items-center justify-between border-2 shadow-lg transition-all">
                         <div class="flex items-center gap-3">
-                            <span id="turnBannerEmoji" class="text-3xl sm:text-4xl filter drop-shadow-md">🏎️</span>
+                            <span id="bannerCarIcon" class="text-2xl sm:text-3xl">🏎️</span>
                             <div>
-                                <div class="text-[10px] sm:text-xs font-black uppercase text-amber-200 tracking-wider flex items-center gap-1.5">
-                                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-300 animate-ping"></span>
-                                    LƯỢT ĐIỀU KHIỂN XE CỦA
-                                </div>
-                                <h3 id="turnBannerTeamName" class="text-lg sm:text-2xl font-racing font-black text-white tracking-wide leading-tight drop-shadow">
-                                    ĐỘI TIA CHỚP
-                                </h3>
+                                <span class="text-[10px] sm:text-xs font-racing uppercase font-bold text-slate-300 tracking-wider block">LƯỢT ĐIỀU KHIỂN CỦA:</span>
+                                <span id="bannerTeamName" class="text-lg sm:text-2xl font-racing font-black text-white">ĐỘI TIA CHỚP</span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="px-3 py-1.5 rounded-xl bg-black/50 border border-white/20 text-xs font-racing font-bold text-yellow-300 uppercase inline-flex items-center gap-1.5 shadow">
-                                <i class="fa-solid fa-gamepad text-cyan-300 animate-bounce"></i>
-                                <span>TRẢ LỜI CÂU HỎI!</span>
-                            </span>
-                        </div>
+                        <span class="px-3 py-1 rounded-xl bg-black/40 text-amber-300 text-xs sm:text-sm font-racing font-bold border border-amber-400/40 animate-pulse">
+                            🎯 ĐANG TRẢ LỜI
+                        </span>
                     </div>
 
-                    <!-- Question Header & Timer -->
-                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3.5 mb-4">
-                        <div class="flex items-center gap-2.5">
-                            <span id="questionCategory" class="px-3.5 py-1.5 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs sm:text-sm font-extrabold uppercase">
+                    <!-- Header & Timer -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span id="questionCategory" class="px-3 py-1 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs sm:text-sm font-bold uppercase">
                                 Trắc nghiệm
                             </span>
-                            <span id="questionNumBadge" class="text-sm sm:text-base font-black text-slate-300 font-racing">
-                                CÂU 1/10
+                            <span id="questionNumBadge" class="text-xs sm:text-sm font-black text-slate-400 font-racing">
+                                CÂU 1/10 CỦA ĐỘI
                             </span>
                         </div>
 
-                        <!-- Timer counter -->
-                        <div class="flex items-center gap-2">
-                            <div class="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 shadow-inner">
-                                <i class="fa-solid fa-stopwatch text-amber-400 text-base sm:text-lg" id="timerIcon"></i>
-                                <span id="timerText" class="font-racing font-black text-amber-300 text-lg sm:text-2xl">25s</span>
-                            </div>
+                        <div class="flex items-center gap-1.5 px-4 py-1.5 rounded-2xl bg-slate-800/90 border border-slate-700 shadow-inner">
+                            <i class="fa-solid fa-stopwatch text-amber-400 text-base sm:text-lg" id="timerIcon"></i>
+                            <span id="timerText" class="font-racing font-black text-amber-300 text-lg sm:text-xl">25s</span>
                         </div>
                     </div>
 
-                    <!-- Question Content -->
-                    <div id="questionBody" class="min-h-[90px] flex flex-col justify-center py-2">
-                        <h3 id="questionTitle" class="text-lg sm:text-2xl md:text-3xl font-extrabold text-white leading-relaxed tracking-wide">
+                    <!-- Question Body -->
+                    <div id="questionBody" class="min-h-[90px] flex flex-col justify-center">
+                        <h3 id="questionTitle" class="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-100 leading-snug">
                             Đang tải câu hỏi...
                         </h3>
                     </div>
 
-                    <!-- Answer Options & Interaction Area -->
-                    <div id="answerArea" class="mt-5">
-                        <!-- Options injected here -->
-                    </div>
+                    <!-- Answer Options -->
+                    <div id="answerArea" class="mt-5"></div>
 
-                    <!-- Hint / Explanation Box -->
-                    <div id="hintBox" class="mt-5 p-4 sm:p-5 rounded-2xl bg-amber-950/60 border-2 border-amber-500/50 text-amber-200 text-sm sm:text-base md:text-lg flex items-start gap-3 hidden">
-                        <i class="fa-solid fa-lightbulb text-amber-400 text-xl sm:text-2xl mt-0.5 flex-shrink-0"></i>
+                    <!-- Hint Box -->
+                    <div id="hintBox" class="mt-4 p-4 rounded-2xl bg-amber-950/60 border border-amber-500/50 text-amber-200 text-sm sm:text-base flex items-start gap-3 hidden animate-fade-in">
+                        <i class="fa-solid fa-lightbulb text-amber-400 text-xl mt-0.5 flex-shrink-0"></i>
                         <div>
-                            <strong class="font-black text-amber-300 block mb-1 text-base sm:text-lg">Gợi ý tư duy:</strong>
-                            <span id="hintContent" class="leading-relaxed font-semibold">Nhớ lại mối liên hệ giữa các đại lượng...</span>
+                            <strong class="font-bold text-amber-300 block mb-0.5">Gợi ý tư duy:</strong>
+                            <span id="hintContent">Xem lại kiến thức bài học...</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column: Active Status & Standings (4 cols) -->
+                <!-- Leaderboard & Status -->
                 <div class="lg:col-span-4 flex flex-col gap-4">
-                    <!-- Current Team Turn Status -->
-                    <div id="activeTeamCard" class="glass-panel p-4 rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden">
+                    <div id="activeTeamCard" class="glass-panel p-4 sm:p-5 rounded-3xl border-2 border-slate-800 shadow-xl relative overflow-hidden">
                         <div class="text-xs uppercase font-extrabold text-slate-400 mb-1 flex items-center justify-between">
-                            <span>Đội Đang Điều Khiển Xe</span>
-                            <span id="streakBadge" class="hidden px-2 py-0.5 rounded-md bg-orange-500/30 border border-orange-400 text-orange-300 font-black text-[11px] animate-pulse">
+                            <span>Đội Đang Lái Xe</span>
+                            <span id="streakBadge" class="hidden px-2.5 py-0.5 rounded-lg bg-orange-500/30 border border-orange-400 text-orange-300 font-black text-xs animate-pulse">
                                 🔥 NITRO x<span id="streakCount">2</span>
                             </span>
                         </div>
                         <div class="flex items-center gap-3.5 mt-2">
-                            <div id="activeTeamAvatar" class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-white/20">
+                            <div id="activeTeamAvatar" class="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-white/20">
                                 🏎️
                             </div>
                             <div>
-                                <h4 id="activeTeamName" class="text-lg sm:text-xl font-racing font-black text-white">Đội Tia Chớp</h4>
-                                <p id="activeTeamStats" class="text-xs text-slate-300 font-bold mt-0.5">Tiến độ: 0% • Điểm: 0</p>
+                                <h4 id="activeTeamName" class="text-xl sm:text-2xl font-racing font-black text-white">Đội Tia Chớp</h4>
+                                <p id="activeTeamStats" class="text-xs sm:text-sm text-slate-300 font-bold mt-0.5">Tiến độ: 0% • Điểm: 0</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Standings Leaderboard -->
-                    <div class="glass-panel p-4 rounded-3xl border border-slate-800 shadow-xl">
+                    <div class="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-xl">
                         <h4 class="font-racing font-black text-xs uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
                             <span>BẢNG XẾP HẠNG CUỘC ĐUA</span>
                             <i class="fa-solid fa-ranking-star text-amber-400"></i>
                         </h4>
-                        <div id="leaderboardList" class="flex flex-col gap-2">
-                            <!-- Injected dynamically -->
-                        </div>
+                        <div id="leaderboardList" class="flex flex-col gap-2.5"></div>
                     </div>
                 </div>
 
             </div>
         </section>
 
-        <!-- ================= 4. VICTORY / PODIUM SCREEN ================= -->
-        <section id="victoryScreen" class="w-full max-w-3xl mx-auto glass-panel p-6 sm:p-9 rounded-3xl shadow-2xl border border-amber-500/40 my-auto text-center hidden">
+        <!-- 4. VICTORY / PODIUM SCREEN -->
+        <section id="victoryScreen" class="w-full max-w-3xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/40 my-auto text-center hidden">
             <div class="relative inline-block mb-3">
                 <div class="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-600 flex items-center justify-center shadow-2xl shadow-amber-500/50">
                     <i class="fa-solid fa-trophy text-5xl sm:text-6xl text-amber-950 animate-bounce"></i>
@@ -373,23 +307,20 @@
                 Chúc mừng Đội Tia Chớp!
             </p>
             <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-lg mx-auto">
-                Đã xuất sắc vượt qua toàn bộ các thử thách Tốc độ & Vận tốc để cán đích đầu tiên!
+                Đã hoàn thành xuất sắc các thử thách Tốc độ & Vận tốc để cán đích vinh quang!
             </p>
 
-            <!-- Final Race Summary -->
             <div class="my-5 max-w-lg mx-auto bg-slate-900/90 rounded-2xl p-4 border border-slate-800">
                 <h5 class="text-xs font-racing font-bold uppercase text-slate-400 mb-3">Bảng Tổng Sắp Chung Cuộc</h5>
-                <div id="finalPodiumList" class="flex flex-col gap-2.5">
-                    <!-- Podium injected -->
-                </div>
+                <div id="finalPodiumList" class="flex flex-col gap-2.5"></div>
             </div>
 
             <div class="flex flex-wrap items-center justify-center gap-3.5">
-                <button onclick="replaySameTeams()" class="px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-racing font-bold text-sm border border-slate-700 transition flex items-center gap-2 active:scale-95">
+                <button onclick="replaySameTeams()" class="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-racing font-bold text-sm border border-slate-700 transition flex items-center gap-2 active:scale-95">
                     <i class="fa-solid fa-arrow-rotate-left"></i>
-                    ĐUA LẠI VÒNG NÀY
+                    ĐUA LẠI (BỐC ĐỀ MỚI)
                 </button>
-                <button onclick="resetToSetup()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-base shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition flex items-center gap-2">
+                <button onclick="resetToSetup()" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-base shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition flex items-center gap-2">
                     <i class="fa-solid fa-users-gear"></i>
                     CHỌN LẠI ĐỘI
                 </button>
@@ -398,14 +329,14 @@
 
     </main>
 
-    <!-- CUSTOM CONFIRMATION MODAL -->
+    <!-- CONFIRMATION MODAL -->
     <div id="customModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="glass-panel max-w-sm w-full p-6 rounded-3xl border border-slate-700 text-center shadow-2xl">
             <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center mx-auto mb-3 text-2xl">
                 <i class="fa-solid fa-circle-question"></i>
             </div>
-            <h3 class="font-racing font-black text-lg text-white mb-1">XÁC NHẬN CHƠI LẠI</h3>
-            <p class="text-xs text-slate-300 mb-5">Bạn có chắc chắn muốn hủy chặng đua hiện tại để bắt đầu lại từ đầu không?</p>
+            <h3 class="font-racing font-black text-lg text-white mb-1" id="modalTitle">XÁC NHẬN CHƠI LẠI</h3>
+            <p class="text-xs text-slate-300 mb-5" id="modalDesc">Bạn có chắc chắn muốn hủy chặng đua hiện tại để bắt đầu lại từ đầu không?</p>
             <div class="grid grid-cols-2 gap-3">
                 <button onclick="closeCustomModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition">
                     Hủy bỏ
@@ -417,8 +348,8 @@
         </div>
     </div>
 
+    <!-- AUDIO SYNTHESIZER -->
     <script>
-        /* 1. PROCEDURAL WEB AUDIO SYNTHESIZER */
         let audioCtx = null;
         let sfxEnabled = true;
 
@@ -443,46 +374,34 @@
 
                     osc.type = type;
                     osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-
                     gain.gain.setValueAtTime(gainVal, ctx.currentTime + delay);
                     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
 
                     osc.connect(gain);
                     gain.connect(ctx.destination);
-
                     osc.start(ctx.currentTime + delay);
                     osc.stop(ctx.currentTime + delay + duration);
                 } catch(e) {}
             },
 
-            countdownBeep() {
-                this.playTone(440, 'sine', 0.18, 0.2);
-            },
-
-            countdownGo() {
-                this.playTone(880, 'triangle', 0.5, 0.3);
-            },
-
+            countdownBeep() { this.playTone(440, 'sine', 0.18, 0.2); },
+            countdownGo() { this.playTone(880, 'triangle', 0.5, 0.3); },
             turnFanfare() {
                 if (!sfxEnabled) return;
-                this.playTone(440, 'triangle', 0.12, 0.2, 0);     // A4
-                this.playTone(554.37, 'triangle', 0.12, 0.2, 0.08); // C#5
-                this.playTone(659.25, 'triangle', 0.25, 0.25, 0.16); // E5
-                this.playTone(880, 'triangle', 0.40, 0.3, 0.26);   // A5
+                this.playTone(392.00, 'triangle', 0.12, 0.15, 0);
+                this.playTone(523.25, 'triangle', 0.14, 0.18, 0.10);
+                this.playTone(659.25, 'triangle', 0.25, 0.22, 0.22);
             },
-
             correct() {
                 this.playTone(523.25, 'triangle', 0.18, 0.15, 0);
                 this.playTone(659.25, 'triangle', 0.22, 0.15, 0.08);
                 this.playTone(783.99, 'triangle', 0.30, 0.18, 0.16);
                 this.playTone(1046.50, 'triangle', 0.45, 0.22, 0.24);
             },
-
             wrong() {
                 this.playTone(220, 'sawtooth', 0.15, 0.15, 0);
                 this.playTone(175, 'sawtooth', 0.35, 0.2, 0.12);
             },
-
             engineBoost() {
                 if (!sfxEnabled) return;
                 try {
@@ -490,21 +409,17 @@
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = 'sawtooth';
-                    
                     osc.frequency.setValueAtTime(120, ctx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(650, ctx.currentTime + 0.6);
-                    
                     gain.gain.setValueAtTime(0.02, ctx.currentTime);
                     gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.2);
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
-
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.start();
                     osc.stop(ctx.currentTime + 0.7);
                 } catch(e) {}
             },
-
             victory() {
                 if (!sfxEnabled) return;
                 const notes = [
@@ -531,157 +446,462 @@
         }
     </script>
 
+    <!-- QUESTION POOL (> 45 CÂU HỎI TỪ TÀI LIỆU) -->
     <script>
-        /* 2. PHYSICS QUESTION DATABASE (VẬT LÝ 10: TỐC ĐỘ, VẬN TỐC & TỔNG HỢP VẬN TỐC) */
-        const QUESTIONS_DATABASE = [
+        const MASTER_QUESTION_POOL = [
             {
-                id: 1,
+                id: "M01",
                 type: "mcq",
-                category: "Tốc độ tức thời",
-                title: "Câu 1: Chọn đáp án đúng khi nói về tốc độ tức thời:",
+                category: "Lý thuyết Vận tốc & Tốc độ",
+                title: "Tính chất nào sau đây là của vận tốc nhưng KHÔNG PHẢI tính chất của tốc độ?",
                 options: [
-                    { key: "A", text: "Tốc độ tức thời đại diện cho độ nhanh chậm của chuyển động trên cả quãng đường.", correct: false },
-                    { key: "B", text: "Tốc độ tức thời chỉ mang tính đại diện cho độ nhanh chậm của chuyển động tại một thời điểm xác định.", correct: true },
-                    { key: "C", text: "Tốc độ tức thời là tốc độ trung bình trong toàn bộ thời gian chuyển động", correct: false },
-                    { key: "D", text: "Tốc độ tức thời là cách gọi khác của tốc độ trung bình.", correct: false }
+                    { key: "A", text: "Đặc trưng cho sự nhanh chậm của chuyển động.", correct: false },
+                    { key: "B", text: "Có đơn vị là km/h hoặc m/s.", correct: false },
+                    { key: "C", text: "Không thể có độ lớn bằng 0.", correct: false },
+                    { key: "D", text: "Có hướng (phương và chiều) xác định.", correct: true }
                 ],
-                hint: "Tốc độ tức thời là tốc độ tại một thời điểm xác định, cho biết mức độ nhanh chậm của chuyển động ngay tại thời điểm đó!",
-                explanation: "Đáp án B đúng vì tốc độ tức thời đặc trưng cho mức độ nhanh chậm của chuyển động tại một thời điểm xác định."
+                hint: "Vận tốc là đại lượng vectơ nên có hướng xác định, còn tốc độ là đại lượng vô hướng.",
+                explanation: "Vận tốc là đại lượng vectơ có phương chiều xác định, tốc độ là vô hướng."
             },
             {
-                id: 2,
+                id: "M02",
                 type: "mcq",
-                category: "Đặc điểm Vận tốc & Tốc độ",
-                title: "Câu 2: Chọn đáp án đúng",
+                category: "Dụng cụ đo",
+                title: "Đồng hồ đo tốc độ (tốc kế) gắn trên bảng điều khiển của xe máy, ô tô chỉ đại lượng nào?",
                 options: [
-                    { key: "A", text: "Vận tốc trung bình là một đại lượng có hướng.", correct: true },
-                    { key: "B", text: "Vận tốc trung bình là một đại lượng vô hướng.", correct: false },
-                    { key: "C", text: "Tốc độ trung bình là một đại lượng có hướng.", correct: false },
-                    { key: "D", text: "Tốc độ tức thời là một đại lượng có hướng.", correct: false }
+                    { key: "A", text: "Vận tốc tức thời", correct: false },
+                    { key: "B", text: "Tốc độ tức thời", correct: true },
+                    { key: "C", text: "Vận tốc trung bình", correct: false },
+                    { key: "D", text: "Tốc độ trung bình", correct: false }
                 ],
-                hint: "Vận tốc là đại lượng vectơ (có hướng, hướng theo độ dịch chuyển). Tốc độ là đại lượng vô hướng!",
-                explanation: "Vận tốc trung bình là đại lượng vectơ nên là một đại lượng có hướng."
+                hint: "Tốc kế chỉ độ nhanh chậm tại đúng thời điểm đang chạy, không chỉ hướng.",
+                explanation: "Tốc kế chỉ tốc độ tức thời của xe tại thời điểm đang quan sát."
             },
             {
-                id: 3,
+                id: "M03",
                 type: "mcq",
-                category: "Đặc điểm Véctơ Vận Tốc",
-                title: "Câu 3: Đâu không phải là đặc điểm của vecto vận tốc ? Vecto vận tốc có:",
+                category: "Khái niệm Vận tốc & Tốc độ",
+                title: "Phát biểu nào sau đây về vận tốc và tốc độ là ĐÚNG?",
                 options: [
-                    { key: "A", text: "Gốc nằm trên vật chuyển động.", correct: false },
-                    { key: "B", text: "Hướng là hướng của độ dịch chuyển.", correct: false },
-                    { key: "C", text: "Độ lớn tỉ lệ với độ lớn của vận tốc.", correct: false },
-                    { key: "D", text: "Độ lớn tỉ lệ với độ lớn của tốc độ.", correct: true }
+                    { key: "A", text: "Độ lớn của vận tốc trung bình luôn luôn bằng tốc độ trung bình.", correct: false },
+                    { key: "B", text: "Độ lớn của vận tốc tức thời luôn bằng tốc độ tức thời.", correct: true },
+                    { key: "C", text: "Vận tốc trung bình luôn luôn bằng tốc độ trung bình.", correct: false },
+                    { key: "D", text: "Vận tốc tức thời luôn có giá trị dương.", correct: false }
                 ],
-                hint: "Vectơ vận tốc có: Gốc đặt tại vật, Hướng là hướng độ dịch chuyển, Độ dài tỉ lệ với độ lớn của vận tốc theo một tỉ xích quy ước.",
-                explanation: "Đặc điểm của vectơ vận tốc là có độ dài tỉ lệ với độ lớn của vận tốc theo tỉ xích quy ước."
+                hint: "Trong khoảng thời gian rất nhỏ Δt, độ lớn độ dịch chuyển xấp xỉ quãng đường nên độ lớn vận tốc tức thời bằng tốc độ tức thời.",
+                explanation: "Độ lớn của vận tốc tức thời luôn bằng tốc độ tức thời."
             },
             {
-                id: 4,
+                id: "M04",
                 type: "mcq",
-                category: "Tổng hợp vận tốc - Bơi xuôi dòng",
-                title: "Câu 4: Một người bơi trong bể bơi yên lặng có thể đạt tới vận tốc 1 m/s. Nếu người này bơi xuôi dòng sông có dòng chảy với vận tốc 1 m/s thì có thể đạt vận tốc tối đa là bao nhiêu?",
+                category: "Đặc điểm Vectơ Vận tốc",
+                title: "Đâu KHÔNG PHẢI là tính chất của vectơ vận tốc của một chất điểm?",
+                options: [
+                    { key: "A", text: "Gốc nằm trên chất điểm chuyển động.", correct: false },
+                    { key: "B", text: "Cùng phương chuyển động của chất điểm.", correct: false },
+                    { key: "C", text: "Ngược chiều chuyển động của chất điểm.", correct: true },
+                    { key: "D", text: "Độ dài tỉ lệ với độ lớn của vận tốc theo tỉ xích.", correct: false }
+                ],
+                hint: "Vectơ vận tốc luôn có hướng CÙNG CHIỀU với chiều chuyển động của vật.",
+                explanation: "Vectơ vận tốc luôn cùng chiều chuyển động chứ không ngược chiều."
+            },
+            {
+                id: "M05",
+                type: "mcq",
+                category: "Công thức Vận tốc",
+                title: "Với d là độ dịch chuyển, s là quãng đường, t là thời gian. Biểu thức nào xác định giá trị vận tốc?",
+                options: [
+                    { key: "A", text: "v = d / t", correct: true },
+                    { key: "B", text: "v = s / t", correct: false },
+                    { key: "C", text: "v = d · t", correct: false },
+                    { key: "D", text: "v = s · t", correct: false }
+                ],
+                hint: "Vận tốc bằng thương số giữa độ dịch chuyển d và thời gian t.",
+                explanation: "v = d / t là công thức tính vận tốc; v = s / t là tốc độ."
+            },
+            {
+                id: "M06",
+                type: "mcq",
+                category: "Độ dịch chuyển",
+                title: "Một người đi từ nhà đến cửa hàng cách 300 m, sau đó đến công viên cách cửa hàng 200 m rồi quay trở về nhà. Độ dịch chuyển tổng cộng là:",
+                options: [
+                    { key: "A", text: "1000 m", correct: false },
+                    { key: "B", text: "600 m", correct: false },
+                    { key: "C", text: "500 m", correct: false },
+                    { key: "D", text: "0 m", correct: true }
+                ],
+                hint: "Vị trí kết thúc trùng với vị trí xuất phát ban đầu nên độ dịch chuyển d = 0.",
+                explanation: "Vì điểm đầu và điểm cuối trùng nhau tại nhà nên độ dịch chuyển d = 0."
+            },
+            {
+                id: "M07",
+                type: "mcq",
+                category: "Vận tốc tương đối",
+                title: "Hai học sinh đi trên đường với cùng tốc độ v nhưng ngược chiều nhau. Vận tốc của học sinh này so với học sinh kia có độ lớn là:",
                 options: [
                     { key: "A", text: "0", correct: false },
-                    { key: "B", text: "1", correct: false },
-                    { key: "C", text: "2", correct: true },
-                    { key: "D", text: "-2", correct: false }
+                    { key: "B", text: "2v", correct: true },
+                    { key: "C", text: "v · √2", correct: false },
+                    { key: "D", text: "v / 2", correct: false }
                 ],
-                hint: "Khi bơi xuôi dòng, vận tốc người so với bờ bằng tổng vận tốc người so với nước cộng vận tốc dòng chảy: v = 1 + 1 = 2 m/s!",
-                explanation: "Vận tốc tối đa khi bơi xuôi dòng: v_max = v_người + v_nước = 1 + 1 = 2 m/s."
+                hint: "Chuyển động ngược chiều: Vận tốc tương đối bằng tổng độ lớn: v + v = 2v.",
+                explanation: "Hai vật chuyển động ngược chiều nhau: v_tương_đối = v1 + v2 = v + v = 2v."
             },
             {
-                id: 5,
+                id: "M08",
                 type: "mcq",
-                category: "Chuyển động ngược chiều & xuôi dòng",
-                title: "Câu 5: Một ca nô chạy hết tốc lực trên mặt nước yên lặng có thể đạt 21,5 km/h. Ca nô này chạy xuôi dòng sông trong 1 giờ rồi quay lại thì phải mất 2 giờ nữa mới về tới vị trí ban đầu. Hãy tính vận tốc chảy của dòng sông.",
+                category: "Độ dịch chuyển theo thời gian",
+                title: "Một ô tô chạy thẳng không đổi chiều. Lúc t1 ở cách điểm xuất phát 8 km; lúc t2 cách xuất phát 15 km. Độ dịch chuyển từ t1 đến t2 là:",
                 options: [
-                    { key: "A", text: "7,17 km/h", correct: true },
-                    { key: "B", text: "21,5 km/h", correct: false },
-                    { key: "C", text: "30,7 km/h", correct: false },
-                    { key: "D", text: "17 km/h", correct: false }
+                    { key: "A", text: "24 km", correct: false },
+                    { key: "B", text: "8 km", correct: false },
+                    { key: "C", text: "7 km", correct: true },
+                    { key: "D", text: "15 km", correct: false }
                 ],
-                hint: "Gọi vận tốc dòng nước là v. Quãng đường S = (21,5 + v) * 1 = (21,5 - v) * 2. Suy ra: 21,5 + v = 43 - 2v => 3v = 21,5 => v ≈ 7,17 km/h!",
-                explanation: "Ta có: S = (21,5 + v)*1 = (21,5 - v)*2 => 3v = 21,5 => v ≈ 7,17 km/h."
+                hint: "Δd = d2 - d1 = 15 - 8 = 7 km.",
+                explanation: "Δd = 15 km - 8 km = 7 km."
             },
             {
-                id: 6,
-                type: "match",
-                category: "Kéo thả / Ghép nối công thức",
-                title: "Câu hỏi 6: [TƯƠNG TÁC] Ghép nối các đại lượng đặc trưng với công thức tương ứng:",
-                pairs: [
-                    { id: "p1", name: "Tốc độ trung bình (v)", target: "s / Δt (quãng đường / thời gian)" },
-                    { id: "p2", name: "Vận tốc trung bình (v_tb)", target: "d / Δt (độ dịch chuyển / thời gian)" },
-                    { id: "p3", name: "Cộng vận tốc khi cùng chiều", target: "v_13 = v_12 + v_23" }
-                ],
-                hint: "Tốc độ trung bình = s / Δt; Vận tốc trung bình = d / Δt; Khi cùng chiều thì v_13 = v_12 + v_23.",
-                explanation: "Ghép đúng: Tốc độ = s/Δt; Vận tốc = d/Δt; Vận tốc cùng chiều = v_12 + v_23."
-            },
-            {
-                id: 7,
+                id: "M09",
                 type: "mcq",
-                category: "Bài toán Tốc độ trung bình",
-                title: "Câu 7: Một ô tô chuyển động thẳng, đi được quãng đường 120 km trong khoảng thời gian 2,5 giờ. Tốc độ trung bình của ô tô là:",
+                category: "Cộng vận tốc trên sông",
+                title: "Một thuyền chạy ngược dòng với tốc độ 14,4 km/h (4 m/s) so với nước; nước chảy 2 m/s so với bờ. Tốc độ của thuyền so với bờ là:",
                 options: [
-                    { key: "A", text: "48 km/h", correct: true },
-                    { key: "B", text: "50 km/h", correct: false },
+                    { key: "A", text: "2 m/s", correct: true },
+                    { key: "B", text: "6 m/s", correct: false },
+                    { key: "C", text: "12,4 km/h", correct: false },
+                    { key: "D", text: "16,4 km/h", correct: false }
+                ],
+                hint: "Ngược dòng: v_thuyền/bờ = v_thuyền/nước - v_nước/bờ = 4 - 2 = 2 m/s.",
+                explanation: "14,4 km/h = 4 m/s. Khi chạy ngược dòng: v = 4 - 2 = 2 m/s."
+            },
+            {
+                id: "M10",
+                type: "mcq",
+                category: "Vận tốc tương đối 2 xe",
+                title: "Hai xe chạy cùng chiều trên đường thẳng với vận tốc 120 km/h và 80 km/h. Vận tốc của xe thứ nhất so với xe thứ hai là:",
+                options: [
+                    { key: "A", text: "40 km/h", correct: true },
+                    { key: "B", text: "200 km/h", correct: false },
+                    { key: "C", text: "-40 km/h", correct: false },
+                    { key: "D", text: "100 km/h", correct: false }
+                ],
+                hint: "Cùng chiều: v12 = v1 - v2 = 120 - 80 = 40 km/h.",
+                explanation: "v12 = 120 - 80 = 40 km/h."
+            },
+            {
+                id: "M11",
+                type: "mcq",
+                category: "Bài toán xuôi ngược dòng",
+                title: "Ghe có vận tốc so với nước là 15 km/h, dòng nước chảy 3 km/h. Quãng đường bến - chợ dài 18 km. Tổng thời gian ghe đi xuôi rồi ngược về là:",
+                options: [
+                    { key: "A", text: "2 giờ", correct: false },
+                    { key: "B", text: "2,5 giờ", correct: true },
+                    { key: "C", text: "3 giờ", correct: false },
+                    { key: "D", text: "3,5 giờ", correct: false }
+                ],
+                hint: "t = 18/(15+3) + 18/(15-3) = 18/18 + 18/12 = 1 + 1,5 = 2,5 h.",
+                explanation: "t_xuôi = 18/18 = 1h; t_ngược = 18/12 = 1,5h => Tổng thời gian là 2,5h."
+            },
+            {
+                id: "M12",
+                type: "mcq",
+                category: "Tốc độ trung bình nhiều chặng",
+                title: "Một xe chạy 2 giờ đầu với tốc độ 50 km/h và 3 giờ sau chạy với tốc độ 35 km/h. Tốc độ trung bình trên toàn bộ chuyến đi là:",
+                options: [
+                    { key: "A", text: "50 km/h", correct: false },
+                    { key: "B", text: "42,5 km/h", correct: false },
                     { key: "C", text: "45 km/h", correct: false },
-                    { key: "D", text: "60 km/h", correct: false }
+                    { key: "D", text: "41 km/h", correct: true }
                 ],
-                hint: "Áp dụng công thức tốc độ trung bình: v = s / t = 120 / 2,5 = 48 km/h!",
-                explanation: "Tốc độ trung bình: v = s / t = 120 / 2,5 = 48 km/h."
+                hint: "v_tb = (s1 + s2)/(t1 + t2) = (2·50 + 3·35)/(2 + 3) = (100 + 105)/5 = 41 km/h.",
+                explanation: "v_tb = (100 + 105)/5 = 41 km/h."
             },
             {
-                id: 8,
+                id: "M13",
                 type: "mcq",
-                category: "Chuyển động ngược chiều",
-                title: "Câu 8: Hai xe ô tô A và B cùng chuyển động ngược chiều nhau trên một đoạn đường thẳng với tốc độ lần lượt là 50 km/h và 40 km/h. Vận tốc của xe A so với xe B có độ lớn là:",
+                category: "Đổi đơn vị tốc độ",
+                title: "Sắp xếp theo thứ tự TĂNG DẦN của các tốc độ: 72 km/h; 60 m/phút; 10 m/s; 1200 cm/s:",
                 options: [
-                    { key: "A", text: "10 km/h", correct: false },
-                    { key: "B", text: "90 km/h", correct: true },
-                    { key: "C", text: "50 km/h", correct: false },
-                    { key: "D", text: "40 km/h", correct: false }
+                    { key: "A", text: "60 m/phút < 10 m/s < 1200 cm/s < 72 km/h", correct: true },
+                    { key: "B", text: "10 m/s < 60 m/phút < 72 km/h < 1200 cm/s", correct: false },
+                    { key: "C", text: "60 m/phút < 72 km/h < 1200 cm/s < 10 m/s", correct: false },
+                    { key: "D", text: "10 m/s < 72 km/h < 60 m/phút < 1200 cm/s", correct: false }
                 ],
-                hint: "Khi hai vật chuyển động ngược chiều, độ lớn vận tốc tương đối của vật này so với vật kia bằng tổng hai vận tốc: v_AB = 50 + 40 = 90 km/h!",
-                explanation: "Độ lớn vận tốc tương đối khi ngược chiều: v_AB = v_A + v_B = 50 + 40 = 90 km/h."
+                hint: "Quy đổi về m/s: 60 m/phút = 1 m/s; 10 m/s; 1200 cm/s = 12 m/s; 72 km/h = 20 m/s.",
+                explanation: "1 m/s < 10 m/s < 12 m/s < 20 m/s tương ứng A."
             },
             {
-                id: 9,
+                id: "M14",
                 type: "mcq",
-                category: "Khái niệm Công thức cộng vận tốc",
-                title: "Câu 9: Trong công thức cộng vận tốc: v_13 = v_12 + v_23, đại lượng v_23 được gọi là:",
+                category: "Thời gian bay",
+                title: "Máy bay bay thẳng với tốc độ 800 km/h từ Hà Nội đến TP.HCM dài 1400 km. Thời gian bay là:",
                 options: [
-                    { key: "A", text: "Vận tốc tương đối (vật so với hệ quy chiếu chuyển động)", correct: false },
-                    { key: "B", text: "Vận tốc tuyệt đối (vật so với hệ quy chiếu đứng yên)", correct: false },
-                    { key: "C", text: "Vận tốc kéo theo (hệ quy chiếu chuyển động so với hệ quy chiếu đứng yên)", correct: true },
-                    { key: "D", text: "Tốc độ trung bình trong toàn bộ chuyển động", correct: false }
+                    { key: "A", text: "1 giờ 20 phút", correct: false },
+                    { key: "B", text: "1 giờ 30 phút", correct: false },
+                    { key: "C", text: "1 giờ 45 phút", correct: true },
+                    { key: "D", text: "2 giờ", correct: false }
                 ],
-                hint: "v_13 là vận tốc tuyệt đối, v_12 là vận tốc tương đối, v_23 là vận tốc kéo theo!",
-                explanation: "v_23 là vận tốc kéo theo giữa hệ quy chiếu chuyển động và hệ quy chiếu đứng yên."
+                hint: "t = s / v = 1400 / 800 = 1,75 h = 1 giờ 45 phút.",
+                explanation: "1400 / 800 = 1,75 giờ = 1 giờ 45 phút."
             },
             {
-                id: 10,
+                id: "M15",
                 type: "mcq",
-                category: "Khúc Cua Về Đích - Tính khoảng cách",
-                title: "Câu 10 [VỀ ĐÍCH]: Một thuyền máy đi xuôi dòng từ A đến B hết 2 giờ và đi ngược dòng từ B về A hết 3 giờ. Biết vận tốc dòng nước là 3 km/h. Khoảng cách AB là:",
+                category: "Ca nô trôi sông",
+                title: "Thuyền chạy xuôi dòng mất 2 giờ, chạy ngược dòng cùng quãng đường mất 4 giờ. Nếu tắt máy để thuyền trôi theo dòng thì mất mấy giờ?",
                 options: [
-                    { key: "A", text: "30 km", correct: false },
-                    { key: "B", text: "36 km", correct: true },
-                    { key: "C", text: "42 km", correct: false },
-                    { key: "D", text: "24 km", correct: false }
+                    { key: "A", text: "6 giờ", correct: false },
+                    { key: "B", text: "7 giờ", correct: false },
+                    { key: "C", text: "8 giờ", correct: true },
+                    { key: "D", text: "9 giờ", correct: false }
                 ],
-                hint: "AB = (v + 3)*2 = (v - 3)*3 => 2v + 6 = 3v - 9 => v = 15 km/h. Suy ra AB = (15 + 3)*2 = 36 km!",
-                explanation: "Vận tốc thuyền trong nước yên lặng là 15 km/h => Quãng đường AB = 2 * (15 + 3) = 36 km."
+                hint: "v_nước = (v_xuôi - v_ngược)/2 = (s/2 - s/4)/2 = s/8 => t_trôi = s / (s/8) = 8 giờ.",
+                explanation: "Thời gian trôi theo dòng nước t = 8 giờ."
+            },
+            {
+                id: "M16",
+                type: "mcq",
+                category: "Chuyển động có hướng vuông góc",
+                title: "Ca nô có vận tốc 36 km/h (10 m/s) hướng Tây-Đông, dòng nước chảy 10 m/s hướng Bắc-Nam. Vận tốc của ca nô so với bờ là:",
+                options: [
+                    { key: "A", text: "20 m/s, hướng Tây - Nam", correct: false },
+                    { key: "B", text: "10√2 m/s, hướng Đông - Nam", correct: true },
+                    { key: "C", text: "20 m/s, hướng Đông - Bắc", correct: false },
+                    { key: "D", text: "10√2 m/s, hướng Tây - Nam", correct: false }
+                ],
+                hint: "v = √(10² + 10²) = 10√2 m/s; hướng hợp 45° giữa Đông và Nam (Đông - Nam).",
+                explanation: "v = √(10² + 10²) = 10√2 m/s theo hướng Đông - Nam."
+            },
+            {
+                id: "M17",
+                type: "mcq",
+                category: "Kỷ lục điền kinh",
+                title: "Một vận động viên chạy 100 m với thời gian kỷ lục 10,09 s. Tốc độ trung bình đạt được xấp xỉ là:",
+                options: [
+                    { key: "A", text: "9,91 m/s", correct: true },
+                    { key: "B", text: "99,1 m/s", correct: false },
+                    { key: "C", text: "0,91 m/s", correct: false },
+                    { key: "D", text: "9,10 m/s", correct: false }
+                ],
+                hint: "v = s / t = 100 / 10,09 ≈ 9,91 m/s.",
+                explanation: "v = 100 / 10,09 ≈ 9,91 m/s."
+            },
+            {
+                id: "M18",
+                type: "mcq",
+                category: "Hạt mưa rơi",
+                title: "Xe chạy 18 km/h (5 m/s) trong mưa rơi thẳng đứng. Người ngồi trên xe thấy vệt mưa nghiêng 30° so với phương đứng. Tốc độ rơi của mưa so với đất là:",
+                options: [
+                    { key: "A", text: "5 m/s", correct: false },
+                    { key: "B", text: "5√3 m/s", correct: true },
+                    { key: "C", text: "10 m/s", correct: false },
+                    { key: "D", text: "18√3 m/s", correct: false }
+                ],
+                hint: "tan 30° = v_xe / v_mưa => v_mưa = 5 / tan 30° = 5√3 m/s.",
+                explanation: "v_mưa = 5 / tan 30° = 5√3 m/s."
+            },
+            {
+                id: "M19",
+                type: "mcq",
+                category: "Tính tương đối chuyển động",
+                title: "Người lái đò đang ngồi yên trên thuyền thả trôi theo dòng nước. Mô tả nào sau đây là ĐÚNG?",
+                options: [
+                    { key: "A", text: "Người lái đò đứng yên so với mặt nước.", correct: true },
+                    { key: "B", text: "Người lái đò chuyển động so với dòng nước.", correct: false },
+                    { key: "C", text: "Người lái đò đứng yên so với bờ sông.", correct: false },
+                    { key: "D", text: "Người lái đò chuyển động so với chiếc thuyền.", correct: false }
+                ],
+                hint: "Cả thuyền và người cùng trôi với tốc độ của nước nên người đứng yên so với dòng nước.",
+                explanation: "Thuyền thả trôi theo nước nên vận tốc tương đối giữa người và nước bằng 0."
+            },
+            {
+                id: "M20",
+                type: "mcq",
+                category: "Độ dịch chuyển và Quãng đường",
+                title: "Một vật chuyển động từ A đến B có quãng đường s và độ dịch chuyển vectơ d. Hệ thức luôn ĐÚNG là:",
+                options: [
+                    { key: "A", text: "s < |d|", correct: false },
+                    { key: "B", text: "s ≥ |d|", correct: true },
+                    { key: "C", text: "s = |d| trong mọi trường hợp", correct: false },
+                    { key: "D", text: "s = 0 khi |d| > 0", correct: false }
+                ],
+                hint: "Độ dài đường đi thực tế luôn lớn hơn hoặc bằng khoảng cách nối điểm đầu với điểm cuối: s ≥ |d|.",
+                explanation: "Quãng đường luôn lớn hơn hoặc bằng độ lớn độ dịch chuyển (s ≥ |d|)."
+            },
+            {
+                id: "M21",
+                type: "mcq",
+                category: "Vận tốc hai xe vuông góc",
+                title: "Ô tô chạy về hướng Đông với vận tốc v1, xe máy chạy về hướng Bắc với vận tốc v2. Vận tốc xe máy đối với người ngồi trên ô tô có độ lớn là:",
+                options: [
+                    { key: "A", text: "v2 - v1", correct: false },
+                    { key: "B", text: "v2 + v1", correct: false },
+                    { key: "C", text: "√(v1² + v2²)", correct: true },
+                    { key: "D", text: "0", correct: false }
+                ],
+                hint: "Hướng Đông và Bắc vuông góc nhau => v_tương_đối = √(v1² + v2²).",
+                explanation: "Do hai phương vuông góc nhau nên v = √(v1² + v2²)."
+            },
+            // --- DẠNG ĐÚNG / SAI (TF) ---
+            {
+                id: "TF01",
+                type: "tf",
+                category: "ĐÚNG / SAI: Khái niệm Tốc độ",
+                title: "Phát biểu: \"Tốc độ trung bình luôn được tính bằng thương số giữa tổng quãng đường đi được và tổng thời gian đi hết quãng đường đó.\"",
+                correctAnswer: true,
+                hint: "Biểu thức định nghĩa: v_tb = s / t.",
+                explanation: "PHÁT BIỂU ĐÚNG: Tốc độ trung bình là đại lượng dùng để xác định độ nhanh chậm, v = s/t."
+            },
+            {
+                id: "TF02",
+                type: "tf",
+                category: "ĐÚNG / SAI: Dấu của Vận tốc",
+                title: "Phát biểu: \"Vận tốc là đại lượng vectơ nên giá trị đại số của nó chỉ có thể mang giá trị dương, không thể mang giá trị âm.\"",
+                correctAnswer: false,
+                hint: "Vận tốc có thể mang giá trị âm khi vật chuyển động ngược chiều dương đã chọn!",
+                explanation: "PHÁT BIỂU SAI: Vận tốc có thể dương, âm hoặc bằng 0 tùy thuộc vào chiều chuyển động và chiều dương quy ước."
+            },
+            {
+                id: "TF03",
+                type: "tf",
+                category: "ĐÚNG / SAI: Chuyển động thẳng không đổi chiều",
+                title: "Phát biểu: \"Khi vật chuyển động thẳng và không đổi chiều thì độ lớn vận tốc trung bình bằng tốc độ trung bình.\"",
+                correctAnswer: true,
+                hint: "Không đổi chiều thì quãng đường s = độ lớn độ dịch chuyển |d|, do đó tốc độ trung bình = độ lớn vận tốc trung bình.",
+                explanation: "PHÁT BIỂU ĐÚNG: Vì khi đó s = |d| nên v_tb = |v_tb|."
+            },
+            {
+                id: "TF04",
+                type: "tf",
+                category: "ĐÚNG / SAI: Chuyển động khép kín",
+                title: "Phát biểu: \"Một vận động viên bơi 1 vòng quanh hồ rồi quay về vị trí xuất phát ban đầu thì độ dịch chuyển và quãng đường đều bằng 0.\"",
+                correctAnswer: false,
+                hint: "Độ dịch chuyển bằng 0 nhưng quãng đường s bằng chu vi của hồ (s > 0).",
+                explanation: "PHÁT BIỂU SAI: Độ dịch chuyển d = 0 nhưng quãng đường s > 0."
+            },
+            {
+                id: "TF05",
+                type: "tf",
+                category: "ĐÚNG / SAI: Tổng hợp vận tốc ngược chiều",
+                title: "Phát biểu: \"Khi thuyền chạy ngược dòng nước, vận tốc của thuyền đối với bờ sông bằng hiệu vận tốc thuyền so với nước và vận tốc dòng nước so với bờ.\"",
+                correctAnswer: true,
+                hint: "Ngược dòng: v13 = |v12 - v23|.",
+                explanation: "PHÁT BIỂU ĐÚNG: Hai vectơ ngược chiều thì độ lớn vận tốc tổng hợp bằng hiệu hai vận tốc thành phần."
+            },
+            {
+                id: "TF06",
+                type: "tf",
+                category: "ĐÚNG / SAI: Tốc kế",
+                title: "Phát biểu: \"Số chỉ trên đồng hồ tốc kế đặt trước mặt người lái xe máy cho biết giá trị tốc độ trung bình của xe trên cả chuyến đi.\"",
+                correctAnswer: false,
+                hint: "Tốc kế đo tốc độ trong khoảng thời gian rất ngắn, tức là tốc độ tức thời.",
+                explanation: "PHÁT BIỂU SAI: Tốc kế hiển thị tốc độ tức thời tại thời điểm đó."
+            },
+            {
+                id: "TF07",
+                type: "tf",
+                category: "ĐÚNG / SAI: Tốc độ trung bình khứ hồi",
+                title: "Phát biểu: \"Một ô tô đi từ A đến B với tốc độ 40 km/h rồi quay về A với tốc độ 60 km/h thì tốc độ trung bình cả đi và về là 50 km/h.\"",
+                correctAnswer: false,
+                hint: "v_tb = 2s / (s/40 + s/60) = 48 km/h (không phải trung bình cộng (40+60)/2 = 50).",
+                explanation: "PHÁT BIỂU SAI: Tốc độ trung bình đúng là 48 km/h."
+            },
+            {
+                id: "TF08",
+                type: "tf",
+                category: "ĐÚNG / SAI: Hướng của vectơ vận tốc",
+                title: "Phát biểu: \"Vectơ vận tốc của chất điểm luôn có hướng trùng với hướng của vectơ độ dịch chuyển.\"",
+                correctAnswer: true,
+                hint: "Công thức vectơ: vectơ(v) = vectơ(d) / t với t > 0.",
+                explanation: "PHÁT BIỂU ĐÚNG: Hướng của vận tốc là hướng của độ dịch chuyển."
+            },
+            {
+                id: "TF09",
+                type: "tf",
+                category: "ĐÚNG / SAI: Vận tốc tương đối cùng chiều",
+                title: "Phát biểu: \"Hai xe ô tô chạy cùng chiều trên đường thẳng với tốc độ v1 và v2 thì tốc độ của xe 1 so với xe 2 có độ lớn là |v1 - v2|.\"",
+                correctAnswer: true,
+                hint: "Cùng chiều: v_tương_đối = |v1 - v2|.",
+                explanation: "PHÁT BIỂU ĐÚNG: Hai vật chuyển động cùng chiều thì vận tốc tương đối bằng hiệu hai tốc độ."
+            },
+            {
+                id: "TF10",
+                type: "tf",
+                category: "ĐÚNG / SAI: Đổi chiều chuyển động",
+                title: "Phát biểu: \"Khi vật đang chuyển động thẳng và đổi chiều chuyển động thì quãng đường đi được của vật sẽ mang giá trị âm.\"",
+                correctAnswer: false,
+                hint: "Quãng đường s là chiều dài quỹ đạo đi được nên luôn luôn không âm (s ≥ 0).",
+                explanation: "PHÁT BIỂU SAI: Quãng đường s luôn là đại lượng không âm; chỉ có vận tốc và độ dịch chuyển mới đổi dấu."
+            },
+            {
+                id: "TF11",
+                type: "tf",
+                category: "ĐÚNG / SAI: Sóng âm đo độ sâu",
+                title: "Phát biểu: \"Tàu ngầm phát sóng âm xuống đáy biển sau 0,13 s thu được phản xạ. Biết tốc độ truyền âm trong nước là 1500 m/s thì độ sâu biển là 97,5 m.\"",
+                correctAnswer: true,
+                hint: "Quãng đường truyền âm s = v·t = 1500·0,13 = 195 m. Độ sâu h = s / 2 = 97,5 m.",
+                explanation: "PHÁT BIỂU ĐÚNG: h = (1500 · 0,13) / 2 = 97,5 m."
+            },
+            {
+                id: "TF12",
+                type: "tf",
+                category: "ĐÚNG / SAI: Chạy nửa đường tròn",
+                title: "Phát biểu: \"Một người đi bộ dọc theo nửa đường tròn bán kính 5 m từ A đến B thì quãng đường đi được bằng đúng độ lớn độ dịch chuyển.\"",
+                correctAnswer: false,
+                hint: "Quãng đường s = π·R = 5π ≈ 15,7 m; Độ dịch chuyển d = đường kính = 2R = 10 m.",
+                explanation: "PHÁT BIỂU SAI: Quãng đường là 5π m (15,7 m) trong khi độ dịch chuyển là 10 m."
+            },
+            // --- DẠNG GHÉP NỐI (MATCH) ---
+            {
+                id: "MT01",
+                type: "match",
+                category: "Ghép Nối Công Thức",
+                title: "Ghép nối từng đại lượng đặc trưng với công thức tương ứng:",
+                pairs: [
+                    { id: "p1", name: "Tốc độ trung bình (v_tb)", target: "s / t (Quãng đường / Thời gian)" },
+                    { id: "p2", name: "Vận tốc trung bình (v)", target: "d / t (Độ dịch chuyển / Thời gian)" },
+                    { id: "p3", name: "Vận tốc tổng hợp xuôi dòng", target: "v12 + v23 (Tổng vận tốc)" }
+                ],
+                hint: "Tốc độ = s/t; Vận tốc = d/t; Xuôi dòng = v12 + v23.",
+                explanation: "Ghép đúng: v_tb = s/t; v = d/t; v_xuôi = v12 + v23."
+            },
+            {
+                id: "MT02",
+                type: "match",
+                category: "Ghép Nối Trường Hợp Cộng Vận Tốc",
+                title: "Ghép nối các trường hợp chuyển động với công thức độ lớn vận tốc tuyệt đối (v13):",
+                pairs: [
+                    { id: "p1", name: "Vật và hệ quy chiếu CÙNG CHIỀU", target: "v13 = v12 + v23" },
+                    { id: "p2", name: "Vật và hệ quy chiếu NGƯỢC CHIỀU", target: "v13 = |v12 - v23|" },
+                    { id: "p3", name: "Vật và hệ quy chiếu VUÔNG GÓC", target: "v13 = √(v12² + v23²)" }
+                ],
+                hint: "Cùng chiều: cộng; Ngược chiều: trừ; Vuông góc: định lý Pythagore.",
+                explanation: "Cùng chiều: v12+v23; Ngược chiều: |v12-v23|; Vuông góc: Pitago."
+            },
+            {
+                id: "MT03",
+                type: "match",
+                category: "Ghép Nối Dụng Cụ Thí Nghiệm",
+                title: "Ghép nối dụng cụ với mục đích sử dụng tương ứng trong khảo sát chuyển động:",
+                pairs: [
+                    { id: "p1", name: "Cổng quang điện & Đồng hồ hiện số", target: "Đo thời gian chuyển động (t)" },
+                    { id: "p2", name: "Thước thẳng chia độ", target: "Đo quãng đường dịch chuyển (s)" },
+                    { id: "p3", name: "Đồng hồ tốc kế trên phương tiện", target: "Đo tốc độ tức thời" }
+                ],
+                hint: "Cổng quang điện đo thời gian t; thước đo s; tốc kế đo tốc độ tức thời.",
+                explanation: "Ghép chính xác theo công dụng thực tế của từng thiết bị."
             }
         ];
     </script>
 
+    <!-- MULTI-TEAM ENGINE LOGIC -->
     <script>
-        /* 3. SINGLE SCREEN GAME ENGINE & STATE */
         const DEFAULT_TEAMS = [
             {
                 id: 0,
                 name: "Đội Tia Chớp",
+                color: "rose",
                 carEmoji: "🏎️",
                 carType: "F1 Đỏ Siêu Tốc",
                 score: 0,
@@ -689,13 +909,14 @@
                 streak: 0,
                 bgClass: "from-rose-600 to-red-500",
                 borderClass: "border-rose-500",
-                activeBg: "from-rose-600 via-red-600 to-amber-600",
-                borderActive: "border-rose-500",
-                shadowActive: "shadow-rose-500/25"
+                bannerBorder: "border-rose-500 bg-rose-950/70",
+                questions: [],
+                questionIndex: 0
             },
             {
                 id: 1,
                 name: "Đội Thần Tốc",
+                color: "cyan",
                 carEmoji: "🚙",
                 carType: "Cyber Xanh Điện",
                 score: 0,
@@ -703,13 +924,14 @@
                 streak: 0,
                 bgClass: "from-cyan-600 to-blue-500",
                 borderClass: "border-cyan-500",
-                activeBg: "from-cyan-600 via-blue-600 to-indigo-600",
-                borderActive: "border-cyan-400",
-                shadowActive: "shadow-cyan-500/25"
+                bannerBorder: "border-cyan-500 bg-cyan-950/70",
+                questions: [],
+                questionIndex: 0
             },
             {
                 id: 2,
                 name: "Đội Siêu Âm",
+                color: "amber",
                 carEmoji: "🛺",
                 carType: "Nitro Vàng Phản Lực",
                 score: 0,
@@ -717,13 +939,14 @@
                 streak: 0,
                 bgClass: "from-amber-500 to-yellow-500",
                 borderClass: "border-amber-500",
-                activeBg: "from-amber-500 via-orange-500 to-yellow-500",
-                borderActive: "border-amber-400",
-                shadowActive: "shadow-amber-500/25"
+                bannerBorder: "border-amber-500 bg-amber-950/70",
+                questions: [],
+                questionIndex: 0
             },
             {
                 id: 3,
                 name: "Đội Bão Táp",
+                color: "purple",
                 carEmoji: "🚀",
                 carType: "Tàu Tím Tương Lai",
                 score: 0,
@@ -731,9 +954,9 @@
                 streak: 0,
                 bgClass: "from-purple-600 to-indigo-600",
                 borderClass: "border-purple-500",
-                activeBg: "from-purple-600 via-indigo-600 to-pink-600",
-                borderActive: "border-purple-400",
-                shadowActive: "shadow-purple-500/25"
+                bannerBorder: "border-purple-500 bg-purple-950/70",
+                questions: [],
+                questionIndex: 0
             }
         ];
 
@@ -741,41 +964,32 @@
             selectedTeamCount: 2,
             teams: [],
             currentTurnTeamIndex: 0,
-            currentQuestionIndex: 0,
             timer: 25,
             timerInterval: null,
-            splashAutoInterval: null,
             isAnswering: false,
             hasWon: false,
             winner: null,
             matchedPairs: {},
-            selectedTouchSourceId: null
+            selectedTouchSourceId: null,
+            splashTimerInterval: null
         };
 
-        function hideAllScreens() {
-            ['setupScreen', 'gameplayScreen', 'victoryScreen'].forEach(id => {
-                document.getElementById(id)?.classList.add('hidden');
-            });
-        }
-
-        /* 4. SETUP & RACETRACK VIEW */
         function renderTeamsSetup() {
             const container = document.getElementById('teamsConfigContainer');
             container.innerHTML = '';
 
             for (let i = 0; i < state.selectedTeamCount; i++) {
-                const team = state.teams[i] || DEFAULT_TEAMS[i];
+                const team = DEFAULT_TEAMS[i];
                 const card = document.createElement('div');
-                card.className = `p-4 rounded-2xl bg-slate-900/90 border-2 ${team.borderClass} flex items-center gap-3.5 shadow-lg`;
-
+                card.className = `p-3.5 rounded-2xl bg-slate-900/90 border-2 ${team.borderClass} flex items-center gap-3 shadow-lg`;
                 card.innerHTML = `
-                    <div class="text-3xl sm:text-4xl p-2.5 rounded-2xl bg-slate-800 border border-slate-700">
+                    <div class="text-2xl sm:text-3xl p-2.5 rounded-2xl bg-slate-800 border border-slate-700">
                         ${team.carEmoji}
                     </div>
                     <div class="flex-1">
-                        <label class="text-xs font-black uppercase text-slate-400 block mb-1">Đội ${i + 1} (${team.carType})</label>
+                        <label class="text-[10px] sm:text-xs font-black uppercase text-slate-400 block mb-1">Đội ${i + 1} (${team.carType})</label>
                         <input type="text" id="teamNameInput_${i}" value="${team.name}" 
-                            class="w-full px-3.5 py-2 rounded-xl bg-slate-800 text-white font-bold text-sm sm:text-base border border-slate-700 focus:outline-none focus:border-amber-400">
+                            class="w-full px-3 py-1.5 rounded-xl bg-slate-800 text-white font-bold text-xs sm:text-sm border border-slate-700 focus:outline-none focus:border-amber-400">
                     </div>
                 `;
                 container.appendChild(card);
@@ -787,34 +1001,42 @@
             [2, 3, 4].forEach(c => {
                 const btn = document.getElementById(`btnTeams${c}`);
                 if (c === count) {
-                    btn.className = "py-3 rounded-2xl border-2 border-indigo-500 bg-indigo-600/40 text-white font-racing font-bold text-base sm:text-lg transition scale-105 shadow-md";
+                    btn.className = "py-2.5 rounded-2xl border-2 border-indigo-500 bg-indigo-600/40 text-white font-racing font-bold text-base transition scale-105 shadow-md";
                 } else {
-                    btn.className = "py-3 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-slate-400 font-racing font-bold text-base sm:text-lg transition";
+                    btn.className = "py-2.5 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-slate-400 font-racing font-bold text-base transition";
                 }
             });
-
-            state.teams = [];
-            for (let i = 0; i < count; i++) {
-                state.teams.push({ ...DEFAULT_TEAMS[i] });
-            }
-
             renderTeamsSetup();
             Sound.playTone(500, 'sine', 0.1);
         }
 
+        function partitionQuestionsForTeams() {
+            const shuffledPool = [...MASTER_QUESTION_POOL].sort(() => Math.random() - 0.5);
+            state.teams.forEach((team, idx) => {
+                team.questions = shuffledPool.slice(idx * 10, (idx + 1) * 10);
+                team.questionIndex = 0;
+            });
+        }
+
         function startCountdown() {
             initAudioContext();
-            
+            state.teams = [];
             for (let i = 0; i < state.selectedTeamCount; i++) {
-                const customName = document.getElementById(`teamNameInput_${i}`)?.value?.trim();
-                if (customName) state.teams[i].name = customName;
-                state.teams[i].score = 0;
-                state.teams[i].progress = 0;
-                state.teams[i].streak = 0;
+                const customName = document.getElementById(`teamNameInput_${i}`)?.value?.trim() || DEFAULT_TEAMS[i].name;
+                state.teams.push({
+                    ...DEFAULT_TEAMS[i],
+                    name: customName,
+                    score: 0,
+                    progress: 0,
+                    streak: 0,
+                    questions: [],
+                    questionIndex: 0
+                });
             }
 
+            partitionQuestionsForTeams();
+
             state.currentTurnTeamIndex = 0;
-            state.currentQuestionIndex = 0;
             state.hasWon = false;
             state.winner = null;
 
@@ -846,7 +1068,7 @@
                     document.getElementById('victoryScreen').classList.add('hidden');
                     document.getElementById('gameplayScreen').classList.remove('hidden');
                     renderTrackLanes();
-                    loadQuestion();
+                    showTurnSplashAndStart();
                 }
             }, 850);
         }
@@ -856,9 +1078,12 @@
             container.innerHTML = '';
 
             state.teams.forEach((team, index) => {
+                const isActive = (index === state.currentTurnTeamIndex);
                 const lane = document.createElement('div');
                 lane.id = `lane_team_${index}`;
-                lane.className = `w-full h-16 sm:h-20 bg-slate-950 rounded-2xl relative border-2 ${team.borderClass} overflow-hidden flex items-center shadow-inner transition-all duration-300`;
+                lane.className = `w-full h-16 sm:h-20 bg-slate-950 rounded-2xl relative border-2 ${team.borderClass} overflow-hidden flex items-center shadow-inner transition-all duration-300 ${
+                    isActive ? 'active-lane' : 'dimmed-lane'
+                }`;
                 
                 lane.innerHTML = `
                     <div class="absolute inset-0 bg-slate-900/90 flex flex-col justify-between py-1.5 px-2 pointer-events-none">
@@ -874,10 +1099,6 @@
 
                     <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-slate-700/60 flex items-center">
                         <span class="text-[9px] font-racing text-slate-500 absolute -top-0.5 -translate-x-1/2">50%</span>
-                    </div>
-
-                    <div id="lane_badge_${index}" class="absolute right-12 sm:right-16 top-1.5 z-20 px-2.5 py-0.5 rounded-full text-[10px] font-racing font-black uppercase text-slate-950 bg-amber-400 shadow-md hidden animate-pulse">
-                        🎯 ĐANG ĐUA
                     </div>
 
                     <div id="car_entity_${index}" 
@@ -898,8 +1119,9 @@
                         </div>
                     </div>
 
-                    <div class="absolute left-3 top-1 z-20 pointer-events-none opacity-60 text-[9px] sm:text-[10px] font-racing uppercase font-bold text-slate-300">
-                        LÀN ${index + 1}: ${team.name}
+                    <div class="absolute left-3 top-1 z-20 pointer-events-none text-[9px] sm:text-[10px] font-racing uppercase font-bold text-slate-300 flex items-center gap-1.5">
+                        <span>LÀN ${index + 1}: ${team.name}</span>
+                        ${isActive ? '<span class="px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-black text-[8px] animate-pulse">🎯 ĐANG ĐUA</span>' : ''}
                     </div>
                 `;
                 container.appendChild(lane);
@@ -937,116 +1159,69 @@
         window.addEventListener('resize', () => {
             updateCarPositions();
         });
-    </script>
 
-    <script>
-        /* 5. QUESTION DISPLAY & INTERACTION */
+        function showTurnSplashAndStart() {
+            if (state.hasWon) return;
+
+            const currentTeam = state.teams[state.currentTurnTeamIndex];
+            const overlay = document.getElementById('turnSplashOverlay');
+            const box = document.getElementById('turnSplashBox');
+            const autoTimer = document.getElementById('turnSplashAutoTimer');
+
+            box.className = `relative flex flex-col items-center text-center p-6 sm:p-10 max-w-2xl w-full mx-4 rounded-3xl border-4 shadow-2xl animate-fade-in bg-gradient-to-b from-slate-900 to-slate-950 ${currentTeam.borderClass}`;
+            document.getElementById('turnSplashAvatar').innerText = currentTeam.carEmoji;
+            document.getElementById('turnSplashName').innerText = currentTeam.name;
+            document.getElementById('turnSplashStats').innerText = `Câu hỏi số: ${currentTeam.questionIndex + 1}/10 • Điểm: ${currentTeam.score}`;
+
+            Sound.turnFanfare();
+            overlay.classList.remove('hidden');
+
+            let countdown = 3;
+            autoTimer.innerText = `Tự động bắt đầu sau ${countdown} giây...`;
+
+            clearInterval(state.splashTimerInterval);
+            state.splashTimerInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    autoTimer.innerText = `Tự động bắt đầu sau ${countdown} giây...`;
+                } else {
+                    clearInterval(state.splashTimerInterval);
+                    dismissTurnSplash();
+                }
+            }, 1000);
+        }
+
+        function dismissTurnSplash() {
+            clearInterval(state.splashTimerInterval);
+            document.getElementById('turnSplashOverlay').classList.add('hidden');
+            renderTrackLanes();
+            loadQuestion();
+        }
+
         function loadQuestion() {
             if (state.hasWon) return;
 
             state.isAnswering = false;
             document.getElementById('hintBox').classList.add('hidden');
 
-            const q = QUESTIONS_DATABASE[state.currentQuestionIndex];
             const currentTeam = state.teams[state.currentTurnTeamIndex];
+            const q = currentTeam.questions[currentTeam.questionIndex];
 
-            // 0. SHOW GIANT TURN ANNOUNCEMENT OVERLAY FIRST
-            showTurnAnnouncement(currentTeam, () => {
-                startActualQuestionDisplay(q, currentTeam);
-            });
-        }
+            const banner = document.getElementById('turnAlertBanner');
+            banner.className = `w-full p-3 sm:p-4 rounded-2xl mb-4 flex items-center justify-between border-2 shadow-lg transition-all ${currentTeam.bannerBorder}`;
+            document.getElementById('bannerCarIcon').innerText = currentTeam.carEmoji;
+            document.getElementById('bannerTeamName').innerText = currentTeam.name;
 
-        function showTurnAnnouncement(currentTeam, onFinishCallback) {
-            clearInterval(state.splashAutoInterval);
-            clearInterval(state.timerInterval);
+            const mainCard = document.getElementById('mainQuestionCard');
+            mainCard.className = `lg:col-span-8 glass-panel rounded-3xl p-4 sm:p-7 border-2 ${currentTeam.borderClass} shadow-2xl relative transition-all duration-300`;
 
-            const overlay = document.getElementById('turnSplashOverlay');
-            const card = document.getElementById('turnSplashCard');
-            const avatar = document.getElementById('turnSplashAvatar');
-            const teamName = document.getElementById('turnSplashTeamName');
-            const rankEl = document.getElementById('turnSplashRank');
-            const progressEl = document.getElementById('turnSplashProgress');
-            const scoreEl = document.getElementById('turnSplashScore');
-            const autoTimerEl = document.getElementById('turnSplashAutoTimer');
-
-            // Find current team rank
-            const sortedTeams = [...state.teams].sort((a, b) => (b.progress - a.progress) || (b.score - a.score));
-            const rank = sortedTeams.findIndex(t => t.id === currentTeam.id) + 1;
-
-            // Apply vibrant theme styling
-            card.className = `max-w-2xl w-full p-6 sm:p-10 rounded-3xl border-4 ${currentTeam.borderClass} bg-gradient-to-b ${currentTeam.bgClass} text-center shadow-2xl relative overflow-hidden turn-splash-pop`;
-            avatar.innerText = currentTeam.carEmoji;
-            teamName.innerText = currentTeam.name.toUpperCase();
-            rankEl.innerText = `#${rank}`;
-            progressEl.innerText = `${Math.round(currentTeam.progress)}%`;
-            scoreEl.innerText = `${currentTeam.score} pts`;
-
-            overlay.classList.remove('hidden');
-            Sound.turnFanfare();
-
-            let splashCountdown = 3;
-            autoTimerEl.innerText = `(${splashCountdown}s)`;
-
-            state.splashAutoInterval = setInterval(() => {
-                splashCountdown--;
-                if (splashCountdown > 0) {
-                    autoTimerEl.innerText = `(${splashCountdown}s)`;
-                } else {
-                    clearInterval(state.splashAutoInterval);
-                    overlay.classList.add('hidden');
-                    if (onFinishCallback) onFinishCallback();
-                }
-            }, 1000);
-
-            window._turnSplashDone = () => {
-                clearInterval(state.splashAutoInterval);
-                overlay.classList.add('hidden');
-                if (onFinishCallback) onFinishCallback();
-            };
-        }
-
-        function dismissTurnSplash() {
-            if (window._turnSplashDone) {
-                window._turnSplashDone();
-            }
-        }
-
-        function startActualQuestionDisplay(q, currentTeam) {
-            // 1. UPDATE TURN ALERT BANNER
-            const turnBanner = document.getElementById('turnAlertBanner');
-            turnBanner.className = `w-full p-3.5 sm:p-4 rounded-2xl mb-4 bg-gradient-to-r ${currentTeam.activeBg} flex items-center justify-between shadow-xl ${currentTeam.shadowActive} transition-all duration-500 border-2 border-white/40 active-turn-pulse`;
-            document.getElementById('turnBannerEmoji').innerText = currentTeam.carEmoji;
-            document.getElementById('turnBannerTeamName').innerText = currentTeam.name.toUpperCase();
-
-            // 2. HIGHLIGHT QUESTION CONTAINER BORDER
-            const cardContainer = document.getElementById('questionCardContainer');
-            cardContainer.className = `lg:col-span-8 glass-panel rounded-3xl p-5 sm:p-7 border-2 ${currentTeam.borderActive} shadow-2xl ${currentTeam.shadowActive} relative transition-all duration-500`;
-
-            // 3. HIGHLIGHT ACTIVE TEAM LANE ON TRACK
-            state.teams.forEach((t, i) => {
-                const laneEl = document.getElementById(`lane_team_${i}`);
-                const badgeEl = document.getElementById(`lane_badge_${i}`);
-                if (laneEl) {
-                    if (i === state.currentTurnTeamIndex) {
-                        laneEl.classList.remove('lane-inactive');
-                        laneEl.classList.add('lane-active');
-                        badgeEl?.classList.remove('hidden');
-                    } else {
-                        laneEl.classList.remove('lane-active');
-                        laneEl.classList.add('lane-inactive');
-                        badgeEl?.classList.add('hidden');
-                    }
-                }
-            });
-
-            // 4. Header Badge & Active Sidebar Info
             const turnBadge = document.getElementById('currentTurnBadge');
-            turnBadge.innerText = `LƯỢT: ${currentTeam.name.toUpperCase()}`;
-            turnBadge.className = `px-3.5 py-1 rounded-full text-xs font-black uppercase bg-gradient-to-r ${currentTeam.bgClass} text-white shadow-lg border border-white/30`;
+            turnBadge.innerText = `LƯỢT LÁI: ${currentTeam.name.toUpperCase()}`;
+            turnBadge.className = `px-3 py-0.5 rounded-full text-[11px] font-black uppercase bg-gradient-to-r ${currentTeam.bgClass} text-white shadow-md`;
 
             document.getElementById('activeTeamName').innerText = currentTeam.name;
             document.getElementById('activeTeamAvatar').innerText = currentTeam.carEmoji;
-            document.getElementById('activeTeamAvatar').className = `w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-inner border-2 ${currentTeam.borderClass} bg-gradient-to-tr ${currentTeam.bgClass}`;
+            document.getElementById('activeTeamAvatar').className = `w-16 h-16 rounded-2xl flex items-center justify-center text-4xl shadow-inner border-2 ${currentTeam.borderClass} bg-gradient-to-tr ${currentTeam.bgClass}`;
             document.getElementById('activeTeamStats').innerText = `Tiến độ: ${Math.round(currentTeam.progress)}% • Điểm: ${currentTeam.score}`;
 
             const streakBadge = document.getElementById('streakBadge');
@@ -1057,28 +1232,26 @@
                 streakBadge.classList.add('hidden');
             }
 
-            // Question Info
             document.getElementById('questionCategory').innerText = q.category;
-            document.getElementById('questionNumBadge').innerText = `CÂU ${state.currentQuestionIndex + 1}/${QUESTIONS_DATABASE.length}`;
+            document.getElementById('questionNumBadge').innerText = `CÂU ${currentTeam.questionIndex + 1}/10 CỦA ĐỘI`;
             document.getElementById('questionTitle').innerHTML = q.title;
 
-            // Render Answers
             const answerArea = document.getElementById('answerArea');
             answerArea.innerHTML = '';
 
-            if (q.type === 'mcq' || q.type === 'find_error') {
+            if (q.type === 'mcq') {
                 const grid = document.createElement('div');
-                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-3.5";
 
                 q.options.forEach((opt) => {
                     const btn = document.createElement('button');
                     btn.type = "button";
-                    btn.className = "option-btn text-left p-4 sm:p-5 rounded-2xl bg-slate-900/90 border-2 border-slate-700 hover:border-amber-400 hover:bg-slate-800 transition flex items-center gap-4 group active:scale-[0.98] shadow-md";
+                    btn.className = "option-btn text-left p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border-2 border-slate-700/80 hover:border-amber-400 hover:bg-slate-800 transition flex items-center gap-3.5 group active:scale-[0.98]";
                     btn.innerHTML = `
-                        <span class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border-2 border-slate-600 text-amber-300 font-racing font-black text-base sm:text-xl flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500 group-hover:text-slate-950 group-hover:border-amber-400 transition shadow-inner">
+                        <span class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-slate-800 border border-slate-700 text-amber-300 font-racing font-black text-base sm:text-xl flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500 group-hover:text-slate-950 transition">
                             ${opt.key}
                         </span>
-                        <span class="text-sm sm:text-lg md:text-xl font-bold text-slate-100 leading-snug flex-1">
+                        <span class="text-sm sm:text-lg md:text-xl font-bold text-slate-200 leading-snug">
                             ${opt.text}
                         </span>
                     `;
@@ -1087,6 +1260,32 @@
                 });
                 answerArea.appendChild(grid);
             } 
+            else if (q.type === 'tf') {
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 my-2";
+
+                const trueBtn = document.createElement('button');
+                trueBtn.type = "button";
+                trueBtn.className = "p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-700/80 to-emerald-600/80 hover:from-emerald-600 hover:to-emerald-500 border-2 border-emerald-400/80 text-white font-racing font-black text-2xl sm:text-4xl shadow-xl hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-4 group";
+                trueBtn.innerHTML = `
+                    <i class="fa-solid fa-circle-check text-3xl sm:text-5xl text-emerald-300 group-hover:scale-110 transition"></i>
+                    <span>ĐÚNG</span>
+                `;
+                trueBtn.onclick = () => handleTFAnswer(true, trueBtn, q);
+
+                const falseBtn = document.createElement('button');
+                falseBtn.type = "button";
+                falseBtn.className = "p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-rose-700/80 to-rose-600/80 hover:from-rose-600 hover:to-rose-500 border-2 border-rose-400/80 text-white font-racing font-black text-2xl sm:text-4xl shadow-xl hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-4 group";
+                falseBtn.innerHTML = `
+                    <i class="fa-solid fa-circle-xmark text-3xl sm:text-5xl text-rose-300 group-hover:scale-110 transition"></i>
+                    <span>SAI</span>
+                `;
+                falseBtn.onclick = () => handleTFAnswer(false, falseBtn, q);
+
+                grid.appendChild(trueBtn);
+                grid.appendChild(falseBtn);
+                answerArea.appendChild(grid);
+            }
             else if (q.type === 'match') {
                 renderMatchQuestion(q, answerArea);
             }
@@ -1118,9 +1317,9 @@
             const timerEl = document.getElementById('timerText');
             timerEl.innerText = `${state.timer}s`;
             if (state.timer <= 5) {
-                timerEl.className = "font-racing font-black text-rose-400 text-lg sm:text-2xl animate-ping";
+                timerEl.className = "font-racing font-black text-rose-400 text-lg sm:text-xl animate-ping";
             } else {
-                timerEl.className = "font-racing font-black text-amber-300 text-lg sm:text-2xl";
+                timerEl.className = "font-racing font-black text-amber-300 text-lg sm:text-xl";
             }
         }
 
@@ -1133,8 +1332,8 @@
             currentTeam.streak = 0;
 
             const hintBox = document.getElementById('hintBox');
-            const q = QUESTIONS_DATABASE[state.currentQuestionIndex];
-            document.getElementById('hintContent').innerText = "HẾT GIỜ! " + q.hint;
+            const q = currentTeam.questions[currentTeam.questionIndex];
+            document.getElementById('hintContent').innerText = "HẾT THỜI GIAN! " + q.hint;
             hintBox.classList.remove('hidden');
 
             setTimeout(() => {
@@ -1144,13 +1343,13 @@
 
         function renderMatchQuestion(q, container) {
             const wrapper = document.createElement('div');
-            wrapper.className = "flex flex-col gap-4";
+            wrapper.className = "flex flex-col gap-3.5";
 
             const itemsCol = document.createElement('div');
-            itemsCol.className = "grid grid-cols-1 sm:grid-cols-3 gap-3.5";
+            itemsCol.className = "grid grid-cols-1 sm:grid-cols-3 gap-3";
 
             const targetsCol = document.createElement('div');
-            targetsCol.className = "grid grid-cols-1 sm:grid-cols-3 gap-3.5";
+            targetsCol.className = "grid grid-cols-1 sm:grid-cols-3 gap-3";
 
             state.matchedPairs = {};
             state.selectedTouchSourceId = null;
@@ -1159,10 +1358,10 @@
                 const item = document.createElement('div');
                 item.id = `draggable_${pair.id}`;
                 item.draggable = true;
-                item.className = "p-4 rounded-2xl bg-indigo-950/90 border-2 border-indigo-500/50 text-indigo-100 text-sm sm:text-base md:text-lg font-extrabold cursor-pointer flex items-center justify-between shadow-md transition active:scale-95";
+                item.className = "p-4 rounded-2xl bg-indigo-950/90 border-2 border-indigo-500/50 text-indigo-100 text-sm sm:text-base font-bold cursor-pointer flex items-center justify-between shadow-md transition active:scale-95";
                 item.innerHTML = `
                     <span>${pair.name}</span>
-                    <i class="fa-solid fa-hand-pointer text-indigo-300 text-base"></i>
+                    <i class="fa-solid fa-hand-pointer text-indigo-300 text-sm"></i>
                 `;
 
                 item.ondragstart = (e) => {
@@ -1185,11 +1384,11 @@
             shuffled.forEach((pair) => {
                 const dropZone = document.createElement('div');
                 dropZone.id = `dropzone_${pair.id}`;
-                dropZone.className = "drop-target p-4 rounded-2xl bg-slate-900 border-2 border-dashed border-slate-700 text-center flex flex-col items-center justify-center min-h-[90px] cursor-pointer";
+                dropZone.className = "drop-target p-4 rounded-2xl bg-slate-900 border-2 border-dashed border-slate-700 text-center flex flex-col items-center justify-center min-h-[85px] cursor-pointer";
                 dropZone.innerHTML = `
-                    <span class="text-xs sm:text-sm font-bold text-slate-400 mb-1">Công thức:</span>
-                    <span class="text-base sm:text-lg md:text-xl font-racing font-black text-amber-300">${pair.target}</span>
-                    <div class="dropped-slot text-sm sm:text-base text-emerald-400 font-extrabold mt-1"></div>
+                    <span class="text-xs font-bold text-slate-400 mb-0.5">Công thức / Khái niệm:</span>
+                    <span class="text-base sm:text-lg font-racing font-black text-amber-300">${pair.target}</span>
+                    <div class="dropped-slot text-xs text-emerald-400 font-bold mt-1"></div>
                 `;
 
                 dropZone.ondragover = (e) => {
@@ -1217,8 +1416,8 @@
             wrapper.appendChild(targetsCol);
 
             const guide = document.createElement('p');
-            guide.className = "text-xs sm:text-sm text-slate-300 font-medium italic text-center mt-2";
-            guide.innerHTML = '<i class="fa-solid fa-circle-info text-cyan-400 mr-1.5"></i> Trên màn hình cảm ứng: Nhấn chọn tên đại lượng ở trên rồi nhấn vào ô công thức tương ứng ở dưới.';
+            guide.className = "text-xs text-slate-400 italic text-center mt-1";
+            guide.innerHTML = '<i class="fa-solid fa-circle-info text-cyan-400 mr-1"></i> Trên màn hình: Nhấn chọn ô ở trên rồi nhấn vào ô khớp tương ứng ở dưới.';
             wrapper.appendChild(guide);
 
             container.appendChild(wrapper);
@@ -1250,22 +1449,35 @@
                 setTimeout(() => dropZoneEl.classList.remove('border-rose-500'), 500);
             }
         }
-    </script>
 
-    <script>
-        /* 6. SCORING, ADVANCEMENT & PODIUM */
         function handleMCQAnswer(isCorrect, buttonEl, q) {
             if (state.isAnswering) return;
             state.isAnswering = true;
             clearInterval(state.timerInterval);
 
             if (isCorrect) {
-                buttonEl.classList.remove('bg-slate-900/90', 'border-slate-700');
+                buttonEl.classList.remove('bg-slate-900/90', 'border-slate-700/80');
                 buttonEl.classList.add('bg-emerald-600', 'border-emerald-400', 'text-white');
                 handleCorrectAnswer(q);
             } else {
-                buttonEl.classList.remove('bg-slate-900/90', 'border-slate-700');
+                buttonEl.classList.remove('bg-slate-900/90', 'border-slate-700/80');
                 buttonEl.classList.add('bg-rose-600', 'border-rose-400', 'text-white');
+                handleWrongAnswer(buttonEl, q);
+            }
+        }
+
+        function handleTFAnswer(userChoice, buttonEl, q) {
+            if (state.isAnswering) return;
+            state.isAnswering = true;
+            clearInterval(state.timerInterval);
+
+            const isCorrect = (userChoice === q.correctAnswer);
+
+            if (isCorrect) {
+                buttonEl.classList.add('ring-4', 'ring-white', 'scale-105');
+                handleCorrectAnswer(q);
+            } else {
+                buttonEl.classList.add('ring-4', 'ring-rose-400', 'opacity-60');
                 handleWrongAnswer(buttonEl, q);
             }
         }
@@ -1293,8 +1505,8 @@
                 return;
             }
 
-            const isLastQuestion = (state.currentQuestionIndex === QUESTIONS_DATABASE.length - 1);
-            if (isLastQuestion) {
+            const isAllCompleted = state.teams.every(t => (t.id === currentTeam.id ? t.questionIndex === 9 : t.questionIndex === 10));
+            if (isAllCompleted && currentTeam.questionIndex === 9) {
                 setTimeout(() => {
                     const topTeam = [...state.teams].sort((a,b) => (b.progress - a.progress) || (b.score - a.score))[0];
                     triggerVictory(topTeam);
@@ -1316,8 +1528,8 @@
             document.getElementById('hintContent').innerText = q.hint;
             hintBox.classList.remove('hidden');
 
-            const isLastQuestion = (state.currentQuestionIndex === QUESTIONS_DATABASE.length - 1);
-            if (isLastQuestion) {
+            const isAllCompleted = state.teams.every(t => (t.id === currentTeam.id ? t.questionIndex === 9 : t.questionIndex === 10));
+            if (isAllCompleted && currentTeam.questionIndex === 9) {
                 setTimeout(() => {
                     const topTeam = [...state.teams].sort((a,b) => (b.progress - a.progress) || (b.score - a.score))[0];
                     triggerVictory(topTeam);
@@ -1331,9 +1543,25 @@
         }
 
         function nextTurn() {
-            state.currentTurnTeamIndex = (state.currentTurnTeamIndex + 1) % state.teams.length;
-            state.currentQuestionIndex = (state.currentQuestionIndex + 1) % QUESTIONS_DATABASE.length;
-            loadQuestion();
+            const currentTeam = state.teams[state.currentTurnTeamIndex];
+            currentTeam.questionIndex++;
+
+            let nextIndex = (state.currentTurnTeamIndex + 1) % state.teams.length;
+            let checkCount = 0;
+
+            while (state.teams[nextIndex].questionIndex >= 10 && checkCount < state.teams.length) {
+                nextIndex = (nextIndex + 1) % state.teams.length;
+                checkCount++;
+            }
+
+            if (checkCount >= state.teams.length) {
+                const topTeam = [...state.teams].sort((a,b) => (b.progress - a.progress) || (b.score - a.score))[0];
+                triggerVictory(topTeam);
+                return;
+            }
+
+            state.currentTurnTeamIndex = nextIndex;
+            showTurnSplashAndStart();
         }
 
         function updateLeaderboard() {
@@ -1345,27 +1573,25 @@
             sortedTeams.forEach((team, rank) => {
                 const row = document.createElement('div');
                 const isCurrent = (team.id === state.teams[state.currentTurnTeamIndex]?.id);
-                row.className = `p-3 rounded-2xl border flex items-center justify-between transition ${
-                    isCurrent ? 'bg-indigo-950/90 border-amber-400 ring-2 ring-amber-400/50 shadow-lg scale-[1.02]' : 'bg-slate-900/60 border-slate-800'
+                row.className = `p-3 rounded-2xl border-2 flex items-center justify-between transition ${
+                    isCurrent ? 'bg-indigo-950/80 border-amber-400 shadow-lg scale-[1.02]' : 'bg-slate-900/60 border-slate-800 opacity-90'
                 }`;
 
-                let rankBadge = `<span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-racing font-bold text-xs flex items-center justify-center">#${rank + 1}</span>`;
-                if (rank === 0) rankBadge = `<span class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 font-racing font-black text-xs flex items-center justify-center">🥇</span>`;
-                if (rank === 1) rankBadge = `<span class="w-7 h-7 rounded-lg bg-slate-400 text-slate-950 font-racing font-black text-xs flex items-center justify-center">🥈</span>`;
-                if (rank === 2) rankBadge = `<span class="w-7 h-7 rounded-lg bg-amber-700 text-white font-racing font-black text-xs flex items-center justify-center">🥉</span>`;
-
-                const turnTag = isCurrent ? `<span class="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 text-[9px] font-black uppercase tracking-wider animate-pulse ml-1.5">ĐANG ĐUA</span>` : '';
+                let rankBadge = `<span class="w-7 h-7 rounded-xl bg-slate-800 text-slate-300 font-racing font-bold text-xs flex items-center justify-center">#${rank + 1}</span>`;
+                if (rank === 0) rankBadge = `<span class="w-7 h-7 rounded-xl bg-amber-500 text-slate-950 font-racing font-black text-xs flex items-center justify-center">🥇</span>`;
+                if (rank === 1) rankBadge = `<span class="w-7 h-7 rounded-xl bg-slate-400 text-slate-950 font-racing font-black text-xs flex items-center justify-center">🥈</span>`;
+                if (rank === 2) rankBadge = `<span class="w-7 h-7 rounded-xl bg-amber-700 text-white font-racing font-black text-xs flex items-center justify-center">🥉</span>`;
 
                 row.innerHTML = `
                     <div class="flex items-center gap-3">
                         ${rankBadge}
                         <span class="text-2xl">${team.carEmoji}</span>
                         <div>
-                            <div class="text-sm font-bold text-white leading-tight flex items-center">
+                            <div class="text-sm font-bold text-white leading-tight flex items-center gap-1.5">
                                 <span>${team.name}</span>
-                                ${turnTag}
+                                ${isCurrent ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-black">ĐANG ĐUA</span>' : ''}
                             </div>
-                            <div class="text-xs text-slate-400 font-semibold">${team.score} điểm</div>
+                            <div class="text-xs text-slate-400 font-semibold">${team.score} điểm • Đã qua: ${team.questionIndex}/10 câu</div>
                         </div>
                     </div>
                     <div class="text-right">
@@ -1442,9 +1668,12 @@
 
         function resetToSetup() {
             clearInterval(state.timerInterval);
-            hideAllScreens();
+            clearInterval(state.splashTimerInterval);
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('gameplayScreen').classList.add('hidden');
+            document.getElementById('turnSplashOverlay').classList.add('hidden');
             document.getElementById('setupScreen').classList.remove('hidden');
-            setTeamCount(state.selectedTeamCount || 2);
+            renderTeamsSetup();
         }
 
         function showCustomModal() {
@@ -1461,8 +1690,6 @@
         }
 
         window.onload = function() {
-            hideAllScreens();
-            document.getElementById('setupScreen').classList.remove('hidden');
             setTeamCount(2);
         };
     </script>
