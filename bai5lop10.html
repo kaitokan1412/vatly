@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,900;1,700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- PeerJS WebRTC Network -->
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <!-- MQTT WebSocket Client (Thay thế WebRTC, xuyên tường lửa 4G/Wi-Fi) -->
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -29,6 +29,7 @@
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
+        /* Kahoot 4-button layout styles */
         .btn-kahoot-red {
             background: linear-gradient(135deg, #e11d48, #be123c);
             box-shadow: 0 6px 0 #881337;
@@ -71,7 +72,7 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <button id="sfxBtn" onclick="toggleSFX()" class="p-2 w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center justify-center transition text-amber-400">
+            <button id="sfxBtn" onclick="toggleSFX()" class="p-2 w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center justify-center transition text-amber-400" title="Bật/Tắt âm thanh">
                 <i class="fa-solid fa-music" id="sfxIcon"></i>
             </button>
             <button onclick="window.location.reload()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition text-slate-300">
@@ -83,13 +84,13 @@
 
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl w-full mx-auto justify-center">
 
-        <!-- 0. CHỌN VAI TRÒ BAN ĐẦU -->
+        <!-- 0. MÀN HÌNH CHỌN CHẾ ĐỘ -->
         <section id="roleSelectScreen" class="w-full max-w-xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto">
             <span class="px-4 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-widest border border-amber-500/40 inline-flex items-center gap-1.5">
-                <i class="fa-solid fa-gamepad text-amber-400"></i> Nền Tảng Đua Trực Tuyến Live
+                <i class="fa-solid fa-cloud-bolt text-amber-400"></i> Cloud Real-Time Network
             </span>
             <h2 class="text-2xl sm:text-4xl font-racing font-black mt-3 text-white">CHỌN CHẾ ĐỘ THAM GIA</h2>
-            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh quét mã bằng điện thoại để vào đua!</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh mở điện thoại nhập mã PIN để vào đua!</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button onclick="initHostMode()" class="p-6 rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-500 hover:to-purple-600 border-2 border-indigo-400/50 shadow-xl transition transform hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 group">
@@ -111,18 +112,19 @@
         </section>
 
         <!-- ==================== GIAO DIỆN HOST (MÁY CHIẾU) ==================== -->
+        <!-- 1. HOST LOBBY -->
         <section id="hostLobbyScreen" class="w-full max-w-4xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto text-center hidden">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
                 <div class="text-left">
                     <span class="text-xs uppercase font-extrabold text-slate-400 flex items-center gap-2">
                         MÃ PIN PHÒNG ĐUA
-                        <span id="hostStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                        <span id="hostStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
                     </span>
                     <div class="flex items-center gap-3 mt-1">
                         <span id="hostPinDisplay" class="text-4xl sm:text-6xl font-racing font-black text-amber-400 tracking-widest bg-slate-900 px-5 py-1.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                            ĐANG KẾT NỐI...
+                            ----
                         </span>
-                        <button onclick="copyJoinLink()" id="btnCopyLink" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold hidden" title="Sao chép link">
+                        <button onclick="copyJoinLink()" id="btnCopyLink" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold" title="Sao chép link">
                             <i class="fa-solid fa-link text-base"></i>
                         </button>
                     </div>
@@ -137,7 +139,7 @@
             </div>
 
             <div class="min-h-[160px] max-h-[260px] overflow-y-auto p-4 rounded-2xl bg-slate-900/80 border border-slate-800 mb-6 flex flex-wrap gap-3 items-center justify-center" id="hostPlayerListContainer">
-                <p class="text-sm text-slate-500 italic" id="emptyPlayerMsg">Đang chuẩn bị phòng máy chủ...</p>
+                <p class="text-sm text-slate-500 italic" id="emptyPlayerMsg">Đang chờ học sinh nhập mã PIN và tên đội vào phòng...</p>
             </div>
 
             <div class="flex justify-center">
@@ -148,7 +150,7 @@
             </div>
         </section>
 
-        <!-- HOST QUESTION SCREEN -->
+        <!-- 2. HOST QUESTION SCREEN -->
         <section id="hostQuestionScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 hidden">
             <div class="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
@@ -190,7 +192,7 @@
             </div>
         </section>
 
-        <!-- HOST ROUND LEADERBOARD -->
+        <!-- 3. HOST ROUND LEADERBOARD -->
         <section id="hostLeaderboardScreen" class="w-full max-w-3xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto hidden">
             <span class="px-4 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black uppercase tracking-widest border border-indigo-500/40 inline-flex items-center gap-1.5 mb-2">
                 <i class="fa-solid fa-ranking-star text-amber-400"></i> BẢNG ĐIỂM TẠM THỜI
@@ -205,7 +207,7 @@
             </div>
         </section>
 
-        <!-- HOST FINAL SCREEN & STATISTICS -->
+        <!-- 4. HOST FINAL SCREEN & STATISTICS -->
         <section id="hostFinalScreen" class="w-full max-w-4xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/40 my-auto hidden">
             <div class="text-center mb-6">
                 <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-3">🏆</div>
@@ -213,6 +215,7 @@
                 <p id="hostFinalWinner" class="text-xl sm:text-2xl font-racing font-bold text-amber-300 mt-1">Chúc mừng Đội Vô Địch!</p>
             </div>
 
+            <!-- TIA CHỚP PHẢN XẠ AWARD -->
             <div class="p-4 rounded-2xl bg-gradient-to-r from-orange-950/80 to-amber-950/80 border-2 border-orange-500/60 flex items-center justify-between mb-6 shadow-xl">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-xl bg-orange-500 text-white flex items-center justify-center text-2xl shadow-lg">⚡</div>
@@ -223,10 +226,11 @@
                 </div>
                 <div class="text-right">
                     <span class="text-[11px] text-slate-400 block">Thời gian phản xạ TB</span>
-                    <span id="hostFastestTimeVal" class="text-sm sm:text-base font-racing font-black text-amber-300">1.45 giây / câu</span>
+                    <span id="hostFastestTimeVal" class="text-sm sm:text-base font-racing font-black text-amber-300">0.00 giây / câu</span>
                 </div>
             </div>
 
+            <!-- BẢNG THỐNG KÊ CHI TIẾT SƯ PHẠM -->
             <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 mb-6">
                 <h4 class="text-xs font-racing font-bold uppercase text-slate-400 mb-3 flex items-center justify-between">
                     <span>BẢNG THỐNG KÊ SƯ PHẠM CHI TIẾT</span>
@@ -257,6 +261,7 @@
         </section>
 
         <!-- ==================== GIAO DIỆN HỌC SINH (GAMEPAD) ==================== -->
+        <!-- 1. FORM NHẬP PIN & TÊN ĐỘI -->
         <section id="playerJoinScreen" class="w-full max-w-md mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto hidden text-center">
             <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-3 text-3xl">📱</div>
             <h2 class="text-2xl font-racing font-black text-white">VÀO PHÒNG ĐUA</h2>
@@ -281,15 +286,15 @@
             <p id="playerConnectStatusMsg" class="text-xs text-amber-400 mt-3 font-semibold hidden">Đang kết nối vào phòng...</p>
         </section>
 
-        <!-- PLAYER LOBBY -->
+        <!-- 2. PLAYER LOBBY -->
         <section id="playerLobbyScreen" class="w-full max-w-md mx-auto glass-panel p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto text-center hidden">
             <div class="text-6xl mb-4 animate-bounce">🏎️</div>
-            <h3 class="text-xs font-racing uppercase text-slate-400 font-bold">BẠN ĐÃ THAM GIA THÀNH CÔNG</h3>
+            <h3 class="text-xs font-racing uppercase text-slate-400 font-bold" id="playerLobbyStatusText">BẠN ĐÃ THAM GIA THÀNH CÔNG</h3>
             <h2 id="playerMyNameDisplay" class="text-2xl font-racing font-black text-emerald-400 my-1">TÊN ĐỘI</h2>
-            <p class="text-xs text-slate-300 mt-4 leading-relaxed">Hãy nhìn lên màn hình máy chiếu.<br>Cuộc đua sẽ bắt đầu khi giáo viên bấm Xuất phát!</p>
+            <p class="text-xs text-slate-300 mt-4 leading-relaxed" id="playerLobbySubText">Hãy nhìn lên màn hình máy chiếu.<br>Cuộc đua sẽ bắt đầu khi giáo viên bấm Xuất phát!</p>
         </section>
 
-        <!-- PLAYER GAMEPAD -->
+        <!-- 3. PLAYER GAMEPAD (4 NÚT MÀU KAHOOT) -->
         <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
             <div class="glass-panel p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-xs">
                 <span id="playerGameTeamName" class="font-racing font-black text-amber-400">ĐỘI CỦA BẠN</span>
@@ -310,7 +315,7 @@
             </div>
         </section>
 
-        <!-- PLAYER FEEDBACK -->
+        <!-- 4. PLAYER FEEDBACK -->
         <section id="playerFeedbackScreen" class="w-full max-w-md mx-auto glass-panel p-8 rounded-3xl shadow-2xl text-center my-auto hidden">
             <div id="playerFeedbackIcon" class="text-6xl mb-2">🎉</div>
             <h2 id="playerFeedbackTitle" class="text-2xl sm:text-3xl font-racing font-black text-white mb-1">CHÍNH XÁC!</h2>
@@ -320,135 +325,73 @@
 
     </main>
 
-    <!-- PEERJS & GAMEPAD CONTROLLER LOGIC -->
+    <!-- CORE SYSTEM SCRIPT -->
     <script>
-        // CẤU HÌNH WEBRTC GOOGLE STUN SERVERS CHỐNG CHẶN MẠNG TRƯỜNG HỌC / 4G
-        const PEER_CONFIG = {
-            config: {
-                iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' },
-                    { urls: 'stun:stun3.l.google.com:19302' },
-                    { urls: 'stun:stun4.l.google.com:19302' }
-                ],
-                sdpSemantics: 'unified-plan'
-            }
-        };
-
+        // NGÂN HÀNG CÂU HỎI VẬT LÝ 10
         const QUESTIONS_DATA = [
             {
                 category: "Lý thuyết Vận tốc",
                 title: "Tính chất nào sau đây là của vận tốc nhưng KHÔNG PHẢI tính chất của tốc độ?",
-                options: [
-                    "Đặc trưng cho sự nhanh chậm",
-                    "Có đơn vị là km/h hoặc m/s",
-                    "Không thể có độ lớn bằng 0",
-                    "Có hướng (phương và chiều) xác định"
-                ],
+                options: ["Đặc trưng cho sự nhanh chậm", "Có đơn vị là km/h hoặc m/s", "Không thể có độ lớn bằng 0", "Có hướng (phương và chiều) xác định"],
                 correct: 3
             },
             {
                 category: "Dụng cụ đo",
                 title: "Đồng hồ đo tốc độ (tốc kế) trên xe máy, ô tô cho biết đại lượng nào?",
-                options: [
-                    "Vận tốc tức thời",
-                    "Tốc độ tức thời",
-                    "Vận tốc trung bình",
-                    "Tốc độ trung bình"
-                ],
+                options: ["Vận tốc tức thời", "Tốc độ tức thời", "Vận tốc trung bình", "Tốc độ trung bình"],
                 correct: 1
             },
             {
                 category: "Đặc điểm Vận tốc",
                 title: "Phát biểu nào sau đây về vận tốc và tốc độ là ĐÚNG?",
-                options: [
-                    "Độ lớn vận tốc trung bình luôn bằng tốc độ trung bình",
-                    "Độ lớn vận tốc tức thời luôn bằng tốc độ tức thời",
-                    "Vận tốc trung bình luôn luôn bằng tốc độ trung bình",
-                    "Vận tốc tức thời luôn có giá trị dương"
-                ],
+                options: ["Độ lớn vận tốc trung bình luôn bằng tốc độ trung bình", "Độ lớn vận tốc tức thời luôn bằng tốc độ tức thời", "Vận tốc trung bình luôn luôn bằng tốc độ trung bình", "Vận tốc tức thời luôn có giá trị dương"],
                 correct: 1
             },
             {
                 category: "Tổng hợp Vận tốc",
                 title: "Một người bơi trong nước yên lặng với 1 m/s. Nếu bơi xuôi dòng nước chảy 1 m/s thì vận tốc tối đa đạt được là:",
-                options: [
-                    "0 m/s",
-                    "1 m/s",
-                    "2 m/s",
-                    "-2 m/s"
-                ],
+                options: ["0 m/s", "1 m/s", "2 m/s", "-2 m/s"],
                 correct: 2
             },
             {
                 category: "Bài toán Chuyển động",
                 title: "Ca nô chạy trong nước yên lặng đạt 21,5 km/h. Xuôi dòng 1 giờ rồi quay lại mất 2 giờ về vị trí cũ. Vận tốc dòng nước là:",
-                options: [
-                    "7,17 km/h",
-                    "21,5 km/h",
-                    "30,7 km/h",
-                    "17 km/h"
-                ],
+                options: ["7,17 km/h", "21,5 km/h", "30,7 km/h", "17 km/h"],
                 correct: 0
             },
             {
                 category: "Độ dịch chuyển",
                 title: "Một người đi từ nhà đến chợ cách 300 m, đến công viên cách 200 m rồi quay về nhà. Độ dịch chuyển tổng cộng là:",
-                options: [
-                    "1000 m",
-                    "600 m",
-                    "500 m",
-                    "0 m"
-                ],
+                options: ["1000 m", "600 m", "500 m", "0 m"],
                 correct: 3
             },
             {
                 category: "Vận tốc tương đối",
                 title: "Hai xe chạy cùng chiều trên đường thẳng với vận tốc 120 km/h và 80 km/h. Vận tốc xe 1 so với xe 2 là:",
-                options: [
-                    "40 km/h",
-                    "200 km/h",
-                    "-40 km/h",
-                    "100 km/h"
-                ],
+                options: ["40 km/h", "200 km/h", "-40 km/h", "100 km/h"],
                 correct: 0
             },
             {
                 category: "Thời gian chuyển động",
                 title: "Máy bay bay với tốc độ 800 km/h trên quãng đường 1400 km. Thời gian bay là:",
-                options: [
-                    "1 giờ 20 phút",
-                    "1 giờ 30 phút",
-                    "1 giờ 45 phút",
-                    "2 giờ"
-                ],
+                options: ["1 giờ 20 phút", "1 giờ 30 phút", "1 giờ 45 phút", "2 giờ"],
                 correct: 2
             },
             {
                 category: "Đổi đơn vị tốc độ",
                 title: "Tốc độ 72 km/h tương ứng với bao nhiêu mét trên giây (m/s)?",
-                options: [
-                    "15 m/s",
-                    "20 m/s",
-                    "25 m/s",
-                    "30 m/s"
-                ],
+                options: ["15 m/s", "20 m/s", "25 m/s", "30 m/s"],
                 correct: 1
             },
             {
                 category: "Tổng hợp vuông góc",
                 title: "Ca nô chạy hướng Đông với 10 m/s, nước chảy hướng Nam với 10 m/s. Vận tốc của ca nô đối với bờ là:",
-                options: [
-                    "20 m/s",
-                    "10√2 m/s",
-                    "0 m/s",
-                    "15 m/s"
-                ],
+                options: ["20 m/s", "10√2 m/s", "0 m/s", "15 m/s"],
                 correct: 1
             }
         ];
 
+        // ÂM THANH HIỆU ỨNG TỰ ĐỘNG
         let audioCtx = null;
         let sfxEnabled = true;
 
@@ -499,11 +442,13 @@
             document.getElementById('sfxIcon').className = sfxEnabled ? "fa-solid fa-music text-amber-400" : "fa-solid fa-volume-xmark text-slate-500";
         }
 
-        let isHost = false;
-        let peer = null;
-        let hostConn = null;
+        // ================= MQTT CLOUD WEBSOCKET CLIENT =================
+        // Dùng cổng WSS tiêu chuẩn (8084) chạy mượt mà trên 4G/5G và mọi mạng trường học
+        const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
+        
+        let mqttClient = null;
         let roomPin = "";
-        let hostConnections = {};
+        let isHost = false;
 
         let hostState = {
             players: {},
@@ -514,10 +459,9 @@
         };
 
         let playerState = {
-            myId: "",
+            playerId: "p_" + Math.random().toString(36).substring(2, 8),
             myName: "",
             score: 0,
-            streak: 0,
             selectedChoice: null
         };
 
@@ -525,67 +469,62 @@
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
         }
 
-        // ==================== HOST ====================
+        // ================= HOST (MÁY CHIẾU) =================
         function initHostMode() {
             isHost = true;
             hideAllScreens();
             document.getElementById('hostLobbyScreen').classList.remove('hidden');
 
             roomPin = Math.floor(1000 + Math.random() * 9000).toString();
-            const hostPeerId = "ddkt" + roomPin;
+            document.getElementById('hostPinDisplay').innerText = roomPin;
 
-            // Khởi tạo Peer với STUN configuration
-            peer = new Peer(hostPeerId, PEER_CONFIG);
+            const clientId = "host_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
+            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
 
-            peer.on('open', (id) => {
-                document.getElementById('hostPinDisplay').innerText = roomPin;
-                document.getElementById('btnCopyLink').classList.remove('hidden');
-                document.getElementById('hostStatusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
-                document.getElementById('emptyPlayerMsg').innerText = "Đang chờ học sinh nhập mã PIN " + roomPin + " và tên đội...";
+            mqttClient.on('connect', () => {
+                console.log("Host MQTT Đã kết nối thành công!");
+                // Host lắng nghe tin nhắn gửi đến phòng từ học sinh
+                const playerTopic = `duongdua/${roomPin}/player`;
+                mqttClient.subscribe(playerTopic, { qos: 1 });
             });
 
-            peer.on('connection', (conn) => {
-                conn.on('open', () => {
-                    conn.on('data', (data) => handleHostIncomingData(conn, data));
-                });
-                conn.on('close', () => {
-                    if (hostState.players[conn.peer]) {
-                        delete hostState.players[conn.peer];
-                        delete hostConnections[conn.peer];
-                        updateHostLobbyUI();
-                    }
-                });
-            });
-
-            peer.on('error', (err) => {
-                console.error("Host Peer error:", err);
-                if (err.type === 'unavailable-id') {
-                    // Trùng ID, tự đổi mã PIN mới
-                    initHostMode();
-                }
+            mqttClient.on('message', (topic, message) => {
+                try {
+                    const data = JSON.parse(message.toString());
+                    handleHostIncomingData(data);
+                } catch(e) {}
             });
         }
 
-        function handleHostIncomingData(conn, data) {
+        function hostPublish(data) {
+            if (mqttClient && mqttClient.connected) {
+                const hostTopic = `duongdua/${roomPin}/host`;
+                mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 1 });
+            }
+        }
+
+        function handleHostIncomingData(data) {
             if (data.type === 'PLAYER_JOIN') {
-                hostConnections[conn.peer] = conn;
-                hostState.players[conn.peer] = {
-                    id: conn.peer,
-                    name: data.name,
-                    score: 0,
-                    streak: 0,
-                    correctCount: 0,
-                    totalResponseTime: 0,
-                    questionsAnswered: 0,
-                    currentAnswer: null,
-                    responseTime: 0
-                };
-                conn.send({ type: 'JOIN_SUCCESS', myId: conn.peer, roomPin: roomPin });
-                updateHostLobbyUI();
-                Sound.tick();
+                if (!hostState.players[data.playerId]) {
+                    hostState.players[data.playerId] = {
+                        id: data.playerId,
+                        name: data.name,
+                        score: 0,
+                        streak: 0,
+                        correctCount: 0,
+                        totalResponseTime: 0,
+                        questionsAnswered: 0,
+                        currentAnswer: null,
+                        responseTime: 0
+                    };
+                    Sound.tick();
+                    updateHostLobbyUI();
+                }
+                // Phản hồi xác nhận cho điện thoại học sinh
+                hostPublish({ type: 'JOIN_ACK', playerId: data.playerId, roomPin: roomPin });
             }
             else if (data.type === 'PLAYER_ANSWER') {
-                const p = hostState.players[conn.peer];
+                const p = hostState.players[data.playerId];
                 if (p && p.currentAnswer === null) {
                     const timeTaken = (Date.now() - hostState.startTime) / 1000;
                     p.currentAnswer = data.choice;
@@ -602,10 +541,24 @@
                         const speedFactor = Math.max(0.1, (hostState.timer / 20));
                         const gained = Math.round(500 + 500 * speedFactor + (p.streak >= 2 ? p.streak * 30 : 0));
                         p.score += gained;
-                        conn.send({ type: 'ROUND_FEEDBACK', isCorrect: true, score: p.score, ptsGained: gained, time: timeTaken });
+                        hostPublish({
+                            type: 'ROUND_FEEDBACK',
+                            playerId: p.id,
+                            isCorrect: true,
+                            score: p.score,
+                            ptsGained: gained,
+                            time: timeTaken
+                        });
                     } else {
                         p.streak = 0;
-                        conn.send({ type: 'ROUND_FEEDBACK', isCorrect: false, score: p.score, ptsGained: 0, time: timeTaken });
+                        hostPublish({
+                            type: 'ROUND_FEEDBACK',
+                            playerId: p.id,
+                            isCorrect: false,
+                            score: p.score,
+                            ptsGained: 0,
+                            time: timeTaken
+                        });
                     }
 
                     updateHostAnsweredCounter();
@@ -646,7 +599,7 @@
 
         function hostStartGame() {
             hostState.currentQIndex = 0;
-            broadcastToPlayers({ type: 'GAME_START' });
+            hostPublish({ type: 'GAME_START' });
             hostLoadQuestion();
         }
 
@@ -671,7 +624,7 @@
             document.getElementById('hostTotalPlayers').innerText = total;
             document.getElementById('hostAnsweredCount').innerText = "0";
 
-            broadcastToPlayers({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
+            hostPublish({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
 
             hostState.timer = 20;
             hostState.startTime = Date.now();
@@ -717,7 +670,7 @@
                 container.appendChild(card);
             });
 
-            broadcastToPlayers({ type: 'LEADERBOARD_STATE' });
+            hostPublish({ type: 'LEADERBOARD_STATE' });
         }
 
         function hostNextQuestion() {
@@ -778,13 +731,7 @@
                 tbody.appendChild(tr);
             });
 
-            broadcastToPlayers({ type: 'FINAL_PODIUM' });
-        }
-
-        function broadcastToPlayers(msg) {
-            Object.values(hostConnections).forEach(conn => {
-                if (conn && conn.open) conn.send(msg);
-            });
+            hostPublish({ type: 'FINAL_PODIUM' });
         }
 
         function copyJoinLink() {
@@ -793,7 +740,7 @@
             alert("Đã sao chép đường dẫn: " + url);
         }
 
-        // ==================== PLAYER ====================
+        // ================= PLAYER (ĐIỆN THOẠI HỌC SINH) =================
         function initPlayerMode() {
             isHost = false;
             hideAllScreens();
@@ -816,54 +763,49 @@
                 return;
             }
 
-            statusMsg.classList.remove('hidden');
-            statusMsg.innerText = "Đang kết nối tới máy chiếu...";
-            submitBtn.disabled = true;
-
+            roomPin = pin;
             playerState.myName = name;
             document.getElementById('playerMyNameDisplay').innerText = name;
             document.getElementById('playerGameTeamName').innerText = name;
 
-            // Khởi tạo Peer của Player kèm cấu hình STUN
-            peer = new Peer(PEER_CONFIG);
+            statusMsg.classList.remove('hidden');
+            statusMsg.innerText = "Đang kết nối vào phòng...";
+            submitBtn.disabled = true;
 
-            peer.on('open', (id) => {
-                playerState.myId = id;
-                const hostPeerId = "ddkt" + pin;
+            const clientId = "player_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
+            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
 
-                // Kết nối với cờ reliable: true
-                hostConn = peer.connect(hostPeerId, { reliable: true });
-
-                const connTimeout = setTimeout(() => {
-                    if (!hostConn || !hostConn.open) {
-                        statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mạng bị chặn. Vui lòng kiểm tra lại mã PIN!";
-                        submitBtn.disabled = false;
-                    }
-                }, 6000);
-
-                hostConn.on('open', () => {
-                    clearTimeout(connTimeout);
-                    statusMsg.innerText = "✅ Kết nối thành công! Đang vào phòng...";
-                    hostConn.send({ type: 'PLAYER_JOIN', name: name });
-                });
-
-                hostConn.on('data', handlePlayerIncomingData);
-
-                hostConn.on('error', (err) => {
-                    clearTimeout(connTimeout);
-                    statusMsg.innerText = "❌ Lỗi kết nối. Vui lòng thử lại!";
-                    submitBtn.disabled = false;
+            mqttClient.on('connect', () => {
+                console.log("Player MQTT Đã kết nối!");
+                // Lắng nghe lệnh từ Host
+                const hostTopic = `duongdua/${roomPin}/host`;
+                mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
+                    // Gửi yêu cầu vào phòng cho Host
+                    playerPublish({
+                        type: 'PLAYER_JOIN',
+                        playerId: playerState.playerId,
+                        name: playerState.myName
+                    });
                 });
             });
 
-            peer.on('error', (err) => {
-                statusMsg.innerText = "❌ Lỗi kết nối mạng: " + err.type;
-                submitBtn.disabled = false;
+            mqttClient.on('message', (topic, message) => {
+                try {
+                    const data = JSON.parse(message.toString());
+                    handlePlayerIncomingData(data);
+                } catch(e) {}
             });
         }
 
+        function playerPublish(data) {
+            if (mqttClient && mqttClient.connected) {
+                const playerTopic = `duongdua/${roomPin}/player`;
+                mqttClient.publish(playerTopic, JSON.stringify(data), { qos: 1 });
+            }
+        }
+
         function handlePlayerIncomingData(data) {
-            if (data.type === 'JOIN_SUCCESS') {
+            if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
                 Sound.tick();
@@ -875,7 +817,7 @@
                 document.getElementById('playerSubmittedOverlay').classList.add('hidden');
                 playerState.selectedChoice = null;
             }
-            else if (data.type === 'ROUND_FEEDBACK') {
+            else if (data.type === 'ROUND_FEEDBACK' && data.playerId === playerState.playerId) {
                 hideAllScreens();
                 document.getElementById('playerFeedbackScreen').classList.remove('hidden');
 
@@ -899,12 +841,14 @@
             else if (data.type === 'LEADERBOARD_STATE') {
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
-                document.getElementById('playerLobbyScreen').querySelector('h3').innerText = "HÃY NHÌN LÊN MÀN HÌNH MÁY CHIẾU...";
+                document.getElementById('playerLobbyStatusText').innerText = "HÃY NHÌN LÊN MÀN HÌNH MÁY CHIẾU...";
+                document.getElementById('playerLobbySubText').innerText = "Xem thứ hạng tạm thời của đội bạn!";
             }
             else if (data.type === 'FINAL_PODIUM') {
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
-                document.getElementById('playerLobbyScreen').querySelector('h3').innerText = "🏆 CUỘC ĐUA ĐÃ HOÀN THÀNH!";
+                document.getElementById('playerLobbyStatusText').innerText = "🏆 CUỘC ĐUA ĐÃ HOÀN THÀNH!";
+                document.getElementById('playerLobbySubText').innerText = "Hãy nhìn lên máy chiếu để xem vinh danh và thống kê!";
             }
         }
 
@@ -916,9 +860,11 @@
             document.getElementById('playerSubmittedOverlay').classList.remove('hidden');
             Sound.tick();
 
-            if (hostConn && hostConn.open) {
-                hostConn.send({ type: 'PLAYER_ANSWER', choice: choiceIndex });
-            }
+            playerPublish({
+                type: 'PLAYER_ANSWER',
+                playerId: playerState.playerId,
+                choice: choiceIndex
+            });
         }
 
         window.onload = function() {
