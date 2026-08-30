@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Đường Đua Kiến Thức - Kahoot Live Grand Prix</title>
+    <title>Đường Đua Kiến Thức - Grand Prix Live Quiz</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -50,24 +50,28 @@
             0% { transform: scale(1) skewX(0deg); opacity: 0.85; }
             100% { transform: scale(1.25) skewX(-4deg); opacity: 1; }
         }
-        /* Kahoot 4-Button Color Schemes */
-        .btn-kahoot-red {
-            background: linear-gradient(135deg, #e11d48, #be123c);
-            box-shadow: 0 6px 0 #881337;
+        /* PHONG CÁCH NÚT BẤM CYBER RACING MỚI (CHỐNG TRÙNG LẶP KAHOOT) */
+        .btn-race-a {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            box-shadow: 0 6px 0 #4c1d95;
+            border: 2px solid #a78bfa;
         }
-        .btn-kahoot-blue {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
-            box-shadow: 0 6px 0 #075985;
+        .btn-race-b {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            box-shadow: 0 6px 0 #164e63;
+            border: 2px solid #67e8f9;
         }
-        .btn-kahoot-yellow {
-            background: linear-gradient(135deg, #d97706, #b45309);
-            box-shadow: 0 6px 0 #78350f;
+        .btn-race-c {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 6px 0 #7c2d12;
+            border: 2px solid #fdba74;
         }
-        .btn-kahoot-green {
-            background: linear-gradient(135deg, #16a34a, #15803d);
-            box-shadow: 0 6px 0 #14532d;
+        .btn-race-d {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 6px 0 #064e3b;
+            border: 2px solid #6ee7b7;
         }
-        .btn-kahoot-red:active, .btn-kahoot-blue:active, .btn-kahoot-yellow:active, .btn-kahoot-green:active {
+        .btn-race-a:active, .btn-race-b:active, .btn-race-c:active, .btn-race-d:active {
             transform: translateY(4px);
             box-shadow: 0 2px 0 rgba(0,0,0,0.4);
         }
@@ -82,7 +86,7 @@
     <!-- TOP HEADER -->
     <header class="w-full bg-slate-900/95 border-b border-slate-800 px-4 py-2.5 flex justify-between items-center z-40 sticky top-0 shadow-lg backdrop-blur">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 via-amber-500 to-emerald-500 flex items-center justify-center shadow-lg">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-500 via-amber-500 to-cyan-500 flex items-center justify-center shadow-lg">
                 <i class="fa-solid fa-flag-checkered text-xl text-white"></i>
             </div>
             <div>
@@ -115,7 +119,7 @@
                 <i class="fa-solid fa-cloud-bolt text-amber-400"></i> Cloud Real-Time Live Grand Prix
             </span>
             <h2 class="text-2xl sm:text-4xl font-racing font-black mt-3 text-white">CHỌN CHẾ ĐỘ THAM GIA</h2>
-            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh quét mã bằng điện thoại để vào đua!</p>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh mở điện thoại nhập mã PIN để vào đua!</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button onclick="initHostMode()" class="p-6 rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-500 hover:to-purple-600 border-2 border-indigo-400/50 shadow-xl transition transform hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 group">
@@ -126,11 +130,11 @@
                     </div>
                 </button>
 
-                <button onclick="initPlayerMode()" class="p-6 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 border-2 border-emerald-400/50 shadow-xl transition transform hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 group">
+                <button onclick="initPlayerMode()" class="p-6 rounded-3xl bg-gradient-to-br from-cyan-600 to-teal-700 hover:from-cyan-500 hover:to-teal-600 border-2 border-cyan-400/50 shadow-xl transition transform hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 group">
                     <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl group-hover:-rotate-6 transition">📱</div>
                     <div>
                         <h3 class="text-lg font-racing font-black text-white uppercase">ĐIỆN THOẠI</h3>
-                        <p class="text-[11px] text-emerald-200 mt-0.5">Dành cho Học sinh / Đội thi</p>
+                        <p class="text-[11px] text-cyan-200 mt-0.5">Dành cho Học sinh / Đội thi</p>
                     </div>
                 </button>
             </div>
@@ -179,7 +183,7 @@
         <section id="hostQuestionScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 hidden">
             <div class="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <span id="hostQCategory" class="px-3 py-1 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs sm:text-sm font-bold uppercase">Trắc nghiệm</span>
+                    <span id="hostQCategory" class="px-3 py-1 rounded-xl bg-violet-500/20 border border-violet-500/40 text-violet-300 text-xs sm:text-sm font-bold uppercase">Trắc nghiệm</span>
                     <span id="hostQCounter" class="text-sm sm:text-base font-racing font-black text-slate-400">CÂU 1/10</span>
                 </div>
                 <div class="flex items-center gap-3">
@@ -197,29 +201,37 @@
                 <h2 id="hostQuestionTitle" class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-snug">Đang tải câu hỏi...</h2>
             </div>
 
+            <!-- 4 NÚT HIỂN THỊ ĐÁP ÁN GIAO DIỆN CYBER GRAND PRIX MỚI -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4" id="hostOptionsContainer">
-                <div class="p-5 rounded-3xl btn-kahoot-red flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <span class="w-10 h-10 rounded-2xl bg-black/20 flex items-center justify-center text-2xl">▲</span>
+                <div class="p-5 rounded-3xl btn-race-a flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
+                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300">
+                        ⚡ A
+                    </div>
                     <span id="optText0">Đáp án A</span>
                 </div>
-                <div class="p-5 rounded-3xl btn-kahoot-blue flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <span class="w-10 h-10 rounded-2xl bg-black/20 flex items-center justify-center text-2xl">◆</span>
+                <div class="p-5 rounded-3xl btn-race-b flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
+                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200">
+                        🚀 B
+                    </div>
                     <span id="optText1">Đáp án B</span>
                 </div>
-                <div class="p-5 rounded-3xl btn-kahoot-yellow flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <span class="w-10 h-10 rounded-2xl bg-black/20 flex items-center justify-center text-2xl">●</span>
+                <div class="p-5 rounded-3xl btn-race-c flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
+                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200">
+                        🔥 C
+                    </div>
                     <span id="optText2">Đáp án C</span>
                 </div>
-                <div class="p-5 rounded-3xl btn-kahoot-green flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <span class="w-10 h-10 rounded-2xl bg-black/20 flex items-center justify-center text-2xl">■</span>
+                <div class="p-5 rounded-3xl btn-race-d flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
+                    <div class="w-12 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200">
+                        🏁 D
+                    </div>
                     <span id="optText3">Đáp án D</span>
                 </div>
             </div>
         </section>
 
-        <!-- 3. HOST ROUND LEADERBOARD & LIVE RACETRACK (ĐƯỜNG ĐUA TRỰC QUAN + BẢNG XẾP HẠNG) -->
+        <!-- 3. HOST ROUND LEADERBOARD & LIVE RACETRACK -->
         <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 my-auto hidden">
-            <!-- Header Screen -->
             <div class="flex items-center justify-between px-2">
                 <div>
                     <span class="px-3.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black uppercase tracking-widest border border-indigo-500/40 inline-flex items-center gap-1.5">
@@ -234,7 +246,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                <!-- KHUNG ĐƯỜNG ĐUA TRỰC QUAN (7 COLS) -->
                 <div class="lg:col-span-7 bg-slate-900/95 rounded-3xl p-4 border border-slate-800 shadow-2xl flex flex-col gap-3">
                     <div class="flex justify-between items-center px-1 border-b border-slate-800 pb-2">
                         <span class="text-xs font-racing font-black uppercase text-amber-400 flex items-center gap-1.5">
@@ -244,14 +255,9 @@
                             <i class="fa-solid fa-flag-checkered text-amber-400"></i> ĐÍCH: 100%
                         </span>
                     </div>
-
-                    <!-- DANH SÁCH LÀN ĐUA CỦA TỪNG ĐỘI -->
-                    <div id="hostTrackLanesContainer" class="flex flex-col gap-2.5 max-h-[360px] overflow-y-auto pr-1">
-                        <!-- Injected dynamically -->
-                    </div>
+                    <div id="hostTrackLanesContainer" class="flex flex-col gap-2.5 max-h-[360px] overflow-y-auto pr-1"></div>
                 </div>
 
-                <!-- BẢNG XẾP HẠNG ĐIỂM SỐ TOP (5 COLS) -->
                 <div class="lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-5 border border-slate-800 shadow-2xl flex flex-col gap-3">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                         <span class="text-xs font-racing font-black uppercase text-slate-300 flex items-center gap-1.5">
@@ -259,9 +265,7 @@
                         </span>
                         <span class="text-[11px] text-slate-400 font-bold">Xếp hạng Live</span>
                     </div>
-                    <div id="hostLeaderboardList" class="flex flex-col gap-2.5">
-                        <!-- Injected dynamically -->
-                    </div>
+                    <div id="hostLeaderboardList" class="flex flex-col gap-2.5"></div>
                 </div>
             </div>
         </section>
@@ -327,7 +331,7 @@
                         <thead class="bg-slate-800/80 text-slate-300 text-[11px] uppercase font-racing">
                             <tr id="hostMatrixHeaderRow">
                                 <th class="p-2.5 text-left rounded-l-xl">Tên Đội</th>
-                                <th class="p-2.5 rounded-r-xl">Tổng Đúng</th>
+                                <th class="p-2.5 text-center rounded-r-xl">Tổng Đúng</th>
                             </tr>
                         </thead>
                         <tbody id="hostMatrixTableBody" class="divide-y divide-slate-800 font-bold"></tbody>
@@ -354,7 +358,7 @@
         <!-- ==================== GIAO DIỆN HỌC SINH (GAMEPAD) ==================== -->
         <!-- 1. FORM NHẬP PIN & TÊN ĐỘI -->
         <section id="playerJoinScreen" class="w-full max-w-md mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto hidden text-center">
-            <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-3 text-3xl">📱</div>
+            <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center mx-auto mb-3 text-3xl">📱</div>
             <h2 class="text-2xl font-racing font-black text-white">VÀO PHÒNG ĐUA</h2>
             <p class="text-xs text-slate-300 mb-6">Nhập mã PIN từ máy chiếu và đặt tên nhóm để tham gia</p>
 
@@ -371,7 +375,7 @@
                 </div>
             </div>
 
-            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-racing font-black text-lg shadow-lg hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2">
+            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-600 via-cyan-600 to-emerald-600 text-white font-racing font-black text-lg shadow-lg hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2">
                 <span>THAM GIA NGAY</span>
             </button>
             <p id="playerConnectStatusMsg" class="text-xs text-amber-400 mt-3 font-semibold hidden">Đang kết nối vào phòng...</p>
@@ -381,11 +385,11 @@
         <section id="playerLobbyScreen" class="w-full max-w-md mx-auto glass-panel p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto text-center hidden">
             <div id="playerMyCarAvatar" class="text-6xl mb-4 animate-bounce">🏎️</div>
             <h3 class="text-xs font-racing uppercase text-slate-400 font-bold" id="playerLobbyStatusText">BẠN ĐÃ THAM GIA THÀNH CÔNG</h3>
-            <h2 id="playerMyNameDisplay" class="text-2xl font-racing font-black text-emerald-400 my-1">TÊN ĐỘI</h2>
+            <h2 id="playerMyNameDisplay" class="text-2xl font-racing font-black text-cyan-400 my-1">TÊN ĐỘI</h2>
             <p class="text-xs text-slate-300 mt-4 leading-relaxed" id="playerLobbySubText">Hãy nhìn lên màn hình máy chiếu.<br>Cuộc đua sẽ bắt đầu khi giáo viên bấm Xuất phát!</p>
         </section>
 
-        <!-- 3. PLAYER GAMEPAD (4 NÚT MÀU KAHOOT) -->
+        <!-- 3. PLAYER GAMEPAD (4 NÚT CYBER RACING MỚI) -->
         <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
             <div class="glass-panel p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-xs">
                 <span id="playerGameTeamName" class="font-racing font-black text-amber-400 flex items-center gap-1.5">
@@ -395,11 +399,24 @@
                 <span id="playerGameScore" class="font-racing font-bold text-slate-300">0 Điểm</span>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 h-[320px] sm:h-[380px]" id="playerButtonGrid">
-                <button onclick="playerSendAnswer(0)" class="btn-kahoot-red rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">▲</button>
-                <button onclick="playerSendAnswer(1)" class="btn-kahoot-blue rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">◆</button>
-                <button onclick="playerSendAnswer(2)" class="btn-kahoot-yellow rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">●</button>
-                <button onclick="playerSendAnswer(3)" class="btn-kahoot-green rounded-3xl flex items-center justify-center text-4xl text-white shadow-lg active:scale-95 transition">■</button>
+            <!-- 4 NÚT TAY CẦM CYBER RACING -->
+            <div class="grid grid-cols-2 gap-3.5 h-[320px] sm:h-[380px]" id="playerButtonGrid">
+                <button onclick="playerSendAnswer(0)" class="btn-race-a rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
+                    <span class="text-3xl sm:text-4xl font-racing font-black text-yellow-300">⚡ A</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-violet-200">Nitro</span>
+                </button>
+                <button onclick="playerSendAnswer(1)" class="btn-race-b rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
+                    <span class="text-3xl sm:text-4xl font-racing font-black text-cyan-100">🚀 B</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-200">Phản Lực</span>
+                </button>
+                <button onclick="playerSendAnswer(2)" class="btn-race-c rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
+                    <span class="text-3xl sm:text-4xl font-racing font-black text-amber-100">🔥 C</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-orange-200">Bốc Hỏa</span>
+                </button>
+                <button onclick="playerSendAnswer(3)" class="btn-race-d rounded-3xl flex flex-col items-center justify-center gap-1 text-white shadow-xl active:scale-95 transition">
+                    <span class="text-3xl sm:text-4xl font-racing font-black text-emerald-100">🏁 D</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-200">Về Đích</span>
+                </button>
             </div>
 
             <div id="playerSubmittedOverlay" class="glass-panel p-6 rounded-3xl border border-slate-700 text-center hidden">
@@ -421,19 +438,18 @@
 
     <!-- CORE SYSTEM SCRIPT -->
     <script>
-        // BẢNG MẪU THIẾT KẾ XE DÀNH CHO CÁC ĐỘI (KHÁC NHAU VỀ XE, MÀU SẮC, HIỆU ỨNG)
         const CAR_DESIGNS = [
-            { emoji: '🏎️', bg: 'from-rose-600 to-red-500', border: 'border-rose-500', name: 'F1 Đỏ Siêu Tốc' },
+            { emoji: '🏎️', bg: 'from-violet-600 to-purple-500', border: 'border-violet-500', name: 'F1 Tím Siêu Tốc' },
             { emoji: '🚙', bg: 'from-cyan-600 to-blue-500', border: 'border-cyan-500', name: 'Cyber Xanh Điện' },
             { emoji: '🛺', bg: 'from-amber-500 to-yellow-500', border: 'border-amber-500', name: 'Nitro Vàng Phản Lực' },
-            { emoji: '🚀', bg: 'from-purple-600 to-indigo-600', border: 'border-purple-500', name: 'Tàu Tím Không Gian' },
+            { emoji: '🚀', bg: 'from-rose-600 to-pink-500', border: 'border-rose-500', name: 'Tàu Đỏ Không Gian' },
             { emoji: '🏎️', bg: 'from-emerald-600 to-teal-500', border: 'border-emerald-500', name: 'Lốc Xoáy Lục Bảo' },
-            { emoji: '🛸', bg: 'from-pink-600 to-rose-500', border: 'border-pink-500', name: 'Phi Thuyền Hồng' },
-            { emoji: '🏎️', bg: 'from-orange-600 to-amber-500', border: 'border-orange-500', name: 'Chiến Hạm Cam' },
-            { emoji: '🚙', bg: 'from-violet-600 to-purple-500', border: 'border-violet-500', name: 'Bão Táp Tím' }
+            { emoji: '🛸', bg: 'from-orange-600 to-amber-500', border: 'border-orange-500', name: 'Phi Thuyền Cam' },
+            { emoji: '🏎️', bg: 'from-blue-600 to-indigo-500', border: 'border-blue-500', name: 'Chiến Hạm Đại Dương' },
+            { emoji: '🚙', bg: 'from-teal-600 to-emerald-500', border: 'border-teal-500', name: 'Bão Táp Ngọc Bích' }
         ];
 
-        // 100% CÂU HỎI TRẮC NGHIỆM 4 LỰA CHỌN VẬT LÝ 10
+        // 100% CÂU HỎI TRẮC NGHIỆM VẬT LÝ 10
         const QUESTIONS_DATA = [
             {
                 category: "Lý thuyết Vận tốc",
@@ -547,7 +563,6 @@
             }
         ];
 
-        // ÂM THANH HIỆU ỨNG TỰ ĐỘNG
         let audioCtx = null;
         let sfxEnabled = true;
 
@@ -820,7 +835,6 @@
             document.getElementById('hostAnsweredCount').innerText = answered;
         }
 
-        // HIỂN THỊ KẾT HỢP: ĐƯỜNG ĐUA XE TRỰC QUAN + BẢNG XẾP HẠNG
         function hostShowLeaderboard() {
             hideAllScreens();
             document.getElementById('hostLeaderboardScreen').classList.remove('hidden');
@@ -828,36 +842,30 @@
 
             const sorted = Object.values(hostState.players).sort((a,b) => b.score - a.score);
 
-            // 1. RENDER ĐƯỜNG ĐUA TRỰC QUAN
             const trackContainer = document.getElementById('hostTrackLanesContainer');
             trackContainer.innerHTML = '';
 
-            sorted.forEach((p, index) => {
-                // Tính toán % tiến độ trên đường đua dựa trên số câu đúng và điểm số
+            sorted.forEach((p) => {
                 const progressPercent = Math.min(100, Math.round(((p.correctCount / QUESTIONS_DATA.length) * 80) + (p.score / (QUESTIONS_DATA.length * 1000) * 20)));
 
                 const lane = document.createElement('div');
                 lane.className = `w-full h-14 sm:h-16 bg-slate-950 rounded-2xl relative border-2 ${p.carSkin.border} overflow-hidden flex items-center shadow-inner`;
 
                 lane.innerHTML = `
-                    <!-- Mặt đường nhựa chuyển động -->
                     <div class="absolute inset-0 bg-slate-900/90 flex flex-col justify-between py-1 px-2 pointer-events-none">
                         <div class="w-full h-[1px] bg-slate-800"></div>
                         <div class="w-full h-[2px] road-anim opacity-40"></div>
                         <div class="w-full h-[1px] bg-slate-800"></div>
                     </div>
 
-                    <!-- Vạch đích cờ caro -->
                     <div class="absolute right-0 top-0 bottom-0 w-8 bg-repeat-y opacity-70 flex items-center justify-center border-l border-white/40" 
                          style="background-image: repeating-linear-gradient(45deg, #000 0, #000 6px, #fff 6px, #fff 12px);">
                     </div>
 
-                    <!-- Xe của đội đang chạy trên làn -->
                     <div id="host_car_${p.id}" 
                          class="absolute left-1.5 transition-all duration-1000 ease-out flex items-center z-10"
                          style="transform: translateX(0px);">
                         
-                        <!-- Lửa Nitro khi Streak >= 2 -->
                         <div class="text-lg -mr-1 ${p.streak >= 2 ? 'flame-effect' : 'hidden'}">🔥</div>
 
                         <div class="relative flex items-center gap-1.5">
@@ -870,7 +878,6 @@
                         </div>
                     </div>
 
-                    <!-- Label chỉ số % tiến độ ở góc phải -->
                     <div class="absolute right-9 top-1/2 -translate-y-1/2 text-xs font-racing font-black text-amber-400 z-0">
                         ${progressPercent}%
                     </div>
@@ -878,7 +885,6 @@
 
                 trackContainer.appendChild(lane);
 
-                // Kích hoạt hoạt ảnh xe lăn bánh đến vị trí hiện tại
                 setTimeout(() => {
                     const carEl = document.getElementById(`host_car_${p.id}`);
                     if (carEl) {
@@ -890,7 +896,6 @@
                 }, 100);
             });
 
-            // 2. RENDER BẢNG XẾP HẠNG TOP ĐIỂM
             const leaderboardList = document.getElementById('hostLeaderboardList');
             leaderboardList.innerHTML = '';
 
@@ -940,7 +945,6 @@
                 document.getElementById('hostFinalWinner').innerText = `🏆 CHÚC MỪNG ${sorted[0].name.toUpperCase()} ĐÃ VÔ ĐỊCH!`;
             }
 
-            // TÌM ĐỘI NHANH NHẤT
             let fastestTeam = null;
             let minAvgTime = 9999;
 
@@ -957,7 +961,6 @@
                 document.getElementById('hostFastestTimeVal').innerText = `${minAvgTime.toFixed(2)} giây / câu`;
             }
 
-            // 1. BẢNG TỔNG HỢP XẾP HẠNG
             const tbodyStats = document.getElementById('hostStatsTableBody');
             tbodyStats.innerHTML = '';
 
@@ -977,7 +980,6 @@
                 tbodyStats.appendChild(tr);
             });
 
-            // 2. MA TRẬN ĐÚNG / SAI TỪNG CÂU HỎI
             const matrixHeaderRow = document.getElementById('hostMatrixHeaderRow');
             matrixHeaderRow.innerHTML = '<th class="p-2.5 text-left rounded-l-xl">Tên Đội</th>';
             QUESTIONS_DATA.forEach((_, qIdx) => {
@@ -1008,7 +1010,6 @@
                 matrixTableBody.appendChild(tr);
             });
 
-            // 3. BẢNG PHÂN TÍCH CHI TIẾT TỪNG CÂU HỎI
             const analysisContainer = document.getElementById('hostQuestionAnalysisContainer');
             analysisContainer.innerHTML = '';
 
