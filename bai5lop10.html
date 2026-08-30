@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,900;1,700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- MQTT WebSocket Client (Xuyên tường lửa 4G / Wi-Fi trường học) -->
+    <!-- MQTT WebSocket Client -->
     <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -28,6 +28,27 @@
             background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        @keyframes roadMove {
+            0% { background-position: 0 0; }
+            100% { background-position: -80px 0; }
+        }
+        .road-anim {
+            background-image: repeating-linear-gradient(90deg, #facc15 0, #facc15 25px, transparent 25px, transparent 55px);
+            background-size: 80px 4px;
+            animation: roadMove 0.6s linear infinite;
+        }
+        .nitro-glow {
+            filter: drop-shadow(0 0 16px #38bdf8) drop-shadow(0 0 28px #f97316);
+            transform: scale(1.05);
+        }
+        .flame-effect {
+            filter: drop-shadow(0 0 8px #f97316);
+            animation: flicker 0.15s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { transform: scale(1) skewX(0deg); opacity: 0.85; }
+            100% { transform: scale(1.25) skewX(-4deg); opacity: 1; }
         }
         /* Kahoot 4-Button Color Schemes */
         .btn-kahoot-red {
@@ -70,7 +91,7 @@
                 </h1>
                 <p class="text-[10px] md:text-xs text-slate-400 font-bold flex items-center gap-1.5">
                     <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Vật Lý 10 • Chủ Đề 5: Tốc Độ & Vận Tốc (100% Trắc Nghiệm)
+                    Vật Lý 10 • Chủ Đề 5: Tốc Độ & Vận Tốc
                 </p>
             </div>
         </div>
@@ -91,7 +112,7 @@
         <!-- 0. CHỌN CHẾ ĐỘ THAM GIA -->
         <section id="roleSelectScreen" class="w-full max-w-xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto">
             <span class="px-4 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-widest border border-amber-500/40 inline-flex items-center gap-1.5">
-                <i class="fa-solid fa-cloud-bolt text-amber-400"></i> Cloud Real-Time Live Quiz
+                <i class="fa-solid fa-cloud-bolt text-amber-400"></i> Cloud Real-Time Live Grand Prix
             </span>
             <h2 class="text-2xl sm:text-4xl font-racing font-black mt-3 text-white">CHỌN CHẾ ĐỘ THAM GIA</h2>
             <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-6">Giáo viên tạo phòng trên máy chiếu, học sinh quét mã bằng điện thoại để vào đua!</p>
@@ -196,18 +217,52 @@
             </div>
         </section>
 
-        <!-- 3. HOST LEADERBOARD GIỮA CÁC CÂU -->
-        <section id="hostLeaderboardScreen" class="w-full max-w-3xl mx-auto glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 text-center my-auto hidden">
-            <span class="px-4 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black uppercase tracking-widest border border-indigo-500/40 inline-flex items-center gap-1.5 mb-2">
-                <i class="fa-solid fa-ranking-star text-amber-400"></i> BẢNG ĐIỂM TẠM THỜI
-            </span>
-            <h2 class="text-2xl sm:text-4xl font-racing font-black text-white mb-6">TOP DẪN ĐẦU ĐƯỜNG ĐUA</h2>
-            <div id="hostLeaderboardList" class="flex flex-col gap-3 mb-6"></div>
-            <div class="flex justify-center">
-                <button onclick="hostNextQuestion()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-lg shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-2">
-                    <span>CÂU HỎI TIẾP THEO</span>
+        <!-- 3. HOST ROUND LEADERBOARD & LIVE RACETRACK (ĐƯỜNG ĐUA TRỰC QUAN + BẢNG XẾP HẠNG) -->
+        <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 my-auto hidden">
+            <!-- Header Screen -->
+            <div class="flex items-center justify-between px-2">
+                <div>
+                    <span class="px-3.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black uppercase tracking-widest border border-indigo-500/40 inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-flag-checkered text-amber-400"></i> KẾT QUẢ VÒNG ĐUA
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-racing font-black text-white mt-1">ĐƯỜNG ĐUA & BẢNG XẾP HẠNG</h2>
+                </div>
+                <button onclick="hostNextQuestion()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-base shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-2">
+                    <span>CÂU TIẾP THEO</span>
                     <i class="fa-solid fa-forward-step"></i>
                 </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                <!-- KHUNG ĐƯỜNG ĐUA TRỰC QUAN (7 COLS) -->
+                <div class="lg:col-span-7 bg-slate-900/95 rounded-3xl p-4 border border-slate-800 shadow-2xl flex flex-col gap-3">
+                    <div class="flex justify-between items-center px-1 border-b border-slate-800 pb-2">
+                        <span class="text-xs font-racing font-black uppercase text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-road"></i> VỊ TRÍ XE TRÊN ĐƯỜNG ĐUA
+                        </span>
+                        <span class="text-xs font-racing font-bold text-slate-400 flex items-center gap-1">
+                            <i class="fa-solid fa-flag-checkered text-amber-400"></i> ĐÍCH: 100%
+                        </span>
+                    </div>
+
+                    <!-- DANH SÁCH LÀN ĐUA CỦA TỪNG ĐỘI -->
+                    <div id="hostTrackLanesContainer" class="flex flex-col gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- BẢNG XẾP HẠNG ĐIỂM SỐ TOP (5 COLS) -->
+                <div class="lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-5 border border-slate-800 shadow-2xl flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <span class="text-xs font-racing font-black uppercase text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-ranking-star text-amber-400"></i> TOP ĐIỂM SỐ
+                        </span>
+                        <span class="text-[11px] text-slate-400 font-bold">Xếp hạng Live</span>
+                    </div>
+                    <div id="hostLeaderboardList" class="flex flex-col gap-2.5">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -324,7 +379,7 @@
 
         <!-- 2. PLAYER LOBBY -->
         <section id="playerLobbyScreen" class="w-full max-w-md mx-auto glass-panel p-8 rounded-3xl shadow-2xl border border-slate-800 my-auto text-center hidden">
-            <div class="text-6xl mb-4 animate-bounce">🏎️</div>
+            <div id="playerMyCarAvatar" class="text-6xl mb-4 animate-bounce">🏎️</div>
             <h3 class="text-xs font-racing uppercase text-slate-400 font-bold" id="playerLobbyStatusText">BẠN ĐÃ THAM GIA THÀNH CÔNG</h3>
             <h2 id="playerMyNameDisplay" class="text-2xl font-racing font-black text-emerald-400 my-1">TÊN ĐỘI</h2>
             <p class="text-xs text-slate-300 mt-4 leading-relaxed" id="playerLobbySubText">Hãy nhìn lên màn hình máy chiếu.<br>Cuộc đua sẽ bắt đầu khi giáo viên bấm Xuất phát!</p>
@@ -333,7 +388,10 @@
         <!-- 3. PLAYER GAMEPAD (4 NÚT MÀU KAHOOT) -->
         <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
             <div class="glass-panel p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-xs">
-                <span id="playerGameTeamName" class="font-racing font-black text-amber-400">ĐỘI CỦA BẠN</span>
+                <span id="playerGameTeamName" class="font-racing font-black text-amber-400 flex items-center gap-1.5">
+                    <span id="playerGameCarIcon">🏎️</span>
+                    <span id="playerGameTeamLabel">ĐỘI CỦA BẠN</span>
+                </span>
                 <span id="playerGameScore" class="font-racing font-bold text-slate-300">0 Điểm</span>
             </div>
 
@@ -363,7 +421,19 @@
 
     <!-- CORE SYSTEM SCRIPT -->
     <script>
-        // NGÂN HÀNG CÂU HỎI TRẮC NGHIỆM 4 LỰA CHỌN (A, B, C, D)
+        // BẢNG MẪU THIẾT KẾ XE DÀNH CHO CÁC ĐỘI (KHÁC NHAU VỀ XE, MÀU SẮC, HIỆU ỨNG)
+        const CAR_DESIGNS = [
+            { emoji: '🏎️', bg: 'from-rose-600 to-red-500', border: 'border-rose-500', name: 'F1 Đỏ Siêu Tốc' },
+            { emoji: '🚙', bg: 'from-cyan-600 to-blue-500', border: 'border-cyan-500', name: 'Cyber Xanh Điện' },
+            { emoji: '🛺', bg: 'from-amber-500 to-yellow-500', border: 'border-amber-500', name: 'Nitro Vàng Phản Lực' },
+            { emoji: '🚀', bg: 'from-purple-600 to-indigo-600', border: 'border-purple-500', name: 'Tàu Tím Không Gian' },
+            { emoji: '🏎️', bg: 'from-emerald-600 to-teal-500', border: 'border-emerald-500', name: 'Lốc Xoáy Lục Bảo' },
+            { emoji: '🛸', bg: 'from-pink-600 to-rose-500', border: 'border-pink-500', name: 'Phi Thuyền Hồng' },
+            { emoji: '🏎️', bg: 'from-orange-600 to-amber-500', border: 'border-orange-500', name: 'Chiến Hạm Cam' },
+            { emoji: '🚙', bg: 'from-violet-600 to-purple-500', border: 'border-violet-500', name: 'Bão Táp Tím' }
+        ];
+
+        // 100% CÂU HỎI TRẮC NGHIỆM 4 LỰA CHỌN VẬT LÝ 10
         const QUESTIONS_DATA = [
             {
                 category: "Lý thuyết Vận tốc",
@@ -374,7 +444,7 @@
                     "Không thể có độ lớn bằng 0",
                     "Có hướng (phương và chiều) xác định"
                 ],
-                correct: 3 // D
+                correct: 3
             },
             {
                 category: "Dụng cụ đo",
@@ -385,7 +455,7 @@
                     "Vận tốc trung bình",
                     "Tốc độ trung bình"
                 ],
-                correct: 1 // B
+                correct: 1
             },
             {
                 category: "Đặc điểm Vận tốc",
@@ -396,7 +466,7 @@
                     "Vận tốc trung bình luôn luôn bằng tốc độ trung bình",
                     "Vận tốc tức thời luôn có giá trị dương"
                 ],
-                correct: 1 // B
+                correct: 1
             },
             {
                 category: "Tổng hợp Vận tốc",
@@ -407,7 +477,7 @@
                     "2 m/s",
                     "-2 m/s"
                 ],
-                correct: 2 // C
+                correct: 2
             },
             {
                 category: "Bài toán Chuyển động trên sông",
@@ -418,7 +488,7 @@
                     "30,7 km/h",
                     "17 km/h"
                 ],
-                correct: 0 // A
+                correct: 0
             },
             {
                 category: "Độ dịch chuyển",
@@ -429,7 +499,7 @@
                     "500 m",
                     "0 m"
                 ],
-                correct: 3 // D
+                correct: 3
             },
             {
                 category: "Vận tốc tương đối",
@@ -440,7 +510,7 @@
                     "-40 km/h",
                     "100 km/h"
                 ],
-                correct: 0 // A
+                correct: 0
             },
             {
                 category: "Thời gian chuyển động",
@@ -451,7 +521,7 @@
                     "1 giờ 45 phút",
                     "2 giờ"
                 ],
-                correct: 2 // C
+                correct: 2
             },
             {
                 category: "Đổi đơn vị tốc độ",
@@ -462,7 +532,7 @@
                     "25 m/s",
                     "30 m/s"
                 ],
-                correct: 1 // B
+                correct: 1
             },
             {
                 category: "Tổng hợp vuông góc",
@@ -473,11 +543,11 @@
                     "0 m/s",
                     "15 m/s"
                 ],
-                correct: 1 // B
+                correct: 1
             }
         ];
 
-        // HỆ THỐNG ÂM THANH TỰ ĐỘNG
+        // ÂM THANH HIỆU ỨNG TỰ ĐỘNG
         let audioCtx = null;
         let sfxEnabled = true;
 
@@ -547,6 +617,7 @@
             playerId: "p_" + Math.random().toString(36).substring(2, 8),
             myName: "",
             score: 0,
+            carSkin: null,
             selectedChoice: null
         };
 
@@ -567,7 +638,6 @@
             mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
 
             mqttClient.on('connect', () => {
-                console.log("Host MQTT Đã kết nối thành công!");
                 const playerTopic = `duongdua/${roomPin}/player`;
                 mqttClient.subscribe(playerTopic, { qos: 1 });
             });
@@ -590,6 +660,7 @@
         function handleHostIncomingData(data) {
             if (data.type === 'PLAYER_JOIN') {
                 if (!hostState.players[data.playerId]) {
+                    const assignedCar = CAR_DESIGNS[Object.keys(hostState.players).length % CAR_DESIGNS.length];
                     hostState.players[data.playerId] = {
                         id: data.playerId,
                         name: data.name,
@@ -600,12 +671,14 @@
                         questionsAnswered: 0,
                         currentAnswer: null,
                         responseTime: 0,
+                        carSkin: assignedCar,
                         answerHistory: {}
                     };
                     Sound.tick();
                     updateHostLobbyUI();
                 }
-                hostPublish({ type: 'JOIN_ACK', playerId: data.playerId, roomPin: roomPin });
+                const p = hostState.players[data.playerId];
+                hostPublish({ type: 'JOIN_ACK', playerId: data.playerId, roomPin: roomPin, carSkin: p.carSkin });
             }
             else if (data.type === 'PLAYER_ANSWER') {
                 const p = hostState.players[data.playerId];
@@ -681,8 +754,8 @@
             container.innerHTML = '';
             Object.values(hostState.players).forEach(p => {
                 const bubble = document.createElement('div');
-                bubble.className = "px-4 py-2 rounded-2xl bg-gradient-to-r from-indigo-600/80 to-purple-600/80 border border-indigo-400 text-white font-racing font-bold text-sm shadow-md animate-fade-in flex items-center gap-2";
-                bubble.innerHTML = `<span>🏎️</span> <span>${p.name}</span>`;
+                bubble.className = `px-4 py-2 rounded-2xl bg-gradient-to-r ${p.carSkin.bg} border ${p.carSkin.border} text-white font-racing font-bold text-sm shadow-md animate-fade-in flex items-center gap-2`;
+                bubble.innerHTML = `<span>${p.carSkin.emoji}</span> <span>${p.name}</span>`;
                 container.appendChild(bubble);
             });
         }
@@ -747,26 +820,98 @@
             document.getElementById('hostAnsweredCount').innerText = answered;
         }
 
+        // HIỂN THỊ KẾT HỢP: ĐƯỜNG ĐUA XE TRỰC QUAN + BẢNG XẾP HẠNG
         function hostShowLeaderboard() {
             hideAllScreens();
             document.getElementById('hostLeaderboardScreen').classList.remove('hidden');
             Sound.fanfare();
 
             const sorted = Object.values(hostState.players).sort((a,b) => b.score - a.score);
-            const container = document.getElementById('hostLeaderboardList');
-            container.innerHTML = '';
+
+            // 1. RENDER ĐƯỜNG ĐUA TRỰC QUAN
+            const trackContainer = document.getElementById('hostTrackLanesContainer');
+            trackContainer.innerHTML = '';
+
+            sorted.forEach((p, index) => {
+                // Tính toán % tiến độ trên đường đua dựa trên số câu đúng và điểm số
+                const progressPercent = Math.min(100, Math.round(((p.correctCount / QUESTIONS_DATA.length) * 80) + (p.score / (QUESTIONS_DATA.length * 1000) * 20)));
+
+                const lane = document.createElement('div');
+                lane.className = `w-full h-14 sm:h-16 bg-slate-950 rounded-2xl relative border-2 ${p.carSkin.border} overflow-hidden flex items-center shadow-inner`;
+
+                lane.innerHTML = `
+                    <!-- Mặt đường nhựa chuyển động -->
+                    <div class="absolute inset-0 bg-slate-900/90 flex flex-col justify-between py-1 px-2 pointer-events-none">
+                        <div class="w-full h-[1px] bg-slate-800"></div>
+                        <div class="w-full h-[2px] road-anim opacity-40"></div>
+                        <div class="w-full h-[1px] bg-slate-800"></div>
+                    </div>
+
+                    <!-- Vạch đích cờ caro -->
+                    <div class="absolute right-0 top-0 bottom-0 w-8 bg-repeat-y opacity-70 flex items-center justify-center border-l border-white/40" 
+                         style="background-image: repeating-linear-gradient(45deg, #000 0, #000 6px, #fff 6px, #fff 12px);">
+                    </div>
+
+                    <!-- Xe của đội đang chạy trên làn -->
+                    <div id="host_car_${p.id}" 
+                         class="absolute left-1.5 transition-all duration-1000 ease-out flex items-center z-10"
+                         style="transform: translateX(0px);">
+                        
+                        <!-- Lửa Nitro khi Streak >= 2 -->
+                        <div class="text-lg -mr-1 ${p.streak >= 2 ? 'flame-effect' : 'hidden'}">🔥</div>
+
+                        <div class="relative flex items-center gap-1.5">
+                            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr ${p.carSkin.bg} flex items-center justify-center text-xl sm:text-2xl shadow-lg border border-white/40 ${p.streak >= 2 ? 'nitro-glow' : ''}">
+                                ${p.carSkin.emoji}
+                            </div>
+                            <span class="px-2 py-0.5 rounded-lg bg-slate-900/90 border border-slate-700 text-[10px] font-racing font-bold text-white whitespace-nowrap shadow">
+                                ${p.name}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Label chỉ số % tiến độ ở góc phải -->
+                    <div class="absolute right-9 top-1/2 -translate-y-1/2 text-xs font-racing font-black text-amber-400 z-0">
+                        ${progressPercent}%
+                    </div>
+                `;
+
+                trackContainer.appendChild(lane);
+
+                // Kích hoạt hoạt ảnh xe lăn bánh đến vị trí hiện tại
+                setTimeout(() => {
+                    const carEl = document.getElementById(`host_car_${p.id}`);
+                    if (carEl) {
+                        const laneWidth = lane.clientWidth;
+                        const maxTravel = Math.max(0, laneWidth - 140);
+                        const travelPx = (progressPercent / 100) * maxTravel;
+                        carEl.style.transform = `translateX(${travelPx}px)`;
+                    }
+                }, 100);
+            });
+
+            // 2. RENDER BẢNG XẾP HẠNG TOP ĐIỂM
+            const leaderboardList = document.getElementById('hostLeaderboardList');
+            leaderboardList.innerHTML = '';
 
             sorted.slice(0, 5).forEach((p, rank) => {
                 const card = document.createElement('div');
-                card.className = "p-3.5 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-between shadow-lg";
+                card.className = "p-3 rounded-2xl bg-slate-900/90 border border-slate-700/80 flex items-center justify-between shadow-md";
                 card.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 font-racing font-black text-sm flex items-center justify-center">#${rank+1}</span>
-                        <span class="font-racing font-bold text-base text-white">${p.name} ${p.streak >= 2 ? '🔥' : ''}</span>
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-7 h-7 rounded-xl bg-slate-800 text-amber-400 font-racing font-black text-xs flex items-center justify-center">#${rank+1}</span>
+                        <span class="text-xl">${p.carSkin.emoji}</span>
+                        <div>
+                            <div class="font-racing font-bold text-sm text-white flex items-center gap-1">
+                                <span>${p.name}</span>
+                                ${p.streak >= 2 ? '<span class="text-[9px] px-1 rounded bg-orange-500 text-slate-950 font-black">🔥 x' + p.streak + '</span>' : ''}
+                            </div>
+                            <div class="text-[11px] text-slate-400">${p.correctCount}/${hostState.currentQIndex + 1} câu đúng</div>
+                        </div>
                     </div>
-                    <span class="font-racing font-black text-amber-300 text-lg">${p.score} PTS</span>
+                    <span class="font-racing font-black text-amber-300 text-base">${p.score} PTS</span>
                 `;
-                container.appendChild(card);
+                leaderboardList.appendChild(card);
             });
 
             hostPublish({ type: 'LEADERBOARD_STATE' });
@@ -808,7 +953,7 @@
             });
 
             if (fastestTeam) {
-                document.getElementById('hostFastestTeamName').innerText = `⚡ ${fastestTeam.name}`;
+                document.getElementById('hostFastestTeamName').innerText = `⚡ ${fastestTeam.name} (${fastestTeam.carSkin.name})`;
                 document.getElementById('hostFastestTimeVal').innerText = `${minAvgTime.toFixed(2)} giây / câu`;
             }
 
@@ -823,7 +968,7 @@
                 tr.className = idx === 0 ? "bg-amber-500/10 text-amber-300" : "text-slate-200";
                 tr.innerHTML = `
                     <td class="p-2.5 font-racing">#${idx+1}</td>
-                    <td class="p-2.5 font-bold">${p.name} ${idx===0?'👑':''}</td>
+                    <td class="p-2.5 font-bold flex items-center gap-1.5">${p.carSkin.emoji} <span>${p.name}</span> ${idx===0?'👑':''}</td>
                     <td class="p-2.5 text-center font-racing text-amber-400">${p.score}</td>
                     <td class="p-2.5 text-center">${p.correctCount}/${QUESTIONS_DATA.length}</td>
                     <td class="p-2.5 text-center font-mono text-cyan-300">${avgSpeed}s</td>
@@ -845,7 +990,7 @@
 
             sorted.forEach((p) => {
                 const tr = document.createElement('tr');
-                let rowHtml = `<td class="p-2.5 text-left font-bold text-white">${p.name}</td>`;
+                let rowHtml = `<td class="p-2.5 text-left font-bold text-white flex items-center gap-1">${p.carSkin.emoji} ${p.name}</td>`;
                 
                 QUESTIONS_DATA.forEach((_, qIdx) => {
                     const ans = p.answerHistory[qIdx];
@@ -961,7 +1106,7 @@
             roomPin = pin;
             playerState.myName = name;
             document.getElementById('playerMyNameDisplay').innerText = name;
-            document.getElementById('playerGameTeamName').innerText = name;
+            document.getElementById('playerGameTeamLabel').innerText = name;
 
             statusMsg.classList.remove('hidden');
             statusMsg.innerText = "Đang kết nối vào phòng...";
@@ -971,7 +1116,6 @@
             mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
 
             mqttClient.on('connect', () => {
-                console.log("Player MQTT Đã kết nối!");
                 const hostTopic = `duongdua/${roomPin}/host`;
                 mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
                     playerPublish({
@@ -999,6 +1143,10 @@
 
         function handlePlayerIncomingData(data) {
             if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
+                playerState.carSkin = data.carSkin;
+                document.getElementById('playerMyCarAvatar').innerText = data.carSkin.emoji;
+                document.getElementById('playerGameCarIcon').innerText = data.carSkin.emoji;
+
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
                 Sound.tick();
@@ -1035,7 +1183,7 @@
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
                 document.getElementById('playerLobbyStatusText').innerText = "HÃY NHÌN LÊN MÀN HÌNH MÁY CHIẾU...";
-                document.getElementById('playerLobbySubText').innerText = "Xem thứ hạng tạm thời của đội bạn!";
+                document.getElementById('playerLobbySubText').innerText = "Xem vị trí xe của đội bạn trên đường đua và bảng xếp hạng!";
             }
             else if (data.type === 'FINAL_PODIUM') {
                 hideAllScreens();
