@@ -189,7 +189,7 @@
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-slate-900 border border-slate-700 shadow-inner">
                         <i class="fa-solid fa-stopwatch text-amber-400 text-xl"></i>
-                        <span id="hostTimerText" class="font-racing font-black text-2xl text-amber-300">20</span>
+                        <span id="hostTimerText" class="font-racing font-black text-2xl text-amber-300">30</span>
                     </div>
                     <div class="px-4 py-1.5 rounded-2xl bg-slate-900 border border-slate-700 text-xs sm:text-sm font-bold text-slate-300">
                         Đã trả lời: <span id="hostAnsweredCount" class="font-racing font-black text-emerald-400 text-base">0</span>/<span id="hostTotalPlayers" class="font-racing">0</span>
@@ -204,40 +204,69 @@
             <!-- 4 NÚT HIỂN THỊ ĐÁP ÁN: KÝ TỰ A, B, C, D VỚI NGÔI SAO 3, 4, 5, 6 CÁNH -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4" id="hostOptionsContainer">
                 <!-- CÂU A: NGÔI SAO 3 CÁNH -->
-                <div class="p-5 rounded-3xl btn-race-a flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
-                        <span>A</span>
+                <div id="hostOptCard0" class="p-5 rounded-3xl btn-race-a flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4 flex-1">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
+                            <span>A</span>
+                        </div>
+                        <span id="optText0" class="flex-1">Đáp án A</span>
                     </div>
-                    <span id="optText0" class="flex-1">Đáp án A</span>
+                    <span id="optBadge0" class="hidden px-3 py-1 rounded-xl bg-emerald-400 text-slate-950 font-racing font-black text-xs uppercase tracking-wider shadow">✓ ĐÚNG</span>
                 </div>
 
                 <!-- CÂU B: NGÔI SAO 4 CÁNH -->
-                <div class="p-5 rounded-3xl btn-race-b flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
-                        <span>B</span>
+                <div id="hostOptCard1" class="p-5 rounded-3xl btn-race-b flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4 flex-1">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
+                            <span>B</span>
+                        </div>
+                        <span id="optText1" class="flex-1">Đáp án B</span>
                     </div>
-                    <span id="optText1" class="flex-1">Đáp án B</span>
+                    <span id="optBadge1" class="hidden px-3 py-1 rounded-xl bg-emerald-400 text-slate-950 font-racing font-black text-xs uppercase tracking-wider shadow">✓ ĐÚNG</span>
                 </div>
 
                 <!-- CÂU C: NGÔI SAO 5 CÁNH -->
-                <div class="p-5 rounded-3xl btn-race-c flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
-                        <span>C</span>
+                <div id="hostOptCard2" class="p-5 rounded-3xl btn-race-c flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4 flex-1">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
+                            <span>C</span>
+                        </div>
+                        <span id="optText2" class="flex-1">Đáp án C</span>
                     </div>
-                    <span id="optText2" class="flex-1">Đáp án C</span>
+                    <span id="optBadge2" class="hidden px-3 py-1 rounded-xl bg-emerald-400 text-slate-950 font-racing font-black text-xs uppercase tracking-wider shadow">✓ ĐÚNG</span>
                 </div>
 
                 <!-- CÂU D: NGÔI SAO 6 CÁNH -->
-                <div class="p-5 rounded-3xl btn-race-d flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
-                        <span>D</span>
+                <div id="hostOptCard3" class="p-5 rounded-3xl btn-race-d flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4 flex-1">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
+                            <span>D</span>
+                        </div>
+                        <span id="optText3" class="flex-1">Đáp án D</span>
                     </div>
-                    <span id="optText3" class="flex-1">Đáp án D</span>
+                    <span id="optBadge3" class="hidden px-3 py-1 rounded-xl bg-emerald-400 text-slate-950 font-racing font-black text-xs uppercase tracking-wider shadow">✓ ĐÚNG</span>
                 </div>
+            </div>
+
+            <!-- THANH ĐIỀU HƯỚNG KHI HẾT 30 GIÂY (CHỜ GIÁO VIÊN BẤM TIẾP TỤC) -->
+            <div id="hostQuestionActionArea" class="glass-panel p-4 sm:p-5 rounded-3xl border-2 border-amber-400/50 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 hidden animate-fade-in">
+                <div class="flex items-center gap-3 text-left">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-400/40 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs uppercase font-black tracking-widest text-amber-400 block">ĐÃ KẾT THÚC CÂU HỎI</span>
+                        <p class="text-xs sm:text-sm text-slate-300 font-bold">Giáo viên chữa bài xong, bấm nút để xem vị trí đường đua & bảng điểm.</p>
+                    </div>
+                </div>
+                <button onclick="hostShowLeaderboard()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white font-racing font-black text-base tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-2">
+                    <span>TIẾP TỤC (XEM ĐƯỜNG ĐUA & BẢNG ĐIỂM)</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
         </section>
 
@@ -649,9 +678,10 @@
         let hostState = {
             players: {},
             currentQIndex: 0,
-            timer: 20,
+            timer: 30,
             timerInterval: null,
-            startTime: 0
+            startTime: 0,
+            isRoundEnded: false
         };
 
         let playerState = {
@@ -723,7 +753,7 @@
             }
             else if (data.type === 'PLAYER_ANSWER') {
                 const p = hostState.players[data.playerId];
-                if (p && p.currentAnswer === null) {
+                if (p && p.currentAnswer === null && !hostState.isRoundEnded) {
                     const timeTaken = (Date.now() - hostState.startTime) / 1000;
                     p.currentAnswer = data.choice;
                     p.responseTime = timeTaken;
@@ -742,7 +772,7 @@
                     if (isCorrect) {
                         p.streak++;
                         p.correctCount++;
-                        const speedFactor = Math.max(0.1, (hostState.timer / 20));
+                        const speedFactor = Math.max(0.1, (hostState.timer / 30));
                         const gained = Math.round(500 + 500 * speedFactor + (p.streak >= 2 ? p.streak * 30 : 0));
                         p.score += gained;
                         hostPublish({
@@ -770,8 +800,7 @@
                     const totalPlayers = Object.keys(hostState.players).length;
                     const answeredPlayers = Object.values(hostState.players).filter(pl => pl.currentAnswer !== null).length;
                     if (answeredPlayers >= totalPlayers && totalPlayers > 0) {
-                        clearInterval(hostState.timerInterval);
-                        setTimeout(hostShowLeaderboard, 1200);
+                        hostEndQuestionRound();
                     }
                 }
             }
@@ -810,15 +839,22 @@
         function hostLoadQuestion() {
             hideAllScreens();
             document.getElementById('hostQuestionScreen').classList.remove('hidden');
+            document.getElementById('hostQuestionActionArea').classList.add('hidden');
 
+            hostState.isRoundEnded = false;
             const q = QUESTIONS_DATA[hostState.currentQIndex];
             document.getElementById('hostQCounter').innerText = `CÂU ${hostState.currentQIndex + 1}/${QUESTIONS_DATA.length}`;
             document.getElementById('hostQCategory').innerText = q.category;
             document.getElementById('hostQuestionTitle').innerText = q.title;
 
-            q.options.forEach((opt, idx) => {
-                document.getElementById(`optText${idx}`).innerText = opt;
-            });
+            // Reset trạng thái hiển thị của các thẻ lựa chọn
+            for (let idx = 0; idx < 4; idx++) {
+                document.getElementById(`optText${idx}`).innerText = q.options[idx];
+                const card = document.getElementById(`hostOptCard${idx}`);
+                const badge = document.getElementById(`optBadge${idx}`);
+                badge.classList.add('hidden');
+                card.classList.remove('opacity-35', 'scale-[1.02]', 'ring-4', 'ring-emerald-400', 'shadow-[0_0_30px_rgba(52,211,153,0.7)]');
+            }
 
             Object.values(hostState.players).forEach(p => {
                 p.currentAnswer = null;
@@ -830,7 +866,8 @@
 
             hostPublish({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
 
-            hostState.timer = 20;
+            // THỜI GIAN ĐƯỢC THIẾT LẬP LÀ 30 GIÂY
+            hostState.timer = 30;
             hostState.startTime = Date.now();
             document.getElementById('hostTimerText').innerText = hostState.timer;
 
@@ -841,19 +878,46 @@
                 if (hostState.timer <= 5 && hostState.timer > 0) Sound.tick();
 
                 if (hostState.timer <= 0) {
-                    clearInterval(hostState.timerInterval);
-                    Object.values(hostState.players).forEach(p => {
-                        if (p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
-                            p.answerHistory[hostState.currentQIndex] = {
-                                choice: null,
-                                isCorrect: false,
-                                time: 20
-                            };
-                        }
-                    });
-                    hostShowLeaderboard();
+                    hostEndQuestionRound();
                 }
             }, 1000);
+        }
+
+        // HÀM KHI HẾT 30 GIÂY HOẶC TẤT CẢ ĐÃ NỘP BÀI: HIỂN THỊ ĐÁP ÁN ĐÚNG & CHỜ GIÁO VIÊN BẤM TIẾP TỤC
+        function hostEndQuestionRound() {
+            if (hostState.isRoundEnded) return;
+            hostState.isRoundEnded = true;
+            clearInterval(hostState.timerInterval);
+
+            // Ghi nhận các đội chưa kịp trả lời là hết giờ
+            Object.values(hostState.players).forEach(p => {
+                if (p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
+                    p.answerHistory[hostState.currentQIndex] = {
+                        choice: null,
+                        isCorrect: false,
+                        time: 30
+                    };
+                }
+            });
+
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+
+            // Làm nổi bật đáp án đúng và làm mờ các đáp án sai
+            for (let idx = 0; idx < 4; idx++) {
+                const card = document.getElementById(`hostOptCard${idx}`);
+                const badge = document.getElementById(`optBadge${idx}`);
+
+                if (idx === q.correct) {
+                    card.classList.add('scale-[1.02]', 'ring-4', 'ring-emerald-400', 'shadow-[0_0_30px_rgba(52,211,153,0.7)]');
+                    badge.classList.remove('hidden');
+                } else {
+                    card.classList.add('opacity-35');
+                }
+            }
+
+            Sound.correct();
+            // Hiển thị thanh chứa nút "TIẾP TỤC" để giáo viên chủ động điều khiển
+            document.getElementById('hostQuestionActionArea').classList.remove('hidden');
         }
 
         function updateHostAnsweredCounter() {
@@ -971,7 +1035,6 @@
                 document.getElementById('hostFinalWinner').innerText = `🏆 CHÚC MỪNG ${sorted[0].name.toUpperCase()} ĐÃ VÔ ĐỊCH!`;
             }
 
-            // TÌM ĐỘI NHANH NHẤT
             let fastestTeam = null;
             let minAvgTime = 9999;
 
@@ -988,7 +1051,6 @@
                 document.getElementById('hostFastestTimeVal').innerText = `${minAvgTime.toFixed(2)} giây / câu`;
             }
 
-            // 1. BẢNG TỔNG HỢP XẾP HẠNG
             const tbodyStats = document.getElementById('hostStatsTableBody');
             tbodyStats.innerHTML = '';
 
