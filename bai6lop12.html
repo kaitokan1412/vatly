@@ -92,7 +92,6 @@
                 rgba(2, 6, 23, 1) 100%
             );
             background-image: 
-                /* Vạch chia độ cao định kỳ */
                 repeating-linear-gradient(0deg, 
                     rgba(255, 255, 255, 0.1) 0px, 
                     rgba(255, 255, 255, 0.1) 1px, 
@@ -291,23 +290,20 @@
                 Giáo viên mở bãi phóng trên máy chiếu, học sinh quét mã PIN bằng điện thoại để cấp nhiệt hoá hơi <span class="text-amber-300 font-black">(Q = L · m)</span> nâng khí cầu bứt phá độ cao!
             </p>
 
-            <!-- 2 Khối chọn vai trò lớn theo phong cách Khinh Khí Cầu (Đã lược bỏ danh sách chữ dài) -->
+            <!-- 2 Khối chọn vai trò lớn theo phong cách Khinh Khí Cầu -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                 
                 <!-- CARD 1: MÁY CHIẾU (GIÁO VIÊN / BÃI PHÓNG TRUNG TÂM) -->
                 <button onclick="initHostMode()" class="role-card-host p-8 sm:p-10 rounded-[2.5rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col items-center justify-between group relative overflow-hidden cursor-pointer min-h-[300px]">
                     
-                    <!-- Vệt sáng lướt qua khi hover -->
                     <div class="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/25 transition"></div>
 
-                    <!-- Badge giáo viên -->
                     <div class="w-full flex justify-end">
                         <span class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-racing font-black uppercase tracking-wider shadow-sm">
                             <i class="fa-solid fa-tv mr-1.5"></i> GIÁO VIÊN
                         </span>
                     </div>
 
-                    <!-- Icon & Avatar Khinh Khí Cầu Trung Tâm -->
                     <div class="my-3 flex flex-col items-center">
                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 p-1 shadow-2xl shadow-orange-500/40 border-2 border-amber-300/50 flex items-center justify-center anim-balloon-float">
                             <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
@@ -322,7 +318,6 @@
                         <p class="text-xs sm:text-sm text-amber-200/90 font-bold mt-1">Trạm chỉ huy & Bãi phóng trung tâm</p>
                     </div>
 
-                    <!-- Nút bấm hành động lớn -->
                     <div class="w-full pt-4 border-t border-white/10 flex items-center justify-center gap-2">
                         <span class="text-xs sm:text-sm font-racing font-black uppercase tracking-wider text-amber-300 group-hover:underline">MỞ BÃI PHÓNG NGAY</span>
                         <div class="w-8 h-8 rounded-xl bg-amber-500/30 border border-amber-400 text-amber-300 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-950 transition">
@@ -334,17 +329,14 @@
                 <!-- CARD 2: ĐIỆN THOẠI (HỌC SINH / PHI HÀNH ĐOÀN) -->
                 <button onclick="initPlayerMode()" class="role-card-player p-8 sm:p-10 rounded-[2.5rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col items-center justify-between group relative overflow-hidden cursor-pointer min-h-[300px]">
                     
-                    <!-- Vệt sáng lướt qua khi hover -->
                     <div class="absolute top-0 right-0 w-40 h-40 bg-sky-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-sky-500/25 transition"></div>
 
-                    <!-- Badge học sinh -->
                     <div class="w-full flex justify-end">
                         <span class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-400/50 text-sky-300 text-xs font-racing font-black uppercase tracking-wider shadow-sm">
                             <i class="fa-solid fa-mobile-screen mr-1.5"></i> HỌC SINH
                         </span>
                     </div>
 
-                    <!-- Icon & Avatar Tay Cầm Khí Cầu -->
                     <div class="my-3 flex flex-col items-center">
                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-cyan-500 via-sky-500 to-blue-600 p-1 shadow-2xl shadow-cyan-500/40 border-2 border-cyan-300/50 flex items-center justify-center anim-balloon-float" style="animation-delay: 1.5s;">
                             <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
@@ -359,7 +351,6 @@
                         <p class="text-xs sm:text-sm text-cyan-200/90 font-bold mt-1">Phi hành đoàn điều khiển mỏ đốt</p>
                     </div>
 
-                    <!-- Nút bấm hành động lớn -->
                     <div class="w-full pt-4 border-t border-white/10 flex items-center justify-center gap-2">
                         <span class="text-xs sm:text-sm font-racing font-black uppercase tracking-wider text-cyan-300 group-hover:underline">VÀO PHÒNG BAY NGAY</span>
                         <div class="w-8 h-8 rounded-xl bg-sky-500/30 border border-sky-400 text-sky-300 flex items-center justify-center group-hover:bg-cyan-400 group-hover:text-slate-950 transition">
@@ -369,7 +360,6 @@
                 </button>
             </div>
 
-            <!-- Gợi ý thao tác dưới chân -->
             <div class="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400 font-bold">
                 <i class="fa-solid fa-wifi text-emerald-400"></i>
                 <span>Tương thích 100% mạng 4G/5G & Wi-Fi trường học qua Cloud WebSocket</span>
@@ -415,7 +405,7 @@
             </div>
         </section>
 
-        <!-- 2. HOST QUESTION SCREEN -->
+        <!-- 2. HOST QUESTION SCREEN (30 GIÂY & CÓ NÚT TIẾP TỤC ĐIỀU PHỐI) -->
         <section id="hostQuestionScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 hidden">
             <div class="glass-theme p-4 sm:p-6 rounded-3xl shadow-xl flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
@@ -425,7 +415,8 @@
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-black/60 border border-white/20 shadow-inner">
                         <i class="fa-solid fa-stopwatch text-amber-400 text-xl"></i>
-                        <span id="hostTimerText" class="font-racing font-black text-2xl text-amber-300">20</span>
+                        <span id="hostTimerText" class="font-racing font-black text-2xl text-amber-300">30</span>
+                        <span class="text-xs text-slate-400 font-bold">giây</span>
                     </div>
                     <div class="px-4 py-1.5 rounded-2xl bg-black/60 border border-white/20 text-xs sm:text-sm font-bold text-slate-300">
                         Đã nạp nhiệt: <span id="hostAnsweredCount" class="font-racing font-black text-cyan-300 text-base">0</span>/<span id="hostTotalPlayers" class="font-racing">0</span>
@@ -439,36 +430,67 @@
 
             <!-- 4 NÚT HIỂN THỊ ĐÁP ÁN VỚI NGÔI SAO 3, 4, 5, 6 CÁNH -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4" id="hostOptionsContainer">
-                <div class="p-5 rounded-3xl btn-star-a flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
-                        <span>A</span>
+                <div id="hostOptCard0" class="p-5 rounded-3xl btn-star-a flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
+                            <span>A</span>
+                        </div>
+                        <span id="optText0" class="flex-1">Đáp án A</span>
                     </div>
-                    <span id="optText0" class="flex-1">Đáp án A</span>
+                    <span id="hostOptBadge0" class="text-xs font-racing font-black px-3 py-1 rounded-xl hidden"></span>
                 </div>
 
-                <div class="p-5 rounded-3xl btn-star-b flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
-                        <span>B</span>
+                <div id="hostOptCard1" class="p-5 rounded-3xl btn-star-b flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
+                            <span>B</span>
+                        </div>
+                        <span id="optText1" class="flex-1">Đáp án B</span>
                     </div>
-                    <span id="optText1" class="flex-1">Đáp án B</span>
+                    <span id="hostOptBadge1" class="text-xs font-racing font-black px-3 py-1 rounded-xl hidden"></span>
                 </div>
 
-                <div class="p-5 rounded-3xl btn-star-c flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
-                        <span>C</span>
+                <div id="hostOptCard2" class="p-5 rounded-3xl btn-star-c flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
+                            <span>C</span>
+                        </div>
+                        <span id="optText2" class="flex-1">Đáp án C</span>
                     </div>
-                    <span id="optText2" class="flex-1">Đáp án C</span>
+                    <span id="hostOptBadge2" class="text-xs font-racing font-black px-3 py-1 rounded-xl hidden"></span>
                 </div>
 
-                <div class="p-5 rounded-3xl btn-star-d flex items-center gap-4 text-white font-bold text-base sm:text-xl shadow-lg">
-                    <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200 gap-1.5 flex-shrink-0">
-                        <svg class="w-6 h-6 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
-                        <span>D</span>
+                <div id="hostOptCard3" class="p-5 rounded-3xl btn-star-d flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200 gap-1.5 flex-shrink-0">
+                            <svg class="w-6 h-6 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
+                            <span>D</span>
+                        </div>
+                        <span id="optText3" class="flex-1">Đáp án D</span>
                     </div>
-                    <span id="optText3" class="flex-1">Đáp án D</span>
+                    <span id="hostOptBadge3" class="text-xs font-racing font-black px-3 py-1 rounded-xl hidden"></span>
+                </div>
+            </div>
+
+            <!-- THANH ĐIỀU HƯỚNG KHI HẾT 30S / TẤT CẢ ĐÃ NỘP (KHÔNG TỰ ĐỘNG CHUYỂN CÂU) -->
+            <div id="hostQuestionActionPanel" class="glass-theme p-4 sm:p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 mt-2 border-2 border-emerald-400/60 bg-slate-950/95 shadow-2xl hidden">
+                <div class="flex items-center gap-3 text-left">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl border border-emerald-500/40">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs sm:text-sm font-racing font-black uppercase text-emerald-300 tracking-wider">ĐÃ CÔNG BỐ ĐÁP ÁN CHUẨN</div>
+                        <div class="text-xs text-slate-300 font-semibold">Giáo viên có thể giảng giải kiến thức trước khi bấm Tiếp tục.</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <button onclick="hostShowLeaderboard()" class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 hover:from-amber-400 hover:to-orange-500 text-white font-racing font-black text-sm sm:text-base shadow-xl shadow-orange-500/30 transition flex items-center justify-center gap-2.5">
+                        <span>TIẾP TỤC (XEM ĐƯỜNG BAY & BẢNG ĐIỂM)</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
                 </div>
             </div>
         </section>
@@ -699,7 +721,7 @@
             <div id="playerSubmittedOverlay" class="glass-theme p-6 rounded-3xl text-center hidden">
                 <div class="text-4xl mb-2">⏳</div>
                 <h4 class="font-racing font-black text-lg text-amber-300">ĐÃ KÍCH HOẠT NHIỆT LƯỢNG!</h4>
-                <p class="text-xs text-slate-300 mt-1">Đang chờ áp suất nâng từ các khí cầu khác...</p>
+                <p class="text-xs text-slate-300 mt-1">Đang chờ thời gian kết thúc để giáo viên chữa bài...</p>
             </div>
         </section>
 
@@ -708,7 +730,7 @@
             <div id="playerFeedbackIcon" class="text-6xl mb-2">🔥</div>
             <h2 id="playerFeedbackTitle" class="text-2xl sm:text-3xl font-racing font-black text-white mb-1">CHÍNH XÁC!</h2>
             <p id="playerFeedbackPts" class="text-lg font-racing font-bold text-amber-300">+920 Điểm</p>
-            <p id="playerFeedbackSpeed" class="text-xs text-slate-300 mt-2">Thời gian phản xạ: 1.2s</p>
+            <p id="playerFeedbackSpeed" class="text-xs text-slate-300 mt-2" id="playerFeedbackSubMsg">Thời gian phản xạ: 1.2s</p>
         </section>
 
     </main>
@@ -838,7 +860,7 @@
                     y: Math.random() * canvas.height,
                     radius: Math.random() * 2.5 + 0.8,
                     vx: (Math.random() - 0.5) * 0.3,
-                    vy: -(Math.random() * 0.4 + 0.2), // Trôi bồng bềnh lên trên
+                    vy: -(Math.random() * 0.4 + 0.2),
                     alpha: Math.random() * 0.7 + 0.3
                 });
             }
@@ -968,7 +990,7 @@
         let hostState = {
             players: {},
             currentQIndex: 0,
-            timer: 20,
+            timer: 30, // 30 GIÂY MỖI CÂU
             timerInterval: null,
             startTime: 0
         };
@@ -1061,7 +1083,7 @@
                     if (isCorrect) {
                         p.streak++;
                         p.correctCount++;
-                        const speedFactor = Math.max(0.1, (hostState.timer / 20));
+                        const speedFactor = Math.max(0.1, (hostState.timer / 30));
                         const gained = Math.round(500 + 500 * speedFactor + (p.streak >= 2 ? p.streak * 40 : 0));
                         p.score += gained;
                         hostPublish({
@@ -1089,8 +1111,8 @@
                     const totalPlayers = Object.keys(hostState.players).length;
                     const answeredPlayers = Object.values(hostState.players).filter(pl => pl.currentAnswer !== null).length;
                     if (answeredPlayers >= totalPlayers && totalPlayers > 0) {
-                        clearInterval(hostState.timerInterval);
-                        setTimeout(hostShowLeaderboard, 1200);
+                        // TẤT CẢ ĐÃ NỘP: DỪNG ĐỒNG HỒ & CÔNG BỐ ĐÁP ÁN (GIỮ MÀN HÌNH ĐỂ GIÁO VIÊN CHỮA BÀI)
+                        hostEndQuestionRound();
                     }
                 }
             }
@@ -1139,6 +1161,21 @@
                 document.getElementById(`optText${idx}`).innerText = opt;
             });
 
+            // Reset giao diện các thẻ phương án & ẩn thanh điều hướng Tiếp tục
+            document.getElementById('hostQuestionActionPanel')?.classList.add('hidden');
+            const defaultCardStyles = ["btn-star-a", "btn-star-b", "btn-star-c", "btn-star-d"];
+            for (let i = 0; i < 4; i++) {
+                const card = document.getElementById(`hostOptCard${i}`);
+                const badge = document.getElementById(`hostOptBadge${i}`);
+                if (card) {
+                    card.className = `p-5 rounded-3xl ${defaultCardStyles[i]} flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300 opacity-100 ring-0`;
+                }
+                if (badge) {
+                    badge.classList.add('hidden');
+                    badge.innerHTML = '';
+                }
+            }
+
             Object.values(hostState.players).forEach(p => {
                 p.currentAnswer = null;
             });
@@ -1149,7 +1186,7 @@
 
             hostPublish({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
 
-            hostState.timer = 20;
+            hostState.timer = 30; // 30 GIÂY
             hostState.startTime = Date.now();
             document.getElementById('hostTimerText').innerText = hostState.timer;
 
@@ -1166,13 +1203,45 @@
                             p.answerHistory[hostState.currentQIndex] = {
                                 choice: null,
                                 isCorrect: false,
-                                time: 20
+                                time: 30
                             };
                         }
                     });
-                    hostShowLeaderboard();
+                    hostEndQuestionRound();
                 }
             }, 1000);
+        }
+
+        // HẾT 30 GIÂY HOẶC TẤT CẢ ĐÃ NỘP: CÔNG BỐ ĐÁP ÁN & HIỂN THỊ NÚT TIẾP TỤC (KHÔNG TỰ ĐỘNG CHUYỂN CÂU)
+        function hostEndQuestionRound() {
+            clearInterval(hostState.timerInterval);
+            document.getElementById('hostTimerText').innerText = "0";
+
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+            for (let i = 0; i < 4; i++) {
+                const card = document.getElementById(`hostOptCard${i}`);
+                const badge = document.getElementById(`hostOptBadge${i}`);
+                if (card) {
+                    if (i === q.correct) {
+                        card.className = "p-5 rounded-3xl bg-emerald-600/50 border-2 border-emerald-400 ring-4 ring-emerald-400/50 flex items-center justify-between gap-4 text-white font-black text-base sm:text-xl shadow-2xl transition-all duration-300 opacity-100 scale-[1.02]";
+                        if (badge) {
+                            badge.className = "text-xs font-racing font-black px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 shadow flex items-center gap-1.5";
+                            badge.innerHTML = `<i class="fa-solid fa-check"></i> ĐÁP ÁN ĐÚNG`;
+                            badge.classList.remove('hidden');
+                        }
+                    } else {
+                        card.className = "p-5 rounded-3xl bg-slate-900/40 border border-white/10 opacity-30 flex items-center justify-between gap-4 text-slate-400 font-bold text-base sm:text-xl transition-all duration-300";
+                        if (badge) badge.classList.add('hidden');
+                    }
+                }
+            }
+
+            // Hiển thị thanh điều hướng có nút "Tiếp tục"
+            const actionPanel = document.getElementById('hostQuestionActionPanel');
+            if (actionPanel) actionPanel.classList.remove('hidden');
+
+            Sound.correct();
+            hostPublish({ type: 'ROUND_REVEAL_ANSWER', correct: q.correct });
         }
 
         function updateHostAnsweredCounter() {
@@ -1218,7 +1287,6 @@
                             <!-- Mỏ đốt lửa nung hơi nước dưới giỏ -->
                             <div class="relative -mt-1 flex flex-col items-center">
                                 <div class="w-3.5 h-4 text-orange-400 text-xs burner-fire">🔥</div>
-                                <!-- Giỏ mây -->
                                 <div class="w-5 h-3 rounded bg-amber-900 border border-amber-500/60 shadow"></div>
                             </div>
 
@@ -1556,8 +1624,14 @@
                     document.getElementById('playerFeedbackPts').innerText = "+0 Điểm";
                 }
 
-                document.getElementById('playerFeedbackSpeed').innerText = `Thời gian phản xạ: ${data.time.toFixed(2)}s`;
+                document.getElementById('playerFeedbackSubMsg').innerText = `Thời gian phản xạ: ${data.time.toFixed(2)}s`;
                 document.getElementById('playerGameScore').innerText = `${data.score} Điểm`;
+            }
+            else if (data.type === 'ROUND_REVEAL_ANSWER') {
+                const subMsg = document.getElementById('playerFeedbackSubMsg');
+                if (subMsg) {
+                    subMsg.innerHTML = `Thời gian làm bài đã kết thúc.<br><span class="text-amber-300 font-bold mt-1 inline-block">⏳ Hãy theo dõi giáo viên chữa bài trên máy chiếu...</span>`;
+                }
             }
             else if (data.type === 'LEADERBOARD_STATE') {
                 hideAllScreens();
