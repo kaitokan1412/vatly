@@ -35,9 +35,9 @@
             min-height: 100vh;
         }
         .exam-card {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
         }
         .option-card-a {
@@ -72,6 +72,23 @@
             background: rgba(136, 19, 55, 0.5);
             border-color: #fb7185;
         }
+        
+        /* Toast animation */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter {
+            animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .toast-leave {
+            animation: fadeOut 0.3s forwards;
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -81,7 +98,7 @@
 <body class="text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
 
     <!-- TOP NAVBAR -->
-    <header class="w-full bg-slate-900/90 border-b border-slate-800 px-4 sm:px-8 py-3 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md">
+    <header class="w-full bg-slate-900/90 border-b border-slate-800 px-4 sm:px-8 py-3 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md shadow-lg">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20 border border-blue-400/30">
                 <i class="fa-solid fa-graduation-cap text-lg text-white"></i>
@@ -91,8 +108,8 @@
                     HỆ THỐNG KIỂM TRA TRỰC TUYẾN
                 </h1>
                 <p class="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5">
-                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Vật Lí 12 • Chủ Đề 7: Bài Tập Về Vật Lí Nhiệt
+                    <span id="globalConnDot" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="globalConnText">Vật Lí 12 • Chủ Đề 7: Bài Tập Về Vật Lí Nhiệt</span>
                 </p>
             </div>
         </div>
@@ -101,12 +118,19 @@
             <button id="sfxBtn" onclick="toggleSFX()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold border border-slate-700 text-slate-300 transition" title="Bật/Tắt âm thanh">
                 <i class="fa-solid fa-volume-high" id="sfxIcon"></i>
             </button>
-            <button onclick="window.location.reload()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold border border-slate-700 text-slate-300 flex items-center gap-1.5 transition">
+            <button onclick="leaveToHome()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold border border-slate-700 text-slate-300 flex items-center gap-1.5 transition">
                 <i class="fa-solid fa-house"></i>
                 <span class="hidden sm:inline">Trang Chủ</span>
             </button>
         </div>
     </header>
+
+    <!-- Disconnection Alert Banner for Student -->
+    <div id="studentReconnectingBanner" class="hidden bg-gradient-to-r from-amber-600 to-rose-600 px-4 py-2 text-center text-xs font-bold tracking-wide text-white shadow-md flex items-center justify-center gap-2 z-40">
+        <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+        <span>MẤT KẾT NỐI MẠNG — ĐANG TỰ ĐỘNG KẾT NỐI LẠI VÀO PHÒNG THI...</span>
+        <button onclick="retryStudentConnection()" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-[10px] uppercase border border-white/30 ml-2">Thử lại</button>
+    </div>
 
     <main class="flex-1 flex flex-col p-4 sm:p-6 max-w-7xl w-full mx-auto justify-center z-10 relative">
 
@@ -135,7 +159,7 @@
                             GIÁM THỊ PHÒNG THI
                         </h3>
                         <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                            Khởi tạo phòng kiểm tra, cấp mã PIN cho học sinh, điều phối câu hỏi và xuất báo cáo kết quả ra file Excel.
+                            Khởi tạo phòng kiểm tra, cấp mã PIN cho học sinh, điều phối câu hỏi và xuất báo cáo kết quả ra file Excel theo lớp.
                         </p>
                     </div>
                     <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-blue-400">
@@ -155,7 +179,7 @@
                             THÍ SINH DỰ THI
                         </h3>
                         <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-                            Nhập mã PIN phòng thi, điền họ tên và mã số/lớp để bắt đầu làm bài kiểm tra trắc nghiệm online.
+                            Nhập mã PIN phòng thi, điền họ tên và mã số/lớp để bắt đầu làm bài kiểm tra trắc nghiệm online trực tiếp.
                         </p>
                     </div>
                     <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-emerald-400">
@@ -173,14 +197,15 @@
                 <div class="text-left">
                     <span class="text-xs uppercase font-bold text-slate-400 flex items-center gap-2">
                         MÃ PIN PHÒNG THI CHÍNH THỨC
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span id="hostStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
                     </span>
                     <div class="flex items-center gap-3 mt-1.5">
                         <span id="hostPinDisplay" class="text-4xl sm:text-6xl font-heading font-black text-amber-300 tracking-widest bg-slate-950/80 px-6 py-1.5 rounded-2xl border-2 border-amber-400/40 shadow-inner">
                             ----
                         </span>
-                        <button onclick="copyExamLink()" class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-bold transition shadow" title="Sao chép liên kết">
+                        <button onclick="copyExamLink()" class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-bold transition shadow flex items-center gap-1.5" title="Sao chép liên kết">
                             <i class="fa-solid fa-copy text-base"></i>
+                            <span class="text-xs hidden sm:inline">Sao chép link</span>
                         </button>
                     </div>
                 </div>
@@ -196,7 +221,7 @@
             <!-- Danh sách học sinh đã vào phòng -->
             <div class="text-left mb-2 flex justify-between items-center">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Danh Sách Thí Sinh Trong Phòng:</span>
-                <span class="text-xs text-slate-500 italic">Tự động đồng bộ</span>
+                <span class="text-xs text-slate-500 italic">Tự động đồng bộ thời gian thực</span>
             </div>
             <div class="min-h-[180px] max-h-[260px] overflow-y-auto p-4 rounded-2xl bg-slate-950/60 border border-slate-800 mb-6 flex flex-wrap gap-2.5 items-start justify-start" id="hostStudentListContainer">
                 <p class="text-sm text-slate-500 italic m-auto" id="emptyStudentMsg">Đang chờ thí sinh nhập mã PIN để điểm danh vào phòng thi...</p>
@@ -248,41 +273,41 @@
             <!-- 4 Phương án lựa chọn A, B, C, D -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4" id="hostOptionsContainer">
                 <div id="hostOptCard0" class="p-4 sm:p-5 rounded-2xl option-card-a flex items-start justify-between gap-4 text-white font-medium text-sm sm:text-base transition">
-                    <div class="flex items-start gap-4">
+                    <div class="flex items-start gap-4 flex-1">
                         <div class="w-9 h-9 rounded-xl bg-blue-600/50 border border-blue-300/40 flex items-center justify-center font-heading font-bold text-base text-blue-100 flex-shrink-0">
                             A
                         </div>
-                        <span id="hostOptText0" class="mt-1 leading-snug">Phương án A</span>
+                        <span id="hostOptText0" class="mt-1 leading-snug flex-1">Phương án A</span>
                     </div>
                     <span id="hostOptBadge0" class="text-xs font-bold px-2.5 py-1 rounded-lg hidden"></span>
                 </div>
 
                 <div id="hostOptCard1" class="p-4 sm:p-5 rounded-2xl option-card-b flex items-start justify-between gap-4 text-white font-medium text-sm sm:text-base transition">
-                    <div class="flex items-start gap-4">
+                    <div class="flex items-start gap-4 flex-1">
                         <div class="w-9 h-9 rounded-xl bg-emerald-600/50 border border-emerald-300/40 flex items-center justify-center font-heading font-bold text-base text-emerald-100 flex-shrink-0">
                             B
                         </div>
-                        <span id="hostOptText1" class="mt-1 leading-snug">Phương án B</span>
+                        <span id="hostOptText1" class="mt-1 leading-snug flex-1">Phương án B</span>
                     </div>
                     <span id="hostOptBadge1" class="text-xs font-bold px-2.5 py-1 rounded-lg hidden"></span>
                 </div>
 
                 <div id="hostOptCard2" class="p-4 sm:p-5 rounded-2xl option-card-c flex items-start justify-between gap-4 text-white font-medium text-sm sm:text-base transition">
-                    <div class="flex items-start gap-4">
+                    <div class="flex items-start gap-4 flex-1">
                         <div class="w-9 h-9 rounded-xl bg-amber-600/50 border border-amber-300/40 flex items-center justify-center font-heading font-bold text-base text-amber-100 flex-shrink-0">
                             C
                         </div>
-                        <span id="hostOptText2" class="mt-1 leading-snug">Phương án C</span>
+                        <span id="hostOptText2" class="mt-1 leading-snug flex-1">Phương án C</span>
                     </div>
                     <span id="hostOptBadge2" class="text-xs font-bold px-2.5 py-1 rounded-lg hidden"></span>
                 </div>
 
                 <div id="hostOptCard3" class="p-4 sm:p-5 rounded-2xl option-card-d flex items-start justify-between gap-4 text-white font-medium text-sm sm:text-base transition">
-                    <div class="flex items-start gap-4">
+                    <div class="flex items-start gap-4 flex-1">
                         <div class="w-9 h-9 rounded-xl bg-rose-600/50 border border-rose-300/40 flex items-center justify-center font-heading font-bold text-base text-rose-100 flex-shrink-0">
                             D
                         </div>
-                        <span id="hostOptText3" class="mt-1 leading-snug">Phương án D</span>
+                        <span id="hostOptText3" class="mt-1 leading-snug flex-1">Phương án D</span>
                     </div>
                     <span id="hostOptBadge3" class="text-xs font-bold px-2.5 py-1 rounded-lg hidden"></span>
                 </div>
@@ -438,7 +463,6 @@
                             <tr id="hostMatrixHeaderRow">
                                 <th class="p-2.5 text-left rounded-l-xl">Họ và Tên</th>
                                 <th class="p-2.5 text-left">Lớp</th>
-                                <!-- C1 .. C10 injected -->
                                 <th class="p-2.5 rounded-r-xl">Tổng Đúng</th>
                             </tr>
                         </thead>
@@ -457,7 +481,7 @@
             </div>
 
             <div class="flex justify-center gap-3">
-                <button onclick="window.location.reload()" class="px-8 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-heading font-bold text-sm border border-slate-700 transition">
+                <button onclick="leaveToHome()" class="px-8 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-heading font-bold text-sm border border-slate-700 transition">
                     KHỞI TẠO ĐỢT KIỂM TRA MỚI
                 </button>
             </div>
@@ -511,8 +535,8 @@
                 </div>
                 <ul class="list-disc list-inside space-y-1 text-slate-400">
                     <li>Đọc kỹ nội dung câu hỏi trước khi chọn phương án.</li>
-                    <li>Mỗi câu hỏi có thời gian làm bài giới hạn.</li>
-                    <li>Không chuyển đổi tab hoặc rời khỏi màn hình trong khi thi.</li>
+                    <li>Mỗi câu hỏi có thời gian làm bài giới hạn (30 giây).</li>
+                    <li>Hệ thống tự động lưu kết quả và kết nối lại nếu mạng yếu.</li>
                 </ul>
             </div>
 
@@ -565,7 +589,7 @@
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
                 <h4 class="font-heading font-bold text-base text-white">ĐÃ GHI NHẬN ĐÁP ÁN!</h4>
-                <p class="text-xs text-slate-400 mt-1">Đang chờ thời gian kết thúc để chuyển sang câu tiếp theo...</p>
+                <p class="text-xs text-slate-400 mt-1">Lựa chọn đã được nộp lên máy chủ. Đang chờ giáo viên công bố đáp án...</p>
             </div>
         </section>
 
@@ -583,6 +607,9 @@
 
     </main>
 
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
     <script>
         // ================= NGÂN HÀNG CÂU HỎI TRẮC NGHIỆM CHUẨN XÁC =================
         // Trích xuất chuẩn xác từ tài liệu CHỦ ĐỀ 7: BÀI TẬP VỀ VẬT LÍ NHIỆT (VẬT LÍ 12)
@@ -596,7 +623,7 @@
                     "Giữa các phân tử tồn tại cả lực hút và lực đẩy gọi chung là lực liên kết phân tử.",
                     "Cả A, B, C đều đúng."
                 ],
-                correct: 3 // D (Trang 8 - Câu 1)
+                correct: 3
             },
             {
                 category: "Khái niệm Nội năng",
@@ -607,7 +634,7 @@
                     "Khối lượng và nhiệt độ của vật.",
                     "Nhiệt độ và thể tích của vật."
                 ],
-                correct: 3 // D (Trang 12 - Câu 17)
+                correct: 3
             },
             {
                 category: "Nguyên lí I Nhiệt động lực học",
@@ -618,7 +645,7 @@
                     "ΔU = Q + A; với Q < 0 và A > 0",
                     "ΔU = Q + A; với Q < 0 và A < 0"
                 ],
-                correct: 2 // C (Trang 13 - Câu 22)
+                correct: 2
             },
             {
                 category: "Bài toán Độ biến thiên nội năng",
@@ -629,7 +656,7 @@
                     "nhận nhiệt lượng 70 J.",
                     "tỏa nhiệt lượng 70 J."
                 ],
-                correct: 3 // D (Trang 16 - Câu 41: Q = ΔU - A = 130 - 200 = -70J)
+                correct: 3
             },
             {
                 category: "Nhiệt lượng làm tăng nhiệt độ",
@@ -640,7 +667,7 @@
                     "38.000 J.",
                     "266.000 J."
                 ],
-                correct: 3 // D (Trang 5 - Ví dụ 10: Q = 10 * 380 * 70 = 266.000 J)
+                correct: 3
             },
             {
                 category: "Phương trình Cân bằng nhiệt",
@@ -651,7 +678,7 @@
                     "0,563 kg.",
                     "0,454 kg."
                 ],
-                correct: 3 // D (Trang 5 - Ví dụ 12: m_nước ≈ 0,454 kg)
+                correct: 3
             },
             {
                 category: "Nhiệt nóng chảy riêng",
@@ -662,7 +689,7 @@
                     "2,68 kJ.",
                     "26,8 kJ."
                 ],
-                correct: 3 // D (Trang 6 - Ví dụ 13: Q = 0,2 * 1,34.10^5 = 26,8 kJ)
+                correct: 3
             },
             {
                 category: "Nhiệt hóa hơi riêng",
@@ -673,7 +700,7 @@
                     "1,7.10⁵ J.",
                     "5,2.10⁵ J."
                 ],
-                correct: 1 // B (Trang 7 - Ví dụ 15: Q = 2,0 * 8,5.10^5 = 1,7.10^6 J)
+                correct: 1
             },
             {
                 category: "Chuyển thể phối hợp",
@@ -684,7 +711,7 @@
                     "763.600 J.",
                     "706.360 J."
                 ],
-                correct: 2 // C (Trang 18 - Câu 52: Q = 2*3,4.10^5 + 2*4180*10 = 763.600 J)
+                correct: 2
             },
             {
                 category: "Giải thích hiện tượng thực tế",
@@ -695,7 +722,7 @@
                     "mồ hôi ngăn không cho nhiệt từ bên ngoài môi trường truyền vào cơ thể.",
                     "mồ hôi mang các phân tử nước có nhiệt độ thấp từ bên trong ra ngoài da."
                 ],
-                correct: 1 // B (Trang 30 & 34 - Tự luận câu 1 & 9)
+                correct: 1
             }
         ];
 
@@ -705,9 +732,9 @@
         function initAudio() {
             if (!audioCtx) {
                 const AudioClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioClass();
+                if (AudioClass) audioCtx = new AudioClass();
             }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
@@ -716,6 +743,7 @@
                 if (!sfxEnabled) return;
                 try {
                     const ctx = initAudio();
+                    if (!ctx) return;
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = type;
@@ -740,12 +768,53 @@
             tick() { this.play(800, 'sine', 0.03, 0.05); },
             finish() {
                 [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => this.play(f, 'triangle', 0.25, 0.15, i * 0.1));
+            },
+            join() {
+                this.play(440, 'sine', 0.08, 0.08, 0);
+                this.play(880, 'sine', 0.12, 0.10, 0.06);
             }
         };
 
         function toggleSFX() {
             sfxEnabled = !sfxEnabled;
             document.getElementById('sfxIcon').className = sfxEnabled ? "fa-solid fa-volume-high text-slate-300" : "fa-solid fa-volume-xmark text-slate-500";
+            showToast("Âm thanh", sfxEnabled ? "Đã bật âm thanh" : "Đã tắt âm thanh", "info");
+        }
+
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-enter pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl border shadow-2xl backdrop-blur-md transition-all max-w-sm ${
+                type === 'success' ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200' :
+                type === 'warning' ? 'bg-amber-950/90 border-amber-500/50 text-amber-200' :
+                type === 'error' ? 'bg-rose-950/90 border-rose-500/50 text-rose-200' :
+                'bg-slate-900/90 border-slate-700 text-slate-200'
+            }`;
+
+            const iconMap = {
+                success: '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>',
+                warning: '<i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg"></i>',
+                error: '<i class="fa-solid fa-circle-xmark text-rose-400 text-lg"></i>',
+                info: '<i class="fa-solid fa-circle-info text-cyan-400 text-lg"></i>'
+            };
+
+            toast.innerHTML = `
+                <div class="flex-shrink-0 mt-0.5">${iconMap[type] || iconMap.info}</div>
+                <div class="flex-1 text-xs">
+                    <div class="font-heading font-bold uppercase tracking-wider text-white">${title}</div>
+                    <div class="text-slate-300 mt-0.5 leading-snug">${message}</div>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.remove(), 320);
+            }, 3500);
         }
 
         const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
@@ -753,17 +822,21 @@
         let mqttClient = null;
         let examPin = "";
         let isHost = false;
+        let isConnected = false;
+        let heartbeatInterval = null;
 
         let hostState = {
-            students: {}, // { id: { name, className, score, correctCount, totalTime, answerHistory: {} } }
+            students: {},
             currentQIndex: 0,
             timer: 30,
             timerInterval: null,
-            startTime: 0
+            startTime: 0,
+            isRoundEnded: false,
+            gameState: 'LOBBY' // 'LOBBY' | 'QUESTION' | 'INTERMEDIATE' | 'FINAL'
         };
 
         let studentState = {
-            studentId: "std_" + Math.random().toString(36).substring(2, 8),
+            studentId: "",
             name: "",
             className: "",
             score: 0,
@@ -775,66 +848,187 @@
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
         }
 
+        function getOrCreateStudentId() {
+            let sid = sessionStorage.getItem('exam_student_id');
+            if (!sid) {
+                sid = "std_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+                sessionStorage.setItem('exam_student_id', sid);
+            }
+            return sid;
+        }
+
+        function leaveToHome() {
+            sessionStorage.removeItem('exam_student_pin');
+            sessionStorage.removeItem('exam_student_name');
+            sessionStorage.removeItem('exam_student_class');
+            if (mqttClient) {
+                try { mqttClient.end(true); } catch(e) {}
+            }
+            window.location.href = window.location.pathname;
+        }
+
         // ==================== CHỨC NĂNG GIÁM THỊ (TEACHER HOST) ====================
         function initHostMode() {
             isHost = true;
             hideAllScreens();
             document.getElementById('hostLobbyScreen').classList.remove('hidden');
+            hostState.gameState = 'LOBBY';
 
             examPin = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('hostPinDisplay').innerText = examPin;
 
-            const clientId = "host_exam_" + examPin + "_" + Math.random().toString(36).substring(2, 6);
-            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
+            const clientId = "host_exam_" + examPin + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 6);
+            connectHostMQTT(clientId);
+        }
+
+        function connectHostMQTT(clientId) {
+            if (mqttClient) {
+                try { mqttClient.end(true); } catch(e) {}
+            }
+
+            mqttClient = mqtt.connect(MQTT_BROKER_URL, { 
+                clientId: clientId, 
+                clean: true, 
+                keepalive: 60,
+                reconnectPeriod: 2500 
+            });
 
             mqttClient.on('connect', () => {
-                const studentTopic = `physicsexam/${examPin}/student`;
+                isConnected = true;
+                document.getElementById('hostStatusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                
+                const studentTopic = `physicsexam/v2/${examPin}/student`;
                 mqttClient.subscribe(studentTopic, { qos: 1 });
+
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = setInterval(() => {
+                    checkStudentPresence();
+                    if (hostState.gameState === 'LOBBY') {
+                        hostPublish({
+                            type: 'LOBBY_STATE_SYNC',
+                            studentCount: Object.keys(hostState.students).length
+                        });
+                    }
+                }, 3000);
+
+                showToast("Phòng thi trực tuyến", `Đã mở phòng thi thành công! Mã PIN: ${examPin}`, "success");
+            });
+
+            mqttClient.on('offline', () => {
+                isConnected = false;
+                document.getElementById('hostStatusDot').className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                showToast("Cảnh báo mạng", "Máy chủ mất kết nối mạng, đang tự động kết nối lại...", "warning");
             });
 
             mqttClient.on('message', (topic, message) => {
                 try {
                     const data = JSON.parse(message.toString());
                     handleHostIncomingMessage(data);
-                } catch(e) {}
+                } catch(e) {
+                    console.error("Lỗi parse JSON từ thí sinh:", e);
+                }
             });
         }
 
         function hostPublish(data) {
-            if (mqttClient && mqttClient.connected) {
-                const hostTopic = `physicsexam/${examPin}/host`;
+            if (mqttClient && isConnected) {
+                const hostTopic = `physicsexam/v2/${examPin}/host`;
                 mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 1 });
             }
         }
 
+        function checkStudentPresence() {
+            const now = Date.now();
+            let changed = false;
+            Object.values(hostState.students).forEach(s => {
+                const isOnline = (now - (s.lastSeen || 0)) < 8000;
+                if (s.isOnline !== isOnline) {
+                    s.isOnline = isOnline;
+                    changed = true;
+                    if (!isOnline) {
+                        showToast("Mất tín hiệu", `Thí sinh ${s.name} (${s.className}) mất kết nối`, "warning");
+                    } else {
+                        showToast("Đã kết nối lại", `Thí sinh ${s.name} đã trực tuyến trở lại`, "success");
+                    }
+                }
+            });
+            if (changed) {
+                updateHostLobbyUI();
+            }
+        }
+
         function handleHostIncomingMessage(data) {
-            if (data.type === 'STUDENT_JOIN') {
-                if (!hostState.students[data.studentId]) {
-                    hostState.students[data.studentId] = {
+            if (!data || !data.studentId) return;
+
+            // Xử lý thí sinh tham gia mới hoặc kết nối lại
+            if (data.type === 'STUDENT_JOIN' || data.type === 'STUDENT_REJOIN' || data.type === 'STUDENT_PING') {
+                let s = hostState.students[data.studentId];
+
+                if (!s) {
+                    let safeName = data.name || "Thí Sinh " + (Object.keys(hostState.students).length + 1);
+                    const existingNames = Object.values(hostState.students).map(x => x.name.toLowerCase());
+                    if (existingNames.includes(safeName.toLowerCase())) {
+                        safeName += " (" + (Object.keys(hostState.students).length + 1) + ")";
+                    }
+
+                    s = {
                         id: data.studentId,
-                        name: data.name,
-                        className: data.className,
+                        name: safeName,
+                        className: data.className || "Chưa rõ",
                         score: 0,
                         correctCount: 0,
                         totalResponseTime: 0,
                         questionsAnswered: 0,
                         currentAnswer: null,
                         responseTime: 0,
-                        answerHistory: {}
+                        answerHistory: {},
+                        lastSeen: Date.now(),
+                        isOnline: true
                     };
-                    Sound.tick();
+                    hostState.students[data.studentId] = s;
+
+                    Sound.join();
+                    showToast("Thí sinh mới", `🎓 ${s.name} (${s.className}) đã điểm danh!`, "success");
                     updateHostLobbyUI();
+                } else {
+                    s.lastSeen = Date.now();
+                    s.isOnline = true;
+                    if (data.name && data.name !== s.name) {
+                        s.name = data.name;
+                        updateHostLobbyUI();
+                    }
+                    if (data.className && data.className !== s.className) {
+                        s.className = data.className;
+                        updateHostLobbyUI();
+                    }
                 }
-                hostPublish({ type: 'JOIN_ACK', studentId: data.studentId, examPin: examPin });
+
+                // Gửi xác nhận phản hồi tới học sinh kèm đồng bộ trạng thái game hiện tại
+                hostPublish({
+                    type: 'JOIN_ACK',
+                    targetStudentId: data.studentId,
+                    examPin: examPin,
+                    name: s.name,
+                    className: s.className,
+                    score: s.score,
+                    correctCount: s.correctCount,
+                    gameState: hostState.gameState,
+                    currentQIndex: hostState.currentQIndex,
+                    timeRemaining: hostState.timer,
+                    alreadyAnswered: (s.currentAnswer !== null || (s.answerHistory && s.answerHistory[hostState.currentQIndex] !== undefined))
+                });
             }
+
+            // Xử lý khi thí sinh nộp câu trả lời
             else if (data.type === 'STUDENT_ANSWER') {
                 const s = hostState.students[data.studentId];
-                if (s && s.currentAnswer === null) {
-                    const timeTaken = (Date.now() - hostState.startTime) / 1000;
+                if (s && s.currentAnswer === null && !hostState.isRoundEnded && hostState.gameState === 'QUESTION') {
+                    const timeTaken = Math.max(0.2, (Date.now() - hostState.startTime) / 1000);
                     s.currentAnswer = data.choice;
                     s.responseTime = timeTaken;
                     s.totalResponseTime += timeTaken;
                     s.questionsAnswered += 1;
+                    s.lastSeen = Date.now();
 
                     const q = EXAM_QUESTIONS[hostState.currentQIndex];
                     const isCorrect = (data.choice === q.correct);
@@ -847,13 +1041,13 @@
 
                     if (isCorrect) {
                         s.correctCount++;
-                        // Điểm tích lũy cơ bản: 1 câu đúng = 1.0 điểm (trên thang 10)
                         s.score = Math.round((s.correctCount / EXAM_QUESTIONS.length) * 100) / 10;
                     }
 
+                    // Gửi kết quả về học sinh ngay lập tức
                     hostPublish({
                         type: 'ROUND_FEEDBACK',
-                        studentId: s.id,
+                        targetStudentId: s.id,
                         isCorrect: isCorrect,
                         correctCount: s.correctCount,
                         time: timeTaken
@@ -861,6 +1055,7 @@
 
                     updateHostAnsweredCounter();
 
+                    // Nếu tất cả học sinh đã nộp bài thì kết thúc câu hỏi sớm
                     const total = Object.keys(hostState.students).length;
                     const answered = Object.values(hostState.students).filter(st => st.currentAnswer !== null).length;
                     if (answered >= total && total > 0) {
@@ -871,7 +1066,8 @@
         }
 
         function updateHostLobbyUI() {
-            const count = Object.keys(hostState.students).length;
+            const studentsArr = Object.values(hostState.students);
+            const count = studentsArr.length;
             document.getElementById('hostStudentCountBadge').innerHTML = `<i class="fa-solid fa-users-viewfinder mr-2"></i>${count} Thí Sinh`;
             const container = document.getElementById('hostStudentListContainer');
             const emptyMsg = document.getElementById('emptyStudentMsg');
@@ -886,11 +1082,11 @@
             }
 
             container.innerHTML = '';
-            Object.values(hostState.students).forEach(s => {
+            studentsArr.forEach(s => {
                 const badge = document.createElement('div');
-                badge.className = "px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 shadow-sm";
+                badge.className = `px-3.5 py-1.5 rounded-xl bg-slate-900 border ${s.isOnline ? 'border-slate-700 text-slate-200' : 'border-rose-700/60 text-slate-400 opacity-60'} text-xs font-semibold flex items-center gap-2 shadow-sm transition-all`;
                 badge.innerHTML = `
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span class="w-2 h-2 rounded-full ${s.isOnline ? 'bg-emerald-400' : 'bg-rose-500'}" title="${s.isOnline ? 'Đang trực tuyến' : 'Mất kết nối'}"></span>
                     <span class="font-bold text-white">${s.name}</span>
                     <span class="text-[10px] text-slate-400">(${s.className})</span>
                 `;
@@ -900,6 +1096,7 @@
 
         function hostStartExam() {
             hostState.currentQIndex = 0;
+            hostState.gameState = 'QUESTION';
             hostPublish({ type: 'EXAM_START' });
             hostLoadQuestion();
         }
@@ -907,7 +1104,10 @@
         function hostLoadQuestion() {
             hideAllScreens();
             document.getElementById('hostQuestionScreen').classList.remove('hidden');
+            document.getElementById('hostQuestionActionPanel')?.classList.add('hidden');
 
+            hostState.gameState = 'QUESTION';
+            hostState.isRoundEnded = false;
             const q = EXAM_QUESTIONS[hostState.currentQIndex];
             document.getElementById('hostQCounter').innerText = `CÂU ${hostState.currentQIndex + 1}/${EXAM_QUESTIONS.length}`;
             document.getElementById('hostQCategory').innerText = q.category;
@@ -918,12 +1118,11 @@
             });
 
             // Đặt lại giao diện các thẻ phương án & ẩn thanh nút điều hướng
-            document.getElementById('hostQuestionActionPanel')?.classList.add('hidden');
             const defaultCardStyles = ["option-card-a", "option-card-b", "option-card-c", "option-card-d"];
             for (let i = 0; i < 4; i++) {
                 const card = document.getElementById(`hostOptCard${i}`);
                 const badge = document.getElementById(`hostOptBadge${i}`);
-                if (card) card.className = `p-4 sm:p-5 rounded-2xl ${defaultCardStyles[i]} flex items-start justify-between gap-4 text-white font-medium text-sm sm:text-base transition`;
+                if (card) card.className = `p-4 sm:p-5 rounded-2xl ${defaultCardStyles[i]} flex items-start justify-between gap-4 text-white font-medium text-sm sm:text-base transition opacity-100 ring-0`;
                 if (badge) {
                     badge.classList.add('hidden');
                     badge.innerHTML = '';
@@ -943,7 +1142,8 @@
                 qIndex: hostState.currentQIndex,
                 title: q.title,
                 options: q.options,
-                category: q.category
+                category: q.category,
+                timeLimit: 30
             });
 
             hostState.timer = 30;
@@ -957,16 +1157,6 @@
                 if (hostState.timer <= 5 && hostState.timer > 0) Sound.tick();
 
                 if (hostState.timer <= 0) {
-                    clearInterval(hostState.timerInterval);
-                    Object.values(hostState.students).forEach(s => {
-                        if (s.currentAnswer === null && !s.answerHistory[hostState.currentQIndex]) {
-                            s.answerHistory[hostState.currentQIndex] = {
-                                choice: null,
-                                isCorrect: false,
-                                time: 30
-                            };
-                        }
-                    });
                     hostEndQuestionRound();
                 }
             }, 1000);
@@ -974,8 +1164,20 @@
 
         // HẾT 30 GIÂY HOẶC TẤT CẢ THÍ SINH ĐÃ NỘP: CÔNG BỐ ĐÁP ÁN VÀ HIỂN THỊ NÚT TIẾP TỤC
         function hostEndQuestionRound() {
+            if (hostState.isRoundEnded) return;
+            hostState.isRoundEnded = true;
             clearInterval(hostState.timerInterval);
             document.getElementById('hostTimerText').innerText = "0";
+
+            Object.values(hostState.students).forEach(s => {
+                if (s.currentAnswer === null && !s.answerHistory[hostState.currentQIndex]) {
+                    s.answerHistory[hostState.currentQIndex] = {
+                        choice: null,
+                        isCorrect: false,
+                        time: 30
+                    };
+                }
+            });
 
             const q = EXAM_QUESTIONS[hostState.currentQIndex];
             for (let i = 0; i < 4; i++) {
@@ -983,14 +1185,14 @@
                 const badge = document.getElementById(`hostOptBadge${i}`);
                 if (card) {
                     if (i === q.correct) {
-                        card.className = "p-4 sm:p-5 rounded-2xl bg-emerald-600/30 border-2 border-emerald-400 ring-2 ring-emerald-400/50 flex items-start justify-between gap-4 text-white font-bold text-sm sm:text-base transition shadow-lg";
+                        card.className = "p-4 sm:p-5 rounded-2xl bg-emerald-600/30 border-2 border-emerald-400 ring-2 ring-emerald-400/50 flex items-start justify-between gap-4 text-white font-bold text-sm sm:text-base transition shadow-lg opacity-100 scale-[1.01]";
                         if (badge) {
                             badge.className = "text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-white shadow flex items-center gap-1";
                             badge.innerHTML = `<i class="fa-solid fa-check"></i> ĐÁP ÁN ĐÚNG`;
                             badge.classList.remove('hidden');
                         }
                     } else {
-                        card.className = "p-4 sm:p-5 rounded-2xl bg-slate-900/40 border border-slate-800 opacity-40 flex items-start justify-between gap-4 text-slate-400 font-medium text-sm sm:text-base transition";
+                        card.className = "p-4 sm:p-5 rounded-2xl bg-slate-900/40 border border-slate-800 opacity-30 flex items-start justify-between gap-4 text-slate-400 font-medium text-sm sm:text-base transition";
                         if (badge) badge.classList.add('hidden');
                     }
                 }
@@ -1012,6 +1214,7 @@
         function hostShowIntermediateReview() {
             hideAllScreens();
             document.getElementById('hostIntermediateScreen').classList.remove('hidden');
+            hostState.gameState = 'INTERMEDIATE';
             Sound.finish();
 
             const q = EXAM_QUESTIONS[hostState.currentQIndex];
@@ -1065,6 +1268,7 @@
         function hostShowFinalReport() {
             hideAllScreens();
             document.getElementById('hostFinalReportScreen').classList.remove('hidden');
+            hostState.gameState = 'FINAL';
             Sound.finish();
 
             if (typeof confetti === 'function') {
@@ -1074,7 +1278,6 @@
             const students = Object.values(hostState.students).sort((a,b) => (b.correctCount - a.correctCount) || (a.totalResponseTime - b.totalResponseTime));
             const totalCount = students.length;
 
-            // Tính các chỉ số thống kê
             let totalScores = 0;
             let highestScore = 0;
             let passCount = 0;
@@ -1218,11 +1421,10 @@
             const students = Object.values(hostState.students).sort((a,b) => (b.correctCount - a.correctCount) || (a.totalResponseTime - b.totalResponseTime));
             
             if (students.length === 0) {
-                showToastNotification("Chưa có dữ liệu thí sinh để xuất file!");
+                showToast("Cảnh báo", "Chưa có dữ liệu thí sinh để xuất file!", "warning");
                 return;
             }
 
-            // Tự động trích xuất và tổng hợp tên lớp từ danh sách thí sinh
             const extractedClasses = students
                 .map(s => s.className ? s.className.trim().split(/[-–_,\/]/)[0].trim() : '')
                 .filter(Boolean);
@@ -1230,7 +1432,6 @@
             const classLabel = uniqueClasses.length > 0 ? uniqueClasses.join('_') : "12A";
             const safeClassLabel = classLabel.replace(/[^a-zA-Z0-9_\-]/g, '_');
 
-            // Xây dựng mảng dữ liệu xuất Excel
             const excelData = [];
             const letterMap = ["A", "B", "C", "D"];
 
@@ -1253,7 +1454,6 @@
                     "Thời Gian TB (giây)": avgSpeed
                 };
 
-                // Bổ sung chi tiết từng câu
                 EXAM_QUESTIONS.forEach((q, qIdx) => {
                     const ans = s.answerHistory[qIdx];
                     if (!ans || ans.choice === null) {
@@ -1266,13 +1466,11 @@
                 excelData.push(row);
             });
 
-            // Sử dụng thư viện SheetJS để tạo workbook và xuất file .xlsx theo Tên Lớp
             const worksheet = XLSX.utils.json_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
             const sheetName = `BangDiem_Lop_${safeClassLabel}`.substring(0, 31);
             XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
-            // Tự động căn chỉnh độ rộng cột
             const colWidths = [
                 { wch: 6 },  // STT
                 { wch: 25 }, // Họ và tên
@@ -1285,30 +1483,33 @@
             EXAM_QUESTIONS.forEach(() => colWidths.push({ wch: 12 }));
             worksheet['!cols'] = colWidths;
 
-            // Đặt tên file xuất theo Lớp: BangDiem_VatLi12_ChuDe7_Lop_[TênLớp].xlsx
             const fileName = `BangDiem_VatLi12_ChuDe7_Lop_${safeClassLabel}.xlsx`;
             XLSX.writeFile(workbook, fileName);
 
-            showToastNotification(`✓ Đã xuất bảng điểm lớp ${classLabel} thành công: ` + fileName);
+            showToast("Xuất file thành công", `Đã tải xuống bảng điểm: ${fileName}`, "success");
         }
 
         function copyExamLink() {
-            const url = window.location.href.split('?')[0] + `?pin=${examPin}`;
+            const url = window.location.origin + window.location.pathname + `?pin=${examPin}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast("Sao chép liên kết", "Đã sao chép liên kết phòng thi vào bộ nhớ tạm!", "success");
+                }).catch(() => {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
+        }
+
+        function fallbackCopy(text) {
             const el = document.createElement('textarea');
-            el.value = url;
+            el.value = text;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            showToastNotification("✓ Đã sao chép liên kết phòng thi: " + url);
-        }
-
-        function showToastNotification(msg) {
-            const toast = document.createElement('div');
-            toast.className = "fixed bottom-5 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-50 animate-bounce";
-            toast.innerText = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2600);
+            showToast("Sao chép liên kết", "Đã sao chép liên kết phòng thi!", "success");
         }
 
         // ==================== CHỨC NĂNG THÍ SINH (STUDENT) ====================
@@ -1318,9 +1519,19 @@
             document.getElementById('studentJoinScreen').classList.remove('hidden');
 
             const params = new URLSearchParams(window.location.search);
-            if (params.get('pin')) {
-                document.getElementById('studentPinInput').value = params.get('pin');
+            const urlPin = params.get('pin');
+            const savedPin = sessionStorage.getItem('exam_student_pin');
+            const savedName = sessionStorage.getItem('exam_student_name');
+            const savedClass = sessionStorage.getItem('exam_student_class');
+
+            if (urlPin) {
+                document.getElementById('studentPinInput').value = urlPin;
+            } else if (savedPin) {
+                document.getElementById('studentPinInput').value = savedPin;
             }
+
+            if (savedName) document.getElementById('studentNameInput').value = savedName;
+            if (savedClass) document.getElementById('studentClassInput').value = savedClass;
         }
 
         function studentJoinRoom() {
@@ -1331,13 +1542,18 @@
             const submitBtn = document.getElementById('btnStudentJoinSubmit');
 
             if (!pin || !name || !className) {
-                showToastNotification("Vui lòng điền đầy đủ Mã PIN, Họ tên và Lớp/SBD!");
+                showToast("Thiếu thông tin", "Vui lòng điền đầy đủ Mã PIN, Họ tên và Lớp/SBD!", "warning");
                 return;
             }
 
             examPin = pin;
             studentState.name = name;
             studentState.className = className;
+            studentState.studentId = getOrCreateStudentId();
+
+            sessionStorage.setItem('exam_student_pin', pin);
+            sessionStorage.setItem('exam_student_name', name);
+            sessionStorage.setItem('exam_student_class', className);
 
             document.getElementById('studentMyNameDisplay').innerText = name;
             document.getElementById('studentMyClassDisplay').innerText = "Lớp: " + className;
@@ -1348,11 +1564,28 @@
             statusMsg.innerText = "Đang kết nối vào phòng thi...";
             submitBtn.disabled = true;
 
-            const clientId = "std_" + studentState.studentId + "_" + Math.random().toString(36).substring(2, 6);
-            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
+            const clientId = "std_" + studentState.studentId + "_" + Date.now().toString(36);
+            connectStudentMQTT(clientId);
+        }
+
+        function connectStudentMQTT(clientId) {
+            if (mqttClient) {
+                try { mqttClient.end(true); } catch(e) {}
+            }
+
+            mqttClient = mqtt.connect(MQTT_BROKER_URL, { 
+                clientId: clientId, 
+                clean: true, 
+                keepalive: 60,
+                reconnectPeriod: 2000 
+            });
 
             mqttClient.on('connect', () => {
-                const hostTopic = `physicsexam/${examPin}/host`;
+                isConnected = true;
+                document.getElementById('studentReconnectingBanner').classList.add('hidden');
+                document.getElementById('btnStudentJoinSubmit').disabled = false;
+                
+                const hostTopic = `physicsexam/v2/${examPin}/host`;
                 mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
                     studentPublish({
                         type: 'STUDENT_JOIN',
@@ -1361,28 +1594,86 @@
                         className: studentState.className
                     });
                 });
+
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = setInterval(() => {
+                    if (isConnected && examPin && studentState.studentId) {
+                        studentPublish({
+                            type: 'STUDENT_PING',
+                            studentId: studentState.studentId,
+                            name: studentState.name,
+                            className: studentState.className
+                        });
+                    }
+                }, 3000);
+            });
+
+            mqttClient.on('offline', () => {
+                isConnected = false;
+                document.getElementById('studentReconnectingBanner').classList.remove('hidden');
             });
 
             mqttClient.on('message', (topic, message) => {
                 try {
                     const data = JSON.parse(message.toString());
                     handleStudentIncomingMessage(data);
-                } catch(e) {}
+                } catch(e) {
+                    console.error("Lỗi parse JSON từ giám thị:", e);
+                }
             });
         }
 
         function studentPublish(data) {
-            if (mqttClient && mqttClient.connected) {
-                const studentTopic = `physicsexam/${examPin}/student`;
+            if (mqttClient && isConnected) {
+                const studentTopic = `physicsexam/v2/${examPin}/student`;
                 mqttClient.publish(studentTopic, JSON.stringify(data), { qos: 1 });
             }
         }
 
+        function retryStudentConnection() {
+            if (studentState.studentId && examPin) {
+                const clientId = "std_" + studentState.studentId + "_" + Date.now().toString(36);
+                connectStudentMQTT(clientId);
+                showToast("Thử lại", "Đang kết nối lại phòng thi...", "info");
+            }
+        }
+
         function handleStudentIncomingMessage(data) {
-            if (data.type === 'JOIN_ACK' && data.studentId === studentState.studentId) {
-                hideAllScreens();
-                document.getElementById('studentLobbyScreen').classList.remove('hidden');
-                Sound.tick();
+            if (!data) return;
+
+            if (data.type === 'JOIN_ACK') {
+                if (data.targetStudentId === studentState.studentId) {
+                    studentState.score = data.score || 0;
+                    studentState.correctCount = data.correctCount || 0;
+                    document.getElementById('studentFeedbackScore').innerText = studentState.correctCount;
+
+                    if (data.gameState === 'QUESTION') {
+                        if (data.alreadyAnswered) {
+                            hideAllScreens();
+                            document.getElementById('studentTestpadScreen').classList.remove('hidden');
+                            document.getElementById('studentButtonGrid').classList.add('hidden');
+                            document.getElementById('studentSubmittedOverlay').classList.remove('hidden');
+                        } else {
+                            hideAllScreens();
+                            document.getElementById('studentTestpadScreen').classList.remove('hidden');
+                            document.getElementById('studentButtonGrid').classList.remove('hidden');
+                            document.getElementById('studentSubmittedOverlay').classList.add('hidden');
+                            document.getElementById('studentCurrentQBadge').innerText = `CÂU ${data.currentQIndex + 1}/${EXAM_QUESTIONS.length}`;
+                        }
+                    } else if (data.gameState === 'INTERMEDIATE') {
+                        hideAllScreens();
+                        document.getElementById('studentLobbyScreen').classList.remove('hidden');
+                        document.getElementById('studentLobbySubText').innerText = "Hãy nhìn lên màn hình máy chiếu của giám thị để xem thống kê câu hỏi...";
+                    } else if (data.gameState === 'FINAL') {
+                        hideAllScreens();
+                        document.getElementById('studentLobbyScreen').classList.remove('hidden');
+                        document.getElementById('studentLobbySubText').innerText = "Đợt kiểm tra đã hoàn thành! Hãy theo dõi giám thị tổng kết điểm và xếp loại.";
+                    } else {
+                        hideAllScreens();
+                        document.getElementById('studentLobbyScreen').classList.remove('hidden');
+                    }
+                    Sound.tick();
+                }
             }
             else if (data.type === 'QUESTION_START') {
                 hideAllScreens();
@@ -1391,8 +1682,9 @@
                 document.getElementById('studentSubmittedOverlay').classList.add('hidden');
                 document.getElementById('studentCurrentQBadge').innerText = `CÂU ${data.qIndex + 1}/${EXAM_QUESTIONS.length}`;
                 studentState.selectedChoice = null;
+                Sound.tick();
             }
-            else if (data.type === 'ROUND_FEEDBACK' && data.studentId === studentState.studentId) {
+            else if (data.type === 'ROUND_FEEDBACK' && data.targetStudentId === studentState.studentId) {
                 hideAllScreens();
                 document.getElementById('studentFeedbackScreen').classList.remove('hidden');
 
@@ -1410,6 +1702,12 @@
                     iconEl.className = "w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 border-2 border-rose-400 mx-auto flex items-center justify-center text-3xl mb-3";
                     iconEl.innerHTML = '<i class="fa-solid fa-xmark"></i>';
                     titleEl.innerText = "CHƯA CHÍNH XÁC";
+                    titleEl.className = "text-2xl font-heading font-bold text-rose-400 mb-1";
+                }
+
+                document.getElementById('studentFeedbackSub').innerText = `Thời gian làm bài: ${data.time.toFixed(1)} giây`;
+                document.getElementById('studentFeedbackScore').innerText = `${data.correctCount}/${EXAM_QUESTIONS.length}`;
+            }
             else if (data.type === 'ROUND_REVEAL_ANSWER') {
                 const subMsg = document.getElementById('studentFeedbackSub');
                 if (subMsg) {
@@ -1450,12 +1748,16 @@
             }
         });
 
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
-            if (params.get('pin')) {
+            const pinParam = params.get('pin');
+            const savedPin = sessionStorage.getItem('exam_student_pin');
+            const savedName = sessionStorage.getItem('exam_student_name');
+
+            if (pinParam || (savedPin && savedName)) {
                 initStudentMode();
             }
-        };
+        });
     </script>
 </body>
 </html>
