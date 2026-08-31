@@ -270,7 +270,7 @@
 
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl w-full mx-auto justify-center z-10 relative">
 
-        <!-- 0. CHỌN CHẾ ĐỘ THAM GIA (THIẾT KẾ KHINH KHÍ CẦU MỚI) -->
+        <!-- 0. CHỌN CHẾ ĐỘ THAM GIA (THIẾT KẾ KHINH KHÍ CẦU TINH GỌN, RÕ RÀNG) -->
         <section id="roleSelectScreen" class="w-full max-w-4xl mx-auto glass-theme p-6 sm:p-10 rounded-[2.5rem] shadow-2xl text-center my-auto border-2 border-white/20 relative overflow-hidden">
             
             <!-- Đèn trang trí nền khí quyển -->
@@ -291,114 +291,78 @@
                 Giáo viên mở bãi phóng trên máy chiếu, học sinh quét mã PIN bằng điện thoại để cấp nhiệt hoá hơi <span class="text-amber-300 font-black">(Q = L · m)</span> nâng khí cầu bứt phá độ cao!
             </p>
 
-            <!-- 2 Khối chọn vai trò lớn theo phong cách Khinh Khí Cầu -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+            <!-- 2 Khối chọn vai trò lớn theo phong cách Khinh Khí Cầu (Đã lược bỏ danh sách chữ dài) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                 
                 <!-- CARD 1: MÁY CHIẾU (GIÁO VIÊN / BÃI PHÓNG TRUNG TÂM) -->
-                <button onclick="initHostMode()" class="role-card-host p-6 sm:p-8 rounded-[2rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col justify-between group relative overflow-hidden cursor-pointer">
+                <button onclick="initHostMode()" class="role-card-host p-8 sm:p-10 rounded-[2.5rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col items-center justify-between group relative overflow-hidden cursor-pointer min-h-[300px]">
                     
                     <!-- Vệt sáng lướt qua khi hover -->
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/25 transition"></div>
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/25 transition"></div>
 
-                    <!-- Header Card & Icon Khinh Khí Cầu Mỏ Đốt -->
-                    <div>
-                        <div class="flex items-center justify-between mb-5">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 p-0.5 shadow-xl shadow-orange-500/30 border border-amber-300/40 flex items-center justify-center anim-balloon-float">
-                                <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
-                                    <span class="text-3xl sm:text-4xl">🎈</span>
-                                    <span class="text-[10px] -mt-1 anim-burner-glow">🔥</span>
-                                </div>
-                            </div>
-
-                            <span class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[11px] sm:text-xs font-racing font-black uppercase tracking-wider">
-                                <i class="fa-solid fa-tv mr-1"></i> GIÁO VIÊN
-                            </span>
-                        </div>
-
-                        <div class="space-y-1">
-                            <h3 class="text-2xl sm:text-3xl font-racing font-black text-white group-hover:text-amber-300 transition flex items-center gap-2">
-                                <span>MÁY CHIẾU</span>
-                                <i class="fa-solid fa-arrow-right text-base text-amber-400 group-hover:translate-x-1.5 transition"></i>
-                            </h3>
-                            <p class="text-xs sm:text-sm text-amber-200/90 font-bold">Trạm chỉ huy & Bãi phóng trung tâm</p>
-                        </div>
-
-                        <!-- Điểm nhấn tính năng -->
-                        <ul class="mt-4 space-y-2 text-xs sm:text-sm text-slate-300 font-semibold border-t border-white/10 pt-4">
-                            <li class="flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-400 text-xs"></i>
-                                <span>Tạo mã PIN phòng & hiển thị câu hỏi màn hình lớn</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-400 text-xs"></i>
-                                <span>Theo dõi cột độ cao thẳng đứng <strong class="text-amber-300">0m ➔ 10.000m</strong></span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-400 text-xs"></i>
-                                <span>Ma trận Đúng/Sai & Báo cáo sư phạm chi tiết</span>
-                            </li>
-                        </ul>
+                    <!-- Badge giáo viên -->
+                    <div class="w-full flex justify-end">
+                        <span class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-racing font-black uppercase tracking-wider shadow-sm">
+                            <i class="fa-solid fa-tv mr-1.5"></i> GIÁO VIÊN
+                        </span>
                     </div>
 
-                    <!-- Nút bấm giả lập bên trong -->
-                    <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                        <span class="text-xs font-racing font-bold uppercase tracking-wider text-amber-300">MỞ BÃI PHÓNG NGAY</span>
-                        <div class="w-9 h-9 rounded-xl bg-amber-500/30 border border-amber-400 text-amber-300 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-950 transition">
+                    <!-- Icon & Avatar Khinh Khí Cầu Trung Tâm -->
+                    <div class="my-3 flex flex-col items-center">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 p-1 shadow-2xl shadow-orange-500/40 border-2 border-amber-300/50 flex items-center justify-center anim-balloon-float">
+                            <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
+                                <span class="text-4xl sm:text-5xl">🎈</span>
+                                <span class="text-xs -mt-1 anim-burner-glow">🔥</span>
+                            </div>
+                        </div>
+
+                        <h3 class="text-2xl sm:text-3xl font-racing font-black text-white group-hover:text-amber-300 transition mt-4 tracking-wide">
+                            MÁY CHIẾU
+                        </h3>
+                        <p class="text-xs sm:text-sm text-amber-200/90 font-bold mt-1">Trạm chỉ huy & Bãi phóng trung tâm</p>
+                    </div>
+
+                    <!-- Nút bấm hành động lớn -->
+                    <div class="w-full pt-4 border-t border-white/10 flex items-center justify-center gap-2">
+                        <span class="text-xs sm:text-sm font-racing font-black uppercase tracking-wider text-amber-300 group-hover:underline">MỞ BÃI PHÓNG NGAY</span>
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/30 border border-amber-400 text-amber-300 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-950 transition">
                             <i class="fa-solid fa-play text-xs"></i>
                         </div>
                     </div>
                 </button>
 
                 <!-- CARD 2: ĐIỆN THOẠI (HỌC SINH / PHI HÀNH ĐOÀN) -->
-                <button onclick="initPlayerMode()" class="role-card-player p-6 sm:p-8 rounded-[2rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col justify-between group relative overflow-hidden cursor-pointer">
+                <button onclick="initPlayerMode()" class="role-card-player p-8 sm:p-10 rounded-[2.5rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col items-center justify-between group relative overflow-hidden cursor-pointer min-h-[300px]">
                     
                     <!-- Vệt sáng lướt qua khi hover -->
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-sky-500/25 transition"></div>
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-sky-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-sky-500/25 transition"></div>
 
-                    <!-- Header Card & Icon Tay Cầm Khí Cầu -->
-                    <div>
-                        <div class="flex items-center justify-between mb-5">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-cyan-500 via-sky-500 to-blue-600 p-0.5 shadow-xl shadow-cyan-500/30 border border-cyan-300/40 flex items-center justify-center anim-balloon-float" style="animation-delay: 1.5s;">
-                                <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
-                                    <span class="text-3xl sm:text-4xl">🪂</span>
-                                    <span class="text-[10px] -mt-1 text-cyan-300">🎮</span>
-                                </div>
-                            </div>
-
-                            <span class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-400/40 text-sky-300 text-[11px] sm:text-xs font-racing font-black uppercase tracking-wider">
-                                <i class="fa-solid fa-mobile-screen mr-1"></i> HỌC SINH
-                            </span>
-                        </div>
-
-                        <div class="space-y-1">
-                            <h3 class="text-2xl sm:text-3xl font-racing font-black text-white group-hover:text-cyan-300 transition flex items-center gap-2">
-                                <span>ĐIỆN THOẠI</span>
-                                <i class="fa-solid fa-arrow-right text-base text-cyan-400 group-hover:translate-x-1.5 transition"></i>
-                            </h3>
-                            <p class="text-xs sm:text-sm text-cyan-200/90 font-bold">Phi hành đoàn điều khiển mỏ đốt</p>
-                        </div>
-
-                        <!-- Điểm nhấn tính năng -->
-                        <ul class="mt-4 space-y-2 text-xs sm:text-sm text-slate-300 font-semibold border-t border-white/10 pt-4">
-                            <li class="flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-cyan-400 text-xs"></i>
-                                <span>Nhập mã PIN 4 số & đặt tên khinh khí cầu riêng</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-cyan-400 text-xs"></i>
-                                <span>Tay cầm 4 nút ngôi sao <strong class="text-cyan-300">A, B, C, D</strong> phản hồi tức thì</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-cyan-400 text-xs"></i>
-                                <span>Cấp nhiệt lượng chuẩn xác giành Cúp Vô Địch</span>
-                            </li>
-                        </ul>
+                    <!-- Badge học sinh -->
+                    <div class="w-full flex justify-end">
+                        <span class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-400/50 text-sky-300 text-xs font-racing font-black uppercase tracking-wider shadow-sm">
+                            <i class="fa-solid fa-mobile-screen mr-1.5"></i> HỌC SINH
+                        </span>
                     </div>
 
-                    <!-- Nút bấm giả lập bên trong -->
-                    <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                        <span class="text-xs font-racing font-bold uppercase tracking-wider text-cyan-300">VÀO PHÒNG BAY NGAY</span>
-                        <div class="w-9 h-9 rounded-xl bg-sky-500/30 border border-sky-400 text-sky-300 flex items-center justify-center group-hover:bg-cyan-400 group-hover:text-slate-950 transition">
+                    <!-- Icon & Avatar Tay Cầm Khí Cầu -->
+                    <div class="my-3 flex flex-col items-center">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-cyan-500 via-sky-500 to-blue-600 p-1 shadow-2xl shadow-cyan-500/40 border-2 border-cyan-300/50 flex items-center justify-center anim-balloon-float" style="animation-delay: 1.5s;">
+                            <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
+                                <span class="text-4xl sm:text-5xl">🪂</span>
+                                <span class="text-xs -mt-1 text-cyan-300">🎮</span>
+                            </div>
+                        </div>
+
+                        <h3 class="text-2xl sm:text-3xl font-racing font-black text-white group-hover:text-cyan-300 transition mt-4 tracking-wide">
+                            ĐIỆN THOẠI
+                        </h3>
+                        <p class="text-xs sm:text-sm text-cyan-200/90 font-bold mt-1">Phi hành đoàn điều khiển mỏ đốt</p>
+                    </div>
+
+                    <!-- Nút bấm hành động lớn -->
+                    <div class="w-full pt-4 border-t border-white/10 flex items-center justify-center gap-2">
+                        <span class="text-xs sm:text-sm font-racing font-black uppercase tracking-wider text-cyan-300 group-hover:underline">VÀO PHÒNG BAY NGAY</span>
+                        <div class="w-8 h-8 rounded-xl bg-sky-500/30 border border-sky-400 text-sky-300 flex items-center justify-center group-hover:bg-cyan-400 group-hover:text-slate-950 transition">
                             <i class="fa-solid fa-gamepad text-xs"></i>
                         </div>
                     </div>
