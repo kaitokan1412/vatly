@@ -1143,6 +1143,14 @@
                 return;
             }
 
+            // Tự động trích xuất và tổng hợp tên lớp từ danh sách thí sinh
+            const extractedClasses = students
+                .map(s => s.className ? s.className.trim().split(/[-–_,\/]/)[0].trim() : '')
+                .filter(Boolean);
+            const uniqueClasses = [...new Set(extractedClasses.length > 0 ? extractedClasses : students.map(s => s.className?.trim()).filter(Boolean))];
+            const classLabel = uniqueClasses.length > 0 ? uniqueClasses.join('_') : "12A";
+            const safeClassLabel = classLabel.replace(/[^a-zA-Z0-9_\-]/g, '_');
+
             // Xây dựng mảng dữ liệu xuất Excel
             const excelData = [];
             const letterMap = ["A", "B", "C", "D"];
@@ -1179,10 +1187,11 @@
                 excelData.push(row);
             });
 
-            // Sử dụng thư viện SheetJS để tạo workbook và xuất file .xlsx
+            // Sử dụng thư viện SheetJS để tạo workbook và xuất file .xlsx theo Tên Lớp
             const worksheet = XLSX.utils.json_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "KetQuaKiemTra");
+            const sheetName = `BangDiem_Lop_${safeClassLabel}`.substring(0, 31);
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
             // Tự động căn chỉnh độ rộng cột
             const colWidths = [
@@ -1197,11 +1206,11 @@
             EXAM_QUESTIONS.forEach(() => colWidths.push({ wch: 12 }));
             worksheet['!cols'] = colWidths;
 
-            // Đặt tên file xuất: BangDiem_VatLi12_ChuDe7_[MãPIN].xlsx
-            const fileName = `BangDiem_VatLi12_ChuDe7_Phong_${examPin}.xlsx`;
+            // Đặt tên file xuất theo Lớp: BangDiem_VatLi12_ChuDe7_Lop_[TênLớp].xlsx
+            const fileName = `BangDiem_VatLi12_ChuDe7_Lop_${safeClassLabel}.xlsx`;
             XLSX.writeFile(workbook, fileName);
 
-            showToastNotification("✓ Đã xuất file Excel thành công: " + fileName);
+            showToastNotification(`✓ Đã xuất bảng điểm lớp ${classLabel} thành công: ` + fileName);
         }
 
         function copyExamLink() {
