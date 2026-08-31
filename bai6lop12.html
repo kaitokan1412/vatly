@@ -161,7 +161,6 @@
             box-shadow: 0 2px 0 rgba(0,0,0,0.6);
         }
 
-        /* HIỆU ỨNG THIẾT KẾ CHO THẺ CHỌN CHẾ ĐỘ THAM GIA */
         @keyframes balloonGentleFloat {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-8px) rotate(2deg); }
@@ -195,6 +194,22 @@
             box-shadow: 0 25px 50px -10px rgba(56, 189, 248, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.25);
         }
 
+        /* Toast animation */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter {
+            animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .toast-leave {
+            animation: fadeOut 0.3s forwards;
+        }
+
         /* Custom scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0c0817; }
@@ -217,8 +232,8 @@
                     KHINH KHÍ CẦU SIÊU NHIỆT
                 </h1>
                 <p class="text-[10px] md:text-xs text-slate-300 font-bold flex items-center gap-1.5">
-                    <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                    Vật Lí 12 • Bài 6: Nhiệt Hoá Hơi Riêng (Q = L · m)
+                    <span id="globalConnDot" class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <span id="globalConnText">Vật Lí 12 • Bài 6: Nhiệt Hoá Hơi Riêng (Q = L · m)</span>
                 </p>
             </div>
         </div>
@@ -260,42 +275,43 @@
             <button id="sfxBtn" onclick="toggleSFX()" class="p-2.5 w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 text-xs font-bold border border-white/20 flex items-center justify-center transition text-amber-300 shadow-md" title="Bật/Tắt âm thanh">
                 <i class="fa-solid fa-music" id="sfxIcon"></i>
             </button>
-            <button onclick="window.location.reload()" class="px-3.5 py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition text-slate-300">
+            <button onclick="leaveToHome()" class="px-3.5 py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition text-slate-300">
                 <i class="fa-solid fa-house"></i>
                 <span class="hidden sm:inline">Trang chủ</span>
             </button>
         </div>
     </header>
 
+    <!-- Disconnection Alert Banner for Player -->
+    <div id="playerReconnectingBanner" class="hidden bg-gradient-to-r from-amber-600 to-rose-600 px-4 py-2 text-center text-xs font-racing font-black tracking-wide text-white shadow-md flex items-center justify-center gap-2 z-40">
+        <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+        <span>MẤT KẾT NỐI MẠNG — ĐANG TỰ ĐỘNG KẾT NỐI LẠI VÀO PHÒNG...</span>
+        <button onclick="retryPlayerConnection()" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-[10px] uppercase border border-white/30 ml-2">Thử lại</button>
+    </div>
+
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl w-full mx-auto justify-center z-10 relative">
 
-        <!-- 0. CHỌN CHẾ ĐỘ THAM GIA (THIẾT KẾ KHINH KHÍ CẦU TINH GỌN, RÕ RÀNG) -->
+        <!-- 0. CHỌN CHẾ ĐỘ THAM GIA -->
         <section id="roleSelectScreen" class="w-full max-w-4xl mx-auto glass-theme p-6 sm:p-10 rounded-[2.5rem] shadow-2xl text-center my-auto border-2 border-white/20 relative overflow-hidden">
             
-            <!-- Đèn trang trí nền khí quyển -->
             <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-40 bg-gradient-to-b from-amber-500/20 to-transparent blur-3xl pointer-events-none"></div>
 
-            <!-- Huy hiệu chủ đề khí quyển -->
             <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-black uppercase tracking-widest shadow-inner mb-3">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
                 <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
                 <span>Đua Độ Cao Vật Lí 12 • 0m ➔ 10.000m</span>
             </div>
 
-            <!-- Tiêu đề lớn sắc nét -->
             <h2 class="text-3xl sm:text-5xl font-racing font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-orange-300 uppercase tracking-wide drop-shadow-md">
                 CHỌN CHẾ ĐỘ THAM GIA
             </h2>
             <p class="text-xs sm:text-base text-slate-200 mt-2 mb-8 max-w-2xl mx-auto font-bold leading-relaxed">
-                Giáo viên mở bãi phóng trên máy chiếu, học sinh quét mã PIN bằng điện thoại để cấp nhiệt hoá hơi <span class="text-amber-300 font-black">(Q = L · m)</span> nâng khí cầu bứt phá độ cao!
+                Giáo viên mở bãi phóng trên máy chiếu, học sinh mở điện thoại nhập mã PIN để cấp nhiệt hoá hơi <span class="text-amber-300 font-black">(Q = L · m)</span> nâng khí cầu bứt phá độ cao!
             </p>
 
-            <!-- 2 Khối chọn vai trò lớn theo phong cách Khinh Khí Cầu -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
-                
                 <!-- CARD 1: MÁY CHIẾU (GIÁO VIÊN / BÃI PHÓNG TRUNG TÂM) -->
                 <button onclick="initHostMode()" class="role-card-host p-8 sm:p-10 rounded-[2.5rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col items-center justify-between group relative overflow-hidden cursor-pointer min-h-[300px]">
-                    
                     <div class="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/25 transition"></div>
 
                     <div class="w-full flex justify-end">
@@ -328,7 +344,6 @@
 
                 <!-- CARD 2: ĐIỆN THOẠI (HỌC SINH / PHI HÀNH ĐOÀN) -->
                 <button onclick="initPlayerMode()" class="role-card-player p-8 sm:p-10 rounded-[2.5rem] transition-all duration-300 transform hover:-translate-y-2 active:scale-95 flex flex-col items-center justify-between group relative overflow-hidden cursor-pointer min-h-[300px]">
-                    
                     <div class="absolute top-0 right-0 w-40 h-40 bg-sky-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-sky-500/25 transition"></div>
 
                     <div class="w-full flex justify-end">
@@ -379,8 +394,9 @@
                         <span id="hostPinDisplay" class="text-4xl sm:text-6xl font-racing font-black text-amber-300 tracking-widest bg-black/60 px-5 py-1.5 rounded-2xl border-2 border-amber-400/60 shadow-inner">
                             ----
                         </span>
-                        <button onclick="copyJoinLink()" id="btnCopyLink" class="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-amber-300 border border-white/20 text-xs font-bold" title="Sao chép link">
+                        <button onclick="copyJoinLink()" id="btnCopyLink" class="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-amber-300 border border-white/20 text-xs font-bold transition flex items-center gap-1.5" title="Sao chép link">
                             <i class="fa-solid fa-link text-base"></i>
+                            <span class="text-xs hidden sm:inline">Sao chép link</span>
                         </button>
                     </div>
                 </div>
@@ -431,7 +447,7 @@
             <!-- 4 NÚT HIỂN THỊ ĐÁP ÁN VỚI NGÔI SAO 3, 4, 5, 6 CÁNH -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4" id="hostOptionsContainer">
                 <div id="hostOptCard0" class="p-5 rounded-3xl btn-star-a flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 flex-1">
                         <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-yellow-300 gap-1.5 flex-shrink-0">
                             <svg class="w-6 h-6 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
                             <span>A</span>
@@ -442,7 +458,7 @@
                 </div>
 
                 <div id="hostOptCard1" class="p-5 rounded-3xl btn-star-b flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 flex-1">
                         <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-cyan-200 gap-1.5 flex-shrink-0">
                             <svg class="w-6 h-6 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
                             <span>B</span>
@@ -453,7 +469,7 @@
                 </div>
 
                 <div id="hostOptCard2" class="p-5 rounded-3xl btn-star-c flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 flex-1">
                         <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-amber-200 gap-1.5 flex-shrink-0">
                             <svg class="w-6 h-6 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
                             <span>C</span>
@@ -464,7 +480,7 @@
                 </div>
 
                 <div id="hostOptCard3" class="p-5 rounded-3xl btn-star-d flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 flex-1">
                         <div class="w-14 h-12 rounded-2xl bg-black/30 border border-white/30 flex items-center justify-center font-racing font-black text-xl text-emerald-200 gap-1.5 flex-shrink-0">
                             <svg class="w-6 h-6 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
                             <span>D</span>
@@ -495,7 +511,7 @@
             </div>
         </section>
 
-        <!-- 3. HOST ROUND LEADERBOARD & CỘT ĐỘ CAO THẲNG ĐỨNG ($0m \to 10.000m$) -->
+        <!-- 3. HOST ROUND LEADERBOARD & CỘT ĐỘ CAO THẲNG ĐỨNG (0m -> 10.000m) -->
         <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 my-auto hidden">
             <div class="flex items-center justify-between px-2">
                 <div>
@@ -562,7 +578,7 @@
                         </span>
                         <span class="text-[11px] text-cyan-300/80 font-bold">Xếp hạng Live</span>
                     </div>
-                    <div id="hostLeaderboardList" class="flex flex-col gap-2.5"></div>
+                    <div id="hostLeaderboardList" class="flex flex-col gap-2.5 max-h-[360px] overflow-y-auto pr-1"></div>
                 </div>
             </div>
         </section>
@@ -646,7 +662,7 @@
             </div>
 
             <div class="flex justify-center gap-3">
-                <button onclick="window.location.reload()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-base shadow-lg hover:scale-105 active:scale-95 transition">
+                <button onclick="resetGameForNewRound()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-racing font-black text-base shadow-lg hover:scale-105 active:scale-95 transition">
                     TỔ CHỨC CHUYẾN BAY MỚI
                 </button>
             </div>
@@ -683,6 +699,10 @@
             <div id="playerMyCarAvatar" class="text-6xl mb-4 animate-bounce">🎈</div>
             <h3 class="text-xs font-racing uppercase text-slate-300 font-bold" id="playerLobbyStatusText">KHÍ CẦU ĐÃ SẴN SÀNG NHIỆT LƯỢNG</h3>
             <h2 id="playerMyNameDisplay" class="text-2xl font-racing font-black text-amber-300 my-1">TÊN ĐỘI</h2>
+            <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Đang kết nối trực tiếp với Máy Chiếu</span>
+            </div>
             <p class="text-xs text-slate-300 mt-4 leading-relaxed" id="playerLobbySubText">Hãy nhìn lên màn hình máy chiếu.<br>Chuyến bay sẽ bắt đầu khi giáo viên mở van mỏ đốt!</p>
         </section>
 
@@ -719,9 +739,9 @@
             </div>
 
             <div id="playerSubmittedOverlay" class="glass-theme p-6 rounded-3xl text-center hidden">
-                <div class="text-4xl mb-2">⏳</div>
+                <div class="text-4xl mb-2 animate-bounce">⏳</div>
                 <h4 class="font-racing font-black text-lg text-amber-300">ĐÃ KÍCH HOẠT NHIỆT LƯỢNG!</h4>
-                <p class="text-xs text-slate-300 mt-1">Đang chờ thời gian kết thúc để giáo viên chữa bài...</p>
+                <p class="text-xs text-slate-300 mt-1">Lựa chọn đã được ghi nhận. Đang chờ các đội khác và thời gian đếm ngược...</p>
             </div>
         </section>
 
@@ -734,6 +754,9 @@
         </section>
 
     </main>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
     <script>
         // 8 MẪU KHINH KHÍ CẦU & TÀU BAY KHÔNG GIAN
@@ -756,7 +779,7 @@
             `<svg class="w-4 h-4 inline-block text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>`
         ];
 
-        // 10 CÂU HỎI TRẮC NGHIỆM CHỦ ĐỀ 6 ĐÃ ĐƯỢC CHỌN LỌC CHUẨN XÁC TỪ TÀI LIỆU
+        // 10 CÂU HỎI TRẮC NGHIỆM CHỦ ĐỀ 6: NHIỆT HOÁ HƠI RIÊNG
         const QUESTIONS_DATA = [
             {
                 category: "Khái niệm nhiệt hoá hơi riêng",
@@ -932,9 +955,9 @@
         function initAudio() {
             if (!audioCtx) {
                 const AudioClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioClass();
+                if (AudioClass) audioCtx = new AudioClass();
             }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
@@ -943,6 +966,7 @@
                 if (!sfxEnabled) return;
                 try {
                     const ctx = initAudio();
+                    if (!ctx) return;
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = type;
@@ -973,79 +997,218 @@
             },
             fanfare() {
                 [587.33, 739.99, 880.00, 1174.66].forEach((f, i) => this.play(f, 'triangle', 0.3, 0.22, i * 0.12));
+            },
+            join() {
+                this.play(440, 'sine', 0.1, 0.1, 0);
+                this.play(880, 'sine', 0.15, 0.12, 0.08);
             }
         };
 
         function toggleSFX() {
             sfxEnabled = !sfxEnabled;
             document.getElementById('sfxIcon').className = sfxEnabled ? "fa-solid fa-music text-amber-400" : "fa-solid fa-volume-xmark text-slate-500";
+            showToast("Âm thanh", sfxEnabled ? "Đã bật hiệu ứng âm thanh" : "Đã tắt hiệu ứng âm thanh", "info");
         }
 
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-enter pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl border shadow-2xl backdrop-blur-md transition-all max-w-sm ${
+                type === 'success' ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200' :
+                type === 'warning' ? 'bg-amber-950/90 border-amber-500/50 text-amber-200' :
+                type === 'error' ? 'bg-rose-950/90 border-rose-500/50 text-rose-200' :
+                'bg-slate-900/90 border-slate-700 text-slate-200'
+            }`;
+
+            const iconMap = {
+                success: '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>',
+                warning: '<i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg"></i>',
+                error: '<i class="fa-solid fa-circle-xmark text-rose-400 text-lg"></i>',
+                info: '<i class="fa-solid fa-circle-info text-cyan-400 text-lg"></i>'
+            };
+
+            toast.innerHTML = `
+                <div class="flex-shrink-0 mt-0.5">${iconMap[type] || iconMap.info}</div>
+                <div class="flex-1 text-xs">
+                    <div class="font-racing font-bold uppercase tracking-wider text-white">${title}</div>
+                    <div class="text-slate-300 mt-0.5 leading-snug">${message}</div>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.remove(), 320);
+            }, 3500);
+        }
+
+        // ================= MQTT CLOUD WEBSOCKET CLIENT =================
         const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
         
         let mqttClient = null;
         let roomPin = "";
         let isHost = false;
+        let isConnected = false;
+        let heartbeatInterval = null;
 
         let hostState = {
             players: {},
             currentQIndex: 0,
             timer: 30, // 30 GIÂY MỖI CÂU
             timerInterval: null,
-            startTime: 0
+            startTime: 0,
+            isRoundEnded: false,
+            gameState: 'LOBBY' // 'LOBBY' | 'QUESTION' | 'LEADERBOARD' | 'FINAL'
         };
 
         let playerState = {
-            playerId: "p_" + Math.random().toString(36).substring(2, 8),
+            playerId: "",
             myName: "",
             score: 0,
+            streak: 0,
+            correctCount: 0,
             carSkin: null,
-            selectedChoice: null
+            selectedChoice: null,
+            lastQuestionAnswered: -1
         };
 
         function hideAllScreens() {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
         }
 
-        // ================= HOST LOGIC =================
+        function getOrCreatePlayerId() {
+            let pid = sessionStorage.getItem('balloon_player_id');
+            if (!pid) {
+                pid = "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+                sessionStorage.setItem('balloon_player_id', pid);
+            }
+            return pid;
+        }
+
+        function leaveToHome() {
+            sessionStorage.removeItem('balloon_player_pin');
+            sessionStorage.removeItem('balloon_player_name');
+            if (mqttClient) {
+                try { mqttClient.end(true); } catch(e) {}
+            }
+            window.location.href = window.location.pathname;
+        }
+
+        // ================= HOST (MÁY CHIẾU) =================
         function initHostMode() {
             isHost = true;
             hideAllScreens();
             document.getElementById('hostLobbyScreen').classList.remove('hidden');
+            hostState.gameState = 'LOBBY';
 
+            // Tạo mã PIN ngẫu nhiên 4 chữ số
             roomPin = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('hostPinDisplay').innerText = roomPin;
 
-            const clientId = "balloon_host_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
-            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
+            const clientId = "balloon_host_" + roomPin + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 6);
+            connectHostMQTT(clientId);
+        }
+
+        function connectHostMQTT(clientId) {
+            if (mqttClient) {
+                try { mqttClient.end(true); } catch(e) {}
+            }
+
+            mqttClient = mqtt.connect(MQTT_BROKER_URL, {
+                clientId: clientId,
+                clean: true,
+                keepalive: 60,
+                reconnectPeriod: 2500
+            });
 
             mqttClient.on('connect', () => {
-                const playerTopic = `steamballoon/${roomPin}/player`;
+                isConnected = true;
+                document.getElementById('hostStatusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                
+                const playerTopic = `steamballoon/v2/${roomPin}/player`;
                 mqttClient.subscribe(playerTopic, { qos: 1 });
+
+                // Host định kỳ kiểm tra Presence của học sinh
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = setInterval(() => {
+                    checkPlayerPresence();
+                    if (hostState.gameState === 'LOBBY') {
+                        hostPublish({
+                            type: 'LOBBY_STATE_SYNC',
+                            playerCount: Object.keys(hostState.players).length
+                        });
+                    }
+                }, 3000);
+
+                showToast("Bãi phóng khí cầu", `Đã mở bãi phóng thành công! Mã PIN: ${roomPin}`, "success");
+            });
+
+            mqttClient.on('offline', () => {
+                isConnected = false;
+                document.getElementById('hostStatusDot').className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                showToast("Cảnh báo mạng", "Máy chiếu mất kết nối mạng, đang thử kết nối lại...", "warning");
             });
 
             mqttClient.on('message', (topic, message) => {
                 try {
                     const data = JSON.parse(message.toString());
                     handleHostIncomingData(data);
-                } catch(e) {}
+                } catch(e) {
+                    console.error("Lỗi parse JSON từ học sinh:", e);
+                }
             });
         }
 
         function hostPublish(data) {
-            if (mqttClient && mqttClient.connected) {
-                const hostTopic = `steamballoon/${roomPin}/host`;
+            if (mqttClient && isConnected) {
+                const hostTopic = `steamballoon/v2/${roomPin}/host`;
                 mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 1 });
             }
         }
 
+        function checkPlayerPresence() {
+            const now = Date.now();
+            let changed = false;
+            Object.values(hostState.players).forEach(p => {
+                const isOnline = (now - (p.lastSeen || 0)) < 8000;
+                if (p.isOnline !== isOnline) {
+                    p.isOnline = isOnline;
+                    changed = true;
+                    if (!isOnline) {
+                        showToast("Mất kết nối", `Khí cầu ${p.name} có dấu hiệu mất tín hiệu`, "warning");
+                    } else {
+                        showToast("Trực tuyến", `Khí cầu ${p.name} đã kết nối lại`, "success");
+                    }
+                }
+            });
+            if (changed) {
+                updateHostLobbyUI();
+            }
+        }
+
         function handleHostIncomingData(data) {
-            if (data.type === 'PLAYER_JOIN') {
-                if (!hostState.players[data.playerId]) {
+            if (!data || !data.playerId) return;
+
+            // Xử lý khi Học sinh Tham gia mới hoặc Kết nối lại
+            if (data.type === 'PLAYER_JOIN' || data.type === 'PLAYER_REJOIN' || data.type === 'PLAYER_PING') {
+                let p = hostState.players[data.playerId];
+
+                // Nếu là người chơi mới
+                if (!p) {
+                    let safeName = data.name || "Khí Cầu " + (Object.keys(hostState.players).length + 1);
+                    const existingNames = Object.values(hostState.players).map(x => x.name.toLowerCase());
+                    if (existingNames.includes(safeName.toLowerCase())) {
+                        safeName += " (" + (Object.keys(hostState.players).length + 1) + ")";
+                    }
+
                     const assignedBalloon = BALLOON_DESIGNS[Object.keys(hostState.players).length % BALLOON_DESIGNS.length];
-                    hostState.players[data.playerId] = {
+                    p = {
                         id: data.playerId,
-                        name: data.name,
+                        name: safeName,
                         score: 0,
                         streak: 0,
                         correctCount: 0,
@@ -1054,22 +1217,49 @@
                         currentAnswer: null,
                         responseTime: 0,
                         carSkin: assignedBalloon,
-                        answerHistory: {}
+                        answerHistory: {},
+                        lastSeen: Date.now(),
+                        isOnline: true
                     };
-                    Sound.tick();
+                    hostState.players[data.playerId] = p;
+
+                    Sound.join();
+                    showToast("Khí cầu mới", `🎈 ${p.name} vừa vào bãi phóng!`, "success");
                     updateHostLobbyUI();
+                } else {
+                    p.lastSeen = Date.now();
+                    p.isOnline = true;
+                    if (data.name && data.name !== p.name) {
+                        p.name = data.name;
+                        updateHostLobbyUI();
+                    }
                 }
-                const p = hostState.players[data.playerId];
-                hostPublish({ type: 'JOIN_ACK', playerId: data.playerId, roomPin: roomPin, carSkin: p.carSkin });
+
+                // Gửi xác nhận phản hồi tới học sinh kèm đồng bộ trạng thái game hiện tại
+                hostPublish({
+                    type: 'JOIN_ACK',
+                    targetPlayerId: data.playerId,
+                    roomPin: roomPin,
+                    carSkin: p.carSkin,
+                    name: p.name,
+                    score: p.score,
+                    gameState: hostState.gameState,
+                    currentQIndex: hostState.currentQIndex,
+                    timeRemaining: hostState.timer,
+                    alreadyAnswered: (p.currentAnswer !== null || (p.answerHistory && p.answerHistory[hostState.currentQIndex] !== undefined))
+                });
             }
+
+            // Xử lý khi Học sinh gửi đáp án
             else if (data.type === 'PLAYER_ANSWER') {
                 const p = hostState.players[data.playerId];
-                if (p && p.currentAnswer === null) {
-                    const timeTaken = (Date.now() - hostState.startTime) / 1000;
+                if (p && p.currentAnswer === null && !hostState.isRoundEnded && hostState.gameState === 'QUESTION') {
+                    const timeTaken = Math.max(0.2, (Date.now() - hostState.startTime) / 1000);
                     p.currentAnswer = data.choice;
                     p.responseTime = timeTaken;
                     p.totalResponseTime += timeTaken;
                     p.questionsAnswered += 1;
+                    p.lastSeen = Date.now();
 
                     const q = QUESTIONS_DATA[hostState.currentQIndex];
                     const isCorrect = (data.choice === q.correct);
@@ -1080,38 +1270,33 @@
                         time: timeTaken
                     };
 
+                    let gained = 0;
                     if (isCorrect) {
                         p.streak++;
                         p.correctCount++;
                         const speedFactor = Math.max(0.1, (hostState.timer / 30));
-                        const gained = Math.round(500 + 500 * speedFactor + (p.streak >= 2 ? p.streak * 40 : 0));
+                        gained = Math.round(500 + 500 * speedFactor + (p.streak >= 2 ? p.streak * 40 : 0));
                         p.score += gained;
-                        hostPublish({
-                            type: 'ROUND_FEEDBACK',
-                            playerId: p.id,
-                            isCorrect: true,
-                            score: p.score,
-                            ptsGained: gained,
-                            time: timeTaken
-                        });
                     } else {
                         p.streak = 0;
-                        hostPublish({
-                            type: 'ROUND_FEEDBACK',
-                            playerId: p.id,
-                            isCorrect: false,
-                            score: p.score,
-                            ptsGained: 0,
-                            time: timeTaken
-                        });
                     }
+
+                    // Gửi kết quả về học sinh ngay lập tức
+                    hostPublish({
+                        type: 'ROUND_FEEDBACK',
+                        targetPlayerId: p.id,
+                        isCorrect: isCorrect,
+                        score: p.score,
+                        ptsGained: gained,
+                        time: timeTaken
+                    });
 
                     updateHostAnsweredCounter();
 
+                    // Kiểm tra nếu tất cả người chơi online đã trả lời xong
                     const totalPlayers = Object.keys(hostState.players).length;
                     const answeredPlayers = Object.values(hostState.players).filter(pl => pl.currentAnswer !== null).length;
                     if (answeredPlayers >= totalPlayers && totalPlayers > 0) {
-                        // TẤT CẢ ĐÃ NỘP: DỪNG ĐỒNG HỒ & CÔNG BỐ ĐÁP ÁN (GIỮ MÀN HÌNH ĐỂ GIÁO VIÊN CHỮA BÀI)
                         hostEndQuestionRound();
                     }
                 }
@@ -1119,7 +1304,8 @@
         }
 
         function updateHostLobbyUI() {
-            const count = Object.keys(hostState.players).length;
+            const playersArr = Object.values(hostState.players);
+            const count = playersArr.length;
             document.getElementById('hostPlayerCountBadge').innerHTML = `<i class="fa-solid fa-users mr-2"></i>${count} Đội`;
             const container = document.getElementById('hostPlayerListContainer');
             const emptyMsg = document.getElementById('emptyPlayerMsg');
@@ -1134,16 +1320,21 @@
             }
 
             container.innerHTML = '';
-            Object.values(hostState.players).forEach(p => {
+            playersArr.forEach(p => {
                 const bubble = document.createElement('div');
-                bubble.className = `px-4 py-2 rounded-2xl bg-gradient-to-r ${p.carSkin.bg} border ${p.carSkin.border} text-white font-racing font-bold text-sm shadow-md flex items-center gap-2`;
-                bubble.innerHTML = `<span>${p.carSkin.emoji}</span> <span>${p.name}</span>`;
+                bubble.className = `px-4 py-2 rounded-2xl bg-gradient-to-r ${p.carSkin.bg} border-2 ${p.isOnline ? p.carSkin.border : 'border-slate-600 opacity-60'} text-white font-racing font-bold text-sm shadow-md flex items-center gap-2 transition-all`;
+                bubble.innerHTML = `
+                    <span>${p.carSkin.emoji}</span>
+                    <span>${p.name}</span>
+                    <span class="w-2.5 h-2.5 rounded-full ${p.isOnline ? 'bg-emerald-400' : 'bg-rose-500'}" title="${p.isOnline ? 'Đang online' : 'Mất kết nối'}"></span>
+                `;
                 container.appendChild(bubble);
             });
         }
 
         function hostStartGame() {
             hostState.currentQIndex = 0;
+            hostState.gameState = 'QUESTION';
             hostPublish({ type: 'GAME_START' });
             hostLoadQuestion();
         }
@@ -1151,28 +1342,27 @@
         function hostLoadQuestion() {
             hideAllScreens();
             document.getElementById('hostQuestionScreen').classList.remove('hidden');
+            document.getElementById('hostQuestionActionPanel')?.classList.add('hidden');
 
+            hostState.gameState = 'QUESTION';
+            hostState.isRoundEnded = false;
             const q = QUESTIONS_DATA[hostState.currentQIndex];
             document.getElementById('hostQCounter').innerText = `CÂU ${hostState.currentQIndex + 1}/${QUESTIONS_DATA.length}`;
             document.getElementById('hostQCategory').innerText = q.category;
             document.getElementById('hostQuestionTitle').innerText = q.title;
 
-            q.options.forEach((opt, idx) => {
-                document.getElementById(`optText${idx}`).innerText = opt;
-            });
-
-            // Reset giao diện các thẻ phương án & ẩn thanh điều hướng Tiếp tục
-            document.getElementById('hostQuestionActionPanel')?.classList.add('hidden');
+            // Reset giao diện các thẻ lựa chọn A, B, C, D
             const defaultCardStyles = ["btn-star-a", "btn-star-b", "btn-star-c", "btn-star-d"];
-            for (let i = 0; i < 4; i++) {
-                const card = document.getElementById(`hostOptCard${i}`);
-                const badge = document.getElementById(`hostOptBadge${i}`);
-                if (card) {
-                    card.className = `p-5 rounded-3xl ${defaultCardStyles[i]} flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300 opacity-100 ring-0`;
-                }
+            for (let idx = 0; idx < 4; idx++) {
+                document.getElementById(`optText${idx}`).innerText = q.options[idx];
+                const card = document.getElementById(`hostOptCard${idx}`);
+                const badge = document.getElementById(`hostOptBadge${idx}`);
                 if (badge) {
                     badge.classList.add('hidden');
                     badge.innerHTML = '';
+                }
+                if (card) {
+                    card.className = `p-5 rounded-3xl ${defaultCardStyles[idx]} flex items-center justify-between gap-4 text-white font-bold text-base sm:text-xl shadow-lg transition-all duration-300 opacity-100 ring-0`;
                 }
             }
 
@@ -1184,9 +1374,15 @@
             document.getElementById('hostTotalPlayers').innerText = total;
             document.getElementById('hostAnsweredCount').innerText = "0";
 
-            hostPublish({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
+            hostPublish({
+                type: 'QUESTION_START',
+                qIndex: hostState.currentQIndex,
+                category: q.category,
+                timeLimit: 30
+            });
 
-            hostState.timer = 30; // 30 GIÂY
+            // Đồng hồ 30 giây đếm ngược
+            hostState.timer = 30;
             hostState.startTime = Date.now();
             document.getElementById('hostTimerText').innerText = hostState.timer;
 
@@ -1197,46 +1393,49 @@
                 if (hostState.timer <= 5 && hostState.timer > 0) Sound.tick();
 
                 if (hostState.timer <= 0) {
-                    clearInterval(hostState.timerInterval);
-                    Object.values(hostState.players).forEach(p => {
-                        if (p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
-                            p.answerHistory[hostState.currentQIndex] = {
-                                choice: null,
-                                isCorrect: false,
-                                time: 30
-                            };
-                        }
-                    });
                     hostEndQuestionRound();
                 }
             }, 1000);
         }
 
-        // HẾT 30 GIÂY HOẶC TẤT CẢ ĐÃ NỘP: CÔNG BỐ ĐÁP ÁN & HIỂN THỊ NÚT TIẾP TỤC (KHÔNG TỰ ĐỘNG CHUYỂN CÂU)
         function hostEndQuestionRound() {
+            if (hostState.isRoundEnded) return;
+            hostState.isRoundEnded = true;
             clearInterval(hostState.timerInterval);
             document.getElementById('hostTimerText').innerText = "0";
 
+            // Ghi nhận các đội chưa kịp trả lời là hết giờ
+            Object.values(hostState.players).forEach(p => {
+                if (p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
+                    p.answerHistory[hostState.currentQIndex] = {
+                        choice: null,
+                        isCorrect: false,
+                        time: 30
+                    };
+                }
+            });
+
             const q = QUESTIONS_DATA[hostState.currentQIndex];
-            for (let i = 0; i < 4; i++) {
-                const card = document.getElementById(`hostOptCard${i}`);
-                const badge = document.getElementById(`hostOptBadge${i}`);
-                if (card) {
-                    if (i === q.correct) {
-                        card.className = "p-5 rounded-3xl bg-emerald-600/50 border-2 border-emerald-400 ring-4 ring-emerald-400/50 flex items-center justify-between gap-4 text-white font-black text-base sm:text-xl shadow-2xl transition-all duration-300 opacity-100 scale-[1.02]";
-                        if (badge) {
-                            badge.className = "text-xs font-racing font-black px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 shadow flex items-center gap-1.5";
-                            badge.innerHTML = `<i class="fa-solid fa-check"></i> ĐÁP ÁN ĐÚNG`;
-                            badge.classList.remove('hidden');
-                        }
-                    } else {
-                        card.className = "p-5 rounded-3xl bg-slate-900/40 border border-white/10 opacity-30 flex items-center justify-between gap-4 text-slate-400 font-bold text-base sm:text-xl transition-all duration-300";
-                        if (badge) badge.classList.add('hidden');
+
+            // Làm nổi bật đáp án đúng
+            for (let idx = 0; idx < 4; idx++) {
+                const card = document.getElementById(`hostOptCard${idx}`);
+                const badge = document.getElementById(`hostOptBadge${idx}`);
+
+                if (idx === q.correct) {
+                    if (card) card.className = "p-5 rounded-3xl bg-emerald-600/50 border-2 border-emerald-400 ring-4 ring-emerald-400/50 flex items-center justify-between gap-4 text-white font-black text-base sm:text-xl shadow-2xl transition-all duration-300 opacity-100 scale-[1.02]";
+                    if (badge) {
+                        badge.className = "text-xs font-racing font-black px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 shadow flex items-center gap-1.5";
+                        badge.innerHTML = `<i class="fa-solid fa-check"></i> ĐÁP ÁN ĐÚNG`;
+                        badge.classList.remove('hidden');
                     }
+                } else {
+                    if (card) card.className = "p-5 rounded-3xl bg-slate-900/40 border border-white/10 opacity-30 flex items-center justify-between gap-4 text-slate-400 font-bold text-base sm:text-xl transition-all duration-300";
+                    if (badge) badge.classList.add('hidden');
                 }
             }
 
-            // Hiển thị thanh điều hướng có nút "Tiếp tục"
+            // Hiển thị thanh chứa nút TIẾP TỤC để giáo viên chủ động chữa bài
             const actionPanel = document.getElementById('hostQuestionActionPanel');
             if (actionPanel) actionPanel.classList.remove('hidden');
 
@@ -1249,10 +1448,10 @@
             document.getElementById('hostAnsweredCount').innerText = answered;
         }
 
-        // ================= HIỂN THỊ ĐUA ĐỘ CAO THẲNG ĐỨNG CỦA KHINH KHÍ CẦU =================
         function hostShowLeaderboard() {
             hideAllScreens();
             document.getElementById('hostLeaderboardScreen').classList.remove('hidden');
+            hostState.gameState = 'LEADERBOARD';
             Sound.fanfare();
             Sound.steamLift();
 
@@ -1276,7 +1475,6 @@
                         
                         <!-- CỤM LỬA MỎ ĐỐT & HƠI NƯỚC NÂNG KHÍ CẦU -->
                         <div class="relative flex flex-col items-center">
-                            <!-- Quả cầu chính -->
                             <div class="w-12 h-14 sm:w-14 sm:h-16 rounded-full bg-gradient-to-t ${p.carSkin.bg} border-2 ${p.carSkin.border} flex flex-col items-center justify-center text-xl sm:text-2xl shadow-2xl relative balloon-floating">
                                 <span>${p.carSkin.emoji}</span>
                                 <span class="absolute -top-1 px-1 rounded-full bg-black/80 text-[8px] font-racing text-yellow-300 border border-white/20">
@@ -1284,13 +1482,11 @@
                                 </span>
                             </div>
 
-                            <!-- Mỏ đốt lửa nung hơi nước dưới giỏ -->
                             <div class="relative -mt-1 flex flex-col items-center">
                                 <div class="w-3.5 h-4 text-orange-400 text-xs burner-fire">🔥</div>
                                 <div class="w-5 h-3 rounded bg-amber-900 border border-amber-500/60 shadow"></div>
                             </div>
 
-                            <!-- Luồng khói hơi nước xả áp suất sang 2 bên khi Streak cao -->
                             ${isSuperBurn ? `
                             <div class="absolute -bottom-2 w-full flex justify-between pointer-events-none">
                                 <div class="w-3 h-3 rounded-full bg-white/70 steam-vent-l"></div>
@@ -1302,11 +1498,11 @@
                         <!-- Nhãn tên phi hành đoàn -->
                         <span class="mt-1 px-1.5 py-0.5 rounded-lg bg-black/90 border border-white/30 text-[9px] font-racing font-black text-amber-300 whitespace-nowrap shadow-lg flex items-center gap-0.5">
                             <span>${p.name}</span>
+                            <span class="w-1.5 h-1.5 rounded-full ${p.isOnline ? 'bg-emerald-400' : 'bg-rose-500'}"></span>
                             ${isSuperBurn ? '<span class="text-[8px] text-orange-400 font-black">🔥x' + p.streak + '</span>' : ''}
                         </span>
                     </div>
 
-                    <!-- Vạch chân bãi phóng -->
                     <div class="w-full h-1 rounded bg-amber-500/40 z-10"></div>
                 `;
 
@@ -1326,8 +1522,9 @@
             const leaderboardList = document.getElementById('hostLeaderboardList');
             leaderboardList.innerHTML = '';
 
-            sorted.slice(0, 5).forEach((p, rank) => {
-                const altitudeMeters = Math.round((Math.min(100, Math.round(((p.correctCount / QUESTIONS_DATA.length) * 80) + (p.score / (QUESTIONS_DATA.length * 1000) * 20))) / 100) * 10000);
+            sorted.slice(0, 6).forEach((p, rank) => {
+                const progressPercent = Math.min(100, Math.round(((p.correctCount / QUESTIONS_DATA.length) * 80) + (p.score / (QUESTIONS_DATA.length * 1000) * 20)));
+                const altitudeMeters = Math.round((progressPercent / 100) * 10000);
                 const card = document.createElement('div');
                 card.className = "p-3 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-between shadow-md";
                 card.innerHTML = `
@@ -1362,6 +1559,7 @@
         function hostShowFinalPodiumAndStats() {
             hideAllScreens();
             document.getElementById('hostFinalScreen').classList.remove('hidden');
+            hostState.gameState = 'FINAL';
             Sound.fanfare();
 
             if (typeof confetti === 'function') {
@@ -1378,7 +1576,7 @@
 
             sorted.forEach(p => {
                 const avg = p.questionsAnswered > 0 ? (p.totalResponseTime / p.questionsAnswered) : 999;
-                if (avg < minAvgTime) {
+                if (avg < minAvgTime && p.correctCount > 0) {
                     minAvgTime = avg;
                     fastestTeam = p;
                 }
@@ -1387,6 +1585,9 @@
             if (fastestTeam) {
                 document.getElementById('hostFastestTeamName').innerText = `🔥 ${fastestTeam.name} (${fastestTeam.carSkin.name})`;
                 document.getElementById('hostFastestTimeVal').innerText = `${minAvgTime.toFixed(2)} giây / câu`;
+            } else {
+                document.getElementById('hostFastestTeamName').innerText = `Chưa xác định`;
+                document.getElementById('hostFastestTimeVal').innerText = `0.00s`;
             }
 
             const tbodyStats = document.getElementById('hostStatsTableBody');
@@ -1508,30 +1709,51 @@
         }
 
         function copyJoinLink() {
-            const url = window.location.href.split('?')[0] + `?pin=${roomPin}`;
-            const el = document.createElement('textarea');
-            el.value = url;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            const toast = document.createElement('div');
-            toast.className = "fixed bottom-5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-50 animate-bounce";
-            toast.innerText = "✓ Đã sao chép đường dẫn: " + url;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+            const url = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast("Sao chép thành công", "Đã chép link tham gia vào bộ nhớ tạm!", "success");
+                }).catch(() => {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
         }
 
-        // ================= PLAYER LOGIC =================
+        function fallbackCopy(text) {
+            const input = document.createElement('textarea');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            showToast("Sao chép link", "Đã chép đường dẫn tham gia!", "success");
+        }
+
+        function resetGameForNewRound() {
+            window.location.reload();
+        }
+
+        // ================= PLAYER (ĐIỆN THOẠI HỌC SINH) =================
         function initPlayerMode() {
             isHost = false;
             hideAllScreens();
             document.getElementById('playerJoinScreen').classList.remove('hidden');
 
             const params = new URLSearchParams(window.location.search);
-            if (params.get('pin')) {
-                document.getElementById('playerPinInput').value = params.get('pin');
+            const urlPin = params.get('pin');
+            const savedPin = sessionStorage.getItem('balloon_player_pin');
+            const savedName = sessionStorage.getItem('balloon_player_name');
+
+            if (urlPin) {
+                document.getElementById('playerPinInput').value = urlPin;
+            } else if (savedPin) {
+                document.getElementById('playerPinInput').value = savedPin;
+            }
+
+            if (savedName) {
+                document.getElementById('playerNameInput').value = savedName;
             }
         }
 
@@ -1542,16 +1764,17 @@
             const submitBtn = document.getElementById('btnPlayerJoinSubmit');
 
             if (!pin || !name) {
-                const toast = document.createElement('div');
-                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-50";
-                toast.innerText = "Vui lòng nhập đầy đủ Mã PIN và Tên Đội!";
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 2500);
+                showToast("Thiếu thông tin", "Vui lòng nhập đầy đủ Mã PIN và Tên Đội!", "warning");
                 return;
             }
 
             roomPin = pin;
             playerState.myName = name;
+            playerState.playerId = getOrCreatePlayerId();
+
+            sessionStorage.setItem('balloon_player_pin', pin);
+            sessionStorage.setItem('balloon_player_name', name);
+
             document.getElementById('playerMyNameDisplay').innerText = name;
             document.getElementById('playerGameTeamLabel').innerText = name;
 
@@ -1559,53 +1782,134 @@
             statusMsg.innerText = "Đang kết nối mỏ đốt khí cầu...";
             submitBtn.disabled = true;
 
-            const clientId = "balloon_player_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
-            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
+            const clientId = "balloon_player_" + playerState.playerId + "_" + Date.now().toString(36);
+            connectPlayerMQTT(clientId);
+        }
+
+        function connectPlayerMQTT(clientId) {
+            if (mqttClient) {
+                try { mqttClient.end(true); } catch(e) {}
+            }
+
+            mqttClient = mqtt.connect(MQTT_BROKER_URL, {
+                clientId: clientId,
+                clean: true,
+                keepalive: 60,
+                reconnectPeriod: 2000
+            });
 
             mqttClient.on('connect', () => {
-                const hostTopic = `steamballoon/${roomPin}/host`;
+                isConnected = true;
+                document.getElementById('playerReconnectingBanner').classList.add('hidden');
+                document.getElementById('btnPlayerJoinSubmit').disabled = false;
+                
+                const hostTopic = `steamballoon/v2/${roomPin}/host`;
                 mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
+                    // Gửi bản tin JOIN hoặc REJOIN kèm ID của học sinh
                     playerPublish({
                         type: 'PLAYER_JOIN',
                         playerId: playerState.playerId,
                         name: playerState.myName
                     });
                 });
+
+                // Gửi định kỳ PING để Host biết học sinh đang trực tuyến
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = setInterval(() => {
+                    if (isConnected && roomPin && playerState.playerId) {
+                        playerPublish({
+                            type: 'PLAYER_PING',
+                            playerId: playerState.playerId,
+                            name: playerState.myName
+                        });
+                    }
+                }, 3000);
+            });
+
+            mqttClient.on('offline', () => {
+                isConnected = false;
+                document.getElementById('playerReconnectingBanner').classList.remove('hidden');
             });
 
             mqttClient.on('message', (topic, message) => {
                 try {
                     const data = JSON.parse(message.toString());
                     handlePlayerIncomingData(data);
-                } catch(e) {}
+                } catch(e) {
+                    console.error("Lỗi parse JSON từ máy chiếu:", e);
+                }
             });
         }
 
         function playerPublish(data) {
-            if (mqttClient && mqttClient.connected) {
-                const playerTopic = `steamballoon/${roomPin}/player`;
+            if (mqttClient && isConnected) {
+                const playerTopic = `steamballoon/v2/${roomPin}/player`;
                 mqttClient.publish(playerTopic, JSON.stringify(data), { qos: 1 });
             }
         }
 
-        function handlePlayerIncomingData(data) {
-            if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
-                playerState.carSkin = data.carSkin;
-                document.getElementById('playerMyCarAvatar').innerText = data.carSkin.emoji;
-                document.getElementById('playerGameCarIcon').innerText = data.carSkin.emoji;
-
-                hideAllScreens();
-                document.getElementById('playerLobbyScreen').classList.remove('hidden');
-                Sound.tick();
+        function retryPlayerConnection() {
+            if (playerState.playerId && roomPin) {
+                const clientId = "balloon_player_" + playerState.playerId + "_" + Date.now().toString(36);
+                connectPlayerMQTT(clientId);
+                showToast("Thử lại", "Đang kết nối lại máy chủ...", "info");
             }
+        }
+
+        function handlePlayerIncomingData(data) {
+            if (!data) return;
+
+            // Xử lý ACK tham gia phòng và đồng bộ trạng thái
+            if (data.type === 'JOIN_ACK') {
+                if (data.targetPlayerId === playerState.playerId) {
+                    playerState.carSkin = data.carSkin;
+                    document.getElementById('playerMyCarAvatar').innerText = data.carSkin.emoji;
+                    document.getElementById('playerGameCarIcon').innerText = data.carSkin.emoji;
+                    document.getElementById('playerGameScore').innerText = `${data.score || 0} Điểm`;
+
+                    // Khôi phục màn hình tương ứng với trạng thái của host
+                    if (data.gameState === 'QUESTION') {
+                        if (data.alreadyAnswered) {
+                            hideAllScreens();
+                            document.getElementById('playerGamepadScreen').classList.remove('hidden');
+                            document.getElementById('playerButtonGrid').classList.add('hidden');
+                            document.getElementById('playerSubmittedOverlay').classList.remove('hidden');
+                        } else {
+                            hideAllScreens();
+                            document.getElementById('playerGamepadScreen').classList.remove('hidden');
+                            document.getElementById('playerButtonGrid').classList.remove('hidden');
+                            document.getElementById('playerSubmittedOverlay').classList.add('hidden');
+                        }
+                    } else if (data.gameState === 'LEADERBOARD') {
+                        hideAllScreens();
+                        document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                        document.getElementById('playerLobbyStatusText').innerText = "HÃY NHÌN LÊN MÀN HÌNH MÁY CHIẾU...";
+                        document.getElementById('playerLobbySubText').innerText = "Xem độ cao khinh khí cầu của đội bạn và bảng xếp hạng!";
+                    } else if (data.gameState === 'FINAL') {
+                        hideAllScreens();
+                        document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                        document.getElementById('playerLobbyStatusText').innerText = "🏆 KHÍ CẦU ĐÃ HẠ CÁNH AN TOÀN!";
+                        document.getElementById('playerLobbySubText').innerText = "Hãy nhìn lên máy chiếu để xem vinh danh và ma trận bài học!";
+                    } else {
+                        hideAllScreens();
+                        document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                    }
+                    Sound.tick();
+                }
+            }
+
+            // Khi câu hỏi mới xuất hiện
             else if (data.type === 'QUESTION_START') {
                 hideAllScreens();
                 document.getElementById('playerGamepadScreen').classList.remove('hidden');
                 document.getElementById('playerButtonGrid').classList.remove('hidden');
                 document.getElementById('playerSubmittedOverlay').classList.add('hidden');
                 playerState.selectedChoice = null;
+                Sound.tick();
             }
-            else if (data.type === 'ROUND_FEEDBACK' && data.playerId === playerState.playerId) {
+
+            // Khi nhận phản hồi sau khi trả lời
+            else if (data.type === 'ROUND_FEEDBACK' && data.targetPlayerId === playerState.playerId) {
                 hideAllScreens();
                 document.getElementById('playerFeedbackScreen').classList.remove('hidden');
 
@@ -1627,18 +1931,24 @@
                 document.getElementById('playerFeedbackSubMsg').innerText = `Thời gian phản xạ: ${data.time.toFixed(2)}s`;
                 document.getElementById('playerGameScore').innerText = `${data.score} Điểm`;
             }
+
+            // Khi công bố đáp án
             else if (data.type === 'ROUND_REVEAL_ANSWER') {
                 const subMsg = document.getElementById('playerFeedbackSubMsg');
                 if (subMsg) {
                     subMsg.innerHTML = `Thời gian làm bài đã kết thúc.<br><span class="text-amber-300 font-bold mt-1 inline-block">⏳ Hãy theo dõi giáo viên chữa bài trên máy chiếu...</span>`;
                 }
             }
+
+            // Khi chuyển sang bảng xếp hạng
             else if (data.type === 'LEADERBOARD_STATE') {
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
                 document.getElementById('playerLobbyStatusText').innerText = "HÃY NHÌN LÊN MÀN HÌNH MÁY CHIẾU...";
                 document.getElementById('playerLobbySubText').innerText = "Xem độ cao khinh khí cầu của đội bạn và bảng xếp hạng!";
             }
+
+            // Khi kết thúc toàn bộ cuộc đua
             else if (data.type === 'FINAL_PODIUM') {
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
@@ -1662,16 +1972,20 @@
             });
         }
 
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', () => {
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
             drawAnimatedBackground();
 
             const params = new URLSearchParams(window.location.search);
-            if (params.get('pin')) {
+            const pinParam = params.get('pin');
+            const savedPin = sessionStorage.getItem('balloon_player_pin');
+            const savedName = sessionStorage.getItem('balloon_player_name');
+
+            if (pinParam || (savedPin && savedName)) {
                 initPlayerMode();
             }
-        };
+        });
     </script>
 </body>
 </html>
