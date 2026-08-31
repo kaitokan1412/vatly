@@ -47,7 +47,7 @@
         .boss-levitate {
             animation: bossLevitate 3.2s ease-in-out infinite;
         }
-        /* Epic Screen Shake for Boss Attacks */
+        /* Screen Shake for Boss Attacks */
         @keyframes battleScreenShake {
             0%, 100% { transform: translate(0, 0); }
             15% { transform: translate(-14px, 10px) rotate(-1deg); }
@@ -93,15 +93,10 @@
             transform: translateY(4px);
             box-shadow: 0 2px 0 rgba(0,0,0,0.6);
         }
-        /* Floating Damage Text */
-        @keyframes floatDamageUp {
-            0% { transform: translateY(0px) scale(0.8); opacity: 0; }
-            30% { transform: translateY(-20px) scale(1.3); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1); opacity: 0; }
-        }
-        .anim-damage-float {
-            animation: floatDamageUp 1.2s ease-out forwards;
-        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0303; }
+        ::-webkit-scrollbar-thumb { background: #7f1d1d; border-radius: 999px; }
     </style>
 </head>
 <body id="appBody" class="dungeon-bg text-white min-h-screen flex flex-col selection:bg-rose-600 selection:text-white relative overflow-x-hidden">
@@ -188,7 +183,7 @@
                         <span id="hostPinDisplay" class="text-4xl sm:text-6xl font-rpg font-black text-amber-300 tracking-widest bg-black/80 px-5 py-1.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
                             ----
                         </span>
-                        <button onclick="copyJoinLink()" class="p-3 rounded-2xl bg-red-950 hover:bg-red-900 text-amber-300 border border-red-700 text-xs font-bold" title="Sao chép link">
+                        <button onclick="copyJoinLink()" class="p-3 rounded-2xl bg-red-950 hover:bg-red-900 text-amber-300 border border-red-700 text-xs font-bold transition" title="Sao chép link">
                             <i class="fa-solid fa-link text-base"></i>
                         </button>
                     </div>
@@ -202,8 +197,10 @@
                 </div>
             </div>
 
-            <div class="min-h-[160px] max-h-[260px] overflow-y-auto p-4 rounded-2xl bg-black/60 border border-red-900/40 mb-6 flex flex-wrap gap-3 items-center justify-center" id="hostPlayerListContainer">
-                <p class="text-sm text-slate-400 italic" id="emptyPlayerMsg">Đang chờ các hiệp sĩ nhập mã PIN và tên tiểu đội vào phòng...</p>
+            <!-- Khung danh sách học sinh tham gia phòng chờ (Cố định thông báo riêng) -->
+            <div class="min-h-[180px] max-h-[280px] overflow-y-auto p-4 rounded-2xl bg-black/60 border border-red-900/40 mb-6 flex flex-col justify-center">
+                <p class="text-sm text-slate-400 italic text-center" id="emptyPlayerMsg">Đang chờ các hiệp sĩ nhập mã PIN và tên tiểu đội vào phòng...</p>
+                <div class="flex flex-wrap gap-3 items-center justify-center" id="hostPlayerListContainer"></div>
             </div>
 
             <div class="flex justify-center">
@@ -316,7 +313,7 @@
             </div>
         </section>
 
-        <!-- 3. HOST BOSS RAID RESOLUTION SCREEN (HOẠT CẢNH DIỆT BOSS & PHẢN KÍCH SÁT THƯƠNG 50 HP) -->
+        <!-- 3. HOST BOSS RAID RESOLUTION SCREEN -->
         <section id="hostRaidScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-4 my-auto hidden">
             <!-- BOSS DISPLAY ARENA -->
             <div id="bossBattleArena" class="dungeon-panel p-6 sm:p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center relative overflow-hidden transition-all duration-300">
@@ -346,7 +343,7 @@
 
             <!-- SQUAD CARDS & DPS LEADERBOARD -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                <!-- SQUAD CARDS WITH DIVERSE HERO APPEARANCE (7 COLS) -->
+                <!-- SQUAD CARDS (7 COLS) -->
                 <div class="lg:col-span-7 dungeon-panel rounded-3xl p-4 flex flex-col gap-3">
                     <div class="flex justify-between items-center border-b border-red-900/50 pb-2">
                         <span class="text-xs font-rpg font-black uppercase text-amber-300 flex items-center gap-1.5">
@@ -377,12 +374,11 @@
             </div>
         </section>
 
-        <!-- 4. HOST FINAL SCREEN (KẾT QUẢ: CHINH PHẠT THÀNH CÔNG HOẶC THẤT BẠI + XUẤT EXCEL) -->
+        <!-- 4. HOST FINAL SCREEN (KẾT QUẢ + XUẤT EXCEL THEO LỚP) -->
         <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto dungeon-panel p-6 sm:p-8 rounded-[2.5rem] shadow-2xl my-6 hidden">
             <div class="text-center mb-6">
                 <div id="finalStatusIcon" class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 via-yellow-400 to-orange-500 flex items-center justify-center text-4xl shadow-2xl shadow-amber-500/40 mb-3 border border-amber-200">👑</div>
                 
-                <!-- TIÊU ĐỀ KẾT QUẢ CHUẨN XÁC THEO YÊU CẦU -->
                 <h2 id="hostFinalMainTitle" class="text-3xl sm:text-5xl font-rpg font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-400 uppercase">
                     Chúc mừng các bạn đã chinh phạt thành công
                 </h2>
@@ -498,7 +494,6 @@
 
         <!-- 2. PLAYER LOBBY -->
         <section id="playerLobbyScreen" class="w-full max-w-md mx-auto dungeon-panel p-8 rounded-3xl shadow-2xl my-auto text-center hidden">
-            <!-- AVATAR & OUTFIT PREVIEW -->
             <div id="playerMyAvatarBox" class="w-24 h-24 mx-auto rounded-3xl p-1 shadow-2xl flex items-center justify-center mb-4 border-2">
                 <div class="w-full h-full rounded-2xl bg-black/50 flex flex-col items-center justify-center">
                     <span id="playerMyAvatarIcon" class="text-4xl animate-bounce">🛡️</span>
@@ -519,9 +514,8 @@
 
         <!-- 3. PLAYER GAMEPAD (THANH HP & ATK TRỰC QUAN) -->
         <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
-            <!-- PANEL CHỈ SỐ NHÂN VẬT (THANH MÁU HP + THANH TẤN CÔNG ATK) -->
+            <!-- PANEL CHỈ SỐ NHÂN VẬT -->
             <div class="dungeon-panel p-4 rounded-3xl flex flex-col gap-2.5 shadow-2xl border border-red-700/60">
-                <!-- Tên & Avatar & Streak -->
                 <div class="flex justify-between items-center text-xs">
                     <div class="flex items-center gap-2">
                         <div id="playerGameAvatarBadge" class="w-8 h-8 rounded-xl flex items-center justify-center text-base border shadow-sm">
@@ -591,7 +585,7 @@
             </div>
         </section>
 
-        <!-- 4. PLAYER FEEDBACK (KHI VỪA TRẢ LỜI XONG MỖI CÂU) -->
+        <!-- 4. PLAYER FEEDBACK -->
         <section id="playerFeedbackScreen" class="w-full max-w-md mx-auto dungeon-panel p-8 rounded-3xl shadow-2xl text-center my-auto hidden">
             <div id="playerFeedbackIcon" class="text-6xl mb-2">💥</div>
             <h2 id="playerFeedbackTitle" class="text-2xl sm:text-3xl font-rpg font-black text-white mb-1">TRÚNG CHÍ MẠNG!</h2>
@@ -603,7 +597,7 @@
         </section>
 
         <!-- 5. MÀN HÌNH BỊ LOẠI (KHI MÁU HP VỀ 0) -->
-        <section id="playerEliminatedScreen" class="w-full max-w-md mx-auto dungeon-panel p-8 rounded-3xl shadow-2xl text-center my-auto hidden border-2 border-red-600 bg-red-950/95 animate-fade-in">
+        <section id="playerEliminatedScreen" class="w-full max-w-md mx-auto dungeon-panel p-8 rounded-3xl shadow-2xl text-center my-auto hidden border-2 border-red-600 bg-red-950/95">
             <div class="w-20 h-20 rounded-3xl bg-red-900/60 border border-red-500/50 flex items-center justify-center mx-auto mb-4 text-5xl shadow-2xl">
                 💀
             </div>
@@ -622,17 +616,16 @@
 
     </main>
 
-    <!-- CORE SYSTEM SCRIPT -->
     <script>
         const HERO_CLASSES = [
-            { id: 1, name: 'Hiệp Sĩ Thánh Quang', emoji: '🛡️', bg: 'from-amber-500 to-yellow-600', border: 'border-yellow-400', armor: 'Thánh Khiên Vàng' },
-            { id: 2, name: 'Hỏa Long Chiến Tướng', emoji: '🐉', bg: 'from-red-600 to-rose-700', border: 'border-red-400', armor: 'Hỏa Giáp Đỏ' },
-            { id: 3, name: 'Lôi Thần Xạ Thủ', emoji: '🏹', bg: 'from-violet-600 to-purple-800', border: 'border-violet-400', armor: 'Áo Choàng Sấm' },
-            { id: 4, name: 'Băng Ngục Pháp Sư', emoji: '🧙‍♂️', bg: 'from-sky-500 to-blue-700', border: 'border-cyan-400', armor: 'Pháp Bào Pha Lê' },
-            { id: 5, name: 'Hắc Ám Sát Thủ', emoji: '🥷', bg: 'from-slate-700 to-zinc-900', border: 'border-purple-400', armor: 'Dạ Hành Y' },
-            { id: 6, name: 'Dung Nham Cuồng Binh', emoji: '🦁', bg: 'from-orange-600 to-amber-700', border: 'border-orange-400', armor: 'Chiến Giáp Sư Tử' },
-            { id: 7, name: 'Phong Thần Valkyrie', emoji: '🧝‍♀️', bg: 'from-emerald-500 to-teal-700', border: 'border-emerald-400', armor: 'Ngọc Bích Trọng Giáp' },
-            { id: 8, name: 'Hải Vương Chiến Thần', emoji: '🔱', bg: 'from-blue-600 to-indigo-800', border: 'border-blue-400', armor: 'Hải Long Giáp' }
+            { id: 1, name: 'Hiệp Sĩ Thánh Quang', emoji: '🛡️', bg: 'from-amber-500 to-yellow-600', border: 'border-yellow-400' },
+            { id: 2, name: 'Hỏa Long Chiến Tướng', emoji: '🐉', bg: 'from-red-600 to-rose-700', border: 'border-red-400' },
+            { id: 3, name: 'Lôi Thần Xạ Thủ', emoji: '🏹', bg: 'from-violet-600 to-purple-800', border: 'border-violet-400' },
+            { id: 4, name: 'Băng Ngục Pháp Sư', emoji: '🧙‍♂️', bg: 'from-sky-500 to-blue-700', border: 'border-cyan-400' },
+            { id: 5, name: 'Hắc Ám Sát Thủ', emoji: '🥷', bg: 'from-slate-700 to-zinc-900', border: 'border-purple-400' },
+            { id: 6, name: 'Dung Nham Cuồng Binh', emoji: '🦁', bg: 'from-orange-600 to-amber-700', border: 'border-orange-400' },
+            { id: 7, name: 'Phong Thần Valkyrie', emoji: '🧝‍♀️', bg: 'from-emerald-500 to-teal-700', border: 'border-emerald-400' },
+            { id: 8, name: 'Hải Vương Chiến Thần', emoji: '🔱', bg: 'from-blue-600 to-indigo-800', border: 'border-blue-400' }
         ];
 
         // 10 CÂU HỎI VẬT LÝ 11 - CHƯƠNG 1: DAO ĐỘNG CƠ
@@ -714,6 +707,7 @@
             }
         ];
 
+        // AUDIO SYSTEM
         let audioCtx = null;
         let sfxEnabled = true;
 
@@ -722,7 +716,7 @@
                 const AudioClass = window.AudioContext || window.webkitAudioContext;
                 audioCtx = new AudioClass();
             }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
@@ -761,7 +755,7 @@
                 this.play(120, 'sawtooth', 0.35, 0.25, 0.1);
             },
             tick() { this.play(900, 'sine', 0.04, 0.08); },
-            fanfare() {
+            victory() {
                 [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => this.play(f, 'triangle', 0.3, 0.2, i * 0.12));
             },
             defeat() {
@@ -774,6 +768,7 @@
             document.getElementById('sfxIcon').className = sfxEnabled ? "fa-solid fa-music text-amber-400" : "fa-solid fa-volume-xmark text-slate-500";
         }
 
+        // ================= MQTT CLOUD WEBSOCKET CLIENT =================
         const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
         
         let mqttClient = null;
@@ -793,7 +788,7 @@
         };
 
         let playerState = {
-            playerId: "k_" + Math.random().toString(36).substring(2, 8),
+            playerId: "hero_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36),
             myName: "",
             myClass: "",
             hp: 100,
@@ -815,6 +810,7 @@
             return 40000;
         }
 
+        // ================= HOST (MÁY CHIẾU) =================
         function initHostMode() {
             isHost = true;
             hideAllScreens();
@@ -848,11 +844,12 @@
 
         function handleHostIncomingData(data) {
             if (data.type === 'PLAYER_JOIN') {
-                if (!hostState.players[data.playerId]) {
+                const pId = data.playerId || ("hero_" + Math.random().toString(36).substring(2, 8));
+                if (!hostState.players[pId]) {
                     const hero = HERO_CLASSES[Object.keys(hostState.players).length % HERO_CLASSES.length];
-                    hostState.players[data.playerId] = {
-                        id: data.playerId,
-                        name: data.name,
+                    hostState.players[pId] = {
+                        id: pId,
+                        name: data.name || "Hiệp sĩ",
                         className: data.className || "11A",
                         hero: hero,
                         hp: 100,
@@ -871,8 +868,8 @@
                     Sound.tick();
                     updateHostLobbyUI();
                 }
-                const p = hostState.players[data.playerId];
-                hostPublish({ type: 'JOIN_ACK', playerId: data.playerId, roomPin: roomPin, hero: p.hero });
+                const p = hostState.players[pId];
+                hostPublish({ type: 'JOIN_ACK', playerId: pId, roomPin: roomPin, hero: p.hero });
             }
             else if (data.type === 'PLAYER_ANSWER') {
                 const p = hostState.players[data.playerId];
@@ -959,6 +956,7 @@
             }
         }
 
+        // ================= FIX BUG TẤT CẢ HỌC SINH ĐƯỢC HIỂN THỊ =================
         function updateHostLobbyUI() {
             const count = Object.keys(hostState.players).length;
             const dynamicHp = calculateBossHpByPlayerCount(count);
@@ -970,21 +968,26 @@
             const emptyMsg = document.getElementById('emptyPlayerMsg');
             const startBtn = document.getElementById('hostStartBtn');
 
-            if (count > 0) {
-                emptyMsg.classList.add('hidden');
-                startBtn.disabled = false;
-            } else {
-                emptyMsg.classList.remove('hidden');
-                startBtn.disabled = true;
+            if (emptyMsg) {
+                if (count > 0) {
+                    emptyMsg.classList.add('hidden');
+                } else {
+                    emptyMsg.classList.remove('hidden');
+                }
+            }
+            if (startBtn) {
+                startBtn.disabled = (count === 0);
             }
 
-            container.innerHTML = '';
-            Object.values(hostState.players).forEach(p => {
-                const bubble = document.createElement('div');
-                bubble.className = `px-3.5 py-2 rounded-2xl bg-gradient-to-r ${p.hero.bg} border-2 ${p.hero.border} text-white font-ui font-bold text-xs shadow-lg flex items-center gap-2`;
-                bubble.innerHTML = `<span class="text-base">${p.hero.emoji}</span> <span>${p.name}</span> <span class="text-[10px] opacity-80">(${p.className})</span>`;
-                container.appendChild(bubble);
-            });
+            if (container) {
+                container.innerHTML = '';
+                Object.values(hostState.players).forEach(p => {
+                    const bubble = document.createElement('div');
+                    bubble.className = `px-3.5 py-2 rounded-2xl bg-gradient-to-r ${p.hero.bg} border-2 ${p.hero.border} text-white font-ui font-bold text-xs shadow-lg flex items-center gap-2 transform hover:scale-105 transition`;
+                    bubble.innerHTML = `<span class="text-base">${p.hero.emoji}</span> <span>${p.name}</span> <span class="text-[10px] text-amber-200">(${p.className})</span>`;
+                    container.appendChild(bubble);
+                });
+            }
         }
 
         function hostStartGame() {
@@ -1054,7 +1057,7 @@
             hostState.isRoundEnded = true;
             clearInterval(hostState.timerInterval);
 
-            // Record timeouts
+            // Ghi nhận hết giờ
             Object.values(hostState.players).forEach(p => {
                 if (p.isAlive && p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
                     p.answerHistory[hostState.currentQIndex] = {
@@ -1090,6 +1093,7 @@
             document.getElementById('hostAnsweredCount').innerText = answered;
         }
 
+        // ================= HOẠT CẢNH DIỆT BOSS VÀ PHẢN KÍCH (-50 HP) =================
         function hostResolveBossRaidRound() {
             hideAllScreens();
             document.getElementById('hostRaidScreen').classList.remove('hidden');
@@ -1102,7 +1106,6 @@
             let totalDamageToBoss = 0;
             Object.values(hostState.players).forEach(p => {
                 if (p.isAlive && p.roundAtkGained > 0) {
-                    // Sát thương bằng điểm ATK cộng thêm của hiệp sĩ
                     totalDamageToBoss += p.roundAtkGained;
                 }
             });
@@ -1114,7 +1117,7 @@
             document.getElementById('bossHpNumber').innerText = `${hostState.bossCurrentHp.toLocaleString()} / ${hostState.bossMaxHp.toLocaleString()} HP (${hpPercent}%)`;
             document.getElementById('bossBattleHpBar').style.width = `${hpPercent}%`;
 
-            // 2. BOSS PHẢN KÍCH SÁT THƯƠNG (-50 HP MỖI NGƯỜI CHƠI)
+            // 2. BOSS PHẢN KÍCH SÁT THƯƠNG (-50 HP MỖI NGƯỜI CHƠI CÒN SỐNG)
             setTimeout(() => {
                 Sound.bossRoar();
                 arena.classList.add('shake-damage');
@@ -1234,7 +1237,6 @@
             const finalIcon = document.getElementById('finalStatusIcon');
 
             if (isBossDefeated) {
-                // TIÊU DIỆT THÀNH CÔNG
                 finalTitle.innerText = "Chúc mừng các bạn đã chinh phạt thành công";
                 finalTitle.className = "text-3xl sm:text-5xl font-rpg font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-yellow-200 to-amber-400 uppercase";
                 finalSub.innerText = `Boss Hắc Long đã bị đánh bại hoàn toàn! Vinh danh các đại hiệp sĩ xuất sắc nhất!`;
@@ -1245,7 +1247,6 @@
                     confetti({ particleCount: 160, spread: 90, origin: { y: 0.6 } });
                 }
             } else {
-                // THẤT BẠI
                 finalTitle.innerText = "Các bạn đã tiêu diệt mục tiêu thất bại, chúc bạn may mắn lần sau";
                 finalTitle.className = "text-2xl sm:text-4xl font-rpg font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-red-400 to-orange-400 uppercase";
                 finalSub.innerText = `Hắc Long vẫn còn ${hostState.bossCurrentHp.toLocaleString()} HP. Hãy củng cố kiến thức và thử thách lại!`;
@@ -1253,13 +1254,11 @@
                 Sound.defeat();
             }
 
-            // Xếp hạng: Người sống sót ưu tiên trên, sau đó đến điểm ATK
             const sorted = Object.values(hostState.players).sort((a, b) => {
                 if (a.isAlive !== b.isAlive) return a.isAlive ? -1 : 1;
                 return b.atk - a.atk;
             });
 
-            // Hiệp sĩ xuất chiêu nhanh nhất
             let fastestKnight = null;
             let minAvgTime = 9999;
             sorted.forEach(p => {
@@ -1331,10 +1330,10 @@
             hostPublish({ type: 'FINAL_PODIUM', isBossDefeated: isBossDefeated });
         }
 
+        // ================= XUẤT EXCEL THEO LỚP =================
         function exportBossRaidExcel() {
             const players = Object.values(hostState.players);
             if (players.length === 0) {
-                alert("Không có dữ liệu hiệp sĩ để xuất file!");
                 return;
             }
 
@@ -1370,15 +1369,25 @@
 
             const fileName = `DauTruongDietBoss_VatLi11_Lop_${classNameLabel}.xlsx`;
             XLSX.writeFile(wb, fileName);
-            alert(`✓ Đã xuất bảng điểm Excel thành công cho Lớp: ${classNameLabel}!`);
         }
 
         function copyJoinLink() {
             const url = window.location.href.split('?')[0] + `?pin=${roomPin}`;
-            navigator.clipboard.writeText(url);
-            alert("Đã sao chép đường dẫn: " + url);
+            const el = document.createElement('textarea');
+            el.value = url;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-700 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-50 animate-bounce";
+            toast.innerText = "✓ Đã sao chép đường dẫn: " + url;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
         }
 
+        // ================= PLAYER (ĐIỆN THOẠI HỌC SINH) =================
         function initPlayerMode() {
             isHost = false;
             hideAllScreens();
@@ -1398,7 +1407,6 @@
             const submitBtn = document.getElementById('btnPlayerJoinSubmit');
 
             if (!pin || !name) {
-                alert("Vui lòng nhập đầy đủ Mã PIN và Tên Đội!");
                 return;
             }
 
@@ -1417,7 +1425,7 @@
             statusMsg.innerText = "Đang rèn vũ khí kết nối...";
             submitBtn.disabled = true;
 
-            const clientId = "knight_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
+            const clientId = "player_" + roomPin + "_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
             mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
 
             mqttClient.on('connect', () => {
@@ -1468,15 +1476,16 @@
 
             if (atkBar && atkText) {
                 atkText.innerText = `${playerState.atk} ATK`;
-                // Scale bar smoothly up to 1000 ATK
-                const atkPercent = Math.min(100, (playerState.atk / 1000) * 100);
+                const maxDisplayAtk = 1200;
+                const atkPercent = Math.min(100, Math.round((playerState.atk / maxDisplayAtk) * 100));
                 atkBar.style.width = `${atkPercent}%`;
             }
 
             const streakBadge = document.getElementById('playerStreakBadge');
+            const streakCount = document.getElementById('playerStreakCount');
             if (playerState.streak >= 2) {
                 streakBadge.classList.remove('hidden');
-                document.getElementById('playerStreakCount').innerText = playerState.streak;
+                streakCount.innerText = playerState.streak;
             } else {
                 streakBadge.classList.add('hidden');
             }
@@ -1486,14 +1495,12 @@
             if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
                 playerState.hero = data.hero;
 
-                const avatarBox = document.getElementById('playerMyAvatarBox');
-                avatarBox.className = `w-24 h-24 mx-auto rounded-3xl p-1 shadow-2xl flex items-center justify-center mb-4 border-2 bg-gradient-to-tr ${data.hero.bg} ${data.hero.border}`;
                 document.getElementById('playerMyAvatarIcon').innerText = data.hero.emoji;
                 document.getElementById('playerMyAvatarClass').innerText = data.hero.name;
-
-                const avatarBadge = document.getElementById('playerGameAvatarBadge');
-                avatarBadge.className = `w-8 h-8 rounded-xl flex items-center justify-center text-base border shadow-sm bg-gradient-to-tr ${data.hero.bg} ${data.hero.border}`;
-                avatarBadge.innerText = data.hero.emoji;
+                document.getElementById('playerMyAvatarBox').className = `w-24 h-24 mx-auto rounded-3xl p-1 shadow-2xl flex items-center justify-center mb-4 border-2 bg-gradient-to-tr ${data.hero.bg} ${data.hero.border}`;
+                
+                document.getElementById('playerGameAvatarBadge').className = `w-8 h-8 rounded-xl flex items-center justify-center text-base border shadow-sm bg-gradient-to-tr ${data.hero.bg} ${data.hero.border}`;
+                document.getElementById('playerGameAvatarBadge').innerText = data.hero.emoji;
                 document.getElementById('playerGameClassTag').innerText = data.hero.name;
 
                 hideAllScreens();
@@ -1521,35 +1528,33 @@
                 playerState.hp = data.hp;
                 playerState.streak = data.streak;
 
+                const bonusTag = document.getElementById('playerFeedbackBonusTag');
+                if (data.streakBonus > 0) {
+                    bonusTag.classList.remove('hidden');
+                    bonusTag.innerText = `🔥 Thưởng Chuỗi x${data.streak}: +${data.streakBonus} Điểm`;
+                } else {
+                    bonusTag.classList.add('hidden');
+                }
+
                 if (data.isCorrect) {
                     Sound.correct();
                     document.getElementById('playerFeedbackIcon').innerText = "⚔️";
                     document.getElementById('playerFeedbackTitle').innerText = "CHÉM TRÚNG CHÍ MẠNG!";
                     document.getElementById('playerFeedbackTitle').className = "text-2xl sm:text-3xl font-rpg font-black text-emerald-400 mb-1";
                     document.getElementById('playerFeedbackPts').innerText = `+${data.pointGain} ATK & HP`;
-                    document.getElementById('playerFeedbackPts').className = "text-lg font-ui font-black text-emerald-400";
-
-                    const bonusTag = document.getElementById('playerFeedbackBonusTag');
-                    if (data.streakBonus > 0) {
-                        bonusTag.classList.remove('hidden');
-                    } else {
-                        bonusTag.classList.add('hidden');
-                    }
                 } else {
                     Sound.wrong();
                     document.getElementById('playerFeedbackIcon').innerText = "❌";
-                    document.getElementById('playerFeedbackTitle').innerText = "XUẤT CHIÊU TRƯỢT!";
+                    document.getElementById('playerFeedbackTitle').innerText = "XUẤT CHIÊU TRƯỢT (-20 HP)!";
                     document.getElementById('playerFeedbackTitle').className = "text-2xl sm:text-3xl font-rpg font-black text-rose-400 mb-1";
-                    document.getElementById('playerFeedbackPts').innerText = "-20 HP • 0 ATK";
-                    document.getElementById('playerFeedbackPts').className = "text-lg font-ui font-black text-rose-400";
-                    document.getElementById('playerFeedbackBonusTag').classList.add('hidden');
+                    document.getElementById('playerFeedbackPts').innerText = "+0 ATK | -20 HP";
                 }
 
                 document.getElementById('playerFeedbackSpeed').innerText = `Thời gian xuất chiêu: ${data.time.toFixed(2)}s`;
                 updatePlayerBarsUI();
             }
             else if (data.type === 'BOSS_ATTACKED_PLAYER' && data.playerId === playerState.playerId) {
-                // HIỆU ỨNG BOSS TẤN CÔNG TRÊN ĐIỆN THOẠI
+                // Hiệu ứng Boss tấn công gây -50 HP trên điện thoại
                 playerState.hp = data.hp;
                 const body = document.getElementById('appBody');
                 body.classList.add('shake-damage', 'flash-red');
@@ -1562,18 +1567,12 @@
                 updatePlayerBarsUI();
             }
             else if (data.type === 'PLAYER_ELIMINATED' && data.playerId === playerState.playerId) {
-                // THÔNG BÁO BỊ LOẠI CHUẨN XÁC
+                // Học sinh bị Boss hạ gục
                 playerState.isAlive = false;
                 playerState.hp = 0;
-                const body = document.getElementById('appBody');
-                body.classList.add('shake-damage', 'flash-red');
-                Sound.bossRoar();
-
-                setTimeout(() => {
-                    body.classList.remove('shake-damage', 'flash-red');
-                    hideAllScreens();
-                    document.getElementById('playerEliminatedScreen').classList.remove('hidden');
-                }, 600);
+                hideAllScreens();
+                document.getElementById('playerEliminatedScreen').classList.remove('hidden');
+                Sound.defeat();
             }
             else if (data.type === 'LEADERBOARD_STATE') {
                 hideAllScreens();
@@ -1582,19 +1581,14 @@
                 } else {
                     document.getElementById('playerLobbyScreen').classList.remove('hidden');
                     document.getElementById('playerLobbyStatusText').innerText = "HÃY NHÌN LÊN MÀN HÌNH MÁY CHIẾU...";
-                    document.getElementById('playerLobbySubText').innerText = "Xem hoạt cảnh Boss phản kích và bảng xếp hạng sức mạnh!";
+                    document.getElementById('playerLobbySubText').innerText = "Xem hoạt cảnh Boss phản kích và thứ hạng sức mạnh của tiểu đội!";
                 }
             }
             else if (data.type === 'FINAL_PODIUM') {
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
-                if (data.isBossDefeated) {
-                    document.getElementById('playerLobbyStatusText').innerText = "👑 CHÚC MỪNG CÁC BẠN ĐÃ CHINH PHẠT THÀNH CÔNG!";
-                    document.getElementById('playerLobbySubText').innerText = "Hãy nhìn lên máy chiếu để xem vinh danh và kết quả trận đánh!";
-                } else {
-                    document.getElementById('playerLobbyStatusText').innerText = "💀 MỤC TIÊU TIÊU DIỆT THẤT BẠI!";
-                    document.getElementById('playerLobbySubText').innerText = "Chúc bạn may mắn lần sau. Hãy xem phân tích kết quả trên máy chiếu!";
-                }
+                document.getElementById('playerLobbyStatusText').innerText = data.isBossDefeated ? "🏆 HẮC LONG ĐÃ BỊ TIÊU DIỆT!" : "💀 TRẬN CHIẾN KẾT THÚC!";
+                document.getElementById('playerLobbySubText').innerText = "Hãy nhìn lên máy chiếu để xem vinh danh và kết quả trận đánh!";
             }
         }
 
