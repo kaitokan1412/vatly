@@ -129,6 +129,9 @@
         </div>
     </header>
 
+    <!-- TOAST MESSAGE BOX -->
+    <div id="toastBox" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none"></div>
+
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl w-full mx-auto justify-center z-10 relative">
 
         <!-- 0. CHỌN CHẾ ĐỘ THAM GIA & BẢNG LUẬT THI ĐẤU TO RÕ RÀNG -->
@@ -257,7 +260,7 @@
                 </div>
             </div>
 
-            <!-- Khung danh sách học sinh tham gia phòng chờ (Cố định thông báo riêng) -->
+            <!-- Khung danh sách học sinh tham gia phòng chờ -->
             <div class="min-h-[180px] max-h-[280px] overflow-y-auto p-4 rounded-2xl bg-black/60 border border-red-900/40 mb-6 flex flex-col justify-center">
                 <p class="text-sm text-slate-400 italic text-center" id="emptyPlayerMsg">Đang chờ các hiệp sĩ nhập mã PIN và tên tiểu đội vào phòng...</p>
                 <div class="flex flex-wrap gap-3 items-center justify-center" id="hostPlayerListContainer"></div>
@@ -279,7 +282,7 @@
                     <span class="text-rose-400 flex items-center gap-2">
                         <span class="text-xl">🐉</span> HẮC LONG DAO ĐỘNG • MA THẦN TẦN SỐ
                     </span>
-                    <span id="hostTopBossHpText" class="text-amber-300 font-ui font-black">HP: 5.000 / 5.000 (100%)</span>
+                    <span id="hostTopBossHpText" class="text-amber-300 font-ui font-black">HP: 2.500 / 2.500 (100%)</span>
                 </div>
                 <div class="w-full h-4 bg-black/80 rounded-full border border-red-600/40 overflow-hidden p-0.5 shadow-inner">
                     <div id="hostTopBossHpBar" class="h-full bg-gradient-to-r from-red-600 via-orange-500 to-yellow-400 rounded-full transition-all duration-700" style="width: 100%;"></div>
@@ -402,7 +405,7 @@
                 <div class="w-full max-w-xl mt-4">
                     <div class="flex justify-between text-xs font-rpg font-bold mb-1">
                         <span class="text-rose-400">MÁU BOSS (HP)</span>
-                        <span id="bossHpNumber" class="text-amber-300 font-ui font-black">5.000 / 5.000 HP (100%)</span>
+                        <span id="bossHpNumber" class="text-amber-300 font-ui font-black">2.500 / 2.500 HP (100%)</span>
                     </div>
                     <div class="w-full h-6 bg-black/90 rounded-full border-2 border-red-500/60 overflow-hidden p-0.5 shadow-inner">
                         <div id="bossBattleHpBar" class="h-full bg-gradient-to-r from-red-600 via-orange-500 to-amber-400 rounded-full transition-all duration-1000" style="width: 100%;"></div>
@@ -843,6 +846,18 @@
             document.getElementById('sfxIcon').className = sfxEnabled ? "fa-solid fa-music text-amber-400" : "fa-solid fa-volume-xmark text-slate-500";
         }
 
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toastBox');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl transition-all duration-300 opacity-100 ${
+                isSuccess ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+            }`;
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2800);
+        }
+
         // ================= MQTT CLOUD WEBSOCKET CLIENT =================
         const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
         
@@ -862,8 +877,15 @@
             eliminatedThisRound: []
         };
 
+        // Khôi phục hoặc tạo mới playerId ổn định qua SessionStorage
+        let storedPlayerId = sessionStorage.getItem('boss_player_id');
+        if (!storedPlayerId) {
+            storedPlayerId = "hero_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36);
+            sessionStorage.setItem('boss_player_id', storedPlayerId);
+        }
+
         let playerState = {
-            playerId: "hero_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36),
+            playerId: storedPlayerId,
             myName: "",
             myClass: "",
             hp: 100,
@@ -871,7 +893,9 @@
             streak: 0,
             isAlive: true,
             hero: null,
-            selectedChoice: null
+            selectedChoice: null,
+            joinRetryInterval: null,
+            joinAttempts: 0
         };
 
         function hideAllScreens() {
@@ -924,7 +948,10 @@
 
         function handleHostIncomingData(data) {
             if (data.type === 'PLAYER_JOIN') {
-                const pId = data.playerId || ("hero_" + Math.random().toString(36).substring(2, 8));
+                const pId = data.playerId;
+                if (!pId) return;
+
+                // Xử lý chống trùng lặp và khôi phục khi học sinh tải lại trang
                 if (!hostState.players[pId]) {
                     const hero = HERO_CLASSES[Object.keys(hostState.players).length % HERO_CLASSES.length];
                     hostState.players[pId] = {
@@ -947,9 +974,25 @@
                     };
                     Sound.tick();
                     updateHostLobbyUI();
+                } else {
+                    // Cập nhật lại tên/lớp nếu học sinh đổi lại
+                    hostState.players[pId].name = data.name || hostState.players[pId].name;
+                    hostState.players[pId].className = data.className || hostState.players[pId].className;
+                    updateHostLobbyUI();
                 }
+
+                // Gửi xác nhận lại ngay cho học sinh để dừng vòng lặp retry
                 const p = hostState.players[pId];
-                hostPublish({ type: 'JOIN_ACK', playerId: pId, roomPin: roomPin, hero: p.hero });
+                hostPublish({ 
+                    type: 'JOIN_ACK', 
+                    playerId: pId, 
+                    roomPin: roomPin, 
+                    hero: p.hero,
+                    hp: p.hp,
+                    atk: p.atk,
+                    isAlive: p.isAlive,
+                    currentQIndex: hostState.currentQIndex
+                });
             }
             else if (data.type === 'PLAYER_ANSWER') {
                 const p = hostState.players[data.playerId];
@@ -1026,7 +1069,6 @@
                     }
 
                     updateHostAnsweredCounter();
-                    // CẬP NHẬT THANH MÁU VÀ ATK TRÊN MÀN HÌNH MÁY CHIẾU THEO THỜI GIAN THỰC NGAY KHI VỪA XUẤT CHIÊU
                     renderHostLiveSquadHud();
 
                     const alivePlayers = Object.values(hostState.players).filter(pl => pl.isAlive);
@@ -1038,14 +1080,17 @@
             }
         }
 
-        // ================= FIX BUG TẤT CẢ HỌC SINH ĐƯỢC HIỂN THỊ =================
         function updateHostLobbyUI() {
             const count = Object.keys(hostState.players).length;
             const dynamicHp = calculateBossHpByPlayerCount(count);
             hostState.bossMaxHp = dynamicHp;
             hostState.bossCurrentHp = dynamicHp;
 
-            document.getElementById('hostBossScaleBadge').innerHTML = `<i class="fa-solid fa-heart-pulse mr-1 text-red-500"></i>${dynamicHp.toLocaleString()} HP (${count} Hiệp Sĩ)`;
+            const badge = document.getElementById('hostBossScaleBadge');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid fa-heart-pulse mr-1 text-red-500"></i>${dynamicHp.toLocaleString()} HP (${count} Hiệp Sĩ)`;
+            }
+
             const container = document.getElementById('hostPlayerListContainer');
             const emptyMsg = document.getElementById('emptyPlayerMsg');
             const startBtn = document.getElementById('hostStartBtn');
@@ -1116,9 +1161,7 @@
             document.getElementById('hostTopBossHpText').innerText = `HP: ${hostState.bossCurrentHp.toLocaleString()} / ${hostState.bossMaxHp.toLocaleString()} (${hpPercent}%)`;
             document.getElementById('hostTopBossHpBar').style.width = `${hpPercent}%`;
 
-            // HIỂN THỊ VÀ CẬP NHẬT BẢNG MÁU & ATK REAL-TIME TRÊN MÀN HÌNH CÂU HỎI
             renderHostLiveSquadHud();
-
             hostPublish({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
 
             hostState.timer = 30;
@@ -1137,7 +1180,6 @@
             }, 1000);
         }
 
-        // ================= HÀM HIỂN THỊ THANH MÁU VÀ ATK THEO THỜI GIAN THỰC TRÊN MÁY CHIẾU =================
         function renderHostLiveSquadHud() {
             const grid = document.getElementById('hostLiveSquadGrid');
             if (!grid) return;
@@ -1245,7 +1287,6 @@
             document.getElementById('hostAnsweredCount').innerText = answered;
         }
 
-        // ================= HOẠT CẢNH DIỆT BOSS VÀ PHẢN KÍCH (-50 HP) =================
         function hostResolveBossRaidRound() {
             hideAllScreens();
             document.getElementById('hostRaidScreen').classList.remove('hidden');
@@ -1371,7 +1412,6 @@
             hostState.currentQIndex++;
             const aliveCount = Object.values(hostState.players).filter(p => p.isAlive).length;
 
-            // Kiểm tra kết thúc: Boss chết (HP <= 0) HOẶC hết 10 câu HOẶC cả lớp bị quét sạch
             if (hostState.bossCurrentHp <= 0 || hostState.currentQIndex >= QUESTIONS_DATA.length || aliveCount === 0) {
                 hostShowFinalPodiumAndStats();
             } else {
@@ -1486,6 +1526,7 @@
         function exportBossRaidExcel() {
             const players = Object.values(hostState.players);
             if (players.length === 0) {
+                showToast("Chưa có dữ liệu hiệp sĩ để xuất bảng điểm!", false);
                 return;
             }
 
@@ -1521,6 +1562,7 @@
 
             const fileName = `DauTruongDietBoss_VatLi11_Lop_${classNameLabel}.xlsx`;
             XLSX.writeFile(wb, fileName);
+            showToast(`✓ Đã xuất bảng điểm Excel thành công cho lớp ${classNameLabel}!`, true);
         }
 
         function copyJoinLink() {
@@ -1531,12 +1573,7 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-
-            const toast = document.createElement('div');
-            toast.className = "fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-700 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-50 animate-bounce";
-            toast.innerText = "✓ Đã sao chép đường dẫn: " + url;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+            showToast("✓ Đã sao chép đường dẫn: " + url, true);
         }
 
         // ================= PLAYER (ĐIỆN THOẠI HỌC SINH) =================
@@ -1552,13 +1589,18 @@
         }
 
         function playerJoinRoom() {
-            const pin = document.getElementById('playerPinInput').value.trim();
-            const name = document.getElementById('playerNameInput').value.trim();
-            const className = document.getElementById('playerClassInput').value.trim() || "11A";
+            const pinInput = document.getElementById('playerPinInput');
+            const nameInput = document.getElementById('playerNameInput');
+            const classInput = document.getElementById('playerClassInput');
             const statusMsg = document.getElementById('playerConnectStatusMsg');
             const submitBtn = document.getElementById('btnPlayerJoinSubmit');
 
+            const pin = pinInput.value.trim();
+            const name = nameInput.value.trim();
+            const className = classInput.value.trim() || "11A";
+
             if (!pin || !name) {
+                showToast("Vui lòng nhập đầy đủ Mã PIN và Tên Đội!", false);
                 return;
             }
 
@@ -1574,22 +1616,54 @@
             document.getElementById('playerGameTeamLabel').innerText = name;
 
             statusMsg.classList.remove('hidden');
-            statusMsg.innerText = "Đang rèn vũ khí kết nối...";
+            statusMsg.innerText = "Đang kết nối mỏ đốt và gửi chiến thư...";
             submitBtn.disabled = true;
 
+            // Xóa bộ đếm cũ nếu có
+            if (playerState.joinRetryInterval) {
+                clearInterval(playerState.joinRetryInterval);
+            }
+            playerState.joinAttempts = 0;
+
             const clientId = "player_" + roomPin + "_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
+            if (mqttClient) {
+                try { mqttClient.end(true); } catch(e) {}
+            }
             mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
 
-            mqttClient.on('connect', () => {
-                const hostTopic = `bossraid/${roomPin}/host`;
-                mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
+            const sendJoinPacket = () => {
+                if (mqttClient && mqttClient.connected) {
                     playerPublish({
                         type: 'PLAYER_JOIN',
                         playerId: playerState.playerId,
                         name: playerState.myName,
                         className: playerState.myClass
                     });
+                }
+            };
+
+            mqttClient.on('connect', () => {
+                const hostTopic = `bossraid/${roomPin}/host`;
+                mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
+                    sendJoinPacket();
                 });
+
+                // VÒNG LẶP GỬI LẠI (RETRY LOOP): Tự động phát lại yêu cầu gia nhập mỗi 1.2 giây nếu chưa nhận được JOIN_ACK
+                playerState.joinRetryInterval = setInterval(() => {
+                    if (playerState.hero) {
+                        clearInterval(playerState.joinRetryInterval);
+                        return;
+                    }
+                    playerState.joinAttempts++;
+                    if (playerState.joinAttempts > 6) {
+                        clearInterval(playerState.joinRetryInterval);
+                        statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mạng chập chờn!";
+                        submitBtn.disabled = false;
+                        showToast("Không tìm thấy mã phòng này, vui lòng kiểm tra lại!", false);
+                        return;
+                    }
+                    sendJoinPacket();
+                }, 1200);
             });
 
             mqttClient.on('message', (topic, message) => {
@@ -1645,7 +1719,13 @@
 
         function handlePlayerIncomingData(data) {
             if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
+                if (playerState.joinRetryInterval) {
+                    clearInterval(playerState.joinRetryInterval);
+                }
                 playerState.hero = data.hero;
+                playerState.hp = data.hp !== undefined ? data.hp : playerState.hp;
+                playerState.atk = data.atk !== undefined ? data.atk : playerState.atk;
+                playerState.isAlive = data.isAlive !== undefined ? data.isAlive : playerState.isAlive;
 
                 document.getElementById('playerMyAvatarIcon').innerText = data.hero.emoji;
                 document.getElementById('playerMyAvatarClass').innerText = data.hero.name;
@@ -1706,7 +1786,6 @@
                 updatePlayerBarsUI();
             }
             else if (data.type === 'BOSS_ATTACKED_PLAYER' && data.playerId === playerState.playerId) {
-                // Hiệu ứng Boss tấn công gây -50 HP trên điện thoại
                 playerState.hp = data.hp;
                 const body = document.getElementById('appBody');
                 body.classList.add('shake-damage', 'flash-red');
@@ -1719,7 +1798,6 @@
                 updatePlayerBarsUI();
             }
             else if (data.type === 'PLAYER_ELIMINATED' && data.playerId === playerState.playerId) {
-                // Học sinh bị Boss hạ gục
                 playerState.isAlive = false;
                 playerState.hp = 0;
                 hideAllScreens();
