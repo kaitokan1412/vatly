@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Khinh Khí Cầu Siêu Nhiệt - Bài 6: Nhiệt Hoá Hơi Riêng</title>
+    <title>Khinh Khí Cầu Siêu Nhiệt - Bài 6: Nhiệt Hoá Hơi Riêng (Vật Lí 12)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Montserrat & Nunito (Chuẩn tiếng Việt 100%) -->
+    <!-- Google Fonts: Montserrat & Nunito (Chuẩn tiếng Việt) -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Nunito:wght@400;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-    <!-- MQTT WebSocket Client (Cloud Realtime) -->
+    <!-- MQTT WebSocket Client (Realtime Cloud Broker) -->
     <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- QRCode Generator for instant mobile camera join -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         * {
             font-family: 'Nunito', sans-serif;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            box-sizing: border-box;
         }
         .font-racing {
             font-family: 'Montserrat', sans-serif;
@@ -33,35 +36,35 @@
         :root {
             --theme-accent: #f59e0b;
             --theme-border: rgba(245, 158, 11, 0.45);
-            --theme-glass: rgba(18, 24, 48, 0.9);
+            --theme-glass: rgba(18, 24, 48, 0.92);
             --body-bg: radial-gradient(circle at 50% 10%, #3b1d11 0%, #151128 50%, #080612 100%);
         }
 
         [data-theme="sunset"] {
             --theme-accent: #f97316;
             --theme-border: rgba(249, 115, 22, 0.45);
-            --theme-glass: rgba(28, 18, 38, 0.92);
+            --theme-glass: rgba(28, 18, 38, 0.94);
             --body-bg: radial-gradient(circle at 50% 15%, #4a1525 0%, #1c0e2b 50%, #080312 100%);
         }
 
         [data-theme="stratosphere"] {
             --theme-accent: #38bdf8;
             --theme-border: rgba(56, 189, 248, 0.45);
-            --theme-glass: rgba(12, 25, 48, 0.92);
+            --theme-glass: rgba(12, 25, 48, 0.94);
             --body-bg: radial-gradient(circle at 50% 15%, #083344 0%, #0c1a30 55%, #030812 100%);
         }
 
         [data-theme="aurora"] {
             --theme-accent: #10b981;
             --theme-border: rgba(16, 185, 129, 0.45);
-            --theme-glass: rgba(8, 32, 28, 0.92);
+            --theme-glass: rgba(8, 32, 28, 0.94);
             --body-bg: radial-gradient(circle at 50% 15%, #064e3b 0%, #071f1d 55%, #020a09 100%);
         }
 
         [data-theme="cosmos"] {
             --theme-accent: #c084fc;
             --theme-border: rgba(192, 132, 252, 0.45);
-            --theme-glass: rgba(20, 15, 40, 0.92);
+            --theme-glass: rgba(20, 15, 40, 0.94);
             --body-bg: radial-gradient(circle at 50% 20%, #2e1065 0%, #0f0728 60%, #04010d 100%);
         }
 
@@ -93,31 +96,29 @@
             );
             background-image: 
                 repeating-linear-gradient(0deg, 
-                    rgba(255, 255, 255, 0.1) 0px, 
-                    rgba(255, 255, 255, 0.1) 1px, 
+                    rgba(255, 255, 255, 0.08) 0px, 
+                    rgba(255, 255, 255, 0.08) 1px, 
                     transparent 1px, 
                     transparent 24px
                 );
         }
 
-        /* Hiệu ứng mỏ đốt phun lửa nung nóng khí quyển */
         @keyframes burnerFlame {
             0% { transform: scaleY(0.85) scaleX(0.9); opacity: 0.9; }
-            50% { transform: scaleY(1.3) scaleX(1.1); opacity: 1; filter: drop-shadow(0 0 10px #f59e0b); }
+            50% { transform: scaleY(1.35) scaleX(1.1); opacity: 1; filter: drop-shadow(0 0 10px #f59e0b); }
             100% { transform: scaleY(0.95) scaleX(0.95); opacity: 0.85; }
         }
         .burner-fire {
-            animation: burnerFlame 0.2s infinite alternate;
+            animation: burnerFlame 0.22s infinite alternate;
         }
 
-        /* Hiệu ứng khói hơi nước xả van áp suất từ khinh khí cầu */
         @keyframes steamVentLeft {
             0% { transform: translate(0, 0) scale(0.4); opacity: 0.9; }
-            100% { transform: translate(-28px, 20px) scale(2); opacity: 0; }
+            100% { transform: translate(-26px, 18px) scale(2); opacity: 0; }
         }
         @keyframes steamVentRight {
             0% { transform: translate(0, 0) scale(0.4); opacity: 0.9; }
-            100% { transform: translate(28px, 20px) scale(2); opacity: 0; }
+            100% { transform: translate(26px, 18px) scale(2); opacity: 0; }
         }
         .steam-vent-l {
             animation: steamVentLeft 0.7s infinite ease-out;
@@ -126,7 +127,6 @@
             animation: steamVentRight 0.7s infinite ease-out;
         }
 
-        /* Khinh khí cầu nhấp nhô lơ lửng */
         @keyframes balloonFloat {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-6px) rotate(1.5deg); }
@@ -135,7 +135,7 @@
             animation: balloonFloat 2.8s ease-in-out infinite;
         }
 
-        /* 4 STAR BUTTONS METALLIC NEON */
+        /* 4 NÚT GAMEPAD NGÔI SAO A, B, C, D */
         .btn-star-a {
             background: linear-gradient(135deg, #7c3aed, #5b21b6);
             border: 2px solid #c4b5fd;
@@ -161,20 +161,6 @@
             box-shadow: 0 2px 0 rgba(0,0,0,0.6);
         }
 
-        @keyframes balloonGentleFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(2deg); }
-        }
-        @keyframes burnerGlowPulse {
-            0%, 100% { filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6)); opacity: 0.85; }
-            50% { filter: drop-shadow(0 0 16px rgba(249, 115, 22, 1)); opacity: 1; transform: scale(1.08); }
-        }
-        .anim-balloon-float {
-            animation: balloonGentleFloat 3.2s ease-in-out infinite;
-        }
-        .anim-burner-glow {
-            animation: burnerGlowPulse 1.8s ease-in-out infinite;
-        }
         .role-card-host {
             background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.22) 0%, rgba(30, 16, 38, 0.95) 75%);
             border: 2px solid rgba(245, 158, 11, 0.5);
@@ -194,7 +180,6 @@
             box-shadow: 0 25px 50px -10px rgba(56, 189, 248, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.25);
         }
 
-        /* Toast animation */
         @keyframes slideInUp {
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -210,7 +195,6 @@
             animation: fadeOut 0.3s forwards;
         }
 
-        /* Custom scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0c0817; }
         ::-webkit-scrollbar-thumb { background: #64748b; border-radius: 999px; }
@@ -232,7 +216,7 @@
                     KHINH KHÍ CẦU SIÊU NHIỆT
                 </h1>
                 <p class="text-[10px] md:text-xs text-slate-300 font-bold flex items-center gap-1.5">
-                    <span id="globalConnDot" class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <span id="globalConnDot" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span id="globalConnText">Vật Lí 12 • Bài 6: Nhiệt Hoá Hơi Riêng (Q = L · m)</span>
                 </p>
             </div>
@@ -273,7 +257,7 @@
 
             <!-- NÚT BẬT TẮT ÂM THANH -->
             <button id="sfxBtn" onclick="toggleSFX()" class="p-2.5 w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 text-xs font-bold border border-white/20 flex items-center justify-center transition text-amber-300 shadow-md" title="Bật/Tắt âm thanh">
-                <i class="fa-solid fa-music" id="sfxIcon"></i>
+                <i class="fa-solid fa-music text-amber-400" id="sfxIcon"></i>
             </button>
             <button onclick="leaveToHome()" class="px-3.5 py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition text-slate-300">
                 <i class="fa-solid fa-house"></i>
@@ -286,7 +270,7 @@
     <div id="playerReconnectingBanner" class="hidden bg-gradient-to-r from-amber-600 to-rose-600 px-4 py-2 text-center text-xs font-racing font-black tracking-wide text-white shadow-md flex items-center justify-center gap-2 z-40">
         <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
         <span>MẤT KẾT NỐI MẠNG — ĐANG TỰ ĐỘNG KẾT NỐI LẠI VÀO PHÒNG...</span>
-        <button onclick="retryPlayerConnection()" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-[10px] uppercase border border-white/30 ml-2">Thử lại</button>
+        <button onclick="retryPlayerConnection()" class="px-2.5 py-1 rounded bg-black/50 hover:bg-black/80 text-[10px] uppercase border border-white/30 ml-2">Thử lại</button>
     </div>
 
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl w-full mx-auto justify-center z-10 relative">
@@ -306,7 +290,7 @@
                 CHỌN CHẾ ĐỘ THAM GIA
             </h2>
             <p class="text-xs sm:text-base text-slate-200 mt-2 mb-8 max-w-2xl mx-auto font-bold leading-relaxed">
-                Giáo viên mở bãi phóng trên máy chiếu, học sinh mở điện thoại nhập mã PIN để cấp nhiệt hoá hơi <span class="text-amber-300 font-black">(Q = L · m)</span> nâng khí cầu bứt phá độ cao!
+                Giáo viên mở bãi phóng trên máy chiếu, học sinh quét mã QR hoặc nhập PIN bằng điện thoại để cấp nhiệt hoá hơi <span class="text-amber-300 font-black">(Q = L · m)</span> nâng khí cầu bứt phá độ cao!
             </p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
@@ -321,10 +305,10 @@
                     </div>
 
                     <div class="my-3 flex flex-col items-center">
-                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 p-1 shadow-2xl shadow-orange-500/40 border-2 border-amber-300/50 flex items-center justify-center anim-balloon-float">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 p-1 shadow-2xl shadow-orange-500/40 border-2 border-amber-300/50 flex items-center justify-center">
                             <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
                                 <span class="text-4xl sm:text-5xl">🎈</span>
-                                <span class="text-xs -mt-1 anim-burner-glow">🔥</span>
+                                <span class="text-xs -mt-1 burner-fire">🔥</span>
                             </div>
                         </div>
 
@@ -353,7 +337,7 @@
                     </div>
 
                     <div class="my-3 flex flex-col items-center">
-                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-cyan-500 via-sky-500 to-blue-600 p-1 shadow-2xl shadow-cyan-500/40 border-2 border-cyan-300/50 flex items-center justify-center anim-balloon-float" style="animation-delay: 1.5s;">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-cyan-500 via-sky-500 to-blue-600 p-1 shadow-2xl shadow-cyan-500/40 border-2 border-cyan-300/50 flex items-center justify-center">
                             <div class="w-full h-full bg-slate-950/40 rounded-2xl flex flex-col items-center justify-center">
                                 <span class="text-4xl sm:text-5xl">🪂</span>
                                 <span class="text-xs -mt-1 text-cyan-300">🎮</span>
@@ -377,40 +361,61 @@
 
             <div class="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400 font-bold">
                 <i class="fa-solid fa-wifi text-emerald-400"></i>
-                <span>Tương thích 100% mạng 4G/5G & Wi-Fi trường học qua Cloud WebSocket</span>
+                <span>Tương thích 100% mạng 4G/5G & Wi-Fi trường học qua Cloud WebSocket Broker</span>
             </div>
         </section>
 
         <!-- ==================== GIAO DIỆN HOST (MÁY CHIẾU) ==================== -->
         <!-- 1. HOST LOBBY -->
-        <section id="hostLobbyScreen" class="w-full max-w-4xl mx-auto glass-theme p-6 sm:p-8 rounded-3xl shadow-2xl my-auto text-center hidden">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/10 pb-5 mb-6">
-                <div class="text-left">
+        <section id="hostLobbyScreen" class="w-full max-w-5xl mx-auto glass-theme p-6 sm:p-8 rounded-3xl shadow-2xl my-auto text-center hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-white/10 pb-6 mb-6">
+                
+                <!-- CỘT PIN & LINK -->
+                <div class="text-left flex-1">
                     <span class="text-xs uppercase font-extrabold text-slate-300 flex items-center gap-2">
                         MÃ PIN NẠP NHIỆT KHÍ CẦU
                         <span id="hostStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
                     </span>
-                    <div class="flex items-center gap-3 mt-1">
+                    <div class="flex flex-wrap items-center gap-3 mt-1.5">
                         <span id="hostPinDisplay" class="text-4xl sm:text-6xl font-racing font-black text-amber-300 tracking-widest bg-black/60 px-5 py-1.5 rounded-2xl border-2 border-amber-400/60 shadow-inner">
                             ----
                         </span>
-                        <button onclick="copyJoinLink()" id="btnCopyLink" class="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-amber-300 border border-white/20 text-xs font-bold transition flex items-center gap-1.5" title="Sao chép link">
+                        <button onclick="copyJoinLink()" id="btnCopyLink" class="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-amber-300 border border-white/20 text-xs font-bold transition flex items-center gap-1.5" title="Sao chép link">
                             <i class="fa-solid fa-link text-base"></i>
-                            <span class="text-xs hidden sm:inline">Sao chép link</span>
+                            <span class="text-xs">Sao chép link</span>
                         </button>
                     </div>
+                    <p class="text-xs text-slate-300 mt-2">Học sinh dùng camera điện thoại quét mã QR bên cạnh để vào phòng ngay mà không cần gõ link!</p>
                 </div>
 
-                <div class="flex flex-col sm:items-end">
-                    <span class="text-xs uppercase font-extrabold text-slate-300">SỐ KHÍ CẦU ĐÃ VÀO BÃI PHÓNG</span>
-                    <span id="hostPlayerCountBadge" class="text-2xl sm:text-3xl font-racing font-black text-cyan-300 mt-1">
+                <!-- CỘT QR CODE TỰ ĐỘNG TẠO -->
+                <div class="flex flex-col items-center bg-white p-2.5 rounded-2xl shadow-xl">
+                    <div id="hostQrCodeContainer" class="w-28 h-28 flex items-center justify-center"></div>
+                    <span class="text-[10px] font-black text-slate-800 uppercase mt-1">QUÉT ĐỂ VÀO PHÒNG</span>
+                </div>
+
+                <!-- CỘT ĐẾM SỐ LƯỢNG KHÍ CẦU -->
+                <div class="flex flex-col items-center md:items-end">
+                    <span class="text-xs uppercase font-extrabold text-slate-300">KHÍ CẦU ĐÃ VÀO BÃI PHÓNG</span>
+                    <span id="hostPlayerCountBadge" class="text-3xl sm:text-4xl font-racing font-black text-cyan-300 mt-1">
                         <i class="fa-solid fa-users mr-2"></i>0 Đội
                     </span>
                 </div>
             </div>
 
-            <div class="min-h-[160px] max-h-[260px] overflow-y-auto p-4 rounded-2xl bg-black/40 border border-white/10 mb-6 flex flex-wrap gap-3 items-center justify-center" id="hostPlayerListContainer">
-                <p class="text-sm text-slate-400 italic" id="emptyPlayerMsg">Đang chờ các khinh khí cầu kết nối vào bãi phóng...</p>
+            <!-- DANH SÁCH CÁC ĐỘI (CÓ CONTAINER RIÊNG TRÁNH LỖI XÓA MẤT EMPTY MESSAGE) -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center px-1 mb-2">
+                    <span class="text-xs font-racing font-black uppercase text-amber-400">DANH SÁCH PHI HÀNH ĐOÀN LIVE</span>
+                    <span class="text-xs text-slate-400 font-bold" id="hostLiveSyncStatus"><i class="fa-solid fa-arrows-rotate text-emerald-400"></i> Đang đồng bộ realtime</span>
+                </div>
+                
+                <div class="min-h-[160px] max-h-[260px] overflow-y-auto p-4 rounded-2xl bg-black/40 border border-white/10 relative">
+                    <div id="emptyPlayerMsg" class="absolute inset-0 flex items-center justify-center text-sm text-slate-400 italic">
+                        Đang chờ các khinh khí cầu kết nối vào bãi phóng...
+                    </div>
+                    <div id="hostPlayerListContainer" class="flex flex-wrap gap-3 items-center justify-center relative z-10"></div>
+                </div>
             </div>
 
             <div class="flex justify-center">
@@ -435,7 +440,7 @@
                         <span class="text-xs text-slate-400 font-bold">giây</span>
                     </div>
                     <div class="px-4 py-1.5 rounded-2xl bg-black/60 border border-white/20 text-xs sm:text-sm font-bold text-slate-300">
-                        Đã nạp nhiệt: <span id="hostAnsweredCount" class="font-racing font-black text-cyan-300 text-base">0</span>/<span id="hostTotalPlayers" class="font-racing">0</span>
+                        Đã nạp nhiệt: <span id="hostAnsweredCount" class="font-racing font-black text-cyan-300 text-base">0</span>/<span id="hostTotalPlayers" class="font-racing font-black text-white">0</span>
                     </div>
                 </div>
             </div>
@@ -499,7 +504,7 @@
                     </div>
                     <div>
                         <div class="text-xs sm:text-sm font-racing font-black uppercase text-emerald-300 tracking-wider">ĐÃ CÔNG BỐ ĐÁP ÁN CHUẨN</div>
-                        <div class="text-xs text-slate-300 font-semibold">Giáo viên có thể giảng giải kiến thức trước khi bấm Tiếp tục.</div>
+                        <div class="text-xs text-slate-300 font-semibold">Giáo viên có thể phân tích câu hỏi trước khi bấm Tiếp tục.</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -750,7 +755,7 @@
             <div id="playerFeedbackIcon" class="text-6xl mb-2">🔥</div>
             <h2 id="playerFeedbackTitle" class="text-2xl sm:text-3xl font-racing font-black text-white mb-1">CHÍNH XÁC!</h2>
             <p id="playerFeedbackPts" class="text-lg font-racing font-bold text-amber-300">+920 Điểm</p>
-            <p id="playerFeedbackSpeed" class="text-xs text-slate-300 mt-2" id="playerFeedbackSubMsg">Thời gian phản xạ: 1.2s</p>
+            <p class="text-xs text-slate-300 mt-2" id="playerFeedbackSubMsg">Thời gian phản xạ: 1.2s</p>
         </section>
 
     </main>
@@ -759,7 +764,6 @@
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
     <script>
-        // 8 MẪU KHINH KHÍ CẦU & TÀU BAY KHÔNG GIAN
         const BALLOON_DESIGNS = [
             { emoji: '🎈', bg: 'from-amber-600 to-yellow-500', border: 'border-amber-400', name: 'Khí Cầu Hoàng Kim' },
             { emoji: '🪂', bg: 'from-cyan-600 to-blue-500', border: 'border-cyan-400', name: 'Tàu Bay Lam Cực' },
@@ -771,7 +775,6 @@
             { emoji: '🎈', bg: 'from-teal-600 to-emerald-600', border: 'border-teal-400', name: 'Bão Táp Băng Giá' }
         ];
 
-        // MẢNG SVG CỦA CÁC NGÔI SAO 3, 4, 5, 6 CÁNH
         const STAR_SVGS = [
             `<svg class="w-4 h-4 inline-block text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>`,
             `<svg class="w-4 h-4 inline-block text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>`,
@@ -779,11 +782,11 @@
             `<svg class="w-4 h-4 inline-block text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>`
         ];
 
-        // 10 CÂU HỎI TRẮC NGHIỆM CHỦ ĐỀ 6: NHIỆT HOÁ HƠI RIÊNG
+        // 10 CÂU HỎI TRẮC NGHIỆM CHỦ ĐỀ 6: NHIỆT HOÁ HƠI RIÊNG (VẬT LÍ 12)
         const QUESTIONS_DATA = [
             {
                 category: "Khái niệm nhiệt hoá hơi riêng",
-                title: "Nhiệt hóa hơi riêng là:",
+                title: "Nhiệt hóa hơi riêng của một chất lỏng là:",
                 options: [
                     "nhiệt lượng cần để làm cho một kilogram chất lỏng đó hóa hơi hoàn toàn ở nhiệt độ sôi.",
                     "nhiệt lượng cần để làm cho một gram chất lỏng đó hóa hơi hoàn toàn ở nhiệt độ sôi.",
@@ -794,54 +797,54 @@
             },
             {
                 category: "Đơn vị đo hệ SI",
-                title: "Trong hệ SI, đơn vị của nhiệt hóa hơi riêng là:",
-                options: ["J/kg.K", "J/kg", "J", "J/K"],
+                title: "Trong hệ đơn vị quốc tế SI, đơn vị của nhiệt hóa hơi riêng L là:",
+                options: ["J/kg.K", "J/kg", "J (Jun)", "J/K"],
                 correct: 1
             },
             {
-                category: "Công thức nhiệt lượng",
-                title: "Gọi m, L lần lượt là khối lượng và nhiệt hoá hơi riêng của chất lỏng. Nhiệt lượng Q cần thiết để làm hóa hơi hoàn toàn chất lỏng ở nhiệt độ xác định là:",
-                options: ["Q = m / L", "Q = (1/2)m.L", "Q = m.L", "Q = 2m.L"],
+                category: "Công thức tính nhiệt lượng",
+                title: "Gọi m và L lần lượt là khối lượng và nhiệt hoá hơi riêng của chất lỏng. Nhiệt lượng Q cần thiết để làm hóa hơi hoàn toàn lượng chất lỏng ở nhiệt độ sôi là:",
+                options: ["Q = m / L", "Q = (1/2)m.L", "Q = m · L", "Q = 2m · L"],
                 correct: 2
             },
             {
                 category: "Ý nghĩa vật lí",
-                title: "Ở áp suất chuẩn, nhiệt hóa hơi riêng của nước là 2,3.10⁶ J/kg. Nhận định nào dưới đây là đúng?",
+                title: "Ở áp suất chuẩn, nhiệt hóa hơi riêng của nước là 2,3 · 10⁶ J/kg. Nhận định nào dưới đây là CHÍNH XÁC NHẤT?",
                 options: [
-                    "Một kilogram nước cần thu năng lượng nhiệt là 2,3.10⁶ J để hóa hơi hoàn toàn.",
-                    "Một kilogram nước sẽ tỏa ra lượng nhiệt 2,3.10⁶ J khi hóa hơi hoàn toàn ở nhiệt độ sôi và áp suất bất kỳ.",
-                    "Một lượng nước bất kỳ cần thu nhiệt lượng 2,3.10⁶ J để hóa hơi hoàn toàn.",
-                    "Một kilogram nước cần thu lượng nhiệt là 2,3.10⁶ J để hóa hơi hoàn toàn ở nhiệt độ sôi và áp suất chuẩn."
+                    "Một kilogram nước cần thu năng lượng nhiệt là 2,3 · 10⁶ J để hóa hơi hoàn toàn ở bất kỳ nhiệt độ nào.",
+                    "Một kilogram nước sẽ tỏa ra lượng nhiệt 2,3 · 10⁶ J khi hóa hơi hoàn toàn ở nhiệt độ sôi.",
+                    "Một lượng nước bất kỳ cần thu nhiệt lượng 2,3 · 10⁶ J để hóa hơi hoàn toàn.",
+                    "Một kilogram nước cần thu lượng nhiệt là 2,3 · 10⁶ J để hóa hơi hoàn toàn ở nhiệt độ sôi (100°C) và áp suất tiêu chuẩn."
                 ],
                 correct: 3
             },
             {
-                category: "Thiết bị thí nghiệm",
-                title: "Thiết bị nào sau đây KHÔNG DÙNG trong bộ thí nghiệm đo nhiệt hoá hơi riêng của nước?",
-                options: ["Nhiệt kế", "Cân điện tử", "Nhiệt lượng kế", "Watt kế (Bộ đo công suất)"],
+                category: "Dụng cụ thí nghiệm",
+                title: "Thiết bị nào sau đây KHÔNG THIẾT YẾU trong bộ thí nghiệm chuẩn để đo nhiệt hoá hơi riêng của nước (dùng biến thiên khối lượng và công suất)?",
+                options: ["Nhiệt kế", "Cân điện tử", "Nhiệt lượng kế", "Watt kế (Bộ đo công suất và thời gian)"],
                 correct: 0
             },
             {
-                category: "So sánh nhiệt hóa hơi riêng",
-                title: "Đun sôi 2 cốc nước và rượu cùng khối lượng và công suất. Biết L_rượu = 0,9.10⁶ J/kg < L_nước = 2,3.10⁶ J/kg. Sau một thời gian, lượng chất lỏng trong bình nào còn ÍT NHẤT?",
-                options: ["Bình nước", "Bình rượu", "Cả hai bình đều như nhau", "Chưa đủ dữ kiện để kết luận"],
+                category: "So sánh tốc độ hóa hơi",
+                title: "Đun sôi 2 cốc chứa cùng khối lượng nước và rượu với cùng công suất nhiệt. Biết L_rượu = 0,9·10⁶ J/kg < L_nước = 2,3·10⁶ J/kg. Sau một thời gian sôi, khối lượng chất lỏng trong bình nào còn LẠI ÍT HƠN?",
+                options: ["Bình nước", "Bình rượu", "Cả hai bình đều còn lại như nhau", "Chưa đủ dữ kiện để kết luận"],
                 correct: 1
             },
             {
                 category: "Bài toán hóa hơi ethanol",
-                title: "Một lò chưng cất cung cấp nhiệt để làm hóa hơi hoàn toàn 2,0 kg ethanol ở nhiệt độ sôi 78°C. Biết L_ethanol = 8,5.10⁵ J/kg. Nhiệt lượng cần cung cấp là:",
-                options: ["5,2.10⁶ J", "1,7.10⁶ J", "1,7.10⁵ J", "5,2.10⁵ J"],
+                title: "Một lò chưng cất cung cấp nhiệt để làm hóa hơi hoàn toàn 2,0 kg ethanol ở nhiệt độ sôi 78°C. Biết L_ethanol = 8,5 · 10⁵ J/kg. Nhiệt lượng cần cung cấp là:",
+                options: ["5,2 · 10⁶ J", "1,7 · 10⁶ J", "1,7 · 10⁵ J", "5,2 · 10⁵ J"],
                 correct: 1
             },
             {
                 category: "Bài toán hóa hơi nước",
-                title: "Biết nhiệt hóa hơi riêng của nước ở 100°C là 2,26.10⁶ J/kg. Nhiệt lượng cần thiết để chuyển 2,5 kg nước ở 100°C thành hơi hoàn toàn là:",
+                title: "Biết nhiệt hóa hơi riêng của nước ở 100°C là 2,26 · 10⁶ J/kg. Nhiệt lượng cần thiết để chuyển 2,5 kg nước ở 100°C thành hơi nước hoàn toàn là:",
                 options: ["5650 J", "5650 kJ", "904 J", "904 kJ"],
                 correct: 1
             },
             {
-                category: "Định nghĩa cốt lõi",
-                title: "Lựa chọn từ khóa thích hợp: \"......(1)...... của một chất lỏng là nhiệt lượng cần để làm cho ......(2)...... chất lỏng đó hóa hơi hoàn toàn ở nhiệt độ sôi.\"",
+                category: "Khái niệm cốt lõi",
+                title: "Lựa chọn từ khóa thích hợp điền vào chỗ trống: \"......(1)...... của một chất lỏng là nhiệt lượng cần để làm cho ......(2)...... chất lỏng đó hóa hơi hoàn toàn ở nhiệt độ sôi.\"",
                 options: [
                     "(1) Nhiệt dung riêng; (2) một kilogram",
                     "(1) Nhiệt hóa hơi riêng; (2) một kilogram",
@@ -851,13 +854,13 @@
                 correct: 1
             },
             {
-                category: "Hiện tượng thực tế",
-                title: "Vì sao ở cùng 100°C (áp suất thường), bỏng do hơi nước nóng thường nguy hiểm và nghiêm trọng hơn bỏng do nước sôi?",
+                category: "Ứng dụng & Hiện tượng thực tế",
+                title: "Vì sao ở cùng 100°C (áp suất tiêu chuẩn), bị bỏng do hơi nước nóng thường nguy hiểm và gây tổn thương sâu hơn nhiều so với bỏng do nước sôi?",
                 options: [
-                    "Vì hơi nước nóng có vùng lan tỏa rộng hơn trên bề mặt da",
-                    "Vì hơi nước nóng có khả năng truyền nhiệt nhanh hơn nước nóng",
-                    "Vì hơi nước nóng chứa nhiều phân tử nước hơn nước nóng",
-                    "Vì khi hơi nước ngưng tụ trên da, nó tỏa ra thêm nhiệt lượng hóa hơi rất lớn vào da"
+                    "Vì hơi nước nóng có diện tích lan tỏa lớn hơn nước lỏng",
+                    "Vì hơi nước nóng dẫn nhiệt nhanh hơn nước lỏng",
+                    "Vì hơi nước nóng chứa nhiều phân tử nước hơn nước sôi",
+                    "Vì khi hơi nước 100°C ngưng tụ trên da, nó tỏa ra thêm một nhiệt lượng hóa hơi cực lớn (Q = L·m) vào biểu bì da"
                 ],
                 correct: 3
             }
@@ -1046,8 +1049,7 @@
             }, 3500);
         }
 
-        // ================= MQTT CLOUD WEBSOCKET CLIENT =================
-        const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
+        const MQTT_BROKER_URL = "wss://broker.hivemq.com:8884/mqtt";
         
         let mqttClient = null;
         let roomPin = "";
@@ -1058,11 +1060,11 @@
         let hostState = {
             players: {},
             currentQIndex: 0,
-            timer: 30, // 30 GIÂY MỖI CÂU
+            timer: 30,
             timerInterval: null,
             startTime: 0,
             isRoundEnded: false,
-            gameState: 'LOBBY' // 'LOBBY' | 'QUESTION' | 'LEADERBOARD' | 'FINAL'
+            gameState: 'LOBBY'
         };
 
         let playerState = {
@@ -1098,7 +1100,6 @@
             window.location.href = window.location.pathname;
         }
 
-        // ================= HOST (MÁY CHIẾU) =================
         function initHostMode() {
             isHost = true;
             hideAllScreens();
@@ -1109,8 +1110,26 @@
             roomPin = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('hostPinDisplay').innerText = roomPin;
 
+            // Render QR Code cho học sinh quét bằng camera điện thoại
+            renderHostQrCode();
+
             const clientId = "balloon_host_" + roomPin + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 6);
             connectHostMQTT(clientId);
+        }
+
+        function renderHostQrCode() {
+            const qrContainer = document.getElementById('hostQrCodeContainer');
+            if (!qrContainer) return;
+            qrContainer.innerHTML = '';
+            const joinUrl = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
+            new QRCode(qrContainer, {
+                text: joinUrl,
+                width: 104,
+                height: 104,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
         }
 
         function connectHostMQTT(clientId) {
@@ -1121,16 +1140,16 @@
             mqttClient = mqtt.connect(MQTT_BROKER_URL, {
                 clientId: clientId,
                 clean: true,
-                keepalive: 60,
-                reconnectPeriod: 2500
+                keepalive: 45,
+                reconnectPeriod: 2000
             });
 
             mqttClient.on('connect', () => {
                 isConnected = true;
                 document.getElementById('hostStatusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
                 
-                const playerTopic = `steamballoon/v2/${roomPin}/player`;
-                mqttClient.subscribe(playerTopic, { qos: 1 });
+                const playerTopic = `steamballoon/v3/${roomPin}/player`;
+                mqttClient.subscribe(playerTopic, { qos: 0 });
 
                 // Host định kỳ kiểm tra Presence của học sinh
                 clearInterval(heartbeatInterval);
@@ -1142,7 +1161,7 @@
                             playerCount: Object.keys(hostState.players).length
                         });
                     }
-                }, 3000);
+                }, 2500);
 
                 showToast("Bãi phóng khí cầu", `Đã mở bãi phóng thành công! Mã PIN: ${roomPin}`, "success");
             });
@@ -1165,8 +1184,8 @@
 
         function hostPublish(data) {
             if (mqttClient && isConnected) {
-                const hostTopic = `steamballoon/v2/${roomPin}/host`;
-                mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 1 });
+                const hostTopic = `steamballoon/v3/${roomPin}/host`;
+                mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 0 });
             }
         }
 
@@ -1174,15 +1193,10 @@
             const now = Date.now();
             let changed = false;
             Object.values(hostState.players).forEach(p => {
-                const isOnline = (now - (p.lastSeen || 0)) < 8000;
+                const isOnline = (now - (p.lastSeen || 0)) < 10000;
                 if (p.isOnline !== isOnline) {
                     p.isOnline = isOnline;
                     changed = true;
-                    if (!isOnline) {
-                        showToast("Mất kết nối", `Khí cầu ${p.name} có dấu hiệu mất tín hiệu`, "warning");
-                    } else {
-                        showToast("Trực tuyến", `Khí cầu ${p.name} đã kết nối lại`, "success");
-                    }
                 }
             });
             if (changed) {
@@ -1306,30 +1320,39 @@
         function updateHostLobbyUI() {
             const playersArr = Object.values(hostState.players);
             const count = playersArr.length;
-            document.getElementById('hostPlayerCountBadge').innerHTML = `<i class="fa-solid fa-users mr-2"></i>${count} Đội`;
+            
+            const countBadge = document.getElementById('hostPlayerCountBadge');
+            if (countBadge) countBadge.innerHTML = `<i class="fa-solid fa-users mr-2"></i>${count} Đội`;
+            
             const container = document.getElementById('hostPlayerListContainer');
             const emptyMsg = document.getElementById('emptyPlayerMsg');
             const startBtn = document.getElementById('hostStartBtn');
 
-            if (count > 0) {
-                emptyMsg.classList.add('hidden');
-                startBtn.disabled = false;
-            } else {
-                emptyMsg.classList.remove('hidden');
-                startBtn.disabled = true;
+            if (emptyMsg) {
+                if (count > 0) {
+                    emptyMsg.classList.add('hidden');
+                } else {
+                    emptyMsg.classList.remove('hidden');
+                }
             }
 
-            container.innerHTML = '';
-            playersArr.forEach(p => {
-                const bubble = document.createElement('div');
-                bubble.className = `px-4 py-2 rounded-2xl bg-gradient-to-r ${p.carSkin.bg} border-2 ${p.isOnline ? p.carSkin.border : 'border-slate-600 opacity-60'} text-white font-racing font-bold text-sm shadow-md flex items-center gap-2 transition-all`;
-                bubble.innerHTML = `
-                    <span>${p.carSkin.emoji}</span>
-                    <span>${p.name}</span>
-                    <span class="w-2.5 h-2.5 rounded-full ${p.isOnline ? 'bg-emerald-400' : 'bg-rose-500'}" title="${p.isOnline ? 'Đang online' : 'Mất kết nối'}"></span>
-                `;
-                container.appendChild(bubble);
-            });
+            if (startBtn) {
+                startBtn.disabled = (count === 0);
+            }
+
+            if (container) {
+                container.innerHTML = '';
+                playersArr.forEach(p => {
+                    const bubble = document.createElement('div');
+                    bubble.className = `px-4 py-2 rounded-2xl bg-gradient-to-r ${p.carSkin.bg} border-2 ${p.isOnline ? p.carSkin.border : 'border-slate-600 opacity-60'} text-white font-racing font-bold text-sm shadow-md flex items-center gap-2 transition-all transform hover:scale-105`;
+                    bubble.innerHTML = `
+                        <span>${p.carSkin.emoji}</span>
+                        <span>${p.name}</span>
+                        <span class="w-2.5 h-2.5 rounded-full ${p.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}" title="${p.isOnline ? 'Đang online' : 'Mất kết nối'}"></span>
+                    `;
+                    container.appendChild(bubble);
+                });
+            }
         }
 
         function hostStartGame() {
@@ -1435,7 +1458,7 @@
                 }
             }
 
-            // Hiển thị thanh chứa nút TIẾP TỤC để giáo viên chủ động chữa bài
+            // Hiển thị nút TIẾP TỤC để giáo viên chủ động điều phối và chữa bài
             const actionPanel = document.getElementById('hostQuestionActionPanel');
             if (actionPanel) actionPanel.classList.remove('hidden');
 
@@ -1465,7 +1488,7 @@
                 const isSuperBurn = p.streak >= 2;
 
                 const column = document.createElement('div');
-                column.className = `relative h-full flex flex-col justify-end items-center flex-1 max-w-[85px]`;
+                column.className = `relative h-full flex flex-col justify-end items-center flex-1 max-w-[90px]`;
 
                 column.innerHTML = `
                     <!-- KHINH KHÍ CẦU BAY NÂNG ĐỘ CAO THEO TRỤC DỌC -->
@@ -1522,7 +1545,7 @@
             const leaderboardList = document.getElementById('hostLeaderboardList');
             leaderboardList.innerHTML = '';
 
-            sorted.slice(0, 6).forEach((p, rank) => {
+            sorted.slice(0, 8).forEach((p, rank) => {
                 const progressPercent = Math.min(100, Math.round(((p.correctCount / QUESTIONS_DATA.length) * 80) + (p.score / (QUESTIONS_DATA.length * 1000) * 20)));
                 const altitudeMeters = Math.round((progressPercent / 100) * 10000);
                 const card = document.createElement('div');
@@ -1735,7 +1758,6 @@
             window.location.reload();
         }
 
-        // ================= PLAYER (ĐIỆN THOẠI HỌC SINH) =================
         function initPlayerMode() {
             isHost = false;
             hideAllScreens();
@@ -1794,7 +1816,7 @@
             mqttClient = mqtt.connect(MQTT_BROKER_URL, {
                 clientId: clientId,
                 clean: true,
-                keepalive: 60,
+                keepalive: 45,
                 reconnectPeriod: 2000
             });
 
@@ -1803,9 +1825,8 @@
                 document.getElementById('playerReconnectingBanner').classList.add('hidden');
                 document.getElementById('btnPlayerJoinSubmit').disabled = false;
                 
-                const hostTopic = `steamballoon/v2/${roomPin}/host`;
-                mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
-                    // Gửi bản tin JOIN hoặc REJOIN kèm ID của học sinh
+                const hostTopic = `steamballoon/v3/${roomPin}/host`;
+                mqttClient.subscribe(hostTopic, { qos: 0 }, () => {
                     playerPublish({
                         type: 'PLAYER_JOIN',
                         playerId: playerState.playerId,
@@ -1813,7 +1834,7 @@
                     });
                 });
 
-                // Gửi định kỳ PING để Host biết học sinh đang trực tuyến
+                // Gửi định kỳ PING để Host duy trì danh sách trực tuyến
                 clearInterval(heartbeatInterval);
                 heartbeatInterval = setInterval(() => {
                     if (isConnected && roomPin && playerState.playerId) {
@@ -1823,7 +1844,7 @@
                             name: playerState.myName
                         });
                     }
-                }, 3000);
+                }, 2500);
             });
 
             mqttClient.on('offline', () => {
@@ -1843,8 +1864,8 @@
 
         function playerPublish(data) {
             if (mqttClient && isConnected) {
-                const playerTopic = `steamballoon/v2/${roomPin}/player`;
-                mqttClient.publish(playerTopic, JSON.stringify(data), { qos: 1 });
+                const playerTopic = `steamballoon/v3/${roomPin}/player`;
+                mqttClient.publish(playerTopic, JSON.stringify(data), { qos: 0 });
             }
         }
 
@@ -1908,7 +1929,7 @@
                 Sound.tick();
             }
 
-            // Khi nhận phản hồi sau khi trả lời
+            // Khi nhận phản hồi sau khi nộp bài
             else if (data.type === 'ROUND_FEEDBACK' && data.targetPlayerId === playerState.playerId) {
                 hideAllScreens();
                 document.getElementById('playerFeedbackScreen').classList.remove('hidden');
