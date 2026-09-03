@@ -17,8 +17,10 @@
     </script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Cinzel & Montserrat & Nunito -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Montserrat & Nunito (Hỗ trợ 100% Tiếng Việt chuẩn, không lỗi ký tự Đ, Ắ, Ồ, Ự) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     <!-- MQTT WebSocket Client -->
     <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
     <!-- SheetJS (XLSX Export) -->
@@ -30,13 +32,15 @@
 
     <style>
         * {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
+        /* Phông chữ Gaming RPG uy lực, hỗ trợ trọn vẹn toàn bộ dấu tiếng Việt */
         .font-rpg {
-            font-family: 'Cinzel', serif;
-            letter-spacing: 0.05em;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.04em;
         }
         .font-ui {
             font-family: 'Montserrat', sans-serif;
@@ -187,7 +191,7 @@
                         <div class="text-orange-300 font-rpg font-black flex items-center gap-1.5 text-sm">
                             <span>🔥</span> CHUỖI & SAI
                         </div>
-                        <p class="text-slate-300 leading-snug">Chuỗi $\ge 2$: <strong class="text-orange-400 font-black">+10 điểm</strong> thưởng. Trả lời sai: <strong class="text-rose-400 font-black">-20 HP</strong>, 0 ATK.</p>
+                        <p class="text-slate-300 leading-snug">Chuỗi <strong class="text-orange-400 font-black">≥ 2</strong>: <strong class="text-orange-400 font-black">+10 điểm</strong> thưởng. Trả lời sai: <strong class="text-rose-400 font-black">-20 HP</strong>, 0 ATK.</p>
                     </div>
 
                     <!-- Mục 4: Boss phản kích -->
@@ -195,7 +199,7 @@
                         <div class="text-rose-300 font-rpg font-black flex items-center gap-1.5 text-sm">
                             <span>🐉</span> BOSS PHẢN KÍCH
                         </div>
-                        <p class="text-slate-300 leading-snug">Hết hiệp Boss phản kích quét <strong class="text-rose-400 font-black">-50 HP</strong>. HP về $0 \to$ <strong class="text-red-500 font-black">BỊ LOẠI (K.O)</strong>!</p>
+                        <p class="text-slate-300 leading-snug">Hết hiệp Boss phản kích quét <strong class="text-rose-400 font-black">-50 HP</strong>. HP về <strong class="text-rose-400 font-black">0 ➔</strong> <strong class="text-red-500 font-black">BỊ LOẠI (K.O)</strong>!</p>
                     </div>
                 </div>
 
@@ -205,7 +209,7 @@
                         <i class="fa-solid fa-scale-balanced text-yellow-400"></i> Quy mô Máu Boss:
                     </span>
                     <div class="flex flex-wrap gap-1.5 font-semibold text-rose-200">
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">$\le 2$: 2.5K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">≤ 2: 2.5K HP</span>
                         <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">3-5: 4K HP</span>
                         <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">6-8: 6.5K HP</span>
                         <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">9-10: 8K HP</span>
