@@ -6,6 +6,15 @@
     <title>Đấu Trường Diệt Boss - Vật Lí 11: Dao Động Cơ</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
+                e.preventDefault();
+                console.warn("[Canvas Safety] Đã tự động kích hoạt chế độ Kênh Nội Bộ an toàn (Broadcast/Local Bus).");
+                return true;
+            }
+        });
+    </script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Cinzel & Montserrat & Nunito -->
@@ -16,6 +25,8 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- QRCode JS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         * {
@@ -72,25 +83,25 @@
         .btn-weapon-a {
             background: linear-gradient(135deg, #7c3aed, #4c1d95);
             border: 2px solid #c4b5fd;
-            box-shadow: 0 6px 0 #2e1065, 0 0 20px rgba(124, 58, 237, 0.4);
+            box-shadow: 0 5px 0 #2e1065, 0 0 16px rgba(124, 58, 237, 0.35);
         }
         .btn-weapon-b {
             background: linear-gradient(135deg, #0284c7, #075985);
             border: 2px solid #7dd3fc;
-            box-shadow: 0 6px 0 #082f49, 0 0 20px rgba(2, 132, 199, 0.4);
+            box-shadow: 0 5px 0 #082f49, 0 0 16px rgba(2, 132, 199, 0.35);
         }
         .btn-weapon-c {
             background: linear-gradient(135deg, #ea580c, #9a3412);
             border: 2px solid #fdba74;
-            box-shadow: 0 6px 0 #431407, 0 0 20px rgba(234, 88, 12, 0.4);
+            box-shadow: 0 5px 0 #431407, 0 0 16px rgba(234, 88, 12, 0.35);
         }
         .btn-weapon-d {
             background: linear-gradient(135deg, #059669, #064e3b);
             border: 2px solid #6ee7b7;
-            box-shadow: 0 6px 0 #022c22, 0 0 20px rgba(5, 150, 105, 0.4);
+            box-shadow: 0 5px 0 #022c22, 0 0 16px rgba(5, 150, 105, 0.35);
         }
         .btn-weapon-a:active, .btn-weapon-b:active, .btn-weapon-c:active, .btn-weapon-d:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 0 2px 0 rgba(0,0,0,0.6);
         }
         /* Custom scrollbar */
@@ -104,7 +115,7 @@
     <!-- TOP HEADER -->
     <header class="w-full bg-black/85 border-b border-red-900/60 px-4 py-3 flex justify-between items-center z-40 sticky top-0 shadow-2xl backdrop-blur-md">
         <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-600 via-red-600 to-amber-500 flex items-center justify-center shadow-lg shadow-red-600/50 border border-red-400">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-600 via-red-600 to-amber-500 flex items-center justify-center shadow-lg shadow-red-600/50 border border-red-400 flex-shrink-0">
                 <i class="fa-solid fa-dragon text-2xl text-white"></i>
             </div>
             <div>
@@ -236,11 +247,13 @@
         <!-- ==================== GIAO DIỆN HOST (MÁY CHIẾU) ==================== -->
         <!-- 1. HOST LOBBY -->
         <section id="hostLobbyScreen" class="w-full max-w-4xl mx-auto dungeon-panel p-6 sm:p-8 rounded-3xl shadow-2xl my-auto text-center hidden">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-red-900/50 pb-5 mb-6">
-                <div class="text-left">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5 border-b border-red-900/50 pb-5 mb-6">
+                <!-- CỘT 1: MÃ PHÒNG PIN -->
+                <div class="text-left flex-1">
                     <span class="text-xs uppercase font-extrabold text-rose-400 flex items-center gap-2">
                         MÃ PHÒNG TRIỆU HỒI
                         <span id="hostStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span id="hostNetworkBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-bold">Kênh An Toàn (Canvas Bus)</span>
                     </span>
                     <div class="flex items-center gap-3 mt-1">
                         <span id="hostPinDisplay" class="text-4xl sm:text-6xl font-rpg font-black text-amber-300 tracking-widest bg-black/80 px-5 py-1.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
@@ -250,9 +263,24 @@
                             <i class="fa-solid fa-link text-base"></i>
                         </button>
                     </div>
+                    <p class="text-[11px] text-slate-400 mt-1 font-semibold">Mở tab mới hoặc quét QR để tham gia (Tự động đồng bộ nội bộ & đám mây).</p>
                 </div>
 
-                <div class="flex flex-col sm:items-end">
+                <!-- CỘT 2: KHUNG MÃ QR PHÒNG CHỜ (CÓ THỂ CLICK PHÓNG TO) -->
+                <div class="flex flex-col items-center bg-black/80 p-3 rounded-2xl border-2 border-amber-500/60 shadow-xl">
+                    <div onclick="openQrModal()" class="p-2 bg-white rounded-xl cursor-pointer hover:scale-105 transition shadow-lg relative group" title="Bấm để phóng to mã QR">
+                        <div id="hostQrCodeBox" class="w-[124px] h-[124px] flex items-center justify-center overflow-hidden"></div>
+                        <div class="absolute inset-0 bg-black/50 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition">
+                            <i class="fa-solid fa-magnifying-glass-plus mr-1 text-sm"></i> Phóng to
+                        </div>
+                    </div>
+                    <button onclick="openQrModal()" class="text-[10px] font-rpg font-black text-amber-300 uppercase mt-2 flex items-center gap-1 hover:text-yellow-200 transition">
+                        <i class="fa-solid fa-qrcode text-xs"></i> BẤM ĐỂ PHÓNG TO QR
+                    </button>
+                </div>
+
+                <!-- CỘT 3: TỔNG MÁU BOSS QUY MÔ -->
+                <div class="flex flex-col md:items-end flex-1">
                     <span class="text-xs uppercase font-extrabold text-rose-400">TỔNG MÁU BOSS QUY MÔ</span>
                     <span id="hostBossScaleBadge" class="text-xl sm:text-2xl font-rpg font-black text-amber-300 mt-1">
                         <i class="fa-solid fa-heart-pulse mr-1 text-red-500"></i>2.500 HP (0 Hiệp Sĩ)
@@ -261,9 +289,21 @@
             </div>
 
             <!-- Khung danh sách học sinh tham gia phòng chờ -->
-            <div class="min-h-[180px] max-h-[280px] overflow-y-auto p-4 rounded-2xl bg-black/60 border border-red-900/40 mb-6 flex flex-col justify-center">
+            <div class="min-h-[180px] max-h-[280px] overflow-y-auto p-4 rounded-2xl bg-black/60 border border-red-900/40 mb-4 flex flex-col justify-center">
                 <p class="text-sm text-slate-400 italic text-center" id="emptyPlayerMsg">Đang chờ các hiệp sĩ nhập mã PIN và tên tiểu đội vào phòng...</p>
                 <div class="flex flex-wrap gap-3 items-center justify-center" id="hostPlayerListContainer"></div>
+            </div>
+
+            <!-- Nút bổ sung hiệp sĩ thử nghiệm để test nhanh trong Canvas -->
+            <div class="flex flex-wrap items-center justify-center gap-3 mb-6">
+                <button onclick="addDemoBots(4)" type="button" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-robot text-sm"></i>
+                    <span>+ Thêm 4 Hiệp Sĩ Bot (Test Nhanh Trong Canvas)</span>
+                </button>
+                <button onclick="clearDemoBots()" type="button" class="px-3.5 py-2 rounded-xl bg-red-950/60 hover:bg-red-900 text-rose-300 border border-red-800 text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Làm mới danh sách</span>
+                </button>
             </div>
 
             <div class="flex justify-center">
@@ -306,9 +346,10 @@
                 </div>
             </div>
 
-            <!-- QUESTION TITLE -->
-            <div class="dungeon-panel p-6 sm:p-8 rounded-3xl shadow-2xl text-center min-h-[140px] flex items-center justify-center">
-                <h2 id="hostQuestionTitle" class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-snug">Đang tải thử thách vật lí...</h2>
+            <!-- QUESTION TITLE & GRAPH -->
+            <div class="dungeon-panel p-5 sm:p-7 rounded-3xl shadow-2xl text-center min-h-[140px] flex flex-col items-center justify-center gap-4">
+                <h2 id="hostQuestionTitle" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug">Đang tải thử thách vật lí...</h2>
+                <div id="hostQuestionGraphBox" class="w-full max-w-md hidden"></div>
             </div>
 
             <!-- 4 OPTIONS -->
@@ -369,22 +410,22 @@
                         <i class="fa-solid fa-bolt text-yellow-400"></i> Cập nhật trực tiếp khi hiệp sĩ xuất chiêu
                     </span>
                 </div>
-                <!-- Grid chứa các thẻ HP & ATK của từng học sinh -->
                 <div id="hostLiveSquadGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[240px] overflow-y-auto pr-1"></div>
             </div>
 
             <!-- THANH ĐIỀU HƯỚNG KHI HẾT 30 GIÂY -->
             <div id="hostQuestionActionArea" class="dungeon-panel p-4 sm:p-5 rounded-3xl border-2 border-amber-400/50 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 hidden">
                 <div class="flex items-center gap-3 text-left">
-                    <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-400/40 flex items-center justify-center text-xl">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-400/40 flex items-center justify-center text-xl flex-shrink-0">
                         <i class="fa-solid fa-khanda"></i>
                     </div>
                     <div>
                         <span class="text-xs uppercase font-black tracking-widest text-amber-400 block font-rpg">KẾT THÚC LƯỢT XUẤT CHIÊU</span>
                         <p class="text-xs sm:text-sm text-slate-300 font-bold">Giáo viên chữa bài xong, bấm nút để bắt đầu hoạt cảnh Tấn công Boss & Boss Phản Kích!</p>
+                        <div id="hostExplanationBox" class="mt-2 text-xs sm:text-sm text-amber-300 bg-amber-950/50 border border-amber-500/50 p-2.5 rounded-xl font-bold hidden leading-relaxed"></div>
                     </div>
                 </div>
-                <button onclick="hostResolveBossRaidRound()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-orange-600 to-amber-500 text-white font-rpg font-black text-base tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-2">
+                <button onclick="hostResolveBossRaidRound()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-orange-600 to-amber-500 text-white font-rpg font-black text-base tracking-wider shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-2 flex-shrink-0">
                     <span>TỔNG LỰC TẤN CÔNG BOSS & SINH TỒN</span>
                     <i class="fa-solid fa-fire"></i>
                 </button>
@@ -590,10 +631,10 @@
             <p class="text-xs text-slate-300 mt-2 leading-relaxed" id="playerLobbySubText">Hãy nhìn lên màn hình máy chiếu.<br>Trận chiến diệt Boss sẽ bắt đầu khi Giáo viên khai màn!</p>
         </section>
 
-        <!-- 3. PLAYER GAMEPAD (THANH HP & ATK TRỰC QUAN) -->
-        <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
-            <!-- PANEL CHỈ SỐ NHÂN VẬT -->
-            <div class="dungeon-panel p-4 rounded-3xl flex flex-col gap-2.5 shadow-2xl border border-red-700/60">
+        <!-- 3. PLAYER GAMEPAD (CÂU HỎI VÀ ĐÁP ÁN HIỂN THỊ ĐẦY ĐỦ TRÊN MÀN HÌNH ĐIỆN THOẠI) -->
+        <section id="playerGamepadScreen" class="w-full max-w-lg mx-auto flex flex-col gap-3 my-2 hidden">
+            <!-- PANEL CHỈ SỐ NHÂN VẬT & MÁU & ATK -->
+            <div class="dungeon-panel p-3.5 sm:p-4 rounded-3xl flex flex-col gap-2 shadow-2xl border border-red-700/60">
                 <div class="flex justify-between items-center text-xs">
                     <div class="flex items-center gap-2">
                         <div id="playerGameAvatarBadge" class="w-8 h-8 rounded-xl flex items-center justify-center text-base border shadow-sm">
@@ -610,60 +651,99 @@
                 </div>
 
                 <!-- THANH HP TRỰC QUAN -->
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-0.5">
                     <div class="flex justify-between text-[11px] font-ui font-bold text-rose-300">
                         <span class="flex items-center gap-1"><i class="fa-solid fa-heart text-red-500 animate-pulse"></i> HP (Sinh Mệnh):</span>
                         <span id="playerHpText" class="font-black text-white">100 HP</span>
                     </div>
-                    <div class="w-full h-3.5 bg-black/90 rounded-full border border-red-600/50 overflow-hidden p-0.5 shadow-inner">
+                    <div class="w-full h-3 bg-black/90 rounded-full border border-red-600/50 overflow-hidden p-0.5 shadow-inner">
                         <div id="playerHpBar" class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500 rounded-full transition-all duration-500" style="width: 100%;"></div>
                     </div>
                 </div>
 
                 <!-- THANH ATK TRỰC QUAN -->
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-0.5">
                     <div class="flex justify-between text-[11px] font-ui font-bold text-amber-300">
                         <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-yellow-400"></i> ATK (Tấn Công):</span>
                         <span id="playerAtkText" class="font-black text-yellow-200">0 ATK</span>
                     </div>
-                    <div class="w-full h-3.5 bg-black/90 rounded-full border border-amber-500/50 overflow-hidden p-0.5 shadow-inner">
+                    <div class="w-full h-3 bg-black/90 rounded-full border border-amber-500/50 overflow-hidden p-0.5 shadow-inner">
                         <div id="playerAtkBar" class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-300 rounded-full transition-all duration-500" style="width: 0%;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- 4 WEAPON BUTTONS -->
-            <div class="grid grid-cols-2 gap-3.5 h-[320px] sm:h-[380px]" id="playerButtonGrid">
-                <button onclick="playerSendAnswer(0)" class="btn-weapon-a rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
-                    <svg class="w-8 h-8 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.6 10.5 L20.66 17 L12 15 L3.34 17 L9.4 10.5 Z"/></svg>
-                    <span class="text-4xl sm:text-5xl font-ui font-black text-yellow-300">A</span>
+            <!-- KHUNG HIỂN THỊ CÂU HỎI TRỰC TIẾP TRÊN ĐIỆN THOẠI HỌC SINH -->
+            <div class="dungeon-panel p-4 rounded-2xl flex flex-col gap-2.5 shadow-xl border border-red-500/40">
+                <div class="flex justify-between items-center border-b border-red-900/50 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span id="playerQCounter" class="text-xs font-rpg font-black text-amber-300">CÂU 1/10</span>
+                        <span id="playerQCategory" class="px-2 py-0.5 rounded-lg bg-red-950 text-rose-300 text-[10px] font-bold border border-red-800">Dao Động Cơ</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl bg-black/70 border border-amber-500/50 text-amber-300 font-ui font-black text-xs">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                        <span id="playerTimerText">30s</span>
+                    </div>
+                </div>
+                <h3 id="playerQuestionTitle" class="text-sm sm:text-base font-bold text-white text-left leading-snug">
+                    Đang triệu hồi câu hỏi...
+                </h3>
+                <div id="playerQuestionGraphBox" class="w-full flex justify-center hidden"></div>
+            </div>
+
+            <!-- 4 NÚT VŨ KHÍ KÈM NỘI DUNG ĐÁP ÁN ĐẦY ĐỦ TRÊN ĐIỆN THOẠI -->
+            <div class="flex flex-col gap-2.5" id="playerButtonGrid">
+                <!-- ĐÁP ÁN A -->
+                <button onclick="playerSendAnswer(0)" class="btn-weapon-a w-full p-3 sm:p-3.5 rounded-2xl flex items-center text-left gap-3 text-white shadow-lg transition active:scale-[0.98]">
+                    <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/30 flex items-center justify-center font-ui font-black text-base text-yellow-300 flex-shrink-0">
+                        A
+                    </div>
+                    <span id="playerOptText0" class="text-xs sm:text-sm font-bold flex-1 leading-snug break-words">
+                        Đang tải đáp án A...
+                    </span>
                 </button>
 
-                <button onclick="playerSendAnswer(1)" class="btn-weapon-b rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
-                    <svg class="w-8 h-8 text-cyan-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
-                    <span class="text-4xl sm:text-5xl font-ui font-black text-cyan-100">B</span>
+                <!-- ĐÁP ÁN B -->
+                <button onclick="playerSendAnswer(1)" class="btn-weapon-b w-full p-3 sm:p-3.5 rounded-2xl flex items-center text-left gap-3 text-white shadow-lg transition active:scale-[0.98]">
+                    <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/30 flex items-center justify-center font-ui font-black text-base text-cyan-200 flex-shrink-0">
+                        B
+                    </div>
+                    <span id="playerOptText1" class="text-xs sm:text-sm font-bold flex-1 leading-snug break-words">
+                        Đang tải đáp án B...
+                    </span>
                 </button>
 
-                <button onclick="playerSendAnswer(2)" class="btn-weapon-c rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
-                    <svg class="w-8 h-8 text-amber-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
-                    <span class="text-4xl sm:text-5xl font-ui font-black text-amber-100">C</span>
+                <!-- ĐÁP ÁN C -->
+                <button onclick="playerSendAnswer(2)" class="btn-weapon-c w-full p-3 sm:p-3.5 rounded-2xl flex items-center text-left gap-3 text-white shadow-lg transition active:scale-[0.98]">
+                    <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/30 flex items-center justify-center font-ui font-black text-base text-amber-200 flex-shrink-0">
+                        C
+                    </div>
+                    <span id="playerOptText2" class="text-xs sm:text-sm font-bold flex-1 leading-snug break-words">
+                        Đang tải đáp án C...
+                    </span>
                 </button>
 
-                <button onclick="playerSendAnswer(3)" class="btn-weapon-d rounded-3xl flex items-center justify-center gap-2 text-white shadow-xl active:scale-95 transition">
-                    <svg class="w-8 h-8 text-emerald-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 7.67 L20.66 7 L17 12 L20.66 17 L14.5 16.33 L12 22 L9.5 16.33 L3.34 17 L7 12 L3.34 7 L9.5 7.67 Z"/></svg>
-                    <span class="text-4xl sm:text-5xl font-ui font-black text-emerald-100">D</span>
+                <!-- ĐÁP ÁN D -->
+                <button onclick="playerSendAnswer(3)" class="btn-weapon-d w-full p-3 sm:p-3.5 rounded-2xl flex items-center text-left gap-3 text-white shadow-lg transition active:scale-[0.98]">
+                    <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/30 flex items-center justify-center font-ui font-black text-base text-emerald-200 flex-shrink-0">
+                        D
+                    </div>
+                    <span id="playerOptText3" class="text-xs sm:text-sm font-bold flex-1 leading-snug break-words">
+                        Đang tải đáp án D...
+                    </span>
                 </button>
             </div>
 
-            <!-- SUBMITTED OVERLAY -->
+            <!-- OVERLAY KHI ĐÃ XUẤT CHIÊU THÀNH CÔNG -->
             <div id="playerSubmittedOverlay" class="dungeon-panel p-6 rounded-3xl text-center hidden">
                 <div class="text-4xl mb-2 animate-spin">⚡</div>
                 <h4 class="font-rpg font-black text-lg text-amber-300">ĐÃ TÍCH TỤ TUYỆT KỸ!</h4>
+                <p id="playerSubmittedChoiceLabel" class="text-sm font-bold text-emerald-400 mt-1">Bạn đã chọn đáp án A</p>
                 <p class="text-xs text-slate-300 mt-1">Đang chờ lệnh tổng lực tấn công Boss trên máy chiếu...</p>
             </div>
         </section>
 
-        <!-- 4. PLAYER FEEDBACK -->
+        <!-- 4. PLAYER FEEDBACK (KẾT QUẢ ĐÚNG / SAI CỦA HIỆP ĐẤU) -->
         <section id="playerFeedbackScreen" class="w-full max-w-md mx-auto dungeon-panel p-8 rounded-3xl shadow-2xl text-center my-auto hidden">
             <div id="playerFeedbackIcon" class="text-6xl mb-2">💥</div>
             <h2 id="playerFeedbackTitle" class="text-2xl sm:text-3xl font-rpg font-black text-white mb-1">TRÚNG CHÍ MẠNG!</h2>
@@ -691,6 +771,30 @@
                 Đòn phản kích của Boss đã đánh bại tiểu đội của bạn.<br>Hãy tiếp tục theo dõi các hiệp sĩ còn lại trên màn hình máy chiếu!
             </p>
         </section>
+
+        <!-- MODAL PHÓNG TO MÃ QR CHO MÁY CHIẾU LỚN -->
+        <div id="qrModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+            <div class="dungeon-panel max-w-sm w-full p-6 rounded-3xl text-center border-2 border-amber-500 relative shadow-2xl flex flex-col items-center">
+                <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-2xl mb-2">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 class="text-xl font-rpg font-black text-amber-300 uppercase">QUÉT MÃ VÀO PHÒNG</h3>
+                <p class="text-xs text-rose-300 mb-4">Mở camera điện thoại quét mã để tham gia ngay</p>
+                <div class="p-4 bg-white rounded-2xl shadow-2xl border-4 border-amber-400 flex items-center justify-center">
+                    <div id="modalQrCodeBox" class="w-[230px] h-[230px] flex items-center justify-center overflow-hidden"></div>
+                </div>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-xs text-slate-300 font-bold">Mã PIN:</span>
+                    <span id="modalPinText" class="text-2xl font-rpg font-black text-amber-300 px-4 py-1 bg-black/80 rounded-xl border border-amber-500/60">----</span>
+                </div>
+                <button onclick="closeQrModal()" class="mt-5 px-6 py-2.5 rounded-xl bg-red-950 hover:bg-red-900 border border-red-700 text-xs font-bold text-white transition">
+                    Đóng cửa sổ
+                </button>
+            </div>
+        </div>
 
     </main>
 
@@ -720,16 +824,61 @@
                 correct: 3
             },
             {
-                category: "Phương trình dao động",
-                title: "Một vật dao động điều hòa theo phương trình x = Acos(ωt + φ) (ω > 0). Tần số góc của dao động là:",
-                options: ["A", "ω", "φ", "x"],
-                correct: 1
+                category: "Nhận biết phương trình",
+                title: "Phương trình nào sau đây là phương trình của dao động điều hòa?",
+                options: [
+                    "x = Acos(ωt + φ)",
+                    "x = At + φ",
+                    "x = Atan(ωt + φ)",
+                    "x = At² + v₀t"
+                ],
+                correct: 0
             },
             {
-                category: "Biên độ dao động",
-                title: "Một vật dao động điều hòa theo phương trình x = Acos(ωt + φ) (A > 0). Biên độ dao động của vật là:",
-                options: ["A", "φ", "ω", "x"],
-                correct: 0
+                category: "Đồ thị vận tốc",
+                title: "Một chất điểm đang dao động điều hòa trên phương nằm ngang với biên độ A, có đồ thị biểu diễn sự phụ thuộc của vận tốc tức thời v theo thời gian t như hình vẽ bên. Giá trị của A là:",
+                options: ["14,4 cm", "7,2 cm", "10,8 cm", "5,4 cm"],
+                correct: 0,
+                graphSvg: `<svg class="w-full max-w-[340px] sm:max-w-[390px] h-auto mx-auto rounded-2xl shadow-lg border border-blue-400/40 bg-slate-50 p-1" viewBox="0 0 420 220">
+                    <rect width="420" height="220" rx="14" fill="#f8fafc"/>
+                    <!-- Lưới tọa độ nét đứt xanh dương -->
+                    <g stroke="#93c5fd" stroke-width="1.2" stroke-dasharray="3 3">
+                        <line x1="65" y1="30" x2="365" y2="30"/>
+                        <line x1="65" y1="70" x2="365" y2="70"/>
+                        <line x1="65" y1="150" x2="365" y2="150"/>
+                        <line x1="65" y1="190" x2="365" y2="190"/>
+                        <line x1="95" y1="30" x2="95" y2="190"/>
+                        <line x1="125" y1="30" x2="125" y2="190"/>
+                        <line x1="155" y1="30" x2="155" y2="190"/>
+                        <line x1="185" y1="30" x2="185" y2="190"/>
+                        <line x1="215" y1="30" x2="215" y2="190"/>
+                        <line x1="245" y1="30" x2="245" y2="190"/>
+                        <line x1="275" y1="30" x2="275" y2="190"/>
+                        <line x1="305" y1="30" x2="305" y2="190"/>
+                        <line x1="335" y1="30" x2="335" y2="190"/>
+                        <line x1="365" y1="30" x2="365" y2="190"/>
+                    </g>
+                    <!-- Trục hoành t (s) -->
+                    <line x1="45" y1="110" x2="395" y2="110" stroke="#1e3a8a" stroke-width="2"/>
+                    <polygon points="395,106 405,110 395,114" fill="#1e3a8a"/>
+                    <text x="396" y="104" font-family="'Nunito', sans-serif" font-weight="900" font-size="13" fill="#1e3a8a">t (s)</text>
+                    <!-- Trục tung v (cm/s) -->
+                    <line x1="65" y1="200" x2="65" y2="22" stroke="#1e3a8a" stroke-width="2"/>
+                    <polygon points="61,22 65,12 69,22" fill="#1e3a8a"/>
+                    <text x="73" y="20" font-family="'Nunito', sans-serif" font-weight="900" font-size="13" fill="#1e3a8a">v (cm/s)</text>
+                    <!-- Các mốc trục v -->
+                    <text x="58" y="34" text-anchor="end" font-family="'Nunito', sans-serif" font-weight="800" font-size="12" fill="#1e3a8a">24 π</text>
+                    <text x="58" y="74" text-anchor="end" font-family="'Nunito', sans-serif" font-weight="800" font-size="12" fill="#1e3a8a">12 π</text>
+                    <text x="56" y="107" text-anchor="end" font-family="'Nunito', sans-serif" font-weight="800" font-size="13" fill="#1e3a8a">O</text>
+                    <text x="58" y="154" text-anchor="end" font-family="'Nunito', sans-serif" font-weight="800" font-size="12" fill="#1e3a8a">-12π</text>
+                    <text x="58" y="194" text-anchor="end" font-family="'Nunito', sans-serif" font-weight="800" font-size="12" fill="#1e3a8a">-24π</text>
+                    <!-- Các mốc trục t -->
+                    <text x="185" y="102" text-anchor="middle" font-family="'Nunito', sans-serif" font-weight="900" font-size="13" fill="#1d4ed8">0,6</text>
+                    <text x="305" y="102" text-anchor="middle" font-family="'Nunito', sans-serif" font-weight="900" font-size="13" fill="#1d4ed8">1,2</text>
+                    <!-- Đường đồ thị hình sin/cos -->
+                    <path d="M 65 190 C 115 190, 135 30, 185 30 C 235 30, 255 190, 305 190 C 330 190, 350 145, 355 130" fill="none" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
+                </svg>`,
+                explanation: "Từ đỉnh đến đáy: T/2 = 1,2 - 0,6 = 0,6 s ⇒ T = 1,2 s ⇒ ω = 2π/T = 5π/3 rad/s.<br>Vận tốc cực đại vmax = ωA = 24π cm/s ⇒ A = 24π / (5π/3) = 14,4 cm (Chọn A)."
             },
             {
                 category: "Tính toán li độ",
@@ -738,10 +887,15 @@
                 correct: 3
             },
             {
-                category: "Đơn vị tần số góc",
-                title: "Đơn vị của tần số góc (ω) trong dao động điều hòa là:",
-                options: ["Hz", "cm", "rad", "rad/s"],
-                correct: 3
+                category: "Chu kì dao động",
+                title: "Khoảng thời gian ngắn nhất để vật thực hiện được một dao động toàn phần được gọi là:",
+                options: [
+                    "Tần số dao động.",
+                    "Chu kì dao động.",
+                    "Biên độ dao động.",
+                    "Pha dao động."
+                ],
+                correct: 1
             },
             {
                 category: "Biên độ & Pha ban đầu",
@@ -858,12 +1012,86 @@
             }, 2800);
         }
 
-        // ================= MQTT CLOUD WEBSOCKET CLIENT =================
         const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
         
         let mqttClient = null;
         let roomPin = "";
         let isHost = false;
+        let isWebSocketSupported = null;
+
+        // KIỂM TRA AN TOÀN TRƯỚC KHI GỌI WEBSOCKET ĐỂ TRÁNH SECURITYERROR TRONG CANVAS
+        function checkWebSocketSafe() {
+            if (isWebSocketSupported !== null) return isWebSocketSupported;
+            try {
+                if (typeof WebSocket === 'undefined') {
+                    isWebSocketSupported = false;
+                    return false;
+                }
+                // Thử tạo một kết nối tạm thời trong khối try/catch
+                const testWs = new WebSocket('wss://broker.emqx.io:8084/mqtt');
+                testWs.close();
+                isWebSocketSupported = true;
+            } catch (err) {
+                isWebSocketSupported = false;
+                console.warn("[NetBus] Môi trường Canvas giới hạn WebSocket. Hệ thống tự động chuyển sang Kênh Nội Bộ BroadcastChannel + LocalStorage.");
+            }
+            return isWebSocketSupported;
+        }
+
+        // KÊNH TRUYỀN NỘI BỘ (BROADCASTCHANNEL + LOCALSTORAGE) ĐỒNG BỘ MỌI TAB & CANVAS
+        const NetBus = {
+            hostChannel: null,
+            playerChannel: null,
+            init(pin, onHostMessage, onPlayerMessage) {
+                const hostChName = `bossraid_${pin}_host`;
+                const playerChName = `bossraid_${pin}_player`;
+
+                try {
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        if (onHostMessage) {
+                            this.hostChannel = new BroadcastChannel(hostChName);
+                            this.hostChannel.onmessage = (e) => { if (e.data) onHostMessage(e.data); };
+                        }
+                        if (onPlayerMessage) {
+                            this.playerChannel = new BroadcastChannel(playerChName);
+                            this.playerChannel.onmessage = (e) => { if (e.data) onPlayerMessage(e.data); };
+                        }
+                    }
+                } catch (e) {}
+
+                // Cơ chế dự phòng bổ sung qua LocalStorage Event
+                window.addEventListener('storage', (e) => {
+                    try {
+                        if (onHostMessage && e.key === hostChName && e.newValue) {
+                            onHostMessage(JSON.parse(e.newValue));
+                        }
+                        if (onPlayerMessage && e.key === playerChName && e.newValue) {
+                            onPlayerMessage(JSON.parse(e.newValue));
+                        }
+                    } catch (err) {}
+                });
+            },
+            publishToHost(pin, data) {
+                const hostChName = `bossraid_${pin}_host`;
+                if (this.hostChannel) {
+                    try { this.hostChannel.postMessage(data); } catch(e) {}
+                }
+                try {
+                    localStorage.setItem(hostChName, JSON.stringify(data));
+                    setTimeout(() => { try { localStorage.removeItem(hostChName); } catch(e){} }, 40);
+                } catch(e) {}
+            },
+            publishToPlayer(pin, data) {
+                const playerChName = `bossraid_${pin}_player`;
+                if (this.playerChannel) {
+                    try { this.playerChannel.postMessage(data); } catch(e) {}
+                }
+                try {
+                    localStorage.setItem(playerChName, JSON.stringify(data));
+                    setTimeout(() => { try { localStorage.removeItem(playerChName); } catch(e){} }, 40);
+                } catch(e) {}
+            }
+        };
 
         let hostState = {
             players: {},
@@ -874,10 +1102,10 @@
             isRoundEnded: false,
             bossMaxHp: 2500,
             bossCurrentHp: 2500,
-            eliminatedThisRound: []
+            eliminatedThisRound: [],
+            botTimers: []
         };
 
-        // Khôi phục hoặc tạo mới playerId ổn định qua SessionStorage
         let storedPlayerId = sessionStorage.getItem('boss_player_id');
         if (!storedPlayerId) {
             storedPlayerId = "hero_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36);
@@ -895,14 +1123,15 @@
             hero: null,
             selectedChoice: null,
             joinRetryInterval: null,
-            joinAttempts: 0
+            joinAttempts: 0,
+            playerTimer: 30,
+            playerTimerInterval: null
         };
 
         function hideAllScreens() {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
         }
 
-        // TÍNH MÁU BOSS CHUẨN XÁC THEO CÁC MỐC SỐ LƯỢNG NGƯỜI CHƠI
         function calculateBossHpByPlayerCount(count) {
             if (count <= 2) return 2500;
             if (count <= 5) return 4000;
@@ -914,7 +1143,6 @@
             return 30000;
         }
 
-        // ================= HOST (MÁY CHIẾU) =================
         function initHostMode() {
             isHost = true;
             hideAllScreens();
@@ -923,27 +1151,83 @@
             roomPin = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('hostPinDisplay').innerText = roomPin;
 
-            const clientId = "boss_host_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
-            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
+            generateHostQrCode();
 
-            mqttClient.on('connect', () => {
-                const playerTopic = `bossraid/${roomPin}/player`;
-                mqttClient.subscribe(playerTopic, { qos: 1 });
+            // Khởi tạo kênh nội bộ an toàn
+            NetBus.init(roomPin, null, (data) => {
+                handleHostIncomingData(data);
             });
 
-            mqttClient.on('message', (topic, message) => {
+            // Nếu WebSocket được phép bên ngoài Canvas thì mới kích hoạt MQTT
+            if (checkWebSocketSafe()) {
                 try {
-                    const data = JSON.parse(message.toString());
-                    handleHostIncomingData(data);
-                } catch(e) {}
-            });
+                    const clientId = "boss_host_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
+                    mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 4000 });
+
+                    mqttClient.on('connect', () => {
+                        const playerTopic = `bossraid/${roomPin}/player`;
+                        mqttClient.subscribe(playerTopic, { qos: 1 });
+                        const badge = document.getElementById('hostNetworkBadge');
+                        if (badge) badge.innerText = "Kênh Đám Mây MQTT + Bus";
+                    });
+
+                    mqttClient.on('message', (topic, message) => {
+                        try {
+                            const data = JSON.parse(message.toString());
+                            handleHostIncomingData(data);
+                        } catch(e) {}
+                    });
+
+                    mqttClient.on('error', () => {
+                        console.warn("[MQTT] Chuyển đổi sang sử dụng NetBus hoàn toàn.");
+                    });
+                } catch (e) {
+                    console.warn("[MQTT] Bỏ qua kết nối trực tiếp do giới hạn bảo mật Sandbox.", e);
+                }
+            }
         }
 
         function hostPublish(data) {
+            // Phát sóng qua kênh nội bộ an toàn (hoạt động 100% không cần server)
+            NetBus.publishToHost(roomPin, data);
+
+            // Đồng thời phát qua MQTT nếu khả dụng
             if (mqttClient && mqttClient.connected) {
-                const hostTopic = `bossraid/${roomPin}/host`;
-                mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 1 });
+                try {
+                    const hostTopic = `bossraid/${roomPin}/host`;
+                    mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 1 });
+                } catch(e) {}
             }
+        }
+
+        function addDemoBots(botCount = 4) {
+            const botNames = [
+                { name: "Hiệp Sĩ Sấm Sét", class: "11A1" },
+                { name: "Pháp Sư Băng Ngục", class: "11A1" },
+                { name: "Chiến Binh Dung Nham", class: "11A2" },
+                { name: "Valkyrie Cuồng Phong", class: "11A2" },
+                { name: "Xạ Thủ Ánh Sáng", class: "11A3" },
+                { name: "Thánh Quang Hộ Vệ", class: "11A3" }
+            ];
+
+            for (let i = 0; i < botCount; i++) {
+                const botInfo = botNames[i % botNames.length];
+                const botId = "bot_" + (i + 1) + "_" + Math.random().toString(36).substring(2, 6);
+                handleHostIncomingData({
+                    type: 'PLAYER_JOIN',
+                    playerId: botId,
+                    name: botInfo.name,
+                    className: botInfo.class,
+                    isBot: true
+                });
+            }
+            showToast(`✓ Đã thêm ${botCount} Hiệp Sĩ Thử Nghiệm vào phòng!`, true);
+        }
+
+        function clearDemoBots() {
+            hostState.players = {};
+            updateHostLobbyUI();
+            showToast("Đã làm mới danh sách hiệp sĩ!", true);
         }
 
         function handleHostIncomingData(data) {
@@ -951,7 +1235,6 @@
                 const pId = data.playerId;
                 if (!pId) return;
 
-                // Xử lý chống trùng lặp và khôi phục khi học sinh tải lại trang
                 if (!hostState.players[pId]) {
                     const hero = HERO_CLASSES[Object.keys(hostState.players).length % HERO_CLASSES.length];
                     hostState.players[pId] = {
@@ -959,6 +1242,7 @@
                         name: data.name || "Hiệp sĩ",
                         className: data.className || "11A",
                         hero: hero,
+                        isBot: Boolean(data.isBot),
                         hp: 100,
                         atk: 0,
                         streak: 0,
@@ -975,13 +1259,11 @@
                     Sound.tick();
                     updateHostLobbyUI();
                 } else {
-                    // Cập nhật lại tên/lớp nếu học sinh đổi lại
                     hostState.players[pId].name = data.name || hostState.players[pId].name;
                     hostState.players[pId].className = data.className || hostState.players[pId].className;
                     updateHostLobbyUI();
                 }
 
-                // Gửi xác nhận lại ngay cho học sinh để dừng vòng lặp retry
                 const p = hostState.players[pId];
                 hostPublish({ 
                     type: 'JOIN_ACK', 
@@ -1016,11 +1298,9 @@
                         p.correctCount++;
                         p.streak++;
 
-                        // TÍNH ĐIỂM TỪ 70 ĐẾN 120 DỰA VÀO THỜI GIAN
                         const timeRatio = Math.max(0, hostState.timer / 30);
                         let pointGain = Math.round(70 + 50 * timeRatio);
 
-                        // BONUS CHUỖI ĐÚNG +10 ĐIỂM
                         let streakBonus = 0;
                         if (p.streak >= 2) {
                             streakBonus = 10;
@@ -1046,7 +1326,6 @@
                     } else {
                         p.streak = 0;
                         p.roundAtkGained = 0;
-                        // TRẢ LỜI SAI: -20 HP, 0 ATK
                         p.hp = Math.max(0, p.hp - 20);
                         p.roundHpGained = -20;
 
@@ -1138,6 +1417,18 @@
             document.getElementById('hostQCategory').innerText = q.category;
             document.getElementById('hostQuestionTitle').innerText = q.title;
 
+            // Hiển thị đồ thị nếu câu hỏi có chứa đồ thị SVG
+            const hostGraphBox = document.getElementById('hostQuestionGraphBox');
+            if (hostGraphBox) {
+                if (q.graphSvg) {
+                    hostGraphBox.innerHTML = q.graphSvg;
+                    hostGraphBox.classList.remove('hidden');
+                } else {
+                    hostGraphBox.innerHTML = '';
+                    hostGraphBox.classList.add('hidden');
+                }
+            }
+
             for (let idx = 0; idx < 4; idx++) {
                 document.getElementById(`optText${idx}`).innerText = q.options[idx];
                 const card = document.getElementById(`hostOptCard${idx}`);
@@ -1156,13 +1447,34 @@
             document.getElementById('hostAlivePlayers').innerText = aliveCount;
             document.getElementById('hostAnsweredCount').innerText = "0";
 
-            // Update top boss HP bar
             const hpPercent = Math.max(0, Math.round((hostState.bossCurrentHp / hostState.bossMaxHp) * 100));
             document.getElementById('hostTopBossHpText').innerText = `HP: ${hostState.bossCurrentHp.toLocaleString()} / ${hostState.bossMaxHp.toLocaleString()} (${hpPercent}%)`;
             document.getElementById('hostTopBossHpBar').style.width = `${hpPercent}%`;
 
             renderHostLiveSquadHud();
             hostPublish({ type: 'QUESTION_START', qIndex: hostState.currentQIndex });
+
+            // TỰ ĐỘNG TẠO HÀNH ĐỘNG XUẤT CHIÊU CHO CÁC HIỆP SĨ BOT TRONG CANVAS
+            hostState.botTimers.forEach(t => clearTimeout(t));
+            hostState.botTimers = [];
+
+            const aliveBots = Object.values(hostState.players).filter(p => p.isAlive && p.isBot);
+            aliveBots.forEach(bot => {
+                const randomDelay = 2000 + Math.random() * 14000;
+                const willBeCorrect = Math.random() < 0.75;
+                const botChoice = willBeCorrect ? q.correct : (q.correct + 1 + Math.floor(Math.random() * 3)) % 4;
+
+                const timer = setTimeout(() => {
+                    if (!hostState.isRoundEnded && bot.isAlive && bot.currentAnswer === null) {
+                        handleHostIncomingData({
+                            type: 'PLAYER_ANSWER',
+                            playerId: bot.id,
+                            choice: botChoice
+                        });
+                    }
+                }, randomDelay);
+                hostState.botTimers.push(timer);
+            });
 
             hostState.timer = 30;
             hostState.startTime = Date.now();
@@ -1251,7 +1563,6 @@
             hostState.isRoundEnded = true;
             clearInterval(hostState.timerInterval);
 
-            // Ghi nhận hết giờ
             Object.values(hostState.players).forEach(p => {
                 if (p.isAlive && p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
                     p.answerHistory[hostState.currentQIndex] = {
@@ -1279,6 +1590,15 @@
             }
 
             Sound.correct();
+            const expBox = document.getElementById('hostExplanationBox');
+            if (expBox) {
+                if (q.explanation) {
+                    expBox.innerHTML = `<span class="text-amber-400 font-black">💡 HƯỚNG DẪN GIẢI CHI TIẾT:</span><br>${q.explanation}`;
+                    expBox.classList.remove('hidden');
+                } else {
+                    expBox.classList.add('hidden');
+                }
+            }
             document.getElementById('hostQuestionActionArea').classList.remove('hidden');
         }
 
@@ -1295,7 +1615,6 @@
             const arena = document.getElementById('bossBattleArena');
             const body = document.getElementById('appBody');
 
-            // 1. TÍNH TỔNG SÁT THƯƠNG HIỆP SĨ GÂY RA CHO BOSS
             let totalDamageToBoss = 0;
             Object.values(hostState.players).forEach(p => {
                 if (p.isAlive && p.roundAtkGained > 0) {
@@ -1310,7 +1629,6 @@
             document.getElementById('bossHpNumber').innerText = `${hostState.bossCurrentHp.toLocaleString()} / ${hostState.bossMaxHp.toLocaleString()} HP (${hpPercent}%)`;
             document.getElementById('bossBattleHpBar').style.width = `${hpPercent}%`;
 
-            // 2. BOSS PHẢN KÍCH SÁT THƯƠNG (-50 HP MỖI NGƯỜI CHƠI CÒN SỐNG)
             setTimeout(() => {
                 Sound.bossRoar();
                 arena.classList.add('shake-damage');
@@ -1321,7 +1639,6 @@
                     body.classList.remove('flash-red');
                 }, 800);
 
-                // Trừ 50 HP của tất cả người chơi còn sống
                 hostState.eliminatedThisRound = [];
                 Object.values(hostState.players).forEach(p => {
                     if (p.isAlive) {
@@ -1522,7 +1839,6 @@
             hostPublish({ type: 'FINAL_PODIUM', isBossDefeated: isBossDefeated });
         }
 
-        // ================= XUẤT EXCEL THEO LỚP =================
         function exportBossRaidExcel() {
             const players = Object.values(hostState.players);
             if (players.length === 0) {
@@ -1576,7 +1892,65 @@
             showToast("✓ Đã sao chép đường dẫn: " + url, true);
         }
 
-        // ================= PLAYER (ĐIỆN THOẠI HỌC SINH) =================
+        // ================= QR CODE GENERATOR & MODAL CONTROLS =================
+        function generateHostQrCode() {
+            const qrBox = document.getElementById('hostQrCodeBox');
+            if (!qrBox) return;
+            qrBox.innerHTML = '';
+
+            const modalBox = document.getElementById('modalQrCodeBox');
+            if (modalBox) modalBox.innerHTML = '';
+
+            const modalPin = document.getElementById('modalPinText');
+            if (modalPin) modalPin.innerText = roomPin;
+
+            const joinUrl = window.location.href.split('?')[0] + `?pin=${roomPin}`;
+
+            try {
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrBox, {
+                        text: joinUrl,
+                        width: 124,
+                        height: 124,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+
+                    if (modalBox) {
+                        new QRCode(modalBox, {
+                            text: joinUrl,
+                            width: 230,
+                            height: 230,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                    }
+                } else {
+                    const fallbackSmall = `https://api.qrserver.com/v1/create-qr-code/?size=124x124&data=${encodeURIComponent(joinUrl)}`;
+                    qrBox.innerHTML = `<img src="${fallbackSmall}" alt="QR" class="w-full h-full object-contain">`;
+                    if (modalBox) {
+                        const fallbackLarge = `https://api.qrserver.com/v1/create-qr-code/?size=230x230&data=${encodeURIComponent(joinUrl)}`;
+                        modalBox.innerHTML = `<img src="${fallbackLarge}" alt="QR" class="w-full h-full object-contain">`;
+                    }
+                }
+            } catch (e) {
+                const fallbackSmall = `https://api.qrserver.com/v1/create-qr-code/?size=124x124&data=${encodeURIComponent(joinUrl)}`;
+                qrBox.innerHTML = `<img src="${fallbackSmall}" alt="QR" class="w-full h-full object-contain">`;
+            }
+        }
+
+        function openQrModal() {
+            const modal = document.getElementById('qrModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeQrModal() {
+            const modal = document.getElementById('qrModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
         function initPlayerMode() {
             isHost = false;
             hideAllScreens();
@@ -1616,68 +1990,83 @@
             document.getElementById('playerGameTeamLabel').innerText = name;
 
             statusMsg.classList.remove('hidden');
-            statusMsg.innerText = "Đang kết nối mỏ đốt và gửi chiến thư...";
+            statusMsg.innerText = "Đang kết nối vào đấu trường...";
             submitBtn.disabled = true;
 
-            // Xóa bộ đếm cũ nếu có
             if (playerState.joinRetryInterval) {
                 clearInterval(playerState.joinRetryInterval);
             }
             playerState.joinAttempts = 0;
 
-            const clientId = "player_" + roomPin + "_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
-            if (mqttClient) {
-                try { mqttClient.end(true); } catch(e) {}
-            }
-            mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 2000 });
+            // Khởi tạo kênh nội bộ an toàn cho Gamepad
+            NetBus.init(roomPin, (data) => {
+                handlePlayerIncomingData(data);
+            }, null);
 
             const sendJoinPacket = () => {
-                if (mqttClient && mqttClient.connected) {
-                    playerPublish({
-                        type: 'PLAYER_JOIN',
-                        playerId: playerState.playerId,
-                        name: playerState.myName,
-                        className: playerState.myClass
-                    });
-                }
+                playerPublish({
+                    type: 'PLAYER_JOIN',
+                    playerId: playerState.playerId,
+                    name: playerState.myName,
+                    className: playerState.myClass
+                });
             };
 
-            mqttClient.on('connect', () => {
-                const hostTopic = `bossraid/${roomPin}/host`;
-                mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
-                    sendJoinPacket();
-                });
+            // Gửi ngay lập tức qua kênh bus
+            sendJoinPacket();
 
-                // VÒNG LẶP GỬI LẠI (RETRY LOOP): Tự động phát lại yêu cầu gia nhập mỗi 1.2 giây nếu chưa nhận được JOIN_ACK
-                playerState.joinRetryInterval = setInterval(() => {
-                    if (playerState.hero) {
-                        clearInterval(playerState.joinRetryInterval);
-                        return;
-                    }
-                    playerState.joinAttempts++;
-                    if (playerState.joinAttempts > 6) {
-                        clearInterval(playerState.joinRetryInterval);
-                        statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mạng chập chờn!";
-                        submitBtn.disabled = false;
-                        showToast("Không tìm thấy mã phòng này, vui lòng kiểm tra lại!", false);
-                        return;
-                    }
-                    sendJoinPacket();
-                }, 1200);
-            });
-
-            mqttClient.on('message', (topic, message) => {
+            // Nếu WebSocket an toàn thì mới thử kết nối MQTT
+            if (checkWebSocketSafe()) {
                 try {
-                    const data = JSON.parse(message.toString());
-                    handlePlayerIncomingData(data);
+                    const clientId = "player_" + roomPin + "_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
+                    if (mqttClient) {
+                        try { mqttClient.end(true); } catch(e) {}
+                    }
+                    mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 4000 });
+
+                    mqttClient.on('connect', () => {
+                        const hostTopic = `bossraid/${roomPin}/host`;
+                        mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
+                            sendJoinPacket();
+                        });
+                    });
+
+                    mqttClient.on('message', (topic, message) => {
+                        try {
+                            const data = JSON.parse(message.toString());
+                            handlePlayerIncomingData(data);
+                        } catch(e) {}
+                    });
                 } catch(e) {}
-            });
+            }
+
+            playerState.joinRetryInterval = setInterval(() => {
+                if (playerState.hero) {
+                    clearInterval(playerState.joinRetryInterval);
+                    return;
+                }
+                playerState.joinAttempts++;
+                if (playerState.joinAttempts > 8) {
+                    clearInterval(playerState.joinRetryInterval);
+                    statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mã PIN chưa đúng!";
+                    submitBtn.disabled = false;
+                    showToast("Không tìm thấy mã phòng này, vui lòng kiểm tra lại!", false);
+                    return;
+                }
+                sendJoinPacket();
+            }, 1000);
         }
 
         function playerPublish(data) {
+            // Luôn gửi qua kênh nội bộ an toàn
+            NetBus.publishToPlayer(roomPin, data);
+
+            // Đồng thời gửi qua MQTT nếu có kết nối
             if (mqttClient && mqttClient.connected) {
-                const playerTopic = `bossraid/${roomPin}/player`;
-                mqttClient.publish(playerTopic, JSON.stringify(data), { qos: 1 });
+                try {
+                    const playerTopic = `bossraid/${roomPin}/player`;
+                    mqttClient.publish(playerTopic, JSON.stringify(data), { qos: 1 });
+                } catch(e) {}
             }
         }
 
@@ -1749,10 +2138,50 @@
                     document.getElementById('playerButtonGrid').classList.remove('hidden');
                     document.getElementById('playerSubmittedOverlay').classList.add('hidden');
                     updatePlayerBarsUI();
+
+                    // HIỂN THỊ CÂU HỎI VÀ ĐÁP ÁN TRÊN ĐIỆN THOẠI CỦA HỌC SINH
+                    const qIndex = data.qIndex !== undefined ? data.qIndex : 0;
+                    const q = QUESTIONS_DATA[qIndex];
+                    if (q) {
+                        document.getElementById('playerQCounter').innerText = `CÂU ${qIndex + 1}/${QUESTIONS_DATA.length}`;
+                        document.getElementById('playerQCategory').innerText = q.category;
+                        document.getElementById('playerQuestionTitle').innerText = q.title;
+
+                        // Hiển thị đồ thị trên điện thoại học sinh nếu có
+                        const playerGraphBox = document.getElementById('playerQuestionGraphBox');
+                        if (playerGraphBox) {
+                            if (q.graphSvg) {
+                                playerGraphBox.innerHTML = q.graphSvg;
+                                playerGraphBox.classList.remove('hidden');
+                            } else {
+                                playerGraphBox.innerHTML = '';
+                                playerGraphBox.classList.add('hidden');
+                            }
+                        }
+
+                        document.getElementById('playerOptText0').innerText = q.options[0];
+                        document.getElementById('playerOptText1').innerText = q.options[1];
+                        document.getElementById('playerOptText2').innerText = q.options[2];
+                        document.getElementById('playerOptText3').innerText = q.options[3];
+                    }
+
+                    // ĐẾM NGƯỢC 30 GIÂY TRÊN ĐIỆN THOẠI HỌC SINH
+                    clearInterval(playerState.playerTimerInterval);
+                    playerState.playerTimer = 30;
+                    document.getElementById('playerTimerText').innerText = `${playerState.playerTimer}s`;
+                    playerState.playerTimerInterval = setInterval(() => {
+                        playerState.playerTimer--;
+                        if (playerState.playerTimer >= 0) {
+                            document.getElementById('playerTimerText').innerText = `${playerState.playerTimer}s`;
+                        } else {
+                            clearInterval(playerState.playerTimerInterval);
+                        }
+                    }, 1000);
                 }
                 playerState.selectedChoice = null;
             }
             else if (data.type === 'ROUND_FEEDBACK' && data.playerId === playerState.playerId) {
+                clearInterval(playerState.playerTimerInterval);
                 hideAllScreens();
                 document.getElementById('playerFeedbackScreen').classList.remove('hidden');
 
@@ -1798,6 +2227,7 @@
                 updatePlayerBarsUI();
             }
             else if (data.type === 'PLAYER_ELIMINATED' && data.playerId === playerState.playerId) {
+                clearInterval(playerState.playerTimerInterval);
                 playerState.isAlive = false;
                 playerState.hp = 0;
                 hideAllScreens();
@@ -1805,6 +2235,7 @@
                 Sound.defeat();
             }
             else if (data.type === 'LEADERBOARD_STATE') {
+                clearInterval(playerState.playerTimerInterval);
                 hideAllScreens();
                 if (!playerState.isAlive) {
                     document.getElementById('playerEliminatedScreen').classList.remove('hidden');
@@ -1815,6 +2246,7 @@
                 }
             }
             else if (data.type === 'FINAL_PODIUM') {
+                clearInterval(playerState.playerTimerInterval);
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
                 document.getElementById('playerLobbyStatusText').innerText = data.isBossDefeated ? "🏆 HẮC LONG ĐÃ BỊ TIÊU DIỆT!" : "💀 TRẬN CHIẾN KẾT THÚC!";
@@ -1826,8 +2258,14 @@
             if (!playerState.isAlive || playerState.selectedChoice !== null) return;
             playerState.selectedChoice = choiceIndex;
 
+            const choiceLetters = ['A', 'B', 'C', 'D'];
+            const choiceLabel = choiceLetters[choiceIndex] || 'A';
+            const choiceTextElem = document.getElementById(`playerOptText${choiceIndex}`);
+            const choiceContent = choiceTextElem ? choiceTextElem.innerText : '';
+
             document.getElementById('playerButtonGrid').classList.add('hidden');
             document.getElementById('playerSubmittedOverlay').classList.remove('hidden');
+            document.getElementById('playerSubmittedChoiceLabel').innerText = `Bạn đã chọn [${choiceLabel}]: ${choiceContent}`;
             Sound.slash();
 
             playerPublish({
