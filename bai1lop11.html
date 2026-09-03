@@ -183,7 +183,7 @@
                         <div class="text-emerald-300 font-rpg font-black flex items-center gap-1.5 text-sm">
                             <span>⚔️</span> TRẢ LỜI ĐÚNG
                         </div>
-                        <p class="text-slate-300 leading-snug">Nhận từ <strong class="text-emerald-300 font-black">+70 đến +120</strong> ATK & HP (nhanh hơn nhận nhiều hơn).</p>
+                        <p class="text-slate-300 leading-snug">Nhận từ <strong class="text-emerald-300 font-black">+70 đến +120</strong> ATK & HP. Cuối hiệp chém Boss bằng <strong class="text-amber-300 font-black">toàn bộ ATK đang có</strong>!</p>
                     </div>
 
                     <!-- Mục 3: Chuỗi đúng & Sai -->
@@ -209,14 +209,14 @@
                         <i class="fa-solid fa-scale-balanced text-yellow-400"></i> Quy mô Máu Boss:
                     </span>
                     <div class="flex flex-wrap gap-1.5 font-semibold text-rose-200">
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">≤ 2: 2.5K HP</span>
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">3-5: 4K HP</span>
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">6-8: 6.5K HP</span>
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">9-10: 8K HP</span>
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">11-15: 12.5K HP</span>
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">16-20: 16K HP</span>
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">21-30: 25K HP</span>
-                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">&gt; 30: 30K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">≤ 2: 4.5K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">3-5: 12K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">6-8: 22K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">9-10: 30K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">11-15: 45K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">16-20: 65K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">21-30: 90K HP</span>
+                        <span class="bg-black/60 px-2 py-0.5 rounded border border-red-800">&gt; 30: 120K HP</span>
                     </div>
                 </div>
             </div>
@@ -1104,8 +1104,8 @@
             timerInterval: null,
             startTime: 0,
             isRoundEnded: false,
-            bossMaxHp: 2500,
-            bossCurrentHp: 2500,
+            bossMaxHp: 4500,
+            bossCurrentHp: 4500,
             eliminatedThisRound: [],
             botTimers: []
         };
@@ -1137,14 +1137,14 @@
         }
 
         function calculateBossHpByPlayerCount(count) {
-            if (count <= 2) return 2500;
-            if (count <= 5) return 4000;
-            if (count <= 8) return 6500;
-            if (count <= 10) return 8000;
-            if (count <= 15) return 12500;
-            if (count <= 20) return 16000;
-            if (count <= 30) return 25000;
-            return 30000;
+            if (count <= 2) return 4500;
+            if (count <= 5) return 12000;
+            if (count <= 8) return 22000;
+            if (count <= 10) return 30000;
+            if (count <= 15) return 45000;
+            if (count <= 20) return 65000;
+            if (count <= 30) return 90000;
+            return 120000;
         }
 
         function initHostMode() {
@@ -1619,10 +1619,13 @@
             const arena = document.getElementById('bossBattleArena');
             const body = document.getElementById('appBody');
 
+            // CƠ CHẾ MỚI: MÁU BOSS BỊ TRỪ BẰNG TỔNG LƯỢNG ATK ĐANG CÓ CỦA CÁC HIỆP SĨ XUẤT CHIÊU ĐÚNG
             let totalDamageToBoss = 0;
+            let hitCount = 0;
             Object.values(hostState.players).forEach(p => {
                 if (p.isAlive && p.roundAtkGained > 0) {
-                    totalDamageToBoss += p.roundAtkGained;
+                    totalDamageToBoss += p.atk; // Trừ thẳng bằng toàn bộ lượng ATK học sinh đang có
+                    hitCount++;
                 }
             });
 
@@ -1632,6 +1635,13 @@
             const hpPercent = Math.max(0, Math.round((hostState.bossCurrentHp / hostState.bossMaxHp) * 100));
             document.getElementById('bossHpNumber').innerText = `${hostState.bossCurrentHp.toLocaleString()} / ${hostState.bossMaxHp.toLocaleString()} HP (${hpPercent}%)`;
             document.getElementById('bossBattleHpBar').style.width = `${hpPercent}%`;
+
+            const statusTxt = document.getElementById('bossBattleStatusText');
+            if (statusTxt) {
+                statusTxt.innerHTML = totalDamageToBoss > 0
+                    ? `⚡ <span class="text-amber-300 font-bold">${hitCount} Hiệp sĩ</span> tung tuyệt kỹ chém <strong class="text-yellow-300 font-black">-${totalDamageToBoss.toLocaleString()} HP</strong> (bằng lượng ATK đang có)! Boss phản kích (-50 HP)!`
+                    : `❌ Không có đòn đánh trúng mục tiêu ở hiệp này! Boss gầm thét phản kích (-50 HP)!`;
+            }
 
             setTimeout(() => {
                 Sound.bossRoar();
@@ -2206,7 +2216,7 @@
                     document.getElementById('playerFeedbackIcon').innerText = "⚔️";
                     document.getElementById('playerFeedbackTitle').innerText = "CHÉM TRÚNG CHÍ MẠNG!";
                     document.getElementById('playerFeedbackTitle').className = "text-2xl sm:text-3xl font-rpg font-black text-emerald-400 mb-1";
-                    document.getElementById('playerFeedbackPts').innerText = `+${data.pointGain} ATK & HP`;
+                    document.getElementById('playerFeedbackPts').innerText = `+${data.pointGain} ATK & HP (Sức đánh: ${data.atk} ATK)`;
                 } else {
                     Sound.wrong();
                     document.getElementById('playerFeedbackIcon').innerText = "❌";
