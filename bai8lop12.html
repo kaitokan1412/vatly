@@ -29,7 +29,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts: Montserrat & Nunito (Hỗ trợ 100% tiếng Việt có dấu chuẩn) -->
+    <!-- Google Fonts: Montserrat & Nunito (Hỗ trợ tiếng Việt có dấu chuẩn) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -77,7 +77,7 @@
             border-color: rgba(216, 180, 254, 0.4);
         }
 
-        /* Vòng ma pháp xoay vòng */
+        /* Vòng ma pháp xoay tròn */
         @keyframes magicSpin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -86,10 +86,16 @@
             animation: magicSpin 24s linear infinite;
         }
 
-        /* Thực thể lơ lửng */
+        /* Thực thể lơ lửng & tỏa hào quang nguyên tố */
         @keyframes bossLevitate {
-            0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 35px var(--glow-color, rgba(168, 85, 247, 0.8))); }
-            50% { transform: translateY(-14px) scale(1.03); filter: drop-shadow(0 0 55px var(--glow-color, rgba(236, 72, 153, 0.95))); }
+            0%, 100% { 
+                transform: translateY(0px) scale(1); 
+                filter: drop-shadow(0 0 25px var(--glow-color, rgba(168, 85, 247, 0.8))); 
+            }
+            50% { 
+                transform: translateY(-12px) scale(1.03); 
+                filter: drop-shadow(0 0 45px var(--glow-color, rgba(236, 72, 153, 0.95))); 
+            }
         }
         .boss-levitate {
             animation: bossLevitate 3.2s ease-in-out infinite;
@@ -197,7 +203,7 @@
                 <p class="text-xs sm:text-sm text-purple-300/90 font-bold mt-0.5">Chọn vai trò tham gia đấu trường đối đầu Thực Thể Động Học Phân Tử Khí</p>
             </div>
 
-            <!-- CHỌN VAI TRÒ THAM GIA (ĐƯA LÊN TRUNG TÂM NỔI BẬT) -->
+            <!-- CHỌN VAI TRÒ THAM GIA -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <!-- CARD MÁY CHIẾU (GIÁO VIÊN) -->
                 <button onclick="initHostMode()" class="p-6 sm:p-7 rounded-[2rem] bg-gradient-to-b from-purple-950/90 via-black/85 to-black/95 border-2 border-purple-500/50 hover:border-amber-400 shadow-2xl transition transform hover:-translate-y-1.5 active:scale-95 flex flex-col items-center justify-between group relative overflow-hidden">
@@ -228,7 +234,7 @@
                 </button>
             </div>
 
-            <!-- BẢNG LUẬT THI ĐẤU NGŨ HÀNH & TƯƠNG KHẮC (GỌN GÀNG) -->
+            <!-- BẢNG LUẬT THI ĐẤU NGŨ HÀNH & TƯƠNG KHẮC -->
             <div class="p-4 sm:p-5 rounded-3xl bg-black/75 border border-purple-500/40 text-left shadow-xl">
                 <div class="flex flex-wrap items-center justify-between border-b border-purple-900/60 pb-2 mb-2.5 gap-2">
                     <h3 class="text-xs sm:text-sm font-rpg font-black text-amber-300 uppercase flex items-center gap-2">
@@ -242,15 +248,15 @@
                 <!-- BẢNG VÒNG TRÒN TƯƠNG KHẮC NGUYÊN TỐ -->
                 <div class="p-2 sm:p-2.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 mb-2.5 text-xs">
                     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-[11px] font-black">
-                        <span class="text-sky-300 bg-sky-950/90 px-2 py-0.5 rounded-lg border border-sky-600">Thủy (Bích Ba Trụy)</span>
+                        <span class="text-sky-300 bg-sky-950/90 px-2 py-0.5 rounded-lg border border-sky-600">Thủy (Thủy Áp Xung Kích)</span>
                         <span class="text-amber-400">➔</span>
-                        <span class="text-red-400 bg-red-950/90 px-2 py-0.5 rounded-lg border border-red-600">Hỏa (Viêm Ma Nộ Phá)</span>
+                        <span class="text-red-400 bg-red-950/90 px-2 py-0.5 rounded-lg border border-red-600">Hỏa (Nhiệt Động Bộc Phát)</span>
                         <span class="text-amber-400">➔</span>
-                        <span class="text-teal-300 bg-teal-950/90 px-2 py-0.5 rounded-lg border border-teal-600">Phong (Tật Phong Thiểm Ảnh)</span>
+                        <span class="text-teal-300 bg-teal-950/90 px-2 py-0.5 rounded-lg border border-teal-600">Phong (Cuồng Phong Đối Lưu)</span>
                         <span class="text-amber-400">➔</span>
-                        <span class="text-emerald-300 bg-emerald-950/90 px-2 py-0.5 rounded-lg border border-emerald-600">Mộc (Vạn Diệp Phi Đao)</span>
+                        <span class="text-emerald-300 bg-emerald-950/90 px-2 py-0.5 rounded-lg border border-emerald-600">Mộc (Năng Lượng Sinh Khối)</span>
                         <span class="text-amber-400">➔</span>
-                        <span class="text-amber-300 bg-amber-950/90 px-2 py-0.5 rounded-lg border border-amber-600">Thổ (Địa Chấn Liệt Bình)</span>
+                        <span class="text-amber-300 bg-amber-950/90 px-2 py-0.5 rounded-lg border border-amber-600">Thổ (Kiến Tạo Địa Tầng)</span>
                         <span class="text-amber-400">➔</span>
                         <span class="text-sky-300 bg-sky-950/90 px-2 py-0.5 rounded-lg border border-sky-600">Thủy</span>
                     </div>
@@ -266,9 +272,9 @@
 
                     <div class="p-2 rounded-xl bg-black/50 border border-emerald-800/40">
                         <div class="text-emerald-300 font-rpg font-black flex items-center gap-1 mb-0.5">
-                            <span>⚔️</span> KHẮC HỆ +50%
+                            <span>⚔️</span> KHẮC HỆ CRIT ATK
                         </div>
-                        <p class="text-slate-300 leading-tight">Đúng nhận +70-120 ATK. Khắc hệ Boss nhận thêm +50% ATK!</p>
+                        <p class="text-slate-300 leading-tight">Đúng nhận +70-120 ATK. Khắc hệ Boss kích hoạt Crit ATK +50%!</p>
                     </div>
 
                     <div class="p-2 rounded-xl bg-black/50 border border-orange-800/40">
@@ -307,7 +313,7 @@
 
             <!-- NỘI DUNG 2 CỘT CÂN XỨNG -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-                <!-- CỘT TRÁI (5 CỘT): KHU VỰC THỰC THỂ NGUYÊN TỐ XUẤT THẾ -->
+                <!-- CỘT TRÁI: KHU VỰC THỰC THỂ NGUYÊN TỐ XUẤT THẾ -->
                 <div class="lg:col-span-5 flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-black/80 border-2 border-purple-500/50 relative overflow-hidden shadow-xl">
                     <div id="hostLobbyBossCircle" class="absolute inset-0 m-auto w-56 h-56 rounded-full pointer-events-none opacity-25 flex items-center justify-center">
                         <svg viewBox="0 0 300 300" class="w-full h-full magic-circle-spin">
@@ -328,7 +334,7 @@
                         </div>
 
                         <!-- Vector SVG Thực Thể động -->
-                        <div id="hostLobbyBossAvatar" class="w-32 h-44 sm:w-40 sm:h-52 relative flex items-center justify-center boss-levitate my-1">
+                        <div id="hostLobbyBossAvatar" class="w-48 h-56 sm:w-56 sm:h-64 relative flex items-center justify-center boss-levitate my-1">
                             <!-- SVG Graphics -->
                         </div>
 
@@ -336,25 +342,23 @@
                             HỎA THỰC THỂ
                         </h3>
                         <p id="hostLobbyBossSkillDesc" class="text-xs text-purple-200 mt-1 font-bold">
-                            Đại chiêu: <strong class="text-amber-300">Viêm Ma Nộ Phá</strong>
+                            Đại chiêu: <strong class="text-amber-300">Nhiệt Động Bộc Phát</strong>
                         </p>
                     </div>
 
                     <!-- Gợi ý chiến thuật khắc hệ -->
                     <div id="hostLobbyCounterHint" class="relative z-10 mt-3 p-2.5 rounded-xl bg-purple-950/80 border border-purple-500/40 text-[11px] text-slate-200 font-semibold leading-relaxed">
-                        <span class="text-amber-300 font-bold">🎯 Điểm yếu nguyên tố:</span> Hiệp sĩ chọn hệ khắc chế sẽ nhận <strong class="text-emerald-400 font-bold">+50% ATK</strong>!
+                        <span class="text-amber-300 font-bold">🎯 Điểm yếu nguyên tố:</span> Hiệp sĩ chọn hệ khắc chế sẽ kích hoạt <strong class="text-emerald-400 font-bold">Crit ATK +50%</strong>!
                     </div>
 
-                    <!-- Nút khai màn trận chiến nằm ngay dưới Thực Thể -->
                     <button onclick="hostStartGame()" id="hostStartBtn" class="relative z-10 mt-4 w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-rpg font-black text-base tracking-wider shadow-lg shadow-purple-600/40 hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2 disabled:opacity-40 disabled:pointer-events-none" disabled>
                         <span>KHAI MÀN ĐẠI CHIẾN!</span>
                         <i class="fa-solid fa-bolt text-yellow-300"></i>
                     </button>
                 </div>
 
-                <!-- CỘT PHẢI (7 CỘT): MÃ PIN TO RÕ, QR CODE & DANH SÁCH HỌC SINH -->
+                <!-- CỘT PHẢI: MÃ PIN, QR CODE & DANH SÁCH HIỆP SĨ -->
                 <div class="lg:col-span-7 flex flex-col gap-4">
-                    <!-- KHUNG MÃ PIN & QR CODE HÀNG NGANG -->
                     <div class="p-4 rounded-2xl bg-black/80 border border-purple-800/60 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
                         <div class="text-center sm:text-left flex-1">
                             <span class="text-[11px] uppercase font-extrabold text-purple-300 block">MÃ PHÒNG TRIỆU HỒI (GIÁO VIÊN)</span>
@@ -406,7 +410,7 @@
 
         <!-- 2. MÀN HÌNH CÂU HỎI GIÁO VIÊN -->
         <section id="hostQuestionScreen" class="w-full max-w-6xl mx-auto flex flex-col gap-3.5 hidden">
-            <!-- THANH MÁU THỰC THỂ NGUYÊN TỐ TRỰC TIẾP TRÊN ĐẦU CÂU HỎI -->
+            <!-- THANH MÁU THỰC THỂ TRỰC TIẾP TRÊN ĐẦU CÂU HỎI -->
             <div class="dungeon-panel p-3 sm:p-4 rounded-2xl flex flex-col gap-1.5 shadow-xl">
                 <div class="flex justify-between items-center text-xs font-rpg font-black">
                     <span class="text-purple-300 flex items-center gap-2">
@@ -439,7 +443,7 @@
                 </div>
             </div>
 
-            <!-- BỐ CỤC 2 CỘT CHÍNH (CÂU HỎI TRÁI 7 CỘT, LIVE HUD TIỂU ĐỘI PHẢI 5 CỘT) -->
+            <!-- BỐ CỤC 2 CỘT CHÍNH -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 <!-- CỘT TRÁI: TIÊU ĐỀ CÂU HỎI, ĐỒ THỊ & 4 ĐÁP ÁN -->
                 <div class="lg:col-span-7 flex flex-col gap-3">
@@ -450,7 +454,7 @@
                         <div id="hostQuestionGraphBox" class="w-full max-w-sm mx-auto hidden"></div>
                     </div>
 
-                    <!-- 4 ĐÁP ÁN VŨ KHÍ NGUYÊN TỐ (LƯỚI 2x2 TO RÕ) -->
+                    <!-- 4 ĐÁP ÁN VŨ KHÍ NGUYÊN TỐ -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="hostOptionsContainer">
                         <div id="hostOptCard0" class="p-3.5 sm:p-4 rounded-2xl btn-weapon-a flex items-center justify-between gap-3 text-white font-bold text-sm sm:text-base shadow transition-all duration-300">
                             <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -494,7 +498,7 @@
                     </div>
                 </div>
 
-                <!-- CỘT PHẢI: BẢNG CHỈ SỐ MÁU (HP) & ATK LIVE CỦA TIỂU ĐỘI TRONG LỚP -->
+                <!-- CỘT PHẢI: BẢNG LIVE HUD TIỂU ĐỘI -->
                 <div class="lg:col-span-5 flex flex-col gap-2.5">
                     <div id="hostLiveSquadHudSection" class="dungeon-panel p-3.5 sm:p-4 rounded-2xl flex flex-col gap-2.5 shadow-xl">
                         <div class="flex flex-wrap justify-between items-center border-b border-purple-900/50 pb-2 gap-1.5">
@@ -546,7 +550,9 @@
                 </div>
 
                 <div class="relative z-10 flex flex-col items-center">
-                    <div id="bossBattleAvatarBox" class="w-36 h-48 sm:w-48 sm:h-60 relative flex items-center justify-center boss-levitate mb-2"></div>
+                    <!-- KHUNG HIỂN THỊ BOSS SVG ĐÃ FIX HOÀN TOÀN -->
+                    <div id="bossBattleAvatarBox" class="w-56 h-64 sm:w-64 sm:h-72 relative flex items-center justify-center boss-levitate mb-2"></div>
+                    
                     <div class="flex items-center gap-2 mb-1">
                         <span id="bossBattleElementTag" class="px-3 py-0.5 rounded-full text-xs font-rpg font-black uppercase tracking-wider border shadow-md">
                             HỆ HỎA
@@ -563,7 +569,7 @@
 
                     <!-- BANNER TÊN CHIÊU THỨC THỰC THỂ TUNG RA -->
                     <div id="bossSkillBanner" class="mt-2.5 px-6 py-1.5 rounded-full bg-gradient-to-r from-red-600 via-amber-500 to-red-600 text-white font-rpg font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl border border-white/40 hidden animate-bounce">
-                        💥 ĐẠI CHIÊU: VIÊM MA NỘ PHÁ
+                        💥 ĐẠI CHIÊU: NHIỆT ĐỘNG BỘC PHÁ
                     </div>
 
                     <!-- THANH MÁU THỰC THỂ LỚN -->
@@ -732,34 +738,29 @@
                         <i class="fa-solid fa-fire-flame-curved"></i> CHỌN HỆ NGUYÊN TỐ CỦA BẠN:
                     </label>
                     <div class="grid grid-cols-5 gap-1.5" id="playerElementSelectorGroup">
-                        <!-- THỦY -->
                         <button type="button" onclick="selectPlayerElement('thuy')" id="elemBtn_thuy" class="p-2 rounded-xl border-2 border-sky-400/80 bg-sky-950/80 flex flex-col items-center gap-1 transition scale-105 ring-2 ring-sky-400">
                             <span class="text-xl">🌊</span>
                             <span class="text-[10px] font-rpg font-black text-sky-200">Thủy</span>
                         </button>
-                        <!-- HỎA -->
                         <button type="button" onclick="selectPlayerElement('hoa')" id="elemBtn_hoa" class="p-2 rounded-xl border border-red-500/50 bg-red-950/40 flex flex-col items-center gap-1 transition hover:scale-105">
                             <span class="text-xl">🔥</span>
                             <span class="text-[10px] font-rpg font-black text-red-200">Hỏa</span>
                         </button>
-                        <!-- PHONG -->
                         <button type="button" onclick="selectPlayerElement('phong')" id="elemBtn_phong" class="p-2 rounded-xl border border-teal-500/50 bg-teal-950/40 flex flex-col items-center gap-1 transition hover:scale-105">
                             <span class="text-xl">🌪️</span>
                             <span class="text-[10px] font-rpg font-black text-teal-200">Phong</span>
                         </button>
-                        <!-- MỘC -->
                         <button type="button" onclick="selectPlayerElement('moc')" id="elemBtn_moc" class="p-2 rounded-xl border border-emerald-500/50 bg-emerald-950/40 flex flex-col items-center gap-1 transition hover:scale-105">
                             <span class="text-xl">🌿</span>
                             <span class="text-[10px] font-rpg font-black text-emerald-200">Mộc</span>
                         </button>
-                        <!-- THỔ -->
                         <button type="button" onclick="selectPlayerElement('tho')" id="elemBtn_tho" class="p-2 rounded-xl border border-amber-500/50 bg-amber-950/40 flex flex-col items-center gap-1 transition hover:scale-105">
                             <span class="text-xl">⛰️</span>
                             <span class="text-[10px] font-rpg font-black text-amber-200">Thổ</span>
                         </button>
                     </div>
                     <p id="playerSelectedSkillDesc" class="text-[11px] text-sky-300 font-bold mt-1.5 text-center">
-                        Tuyệt Kỹ: <strong>Bích Ba Trụy</strong> (Khắc Hỏa +50% ATK)
+                        Tuyệt Kỹ: <strong>Thủy Áp Xung Kích</strong> (Khắc Hỏa Crit ATK +50%)
                     </p>
                 </div>
             </div>
@@ -786,10 +787,10 @@
                 <div class="text-slate-500">•</div>
                 <div class="text-amber-300">ATK: <strong>0</strong></div>
                 <div class="text-slate-500">•</div>
-                <div id="playerMySkillTag" class="text-cyan-300">Chiêu: Bích Ba Trụy</div>
+                <div id="playerMySkillTag" class="text-cyan-300">Chiêu: Thủy Áp Xung Kích</div>
             </div>
 
-            <!-- THẺ MỤC TIÊU THỰC THỂ HIỂN THỊ NGAY TRONG SẢNH HỌC SINH -->
+            <!-- THẺ MỤC TIÊU THỰC THỂ -->
             <div id="playerLobbyBossTargetCard" class="p-3.5 rounded-2xl bg-black/80 border border-purple-500/50 mb-3 text-left shadow-lg">
                 <div class="flex items-center justify-between border-b border-purple-800/40 pb-1.5 mb-2">
                     <span class="text-[10px] font-rpg font-black uppercase text-amber-300 flex items-center gap-1">
@@ -813,7 +814,7 @@
             <p class="text-xs text-slate-300 leading-relaxed" id="playerLobbySubText">Hãy nhìn lên màn hình máy chiếu.<br>Trận chiến diệt Thực Thể sẽ bắt đầu khi Giáo viên khai màn!</p>
         </section>
 
-        <!-- 3. PLAYER GAMEPAD (CÂU HỎI & ĐÁP ÁN TRÊN ĐIỆN THOẠI) -->
+        <!-- 3. PLAYER GAMEPAD -->
         <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-2.5 my-auto hidden">
             <!-- PANEL CHỈ SỐ NHÂN VẬT & MÁU & ATK -->
             <div class="dungeon-panel p-3 rounded-2xl flex flex-col gap-1.5 shadow-xl border border-purple-700/60">
@@ -824,11 +825,12 @@
                         </div>
                         <div>
                             <div id="playerGameTeamLabel" class="font-rpg font-black text-amber-300 text-xs leading-tight">ĐỘI CỦA BẠN</div>
-                            <div id="playerGameClassTag" class="text-[9px] text-purple-300/80 font-bold">Hệ Thủy • Bích Ba Trụy</div>
+                            <div id="playerGameClassTag" class="text-[9px] text-purple-300/80 font-bold">Hệ Thủy • Thủy Áp Xung Kích</div>
                         </div>
                     </div>
-                    <div id="playerStreakBadge" class="hidden px-2 py-0.5 rounded-full bg-orange-600/30 border border-orange-400 text-orange-300 font-ui font-black text-[10px] animate-pulse">
-                        🔥 Chuỗi x<span id="playerStreakCount">2</span> (+10)
+                    <!-- HUY HIỆU BÁO MỤC TIÊU HIỆN TẠI CỦA BOSS TRÊN MOBILE -->
+                    <div id="playerCurrentBossTargetTag" class="px-2 py-0.5 rounded-lg text-[10px] font-rpg font-black border">
+                        Mục tiêu: Boss
                     </div>
                 </div>
 
@@ -921,9 +923,8 @@
             </div>
         </section>
 
-        <!-- 4. PLAYER FEEDBACK (HOẠT ẢNH TUNG CHIÊU & PHẢN HỒI KẾT QUẢ TRÊN ĐIỆN THOẠI) -->
+        <!-- 4. PLAYER FEEDBACK -->
         <section id="playerFeedbackScreen" class="w-full max-w-md mx-auto dungeon-panel p-6 sm:p-8 rounded-3xl shadow-2xl text-center my-auto hidden relative overflow-hidden">
-            <!-- Canvas hạt chiêu thức trên mobile -->
             <canvas id="playerSkillCastCanvas" class="absolute inset-0 pointer-events-none w-full h-full z-0"></canvas>
 
             <div class="relative z-10">
@@ -936,14 +937,14 @@
                 </h2>
                 <div id="playerFeedbackStatGains" class="flex flex-col gap-1 my-2">
                     <p id="playerFeedbackPts" class="text-base font-ui font-black text-amber-300">+95 ATK & HP</p>
-                    <p id="playerFeedbackCounterTag" class="text-xs font-ui font-black text-emerald-400 hidden">🎯 KHẮC HỆ THỰC THỂ: +50% ATK!</p>
+                    <p id="playerFeedbackCounterTag" class="text-xs font-ui font-black text-emerald-400 hidden">🎯 KHẮC HỆ THỰC THỂ: CRIT ATK +50%!</p>
                     <p id="playerFeedbackBonusTag" class="text-xs font-ui font-bold text-orange-400 hidden">🔥 Thưởng Chuỗi: +10 Điểm</p>
                 </div>
                 <p id="playerFeedbackSpeed" class="text-xs text-slate-300 mt-1">Thời gian xuất chiêu: 1.2s</p>
             </div>
         </section>
 
-        <!-- 5. MÀN HÌNH CẢNH BÁO BỊ THỰC THỂ PHẢN KÍCH TRÊN ĐIỆN THOẠI -->
+        <!-- 5. MÀN HÌNH BỊ THỰC THỂ PHẢN KÍCH -->
         <section id="playerBossRetaliateScreen" class="w-full max-w-md mx-auto dungeon-panel p-6 rounded-3xl shadow-2xl text-center my-auto hidden border-2 border-red-500 bg-red-950/90 relative">
             <div id="playerRetaliateIcon" class="text-5xl mb-2 animate-pulse">🔥</div>
             <h3 id="playerRetaliateBossTitle" class="text-lg font-rpg font-black text-amber-300 uppercase">
@@ -956,7 +957,7 @@
             <p class="text-xs text-slate-300">Đang theo dõi hoạt cảnh chiến trường trên máy chiếu...</p>
         </section>
 
-        <!-- 6. MÀN HÌNH BỊ LOẠI (KHI MÁU HP VỀ 0) -->
+        <!-- 6. MÀN HÌNH BỊ LOẠI -->
         <section id="playerEliminatedScreen" class="w-full max-w-md mx-auto dungeon-panel p-7 rounded-3xl shadow-2xl text-center my-auto hidden border-2 border-red-600 bg-red-950/95">
             <div class="w-16 h-16 rounded-3xl bg-red-900/60 border border-red-500/50 flex items-center justify-center mx-auto mb-3 text-4xl shadow-2xl">
                 💀
@@ -974,7 +975,7 @@
             </p>
         </section>
 
-        <!-- MODAL PHÓNG TO MÃ QR CHO MÁY CHIẾU LỚN -->
+        <!-- MODAL PHÓNG TO MÃ QR -->
         <div id="qrModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
             <div class="dungeon-panel max-w-sm w-full p-6 rounded-3xl text-center border-2 border-amber-500 relative shadow-2xl flex flex-col items-center">
                 <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-lg">
@@ -997,224 +998,247 @@
                 </button>
             </div>
         </div>
-
     </main>
 
     <script>
         /* =========================================================================
-           DỮ LIỆU 5 HỆ NGUYÊN TỐ (NGŨ HÀNH), TUYỆT KỸ & QUY TẮC TƯƠNG KHẮC
+           DỮ LIỆU 5 HỆ NGUYÊN TỐ (NGŨ HÀNH) THEO CHUẨN GIÁO DỤC VẬT LÍ & CRIT ATK
            ========================================================================= */
         const ELEMENTS_CONFIG = {
             thuy: {
                 id: 'thuy',
                 name: 'Thủy',
                 title: 'THỦY THỰC THỂ',
-                skillName: 'Bích Ba Trụy',
+                skillName: 'Thủy Áp Xung Kích',
                 emoji: '🌊',
                 color: '#38bdf8',
                 badgeBg: 'bg-sky-950 text-sky-300 border-sky-600',
                 glowColor: 'rgba(56, 189, 248, 0.9)',
                 counters: 'hoa',    // Thủy khắc Hỏa
                 counteredBy: 'tho', // Thổ khắc Thủy
-                counterText: 'Thủy khắc Hỏa (Nước dập tắt Lửa)'
+                counterText: 'Thủy khắc Hỏa (Nước hấp thụ nhiệt làm tắt Lửa)'
             },
             hoa: {
                 id: 'hoa',
                 name: 'Hỏa',
                 title: 'HỎA THỰC THỂ',
-                skillName: 'Viêm Ma Nộ Phá',
+                skillName: 'Nhiệt Động Bộc Phát',
                 emoji: '🔥',
                 color: '#f87171',
                 badgeBg: 'bg-red-950 text-red-300 border-red-600',
                 glowColor: 'rgba(239, 68, 68, 0.9)',
                 counters: 'phong',  // Hỏa khắc Phong
                 counteredBy: 'thuy',// Thủy khắc Hỏa
-                counterText: 'Hỏa khắc Phong (Lửa tiêu tán Gió)'
+                counterText: 'Hỏa khắc Phong (Nhiệt độ cao làm giãn nở tiêu tán Khí)'
             },
             phong: {
                 id: 'phong',
                 name: 'Phong',
                 title: 'PHONG THỰC THỂ',
-                skillName: 'Tật Phong Thiểm Ảnh',
+                skillName: 'Cuồng Phong Đối Lưu',
                 emoji: '🌪️',
                 color: '#2dd4bf',
                 badgeBg: 'bg-teal-950 text-teal-300 border-teal-600',
                 glowColor: 'rgba(45, 212, 191, 0.9)',
                 counters: 'moc',    // Phong khắc Mộc
                 counteredBy: 'hoa', // Hỏa khắc Phong
-                counterText: 'Phong khắc Mộc (Gió sắc cắt gãy Cây)'
+                counterText: 'Phong khắc Mộc (Dòng khí đối lưu mạnh làm gãy Cây)'
             },
             moc: {
                 id: 'moc',
                 name: 'Mộc',
                 title: 'MỘC THỰC THỂ',
-                skillName: 'Vạn Diệp Phi Đao',
+                skillName: 'Năng Lượng Sinh Khối',
                 emoji: '🌿',
                 color: '#4ade80',
                 badgeBg: 'bg-emerald-950 text-emerald-300 border-emerald-600',
                 glowColor: 'rgba(74, 222, 128, 0.9)',
                 counters: 'tho',    // Mộc khắc Thổ
                 counteredBy: 'phong',// Phong khắc Mộc
-                counterText: 'Mộc khắc Thổ (Cây hút dinh dưỡng Đất)'
+                counterText: 'Mộc khắc Thổ (Rễ sinh khối đâm xuyên kết cấu Đất)'
             },
             tho: {
                 id: 'tho',
                 name: 'Thổ',
                 title: 'THỔ THỰC THỂ',
-                skillName: 'Địa Chấn Liệt Bình',
+                skillName: 'Kiến Tạo Địa Tầng',
                 emoji: '⛰️',
                 color: '#fbbf24',
                 badgeBg: 'bg-amber-950 text-amber-300 border-amber-600',
                 glowColor: 'rgba(245, 158, 11, 0.9)',
                 counters: 'thuy',   // Thổ khắc Thủy
                 counteredBy: 'moc', // Mộc khắc Thổ
-                counterText: 'Thổ khắc Thủy (Đất ngăn chặn Dòng nước)'
+                counterText: 'Thổ khắc Thủy (Cấu trúc địa tầng bồi đắp ngăn dòng Nước)'
             }
         };
 
         const ELEMENT_KEYS = ['thuy', 'hoa', 'phong', 'moc', 'tho'];
 
         /* =========================================================================
-           VECTOR SVG ĐỒ HỌA CHI TIẾT 5 THỰC THỂ NGUYÊN TỐ (PASTEL TITAN EDITION)
+           HỆ THỐNG ĐỒ HỌA VECTOR SVG ĐỘC LẬP - BẢO ĐẢM KHÔNG BAO GIỜ MẤT THÂN BOSS
+           Sử dụng cấu trúc mảng khối solid nhiều tầng + viền phát sáng chống lỗi DOM
            ========================================================================= */
-        function getElementalTitanSvg(elemKey, width = 160, height = 210) {
+        function getElementalTitanSvg(elemKey, width = "100%", height = "100%") {
             switch(elemKey) {
                 case 'thuy':
-                    return `<svg width="${width}" height="${height}" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="waterBody" x1="100" y1="20" x2="100" y2="240" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#bae6fd"/>
-                                <stop offset="0.5" stop-color="#38bdf8"/>
-                                <stop offset="1" stop-color="#0284c7"/>
-                            </linearGradient>
-                            <filter id="waterGlow"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                        </defs>
-                        <!-- Giọt nước trên đỉnh đầu -->
-                        <path d="M100 15 C100 15, 118 42, 118 56 C118 66, 110 74, 100 74 C90 74, 82 66, 82 56 C82 42, 100 15, 100 15 Z" fill="#e0f2fe" filter="url(#waterGlow)"/>
-                        <!-- Thân và ngực titan nước -->
-                        <path d="M72 75 C80 70, 120 70, 128 75 C138 88, 142 125, 130 145 C118 148, 82 148, 70 145 C58 125, 62 88, 72 75 Z" fill="url(#waterBody)"/>
-                        <!-- Cánh tay lượn sóng nước -->
-                        <path d="M68 85 C50 95, 38 125, 42 155 C46 170, 52 170, 54 158 C56 138, 65 110, 72 100 Z" fill="#38bdf8"/>
-                        <path d="M132 85 C150 95, 162 125, 158 155 C154 170, 148 170, 146 158 C144 138, 135 110, 128 100 Z" fill="#38bdf8"/>
-                        <!-- Chân trụ sóng biển -->
-                        <path d="M78 146 C75 175, 60 210, 48 238 C70 242, 92 232, 96 200 L104 200 C108 232, 130 242, 152 238 C140 210, 125 175, 122 146 Z" fill="url(#waterBody)"/>
-                        <!-- Mặt và mắt tinh linh nước -->
-                        <ellipse cx="92" cy="56" rx="4" ry="7" fill="#0369a1"/>
-                        <ellipse cx="108" cy="56" rx="4" ry="7" fill="#0369a1"/>
-                        <!-- Ấn ký Ngọc Bội Chữ T (Thủy) -->
-                        <circle cx="100" cy="112" r="15" fill="#0c4a6e" stroke="#7dd3fc" stroke-width="2.5"/>
-                        <text x="100" y="118" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#f0f9ff" text-anchor="middle">T</text>
+                    return `
+                    <svg width="${width}" height="${height}" viewBox="0 0 240 280" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl">
+                        <!-- Vầng ma pháp nước bảo hộ phía sau -->
+                        <circle cx="120" cy="140" r="85" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="8 6" opacity="0.45"/>
+                        <circle cx="120" cy="140" r="70" fill="#0284c7" fill-opacity="0.2"/>
+                        <!-- Chân cột nước xoáy vững chãi -->
+                        <path d="M88 180 C78 215, 58 250, 42 265 C74 274, 166 274, 198 265 C182 250, 162 215, 152 180 Z" fill="#0369a1" stroke="#7dd3fc" stroke-width="2"/>
+                        <path d="M98 185 C90 215, 74 245, 64 258 C90 264, 150 264, 176 258 C166 245, 150 215, 142 185 Z" fill="#0284c7"/>
+                        <!-- Thân và ngực chiến thần nước -->
+                        <path d="M78 95 C92 88, 148 88, 162 95 C178 116, 180 160, 164 185 C145 192, 95 192, 76 185 C60 160, 62 116, 78 95 Z" fill="#0284c7" stroke="#bae6fd" stroke-width="2.5"/>
+                        <path d="M88 105 C98 98, 142 98, 152 105 C162 122, 164 155, 152 172 C138 178, 102 178, 88 172 C76 155, 78 122, 88 105 Z" fill="#38bdf8"/>
+                        <!-- Giáp vai cuộn sóng -->
+                        <path d="M76 100 C48 94, 28 115, 34 145 C48 142, 65 130, 75 118 Z" fill="#0369a1" stroke="#bae6fd" stroke-width="2"/>
+                        <path d="M164 100 C192 94, 212 115, 206 145 C192 142, 175 130, 165 118 Z" fill="#0369a1" stroke="#bae6fd" stroke-width="2"/>
+                        <!-- Hai cánh tay thủy lưu -->
+                        <path d="M44 145 C34 175, 42 210, 52 225 C58 220, 65 195, 68 165 Z" fill="#38bdf8" stroke="#bae6fd" stroke-width="1.5"/>
+                        <path d="M196 145 C206 175, 198 210, 188 225 C182 220, 175 195, 172 165 Z" fill="#38bdf8" stroke="#bae6fd" stroke-width="1.5"/>
+                        <!-- Vương miện ba chạc Thủy Thần -->
+                        <path d="M120 20 L132 50 L155 35 L145 65 L165 65 L145 85 L95 85 L75 65 L95 65 L85 35 L108 50 Z" fill="#0369a1" stroke="#7dd3fc" stroke-width="2"/>
+                        <!-- Mặt tinh linh nước -->
+                        <path d="M98 60 C105 52, 135 52, 142 60 C148 72, 142 88, 120 90 C98 88, 92 72, 98 60 Z" fill="#f0f9ff"/>
+                        <ellipse cx="110" cy="70" rx="3.5" ry="6" fill="#0369a1"/>
+                        <ellipse cx="130" cy="70" rx="3.5" ry="6" fill="#0369a1"/>
+                        <!-- Ấn ký Trấn Thủy Chi Bảo (Chữ T) -->
+                        <circle cx="120" cy="140" r="18" fill="#082f49" stroke="#7dd3fc" stroke-width="3"/>
+                        <circle cx="120" cy="140" r="14" fill="#0284c7"/>
+                        <text x="120" y="146" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">T</text>
                     </svg>`;
+
                 case 'hoa':
-                    return `<svg width="${width}" height="${height}" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="fireBody" x1="100" y1="20" x2="100" y2="240" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#fed7aa"/>
-                                <stop offset="0.4" stop-color="#f87171"/>
-                                <stop offset="1" stop-color="#b91c1c"/>
-                            </linearGradient>
-                            <filter id="fireGlow"><feGaussianBlur stdDeviation="5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                        </defs>
-                        <!-- Mái tóc ngọn lửa bùng cháy -->
-                        <path d="M100 12 C115 32, 135 38, 128 62 C140 46, 142 68, 124 78 C115 82, 85 82, 76 78 C58 68, 60 46, 72 62 C65 38, 85 32, 100 12 Z" fill="#ea580c" filter="url(#fireGlow)"/>
-                        <!-- Đầu rồng chiến tướng -->
-                        <path d="M82 48 C88 40, 112 40, 118 48 C124 62, 118 78, 100 80 C82 78, 76 62, 82 48 Z" fill="#ffedd5"/>
-                        <!-- Thân giáp vảy lửa -->
-                        <path d="M70 82 C82 76, 118 76, 130 82 C142 98, 145 130, 132 152 C118 156, 82 156, 68 152 C55 130, 58 98, 70 82 Z" fill="url(#fireBody)"/>
-                        <!-- Tay lửa móng vuốt -->
-                        <path d="M66 92 L40 125 L48 162 L58 145 L56 122 L72 108 Z" fill="#dc2626"/>
-                        <path d="M134 92 L160 125 L152 162 L142 145 L144 122 L128 108 Z" fill="#dc2626"/>
-                        <!-- Chân giáp chiến tướng -->
-                        <path d="M78 153 L62 215 L52 242 L92 238 L96 195 L104 195 L108 238 L148 242 L138 215 L122 153 Z" fill="url(#fireBody)"/>
-                        <!-- Mắt rực lửa -->
-                        <polygon points="90,56 96,60 90,62" fill="#ef4444"/>
-                        <polygon points="110,56 104,60 110,62" fill="#ef4444"/>
-                        <!-- Ấn ký Ngọc Bội Chữ H (Hỏa) -->
-                        <circle cx="100" cy="116" r="16" fill="#7f1d1d" stroke="#fca5a5" stroke-width="2.5"/>
-                        <text x="100" y="122" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#fef2f2" text-anchor="middle">H</text>
+                    return `
+                    <svg width="${width}" height="${height}" viewBox="0 0 240 280" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl">
+                        <!-- Hào quang lửa ma quái -->
+                        <circle cx="120" cy="140" r="85" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="8 6" opacity="0.45"/>
+                        <circle cx="120" cy="140" r="70" fill="#b91c1c" fill-opacity="0.2"/>
+                        <!-- Chân giáp chiến tướng Hỏa Diệm -->
+                        <path d="M88 180 L70 240 L50 265 L100 262 L108 215 L132 215 L140 262 L190 265 L170 240 L152 180 Z" fill="#7f1d1d" stroke="#fca5a5" stroke-width="2"/>
+                        <path d="M96 185 L82 235 L68 255 L96 252 L104 210 L136 210 L144 252 L172 255 L158 235 L144 185 Z" fill="#dc2626"/>
+                        <!-- Thân giáp rực lửa -->
+                        <path d="M78 95 C90 88, 150 88, 162 95 C178 118, 180 160, 164 185 C145 192, 95 192, 76 185 C60 160, 62 118, 78 95 Z" fill="#b91c1c" stroke="#fed7aa" stroke-width="2.5"/>
+                        <path d="M88 105 C98 98, 142 98, 152 105 C162 122, 164 155, 152 172 C138 178, 102 178, 88 172 C76 155, 78 122, 88 105 Z" fill="#ea580c"/>
+                        <!-- Giáp vai hỏa long -->
+                        <path d="M78 100 L40 85 L30 125 L55 145 L74 125 Z" fill="#991b1b" stroke="#fca5a5" stroke-width="2"/>
+                        <path d="M162 100 L200 85 L210 125 L185 145 L166 125 Z" fill="#991b1b" stroke="#fca5a5" stroke-width="2"/>
+                        <!-- Móng vuốt dung nham -->
+                        <path d="M42 135 L25 175 L38 215 L52 195 L48 160 Z" fill="#dc2626" stroke="#fef08a" stroke-width="1.5"/>
+                        <path d="M198 135 L215 175 L202 215 L188 195 L192 160 Z" fill="#dc2626" stroke="#fef08a" stroke-width="1.5"/>
+                        <!-- Tóc lửa bùng cháy & Sừng rồng -->
+                        <path d="M120 15 C138 35, 160 45, 155 70 C168 55, 172 75, 150 85 C138 90, 102 90, 90 85 C68 75, 72 55, 85 70 C80 45, 102 35, 120 15 Z" fill="#ea580c" stroke="#fef08a" stroke-width="2"/>
+                        <!-- Đầu chiến tướng Hỏa Ma -->
+                        <path d="M98 52 C105 45, 135 45, 142 52 C150 66, 144 82, 120 84 C96 82, 90 66, 98 52 Z" fill="#ffedd5"/>
+                        <polygon points="106,62 114,66 106,70" fill="#b91c1c"/>
+                        <polygon points="134,62 126,66 134,70" fill="#b91c1c"/>
+                        <!-- Ấn ký Trấn Hỏa Chi Bảo (Chữ H) -->
+                        <circle cx="120" cy="140" r="18" fill="#450a0a" stroke="#fca5a5" stroke-width="3"/>
+                        <circle cx="120" cy="140" r="14" fill="#dc2626"/>
+                        <text x="120" y="146" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">H</text>
                     </svg>`;
+
                 case 'phong':
-                    return `<svg width="${width}" height="${height}" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="windBody" x1="100" y1="20" x2="100" y2="240" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#ccfbf1"/>
-                                <stop offset="0.5" stop-color="#2dd4bf"/>
-                                <stop offset="1" stop-color="#0f766e"/>
-                            </linearGradient>
-                            <filter id="windGlow"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                        </defs>
-                        <!-- Tóc gió lốc xoáy vuốt ngược -->
-                        <path d="M100 15 C118 20, 142 35, 148 55 C132 50, 120 62, 118 72 C108 76, 92 76, 82 72 C80 62, 68 50, 52 55 C58 35, 82 20, 100 15 Z" fill="#99f6e4" filter="url(#windGlow)"/>
-                        <!-- Thân và dải lụa phong nhận -->
-                        <path d="M74 76 C84 72, 116 72, 126 76 C136 90, 138 122, 128 144 C116 148, 84 148, 72 144 C62 122, 64 90, 74 76 Z" fill="url(#windBody)"/>
-                        <!-- Cánh lông vũ lốc xoáy -->
-                        <path d="M68 85 C42 90, 26 112, 34 140 C42 122, 54 115, 68 110 Z" fill="#5eead4"/>
-                        <path d="M132 85 C158 90, 174 112, 166 140 C158 122, 146 115, 132 110 Z" fill="#5eead4"/>
-                        <!-- Dải gió xoắn chân lơ lửng -->
-                        <path d="M78 145 C70 178, 62 208, 75 238 C88 222, 94 185, 100 165 C106 185, 112 222, 125 238 C138 208, 130 178, 122 145 Z" fill="url(#windBody)"/>
-                        <!-- Mắt phong tinh -->
-                        <circle cx="92" cy="58" r="4" fill="#134e4a"/>
-                        <circle cx="108" cy="58" r="4" fill="#134e4a"/>
-                        <!-- Ấn ký Ngọc Bội Chữ P (Phong) -->
-                        <circle cx="100" cy="112" r="15" fill="#134e4a" stroke="#5eead4" stroke-width="2.5"/>
-                        <text x="100" y="118" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#f0fdfa" text-anchor="middle">P</text>
+                    return `
+                    <svg width="${width}" height="${height}" viewBox="0 0 240 280" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl">
+                        <!-- Vòng cuồng phong luân chuyển -->
+                        <circle cx="120" cy="140" r="85" fill="none" stroke="#2dd4bf" stroke-width="3" stroke-dasharray="10 5" opacity="0.45"/>
+                        <circle cx="120" cy="140" r="70" fill="#0f766e" fill-opacity="0.15"/>
+                        <!-- Chân lốc xoáy lơ lửng -->
+                        <path d="M95 180 C82 215, 70 245, 90 268 C108 250, 115 210, 120 185 C125 210, 132 250, 150 268 C170 245, 158 215, 145 180 Z" fill="#0f766e" stroke="#5eead4" stroke-width="2"/>
+                        <path d="M102 185 C92 215, 82 240, 98 258 C112 242, 116 210, 120 190 C124 210, 128 242, 142 258 C158 240, 148 215, 138 185 Z" fill="#14b8a6"/>
+                        <!-- Thân giáp thanh thoát -->
+                        <path d="M82 95 C92 88, 148 88, 158 95 C172 115, 175 160, 160 185 C145 190, 95 190, 80 185 C65 160, 68 115, 82 95 Z" fill="#0d9488" stroke="#99f6e4" stroke-width="2.5"/>
+                        <path d="M90 105 C98 98, 142 98, 150 105 C158 122, 160 155, 150 172 C138 178, 102 178, 90 172 C80 155, 82 122, 90 105 Z" fill="#2dd4bf"/>
+                        <!-- Cánh lông vũ lốc xoáy sắc bén -->
+                        <path d="M80 105 C45 95, 20 120, 25 155 C42 140, 60 135, 78 125 Z" fill="#0f766e" stroke="#ccfbf1" stroke-width="2"/>
+                        <path d="M160 105 C195 95, 220 120, 215 155 C198 140, 180 135, 162 125 Z" fill="#0f766e" stroke="#ccfbf1" stroke-width="2"/>
+                        <!-- Tay phong nhận -->
+                        <path d="M42 155 C30 185, 38 215, 52 230 C55 215, 60 185, 65 168 Z" fill="#2dd4bf" stroke="#ccfbf1" stroke-width="1.5"/>
+                        <path d="M198 155 C210 185, 202 215, 188 230 C185 215, 180 185, 175 168 Z" fill="#2dd4bf" stroke="#ccfbf1" stroke-width="1.5"/>
+                        <!-- Vương miện phong linh vuốt ngược -->
+                        <path d="M120 18 C140 25, 165 42, 168 65 C150 58, 140 70, 138 82 C128 86, 112 86, 102 82 C100 70, 90 58, 72 65 C75 42, 100 25, 120 18 Z" fill="#0d9488" stroke="#5eead4" stroke-width="2"/>
+                        <!-- Mặt phong tinh -->
+                        <path d="M100 58 C108 50, 132 50, 140 58 C148 72, 140 86, 120 88 C100 86, 92 72, 100 58 Z" fill="#f0fdfa"/>
+                        <circle cx="110" cy="68" r="4" fill="#134e4a"/>
+                        <circle cx="130" cy="68" r="4" fill="#134e4a"/>
+                        <!-- Ấn ký Trấn Phong Chi Bảo (Chữ P) -->
+                        <circle cx="120" cy="140" r="18" fill="#042f2e" stroke="#5eead4" stroke-width="3"/>
+                        <circle cx="120" cy="140" r="14" fill="#14b8a6"/>
+                        <text x="120" y="146" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">P</text>
                     </svg>`;
+
                 case 'moc':
-                    return `<svg width="${width}" height="${height}" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="woodBody" x1="100" y1="20" x2="100" y2="240" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#d9f99d"/>
-                                <stop offset="0.4" stop-color="#4ade80"/>
-                                <stop offset="1" stop-color="#15803d"/>
-                            </linearGradient>
-                            <filter id="leafGlow"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                        </defs>
-                        <!-- Vương miện lá mầm và sừng hươu cây -->
-                        <path d="M100 15 L108 38 L125 22 L122 45 L140 40 L126 62 C118 72, 82 72, 74 62 L60 40 L78 45 L75 22 L92 38 Z" fill="#22c55e" filter="url(#leafGlow)"/>
-                        <!-- Mặt mộc tinh cổ thụ -->
-                        <path d="M82 50 C88 42, 112 42, 118 50 C124 64, 116 78, 100 80 C84 78, 76 64, 82 50 Z" fill="#fef08a"/>
-                        <!-- Thân vỏ cây cổ thụ -->
-                        <path d="M72 80 C82 74, 118 74, 128 80 C140 96, 142 128, 130 148 C118 152, 82 152, 70 148 C58 128, 60 96, 72 80 Z" fill="url(#woodBody)"/>
-                        <!-- Cánh tay nhánh cây & dây leo -->
-                        <path d="M68 90 L42 120 L48 155 L58 135 L58 115 L72 102 Z" fill="#16a34a"/>
-                        <path d="M132 90 L158 120 L152 155 L142 135 L142 115 L128 102 Z" fill="#16a34a"/>
-                        <!-- Chân rễ cây cắm sâu -->
-                        <path d="M78 150 L65 210 L45 242 L72 238 L88 200 L100 170 L112 200 L128 238 L155 242 L135 210 L122 150 Z" fill="url(#woodBody)"/>
-                        <!-- Mắt mầm lá -->
-                        <ellipse cx="92" cy="58" rx="3.5" ry="5.5" fill="#14532d"/>
-                        <ellipse cx="108" cy="58" rx="3.5" ry="5.5" fill="#14532d"/>
-                        <!-- Ấn ký Ngọc Bội Chữ M (Mộc) -->
-                        <circle cx="100" cy="115" r="15" fill="#14532d" stroke="#86efac" stroke-width="2.5"/>
-                        <text x="100" y="121" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#f0fdf4" text-anchor="middle">M</text>
+                    return `
+                    <svg width="${width}" height="${height}" viewBox="0 0 240 280" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl">
+                        <!-- Vòng sinh mệnh mộc linh -->
+                        <circle cx="120" cy="140" r="85" fill="none" stroke="#22c55e" stroke-width="3" stroke-dasharray="6 6" opacity="0.45"/>
+                        <circle cx="120" cy="140" r="70" fill="#14532d" fill-opacity="0.2"/>
+                        <!-- Chân rễ cây cổ thụ đâm sâu -->
+                        <path d="M92 180 L75 240 L50 268 L85 262 L102 215 L120 180 L138 215 L155 262 L190 268 L165 240 L148 180 Z" fill="#14532d" stroke="#86efac" stroke-width="2"/>
+                        <path d="M98 185 L84 235 L65 258 L90 252 L105 210 L120 185 L135 210 L150 252 L175 258 L156 235 L142 185 Z" fill="#16a34a"/>
+                        <!-- Thân mộc linh cổ thụ -->
+                        <path d="M80 95 C92 88, 148 88, 160 95 C175 118, 178 160, 162 185 C145 192, 95 192, 78 185 C62 160, 65 118, 80 95 Z" fill="#15803d" stroke="#bbf7d0" stroke-width="2.5"/>
+                        <path d="M88 105 C98 98, 142 98, 152 105 C162 122, 164 155, 152 172 C138 178, 102 178, 88 172 C76 155, 78 122, 88 105 Z" fill="#4ade80"/>
+                        <!-- Giáp vai cành lá cổ mộc -->
+                        <path d="M78 100 C45 88, 28 115, 35 145 C50 140, 65 130, 75 118 Z" fill="#14532d" stroke="#86efac" stroke-width="2"/>
+                        <path d="M162 100 C195 88, 212 115, 205 145 C190 140, 175 130, 165 118 Z" fill="#14532d" stroke="#86efac" stroke-width="2"/>
+                        <!-- Tay dây leo & gai mộc -->
+                        <path d="M45 145 L28 178 L38 215 L52 195 L52 165 Z" fill="#16a34a" stroke="#d9f99d" stroke-width="1.5"/>
+                        <path d="M195 145 L212 178 L202 215 L188 195 L188 165 Z" fill="#16a34a" stroke="#d9f99d" stroke-width="1.5"/>
+                        <!-- Sừng hươu lá ngọc trên đầu -->
+                        <path d="M120 15 L130 40 L152 22 L148 48 L170 45 L152 68 C142 78, 98 78, 88 68 L70 45 L92 48 L88 22 L110 40 Z" fill="#15803d" stroke="#86efac" stroke-width="2"/>
+                        <!-- Mặt mộc tinh -->
+                        <path d="M98 52 C105 45, 135 45, 142 52 C150 68, 142 84, 120 86 C98 84, 90 68, 98 52 Z" fill="#fef9c3"/>
+                        <ellipse cx="110" cy="68" rx="3.5" ry="6" fill="#14532d"/>
+                        <ellipse cx="130" cy="68" rx="3.5" ry="6" fill="#14532d"/>
+                        <!-- Ấn ký Trấn Mộc Chi Bảo (Chữ M) -->
+                        <circle cx="120" cy="140" r="18" fill="#052e16" stroke="#86efac" stroke-width="3"/>
+                        <circle cx="120" cy="140" r="14" fill="#22c55e"/>
+                        <text x="120" y="146" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#ffffff" text-anchor="middle">M</text>
                     </svg>`;
+
                 case 'tho':
                 default:
-                    return `<svg width="${width}" height="${height}" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="earthBody" x1="100" y1="20" x2="100" y2="240" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#fde68a"/>
-                                <stop offset="0.4" stop-color="#d97706"/>
-                                <stop offset="1" stop-color="#78350f"/>
-                            </linearGradient>
-                            <filter id="stoneGlow"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                        </defs>
-                        <!-- Giáp đá tảng vương miện trên đầu -->
-                        <polygon points="100,18 115,35 135,30 128,52 142,65 125,75 75,75 58,65 72,52 65,30 85,35" fill="#b45309" filter="url(#stoneGlow)"/>
+                    return `
+                    <svg width="${width}" height="${height}" viewBox="0 0 240 280" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl">
+                        <!-- Vòng tròn địa chấn hoàng kim -->
+                        <circle cx="120" cy="140" r="85" fill="none" stroke="#fbbf24" stroke-width="3" stroke-dasharray="8 6" opacity="0.45"/>
+                        <circle cx="120" cy="140" r="70" fill="#78350f" fill-opacity="0.25"/>
+                        
+                        <!-- Chân cột đá địa chấn vững chãi (HOÀN TOÀN KHÔNG DÙNG GRADIENT ID DỄ LỖI) -->
+                        <path d="M88 180 L68 242 L48 268 L98 265 L108 212 L120 180 L132 212 L142 265 L192 268 L172 242 L152 180 Z" fill="#451a03" stroke="#fcd34d" stroke-width="2.5"/>
+                        <path d="M96 185 L80 236 L62 258 L92 255 L104 210 L120 185 L136 210 L148 255 L178 258 L160 236 L144 185 Z" fill="#78350f" stroke="#f59e0b" stroke-width="1.5"/>
+                        
+                        <!-- Thân cự thạch hộ thể toàn diện (SOLID COLOR PHỦ 100% DIỆN TÍCH NGỰC VÀ BỤNG) -->
+                        <path d="M72 90 L168 90 L184 135 L168 185 L72 185 L56 135 Z" fill="#92400e" stroke="#fef08a" stroke-width="3"/>
+                        <path d="M82 100 L158 100 L170 135 L158 175 L82 175 L70 135 Z" fill="#b45309" stroke="#fcd34d" stroke-width="1.5"/>
+                        <polygon points="120,95 155,135 120,175 85,135" fill="#d97706" opacity="0.85"/>
+                        
+                        <!-- Giáp đá tảng 2 bên vai -->
+                        <polygon points="74,96 32,84 18,126 48,154 74,128" fill="#78350f" stroke="#fcd34d" stroke-width="2.5"/>
+                        <polygon points="166,96 208,84 222,126 192,154 166,128" fill="#78350f" stroke="#fcd34d" stroke-width="2.5"/>
+                        
+                        <!-- Cánh tay cự thạch hộ vệ dạng khối sa thạch -->
+                        <rect x="36" y="130" width="28" height="78" rx="8" fill="#92400e" stroke="#fcd34d" stroke-width="2.5"/>
+                        <rect x="42" y="140" width="16" height="58" rx="4" fill="#b45309"/>
+                        <rect x="176" y="130" width="28" height="78" rx="8" fill="#92400e" stroke="#fcd34d" stroke-width="2.5"/>
+                        <rect x="182" y="140" width="16" height="58" rx="4" fill="#b45309"/>
+                        
+                        <!-- Giáp vương miện đá trên đầu -->
+                        <polygon points="120,18 138,38 162,32 152,58 170,72 150,84 90,84 70,72 88,58 78,32 102,38" fill="#b45309" stroke="#fef08a" stroke-width="2.5"/>
                         <!-- Đầu người đá golem -->
-                        <rect x="80" y="48" width="40" height="30" rx="8" fill="#fef3c7"/>
-                        <!-- Thân cự thạch hộ thể -->
-                        <polygon points="70,80 130,80 145,115 132,152 68,152 55,115" fill="url(#earthBody)"/>
-                        <!-- Khối đá tay hộ vệ -->
-                        <rect x="36" y="92" width="26" height="60" rx="8" fill="#92400e"/>
-                        <rect x="138" y="92" width="26" height="60" rx="8" fill="#92400e"/>
-                        <!-- Chân cột đá địa chấn -->
-                        <polygon points="75,152 58,215 50,242 90,242 98,185 102,185 110,242 150,242 142,215 125,152" fill="url(#earthBody)"/>
-                        <!-- Mắt hoàng kim phát sáng -->
-                        <rect x="88" y="58" width="7" height="6" rx="2" fill="#b45309"/>
-                        <rect x="105" y="58" width="7" height="6" rx="2" fill="#b45309"/>
-                        <!-- Ấn ký Ngọc Bội Chữ T (Thổ) -->
-                        <circle cx="100" cy="116" r="16" fill="#451a03" stroke="#fcd34d" stroke-width="2.5"/>
-                        <text x="100" y="122" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#fffbeb" text-anchor="middle">T</text>
+                        <rect x="94" y="50" width="52" height="34" rx="10" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+                        <!-- Mắt hoàng kim rực sáng -->
+                        <rect x="104" y="62" width="8" height="8" rx="2" fill="#78350f"/>
+                        <rect x="128" y="62" width="8" height="8" rx="2" fill="#78350f"/>
+                        
+                        <!-- Ấn ký Trấn Thổ Chi Bảo (Chữ T) -->
+                        <circle cx="120" cy="140" r="19" fill="#271005" stroke="#fcd34d" stroke-width="3"/>
+                        <circle cx="120" cy="140" r="14" fill="#d97706"/>
+                        <text x="120" y="146" font-family="'Montserrat', sans-serif" font-weight="900" font-size="14" fill="#fffbeb" text-anchor="middle">T</text>
                     </svg>`;
             }
         }
@@ -1580,7 +1604,7 @@
                 handleHostIncomingData(data);
             });
 
-            // Kết nối MQTT dự phòng nếu môi trường cho phép
+            // Kết nối MQTT dự phòng
             try {
                 const clientId = "elem_host_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
                 mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 4000 });
@@ -1606,7 +1630,10 @@
             if (!bossConfig) return;
 
             const avatarBox = document.getElementById('hostLobbyBossAvatar');
-            if (avatarBox) avatarBox.innerHTML = getElementalTitanSvg(hostState.bossElement, 150, 195);
+            if (avatarBox) {
+                avatarBox.style.setProperty('--glow-color', bossConfig.glowColor);
+                avatarBox.innerHTML = getElementalTitanSvg(hostState.bossElement, "100%", "100%");
+            }
 
             const badge = document.getElementById('hostLobbyBossBadge');
             if (badge) {
@@ -1631,7 +1658,7 @@
             if (counterHint) {
                 const weaknessElemKey = bossConfig.counteredBy;
                 const weaknessConfig = ELEMENTS_CONFIG[weaknessElemKey];
-                counterHint.innerHTML = `<span class="text-amber-300 font-bold">🎯 Điểm yếu nguyên tố:</span> Hiệp sĩ chọn <strong class="text-emerald-400 font-bold">Hệ ${weaknessConfig.name}</strong> sẽ kích hoạt tuyệt kỹ bạo kích <strong class="text-yellow-300 font-bold">+50% ATK</strong>!`;
+                counterHint.innerHTML = `<span class="text-amber-300 font-bold">🎯 Điểm yếu nguyên tố:</span> Hiệp sĩ chọn <strong class="text-emerald-400 font-bold">Hệ ${weaknessConfig.name}</strong> sẽ kích hoạt <strong class="text-yellow-300 font-bold">Crit ATK +50%</strong>!`;
             }
 
             const circle = document.getElementById('hostLobbyBossCircle');
@@ -1775,7 +1802,7 @@
                         }
 
                         p.atk += finalAtkGain;
-                        p.hp += basePointGain; // HP hồi theo mức cơ bản
+                        p.hp += basePointGain;
                         p.roundAtkGained = finalAtkGain;
                         p.roundHpGained = basePointGain;
 
@@ -1940,7 +1967,7 @@
                 bossElement: hostState.bossElement
             });
 
-            // Tự động cho Bot xuất chiêu
+            // Bot xuất chiêu tự động
             hostState.botTimers.forEach(t => clearTimeout(t));
             hostState.botTimers = [];
 
@@ -1999,7 +2026,7 @@
                 } else if (isAnswered) {
                     if (p.roundAtkGained > 0) {
                         statusBadge = p.isCounterStrike 
-                            ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-300 font-black border border-amber-400 animate-pulse">⚡ Khắc +${p.roundAtkGained}</span>`
+                            ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-300 font-black border border-amber-400 animate-pulse">⚡ Crit +${p.roundAtkGained}</span>`
                             : `<span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-bold border border-emerald-400">✓ +${p.roundAtkGained}</span>`;
                     } else {
                         statusBadge = `<span class="text-[9px] px-1.5 py-0.2 rounded bg-rose-500/30 text-rose-300 font-bold border border-rose-400">✗ -20 HP</span>`;
@@ -2022,7 +2049,6 @@
                         <div>${statusBadge}</div>
                     </div>
 
-                    <!-- Live HP Bar -->
                     <div class="flex flex-col gap-0.5">
                         <div class="flex justify-between text-[9px] font-ui font-black text-purple-300">
                             <span>HP:</span>
@@ -2033,7 +2059,6 @@
                         </div>
                     </div>
 
-                    <!-- Live ATK Bar -->
                     <div class="flex flex-col gap-0.5">
                         <div class="flex justify-between text-[9px] font-ui font-black text-amber-300">
                             <span>ATK:</span>
@@ -2109,9 +2134,10 @@
             const body = document.getElementById('appBody');
             const curBossConfig = ELEMENTS_CONFIG[hostState.bossElement];
 
-            // Cập nhật giao diện Thực Thể chiến đấu
+            // Cập nhật giao diện Thực Thể chiến đấu hoàn chỉnh
             const avatarBox = document.getElementById('bossBattleAvatarBox');
-            avatarBox.innerHTML = getElementalTitanSvg(hostState.bossElement, 180, 230);
+            avatarBox.style.setProperty('--glow-color', curBossConfig.glowColor);
+            avatarBox.innerHTML = getElementalTitanSvg(hostState.bossElement, "100%", "100%");
 
             const elementTag = document.getElementById('bossBattleElementTag');
             elementTag.className = `px-3 py-0.5 rounded-full text-xs font-rpg font-black uppercase tracking-wider border shadow-md ${curBossConfig.badgeBg}`;
@@ -2149,11 +2175,11 @@
             const statusTxt = document.getElementById('bossBattleStatusText');
             if (statusTxt) {
                 statusTxt.innerHTML = totalDamageToBoss > 0
-                    ? `⚡ <strong class="text-amber-300">${hitCount} Hiệp sĩ</strong> đồng loạt tung chiêu (có <strong class="text-emerald-400">${counterHitCount} đòn khắc hệ +50% ATK</strong>) chém <strong class="text-yellow-300 font-black">-${totalDamageToBoss.toLocaleString()} HP</strong> vào Thực Thể!`
+                    ? `⚡ <strong class="text-amber-300">${hitCount} Hiệp sĩ</strong> đồng loạt tung chiêu (có <strong class="text-emerald-400">${counterHitCount} đòn khắc hệ Crit ATK +50%</strong>) chém <strong class="text-yellow-300 font-black">-${totalDamageToBoss.toLocaleString()} HP</strong> vào Thực Thể!`
                     : `❌ Không có đòn đánh trúng ở hiệp này! Thực Thể nguyên vẹn sinh lực.`;
             }
 
-            // 2. THỰC THỂ TUNG CHIÊU PHẢN KÍCH (ÁP DỤNG KHẮC HỆ LÊN HỌC SINH)
+            // 2. THỰC THỂ TUNG CHIÊU PHẢN KÍCH
             setTimeout(() => {
                 Sound.bossRoar();
                 skillBanner.classList.remove('hidden');
@@ -2168,7 +2194,6 @@
                 hostState.eliminatedThisRound = [];
                 Object.values(hostState.players).forEach(p => {
                     if (p.isAlive) {
-                        // Nếu hệ của Boss khắc hệ của học sinh: trừ 75 HP thay vì 50 HP!
                         const bossCountersPlayer = (curBossConfig.counters === p.element);
                         const damageTaken = bossCountersPlayer ? 75 : 50;
 
@@ -2198,7 +2223,7 @@
                     document.getElementById('bossEliminationAlertText').innerText = `⚡ THỰC THỂ ĐÃ HẠ GỤC: ${hostState.eliminatedThisRound.join(', ')} (Cạn HP)!`;
                 }
 
-                // 3. THỰC THỂ BIẾN HÌNH SANG NGUYÊN TỐ MỚI CHO HIỆP TIẾP THEO
+                // 3. THỰC THỂ BIẾN HÌNH SANG NGUYÊN TỐ MỚI CHO HIỆP TIẾP THEO (ĐỒNG BỘ CHIÊU THỨC)
                 setTimeout(() => {
                     const otherElements = ELEMENT_KEYS.filter(k => k !== hostState.bossElement);
                     const newElementKey = otherElements[Math.floor(Math.random() * otherElements.length)];
@@ -2210,10 +2235,16 @@
 
                     setTimeout(() => {
                         document.getElementById('bossMorphNoticeBadge').classList.add('hidden');
-                        avatarBox.innerHTML = getElementalTitanSvg(newElementKey, 180, 230);
+                        avatarBox.style.setProperty('--glow-color', nextBossConfig.glowColor);
+                        avatarBox.innerHTML = getElementalTitanSvg(newElementKey, "100%", "100%");
                         elementTag.className = `px-3 py-0.5 rounded-full text-xs font-rpg font-black uppercase tracking-wider border shadow-md ${nextBossConfig.badgeBg}`;
                         elementTag.innerText = `HỆ ${nextBossConfig.name.toUpperCase()}`;
                         document.getElementById('bossBattleName').innerText = nextBossConfig.title;
+
+                        // ĐỒNG BỘ BIỂU NGỮ ĐẠI CHIÊU CHÍNH XÁC VỚI HỆ MỚI ĐÃ CHUYỂN HÓA
+                        skillBanner.className = `mt-2.5 px-6 py-1.5 rounded-full text-white font-rpg font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl border border-white/40 animate-bounce ${nextBossConfig.badgeBg}`;
+                        skillBanner.innerText = `💥 ĐẠI CHIÊU: ${nextBossConfig.skillName.toUpperCase()}`;
+
                         circle.style.color = nextBossConfig.color;
                         statusTxt.innerHTML = `🌀 Thực Thể đã chuyển hóa thành <strong class="text-amber-300 font-black">${nextBossConfig.title}</strong>! Điểm yếu hiệp tới: <strong class="text-emerald-400 font-bold">Hệ ${ELEMENTS_CONFIG[nextBossConfig.counteredBy].name}</strong>!`;
                     }, 1200);
@@ -2536,7 +2567,7 @@
             const config = ELEMENTS_CONFIG[elemKey];
             const desc = document.getElementById('playerSelectedSkillDesc');
             if (desc) {
-                desc.innerHTML = `Tuyệt Kỹ: <strong class="text-amber-300">${config.skillName}</strong> (${config.counterText})`;
+                desc.innerHTML = `Tuyệt Kỹ: <strong class="text-amber-300">${config.skillName}</strong> (${config.counterText} - Crit ATK +50%)`;
             }
             Sound.tick();
         }
@@ -2657,15 +2688,6 @@
                 const atkPercent = Math.min(100, Math.round((playerState.atk / maxDisplayAtk) * 100));
                 atkBar.style.width = `${atkPercent}%`;
             }
-
-            const streakBadge = document.getElementById('playerStreakBadge');
-            const streakCount = document.getElementById('playerStreakCount');
-            if (playerState.streak >= 2) {
-                streakBadge.classList.remove('hidden');
-                streakCount.innerText = playerState.streak;
-            } else {
-                streakBadge.classList.add('hidden');
-            }
         }
 
         function handlePlayerIncomingData(data) {
@@ -2699,6 +2721,20 @@
                     document.getElementById('playerSubmittedOverlay').classList.add('hidden');
                     updatePlayerBarsUI();
 
+                    // Cập nhật huy hiệu mục tiêu của Boss trên màn hình học sinh
+                    if (data.bossElement && ELEMENTS_CONFIG[data.bossElement]) {
+                        const curBoss = ELEMENTS_CONFIG[data.bossElement];
+                        const targetTag = document.getElementById('playerCurrentBossTargetTag');
+                        const myConfig = ELEMENTS_CONFIG[playerState.myElement];
+                        if (myConfig.counters === data.bossElement) {
+                            targetTag.className = "px-2 py-0.5 rounded-lg text-[10px] font-rpg font-black bg-amber-500/20 text-amber-300 border border-amber-400 animate-pulse";
+                            targetTag.innerText = `Boss: ${curBoss.name} (Crit +50%)`;
+                        } else {
+                            targetTag.className = `px-2 py-0.5 rounded-lg text-[10px] font-rpg font-black ${curBoss.badgeBg}`;
+                            targetTag.innerText = `Boss: Hệ ${curBoss.name}`;
+                        }
+                    }
+
                     const qIndex = data.qIndex !== undefined ? data.qIndex : 0;
                     const q = QUESTIONS_DATA[qIndex];
                     if (q) {
@@ -2723,7 +2759,6 @@
                         document.getElementById('playerOptText3').innerText = q.options[3];
                     }
 
-                    // Đếm ngược 30 giây trên điện thoại
                     clearInterval(playerState.playerTimerInterval);
                     playerState.playerTimer = 30;
                     document.getElementById('playerTimerText').innerText = `${playerState.playerTimer}s`;
@@ -2852,7 +2887,7 @@
             const myConfig = ELEMENTS_CONFIG[playerState.myElement];
             const advBox = document.getElementById('playerLobbyCounterAdvantage');
             if (myConfig.counters === bossElemKey) {
-                advBox.innerHTML = `🎯 <strong class="text-emerald-400 font-bold">Hệ của bạn khắc chế Boss (+50% ATK)!</strong>`;
+                advBox.innerHTML = `🎯 <strong class="text-emerald-400 font-bold">Hệ của bạn khắc chế Boss (Crit ATK +50%)!</strong>`;
             } else if (bossConfig.counters === playerState.myElement) {
                 advBox.innerHTML = `⚠️ <strong class="text-red-400 font-bold">Boss khắc chế hệ của bạn (-75 HP khi phản kích)!</strong>`;
             } else {
