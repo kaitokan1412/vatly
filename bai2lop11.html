@@ -655,6 +655,7 @@
     <script>
         /* =========================================================================
            10 CÂU HỎI TRẮC NGHIỆM VẬT LÍ 11 - BÀI 2: MÔ TẢ DAO ĐỘNG ĐIỀU HÒA
+           (Đã chuẩn hóa không còn hiển thị ký tự '*' trong công thức)
            ========================================================================= */
         const QUESTIONS_DATA = [
             {
@@ -667,23 +668,23 @@
                     "Hàm số mũ."
                 ],
                 correct: 2,
-                explanation: "Dao động điều hòa là dao động trong đó li độ của vật là một hàm côsin (hoặc sin) của thời gian: x = A*cos(ωt + φ)."
+                explanation: "Dao động điều hòa là dao động trong đó li độ của vật là một hàm côsin (hoặc sin) của thời gian: x = A cos(ωt + φ)."
             },
             {
                 category: "Phương trình tổng quát",
                 title: "Phương trình tổng quát của dao động điều hòa có thể viết dưới dạng nào sau đây?",
                 options: [
-                    "x = A*cos(ωt + φ)",
-                    "x = A*ω*cos(ωt + φ)",
-                    "x = A*cos(ω + φ*t)",
-                    "x = ω*cos(A*t + φ)"
+                    "x = A cos(ωt + φ)",
+                    "x = Aω cos(ωt + φ)",
+                    "x = A cos(ω + φt)",
+                    "x = ω cos(At + φ)"
                 ],
                 correct: 0,
-                explanation: "Phương trình chuẩn của dao động điều hòa là x = A*cos(ωt + φ), trong đó A là biên độ, ω là tần số góc, φ là pha ban đầu."
+                explanation: "Phương trình chuẩn của dao động điều hòa là x = A cos(ωt + φ), trong đó A là biên độ, ω là tần số góc, φ là pha ban đầu."
             },
             {
                 category: "Xác định biên độ",
-                title: "Một vật dao động điều hòa theo phương trình x = 6*cos(4πt + π/3) cm. Biên độ dao động của vật là:",
+                title: "Một vật dao động điều hòa theo phương trình x = 6 cos(4πt + π/3) cm. Biên độ dao động của vật là:",
                 options: [
                     "3 cm.",
                     "4 cm.",
@@ -691,11 +692,11 @@
                     "12 cm."
                 ],
                 correct: 2,
-                explanation: "Dựa vào dạng chuẩn x = A*cos(ωt + φ), ta thấy ngay biên độ dao động A = 6 cm."
+                explanation: "Dựa vào dạng chuẩn x = A cos(ωt + φ), ta thấy ngay biên độ dao động A = 6 cm."
             },
             {
                 category: "Xác định pha ban đầu",
-                title: "Một vật dao động điều hòa theo phương trình x = 8*cos(5πt - π/4) cm. Pha ban đầu của dao động là:",
+                title: "Một vật dao động điều hòa theo phương trình x = 8 cos(5πt - π/4) cm. Pha ban đầu của dao động là:",
                 options: [
                     "5π rad.",
                     "-π/4 rad.",
@@ -731,7 +732,7 @@
             },
             {
                 category: "Tính li độ tại thời điểm t",
-                title: "Một vật dao động điều hòa theo phương trình x = 10*cos(2πt) cm. Tại thời điểm t = 0,25 s, li độ của vật bằng:",
+                title: "Một vật dao động điều hòa theo phương trình x = 10 cos(2πt) cm. Tại thời điểm t = 0,25 s, li độ của vật bằng:",
                 options: [
                     "10 cm.",
                     "5 cm.",
@@ -739,15 +740,15 @@
                     "-10 cm."
                 ],
                 correct: 2,
-                explanation: "Thay t = 0,25 s vào phương trình: x = 10*cos(2π * 0,25) = 10*cos(π/2) = 0 cm (vật đang đi qua vị trí cân bằng)."
+                explanation: "Thay t = 0,25 s vào phương trình: x = 10 cos(2π · 0,25) = 10 cos(π/2) = 0 cm (vật đang đi qua vị trí cân bằng)."
             },
             {
                 category: "Độ lệch pha giữa hai dao động",
-                title: "Hai dao động cùng tần số có phương trình x₁ = A₁*cos(ωt + φ₁) và x₂ = A₂*cos(ωt + φ₂). Độ lệch pha của hai dao động được xác định bởi:",
+                title: "Hai dao động cùng tần số có phương trình x₁ = A₁ cos(ωt + φ₁) và x₂ = A₂ cos(ωt + φ₂). Độ lệch pha của hai dao động được xác định bởi:",
                 options: [
                     "Δφ = φ₁ + φ₂",
                     "Δφ = |φ₁ - φ₂| (hoặc φ₂ - φ₁)",
-                    "Δφ = ω*(φ₁ - φ₂)",
+                    "Δφ = ω(φ₁ - φ₂)",
                     "Δφ = A₁ - A₂"
                 ],
                 correct: 1,
@@ -755,7 +756,7 @@
             },
             {
                 category: "Tính độ lệch pha cụ thể",
-                title: "Hai dao động điều hòa có phương trình x₁ = 5*cos(4πt + π/3) cm và x₂ = 8*cos(4πt - π/6) cm. Độ lệch pha của hai dao động là:",
+                title: "Hai dao động điều hòa có phương trình x₁ = 5 cos(4πt + π/3) cm và x₂ = 8 cos(4πt - π/6) cm. Độ lệch pha của hai dao động là:",
                 options: [
                     "π/6 rad.",
                     "π/3 rad.",
@@ -767,7 +768,7 @@
             },
             {
                 category: "Mối quan hệ về pha",
-                title: "Cho hai dao động x₁ = 4*cos(2πt) cm và x₂ = 6*cos(2πt + π) cm. Nhận xét nào sau đây đúng?",
+                title: "Cho hai dao động x₁ = 4 cos(2πt) cm và x₂ = 6 cos(2πt + π) cm. Nhận xét nào sau đây đúng?",
                 options: [
                     "Hai dao động cùng pha.",
                     "Hai dao động ngược pha.",
