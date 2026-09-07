@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>An Toàn Phòng Thực Hành Vật Lí - Bài 2 (Vật Lí 10)</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Bắt lỗi WebSocket trong môi trường Sandbox iframe -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
+                e.preventDefault();
+                console.warn("[LabSafetyBus] Chế độ iFrame bảo mật, kích hoạt kênh BroadcastChannel/LocalBus an toàn.");
+                return true;
+            }
+        });
+    </script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Space Grotesk, Quicksand & Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Thư viện phụ trợ: MQTT WebSocket, SheetJS, Confetti, QRCode -->
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        * {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        .font-heading { font-family: 'Quicksand', sans-serif; font-weight: 800; }
+        .font-tech { font-family: 'Space Grotesk', monospace; }
+
+        /* Nền phong cách Phòng thí nghiệm & Cảnh báo an toàn (Safety Lab Theme) */
+        .lab-safety-theme {
+            background-color: #0b1120;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.10) 0px, transparent 50%),
+                linear-gradient(rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+        }
+
+        /* Viền sọc cảnh báo nguy hiểm công nghiệp (Hazard Stripe Bar) */
+        .hazard-stripe {
+            background: repeating-linear-gradient(
+                -45deg,
+                #f59e0b,
+                #f59e0b 14px,
+                #0f172a 14px,
+                #0f172a 28px
+            );
+        }
+
+        .hazard-card-panel {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(51, 65, 85, 0.8);
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.45);
+        }
+
+        /* Nút lựa chọn Trắc nghiệm */
+        .btn-safety-choice {
+            background: rgba(30, 41, 59, 0.7);
+            border: 2px solid #334155;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-safety-choice:hover {
+            background: rgba(51, 65, 85, 0.85);
+            border-color: #f59e0b;
+            transform: translateY(-2px);
+        }
+
+        /* Nút Đúng / Sai */
+        .btn-tf-true {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.25));
+            border: 2px solid #10b981;
+            color: #34d399;
+        }
+        .btn-tf-true:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.4));
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+        }
+        .btn-tf-false {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.25));
+            border: 2px solid #ef4444;
+            color: #f87171;
+        }
+        .btn-tf-false:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.4));
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+        }
+
+        /* Hiệu ứng kéo thả sắp xếp quy trình */
+        .slot-seq-container {
+            transition: all 0.2s ease;
+            user-select: none;
+            touch-action: pan-y;
+        }
+        .slot-seq-container.drag-over {
+            border-color: #f59e0b !important;
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            transform: scale(1.02);
+        }
+        .slot-selected-active {
+            border-color: #f59e0b !important;
+            background-color: rgba(245, 158, 11, 0.2) !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Hiệu ứng xung cảnh báo nguy cấp */
+        @keyframes emergencyPulse {
+            0%, 100% { border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+            50% { border-color: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.25); }
+        }
+        .emergency-alarm {
+            animation: emergencyPulse 1.4s infinite ease-in-out;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="lab-safety-theme text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- VIỀN CẢNH BÁO AN TOÀN TRÊN CÙNG -->
+    <div class="hazard-stripe h-2 w-full z-50"></div>
+
+    <!-- THANH ĐIỀU HÀNH PHÒNG AN TOÀN VẬT LÍ -->
+    <header class="w-full bg-slate-900/95 border-b border-slate-800 px-4 sm:px-8 py-3 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-600 to-rose-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-white flex-shrink-0">
+                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-400 font-tech text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                        VẬT LÍ 10 • BÀI 2
+                    </span>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-slate-400 font-bold hidden sm:inline">Phòng Thực Hành An Toàn</span>
+                </div>
+                <h1 class="font-heading text-base sm:text-lg md:text-xl text-white tracking-tight leading-tight">
+                    QUY TẮC AN TOÀN TRONG PHÒNG THỰC HÀNH VẬT LÍ
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button id="soundToggleBtn" onclick="toggleAudio()" class="p-2.5 w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm font-bold flex items-center justify-center transition" title="Bật/Tắt âm thanh">
+                <i class="fa-solid fa-volume-high text-amber-400" id="soundIcon"></i>
+            </button>
+            <button onclick="window.location.reload()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-bold border border-slate-700 text-slate-200 flex items-center gap-2 transition">
+                <i class="fa-solid fa-rotate-right text-slate-400"></i>
+                <span class="hidden sm:inline">Trang Chủ</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- TOAST THÔNG BÁO -->
+    <div id="toastAlert" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl text-xs font-bold shadow-xl transition-all duration-300 opacity-0 pointer-events-none"></div>
+
+    <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-5xl w-full mx-auto justify-center z-10 relative">
+
+        <!-- ==================== 0. MÀN HÌNH CHỌN CHẾ ĐỘ ==================== -->
+        <section id="roleSelectionScreen" class="w-full max-w-4xl mx-auto hazard-card-panel p-6 sm:p-10 rounded-3xl text-center my-auto flex flex-col gap-6">
+            <div>
+                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs sm:text-sm font-bold mb-2">
+                    <i class="fa-solid fa-shield-halved"></i> ĐẤU TRƯỜNG KHẢO SÁT & XỬ LÍ TÌNH HUỐNG
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-heading text-white mt-1">
+                    CÁC QUY TẮC AN TOÀN PHÒNG THỰC HÀNH VẬT LÍ
+                </h2>
+                <p class="text-xs sm:text-sm md:text-base text-slate-400 max-w-xl mx-auto mt-2 font-medium">
+                    Tích hợp 3 cơ chế tương tác: <b>Trắc nghiệm phản xạ</b>, <b>Thẩm định Đúng/Sai</b> và <b>Kéo - thả sắp xếp quy trình thực nghiệm</b>.
+                </p>
+            </div>
+
+            <!-- NÚT CHỌN VAI TRÒ -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- CARD MÁY CHIẾU (GIÁO VIÊN) -->
+                <button onclick="startHostRole()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-800/80 to-slate-900 border-2 border-slate-700 hover:border-amber-500 shadow-lg hover:shadow-amber-500/10 transition transform hover:-translate-y-1 active:scale-[0.99] flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition">
+                        📽️
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-heading text-white">MÁY CHIẾU (GIÁO VIÊN)</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-2 mb-5 leading-relaxed">
+                        Hiển thị mã PIN & QR Code, trình chiếu 10 câu hỏi với âm thanh cảnh báo, bục vinh danh Top 6 và xuất bảng điểm Excel theo lớp.
+                    </p>
+                    <span class="px-7 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs sm:text-sm uppercase tracking-wider transition shadow-md">
+                        MỞ PHÒNG KIỂM TRA
+                    </span>
+                </button>
+
+                <!-- CARD ĐIỆN THOẠI (HỌC SINH) -->
+                <button onclick="startPlayerRole()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-800/80 to-slate-900 border-2 border-slate-700 hover:border-rose-500 shadow-lg hover:shadow-rose-500/10 transition transform hover:-translate-y-1 active:scale-[0.99] flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition">
+                        📱
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-heading text-white">ĐIỆN THOẠI (HỌC SINH)</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-2 mb-5 leading-relaxed">
+                        Quét QR hoặc nhập PIN, tương tác trực tiếp: bấm nút Đúng/Sai, xếp 4 bước thực hành và giải quyết các tình huống khẩn cấp.
+                    </p>
+                    <span class="px-7 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition shadow-md">
+                        VÀO THI NGAY
+                    </span>
+                </button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-left text-xs sm:text-sm text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-base font-bold flex-shrink-0">⚡</span>
+                    <div>
+                        <span class="font-bold text-slate-200 block">3 Dạng Thao Tác Chuyên Biệt:</span>
+                        <span class="text-slate-400 text-xs">Trắc nghiệm chọn phương án an toàn • Kéo - thả chuỗi quy trình thí nghiệm (Câu 7) • Thẩm định Đúng / Sai (Câu 3 & Câu 10).</span>
+                    </div>
+                </div>
+                <div class="px-3.5 py-1.5 rounded-full bg-slate-800 text-amber-400 font-tech text-xs font-bold whitespace-nowrap border border-slate-700">
+                    Auto Leaderboard Top 6
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== GIAO DIỆN GIÁO VIÊN (MÁY CHIẾU) ==================== -->
+        <!-- 1. SẢNH CHỜ PHÒNG THI -->
+        <section id="hostLobbyPanel" class="w-full max-w-5xl mx-auto hazard-card-panel p-6 sm:p-9 rounded-3xl my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="font-heading text-base sm:text-lg text-white uppercase tracking-wide">PHÒNG CHỜ KIỂM ĐỊNH AN TOÀN LAB</span>
+                    <span class="text-xs px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-tech font-bold">READY TO SYNC</span>
+                </div>
+                <div class="text-xs sm:text-sm md:text-base font-bold text-slate-300">
+                    <i class="fa-solid fa-users text-amber-400 mr-1.5"></i>Đã tham gia: <span class="text-amber-400 font-tech font-extrabold text-2xl" id="hostPlayerCountNum">0</span> học sinh
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- CỘT TRÁI: PIN & QR -->
+                <div class="lg:col-span-5 p-6 rounded-3xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-between text-center gap-4">
+                    <div>
+                        <span class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wider block font-tech">MÃ PIN PHÒNG THI</span>
+                        <div class="flex items-center justify-center gap-2.5 mt-2">
+                            <span id="hostPinDisplay" class="text-5xl sm:text-6xl font-tech font-black text-amber-400 px-6 py-2 rounded-2xl bg-slate-950 border-2 border-amber-500/50 shadow-inner tracking-widest">
+                                ----
+                            </span>
+                            <button onclick="copyPinUrl()" class="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-base font-bold transition shadow-sm" title="Sao chép link">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KHUNG MÃ QR -->
+                    <div class="flex flex-col items-center bg-white p-3 rounded-2xl shadow-md cursor-pointer hover:opacity-95 transition" onclick="openQrModal()" title="Bấm để phóng to">
+                        <div id="hostQrBox" class="w-[130px] h-[130px] flex items-center justify-center overflow-hidden"></div>
+                        <span class="text-[11px] font-bold text-slate-700 mt-2 flex items-center gap-1">
+                            <i class="fa-solid fa-expand"></i> Phóng to mã QR
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-slate-400 font-medium">Học sinh quét mã QR hoặc truy cập đường link và nhập mã PIN để vào phòng.</p>
+                </div>
+
+                <!-- CỘT PHẢI: DANH SÁCH HỌC SINH -->
+                <div class="lg:col-span-7 flex flex-col justify-between gap-4">
+                    <div class="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 flex-1 flex flex-col">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 mb-3">
+                            <span class="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">Học sinh đã điểm danh</span>
+                            <span class="text-xs font-tech text-amber-400">Live Telemetry</span>
+                        </div>
+                        <div class="flex-1 min-h-[190px] max-h-[250px] overflow-y-auto p-2 flex flex-col justify-center">
+                            <p class="text-sm text-slate-500 italic text-center" id="emptyStudentNotice">Đang chờ học sinh quét QR hoặc nhập PIN vào phòng...</p>
+                            <div class="flex flex-wrap gap-2 items-center justify-center" id="hostStudentListGrid"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="addSafetyBots(4)" type="button" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-bold border border-slate-700 transition flex items-center gap-2 flex-1 sm:flex-none justify-center">
+                                <i class="fa-solid fa-user-plus text-amber-400"></i> + Thêm 4 bạn mẫu (Test)
+                            </button>
+                            <button onclick="clearSafetyBots()" type="button" class="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs sm:text-sm font-bold border border-slate-700 transition" title="Xóa danh sách">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                        
+                        <button onclick="hostBeginQuiz()" id="hostStartQuizBtn" class="w-full sm:w-auto px-9 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading text-sm sm:text-base uppercase tracking-wider transition shadow-lg disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 font-black" disabled>
+                            <span>BẮT ĐẦU BÀI KHẢO SÁT</span>
+                            <i class="fa-solid fa-play text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. MÀN HÌNH TRÌNH CHIẾU CÂU HỎI TRÊN MÁY CHIẾU -->
+        <section id="hostQuestionPanel" class="w-full max-w-5xl mx-auto flex flex-col gap-5 hidden">
+            <!-- THANH ĐẾM GIỜ & TIẾN ĐỘ -->
+            <div class="hazard-card-panel p-4 sm:p-6 rounded-3xl flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span id="hostQuestionCounter" class="px-4 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-heading text-sm sm:text-base uppercase font-black">
+                        CÂU 1 / 10
+                    </span>
+                    <span id="hostCategoryBadge" class="text-sm sm:text-base font-bold text-slate-300">Quy tắc chung</span>
+                    <span id="hostMechanicBadge" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 text-amber-400 font-tech font-bold uppercase border border-slate-700">
+                        TRẮC NGHIỆM
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-amber-400 shadow-inner">
+                        <i class="fa-regular fa-clock text-amber-400 text-lg sm:text-xl"></i>
+                        <span id="hostClockTime" class="font-tech font-black text-2xl sm:text-3xl text-amber-400">30</span>
+                        <span class="text-xs sm:text-sm font-bold text-slate-400">giây</span>
+                    </div>
+
+                    <div class="px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-xs sm:text-sm font-bold text-slate-400">
+                        Đã nộp: <span id="hostSubmittedCount" class="text-amber-400 font-tech font-extrabold text-lg sm:text-xl">0</span> / <span id="hostTotalStudentsCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KHUNG NỘI DUNG CÂU HỎI THEO TỪNG CƠ CHẾ -->
+            <div class="hazard-card-panel p-6 sm:p-9 rounded-3xl flex flex-col gap-6">
+                <!-- Tiêu đề câu hỏi -->
+                <div class="flex items-start gap-3.5">
+                    <span id="hostQuestionIcon" class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-2xl flex-shrink-0 mt-0.5">
+                        ⚠️
+                    </span>
+                    <h2 id="hostQuestionText" class="text-xl sm:text-2xl md:text-3xl font-heading text-white leading-relaxed">
+                        Đang nạp câu hỏi...
+                    </h2>
+                </div>
+
+                <!-- CƠ CHẾ 1: 4 PHƯƠNG ÁN TRẮC NGHIỆM (A - B - C - D) -->
+                <div id="hostMcqWrapper" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div id="hostOptionCard0" class="p-5 rounded-2xl btn-safety-choice flex items-center justify-between gap-3 text-base sm:text-lg font-bold">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-base font-black flex-shrink-0">A</span>
+                            <span id="hostOptLabel0" class="flex-1 text-slate-200">Phương án A</span>
+                        </div>
+                        <span id="hostCorrectBadge0" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 font-heading text-xs font-black">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+
+                    <div id="hostOptionCard1" class="p-5 rounded-2xl btn-safety-choice flex items-center justify-between gap-3 text-base sm:text-lg font-bold">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-base font-black flex-shrink-0">B</span>
+                            <span id="hostOptLabel1" class="flex-1 text-slate-200">Phương án B</span>
+                        </div>
+                        <span id="hostCorrectBadge1" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 font-heading text-xs font-black">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+
+                    <div id="hostOptionCard2" class="p-5 rounded-2xl btn-safety-choice flex items-center justify-between gap-3 text-base sm:text-lg font-bold">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-base font-black flex-shrink-0">C</span>
+                            <span id="hostOptLabel2" class="flex-1 text-slate-200">Phương án C</span>
+                        </div>
+                        <span id="hostCorrectBadge2" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 font-heading text-xs font-black">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+
+                    <div id="hostOptionCard3" class="p-5 rounded-2xl btn-safety-choice flex items-center justify-between gap-3 text-base sm:text-lg font-bold">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-base font-black flex-shrink-0">D</span>
+                            <span id="hostOptLabel3" class="flex-1 text-slate-200">Phương án D</span>
+                        </div>
+                        <span id="hostCorrectBadge3" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 font-heading text-xs font-black">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+                </div>
+
+                <!-- CƠ CHẾ 2: THẨM ĐỊNH ĐÚNG / SAI (CÂU 3 & CÂU 10) -->
+                <div id="hostTfWrapper" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div id="hostTfCardTrue" class="p-6 rounded-3xl btn-tf-true flex flex-col items-center justify-center text-center gap-2">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl font-black">
+                            ✓
+                        </div>
+                        <h4 class="text-xl sm:text-2xl font-heading font-black">ĐÚNG</h4>
+                        <p class="text-xs sm:text-sm text-emerald-300 font-semibold" id="hostTfSubTrue">Hành động an toàn / Mệnh đề chính xác</p>
+                    </div>
+
+                    <div id="hostTfCardFalse" class="p-6 rounded-3xl btn-tf-false flex flex-col items-center justify-center text-center gap-2">
+                        <div class="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-3xl font-black">
+                            ✗
+                        </div>
+                        <h4 class="text-xl sm:text-2xl font-heading font-black">SAI</h4>
+                        <p class="text-xs sm:text-sm text-rose-300 font-semibold" id="hostTfSubFalse">Hành động vi phạm / Không an toàn</p>
+                    </div>
+                </div>
+
+                <!-- CƠ CHẾ 3: KÉO THẢ SẮP XẾP QUY TRÌNH 4 BƯỚC (CÂU 7) -->
+                <div id="hostSequenceWrapper" class="hidden flex flex-col gap-4">
+                    <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-lg">
+                                🔀
+                            </span>
+                            <div>
+                                <h4 class="text-sm sm:text-base font-heading font-extrabold text-amber-400">
+                                    THỨ TỰ 4 THAO TÁC ĐANG XÁO TRỘN TRÊN ĐIỆN THOẠI HỌC SINH
+                                </h4>
+                                <p class="text-xs text-slate-400">Học sinh hãy quan sát và kéo thả các thẻ nội dung vào đúng thứ tự chuẩn xác từ Bước 1 đến Bước 4!</p>
+                            </div>
+                        </div>
+                        <span id="hostSeqStateBadge" class="px-3 py-1 rounded-full bg-slate-800 text-amber-400 font-tech text-xs font-bold border border-slate-700">
+                            RANDOMIZED
+                        </span>
+                    </div>
+
+                    <!-- 4 Khung bước hiển thị trên máy chiếu -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="hostSequenceDisplayGrid"></div>
+                </div>
+            </div>
+
+            <!-- THANH ĐIỀU HƯỚNG & GIẢI THÍCH SƯ PHẠM (HIỆN KHI HẾT GIỜ) -->
+            <div id="hostRevealControlBar" class="hazard-card-panel p-6 rounded-3xl border-2 border-amber-500/50 shadow-xl flex flex-col gap-4 hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs sm:text-sm font-extrabold uppercase text-amber-400 tracking-wide block font-tech">KẾT THÚC THỜI GIAN TRẢ LỜI</span>
+                        <p class="text-xs sm:text-sm text-slate-400">Xem phân tích quy chuẩn an toàn và chuyển sang Bảng xếp hạng Top 6.</p>
+                    </div>
+                    <button onclick="hostShowLeaderboardScreen()" class="px-7 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading text-xs sm:text-sm uppercase tracking-wider transition shadow-md flex items-center gap-2 font-black">
+                        <span>XEM BẢNG XẾP HẠNG TOP 6</span>
+                        <i class="fa-solid fa-trophy text-slate-950"></i>
+                    </button>
+                </div>
+
+                <div id="hostPedagogicalExplanation" class="text-xs sm:text-sm md:text-base text-slate-200 bg-slate-900/90 border border-slate-800 p-4 rounded-2xl font-medium leading-relaxed"></div>
+            </div>
+
+            <!-- THEO DÕI TIẾN ĐỘ NỘP BÀI THỜI GIAN THỰC -->
+            <div class="hazard-card-panel p-5 rounded-3xl">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2.5">
+                    <span class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wide">Trạng thái nộp bài của học sinh</span>
+                    <span class="text-xs font-tech text-amber-400">Realtime Sync</span>
+                </div>
+                <div id="hostRealtimeSquadList" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[160px] overflow-y-auto p-1"></div>
+            </div>
+        </section>
+
+        <!-- 3. MÀN HÌNH BẢNG XẾP HẠNG TOP 6 SAU MỖI CÂU (MÁY CHIẾU) -->
+        <section id="hostLeaderboardPanel" class="w-full max-w-5xl mx-auto hazard-card-panel p-6 sm:p-10 rounded-3xl my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b border-slate-800 pb-4 gap-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-2xl">
+                        🏆
+                    </div>
+                    <div>
+                        <span class="text-xs font-tech uppercase font-bold text-amber-400 tracking-wider block">BẢNG VINH DANH TRỰC TIẾP</span>
+                        <h3 class="text-lg sm:text-2xl font-heading text-white" id="hostLeaderboardTitleText">
+                            TOP 6 XUẤT SẮC NHẤT
+                        </h3>
+                    </div>
+                </div>
+
+                <button onclick="hostGoNextQuestion()" id="hostBtnNextRound" class="px-7 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading text-xs sm:text-sm uppercase tracking-wider transition shadow-md flex items-center gap-2 font-black">
+                    <span id="hostBtnNextLabel">SANG CÂU TIẾP THEO</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- BỤC VINH DANH TOP 3 -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 items-end justify-center py-3 max-w-2xl mx-auto w-full">
+                <!-- Hạng 2 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl mb-1">🥈</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-2 border-slate-700 text-center flex flex-col items-center">
+                        <span class="text-xs sm:text-sm font-bold text-slate-200 truncate max-w-full" id="podium2Name">--</span>
+                        <span class="text-xs font-tech text-slate-400 font-extrabold" id="podium2Score">0 pts</span>
+                    </div>
+                    <div class="w-full h-14 sm:h-18 bg-slate-800 rounded-b-xl flex items-center justify-center font-heading font-black text-slate-400 text-sm sm:text-base border border-slate-700">#2</div>
+                </div>
+
+                <!-- Hạng 1 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">👑 🥇</span>
+                    <div class="w-full p-3.5 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-center flex flex-col items-center shadow-lg ring-2 ring-amber-500/30">
+                        <span class="text-xs sm:text-sm md:text-base font-bold text-amber-300 truncate max-w-full" id="podium1Name">--</span>
+                        <span class="text-xs sm:text-sm font-tech text-amber-400 font-black" id="podium1Score">0 pts</span>
+                    </div>
+                    <div class="w-full h-20 sm:h-24 bg-gradient-to-t from-amber-600 to-amber-500 rounded-b-xl flex items-center justify-center font-heading font-black text-slate-950 text-base sm:text-lg shadow-md">#1</div>
+                </div>
+
+                <!-- Hạng 3 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl mb-1">🥉</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-2 border-orange-800 text-center flex flex-col items-center">
+                        <span class="text-xs sm:text-sm font-bold text-slate-200 truncate max-w-full" id="podium3Name">--</span>
+                        <span class="text-xs font-tech text-orange-400 font-extrabold" id="podium3Score">0 pts</span>
+                    </div>
+                    <div class="w-full h-10 sm:h-14 bg-orange-950/80 rounded-b-xl flex items-center justify-center font-heading font-black text-orange-400 text-xs sm:text-sm border border-orange-900">#3</div>
+                </div>
+            </div>
+
+            <!-- BẢNG TOP 6 -->
+            <div class="bg-slate-900/90 rounded-3xl p-4 sm:p-5 border border-slate-800 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-800/80 text-slate-400 text-xs uppercase font-heading">
+                            <tr>
+                                <th class="p-3 rounded-l-xl">Hạng</th>
+                                <th class="p-3">Học sinh</th>
+                                <th class="p-3">Lớp</th>
+                                <th class="p-3 text-center">Câu vừa qua</th>
+                                <th class="p-3 text-center">Chuỗi đúng</th>
+                                <th class="p-3 text-right rounded-r-xl">Tổng Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostTop6TableBody" class="divide-y divide-slate-800 font-bold text-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. MÀN HÌNH TỔNG KẾT & XUẤT FILE EXCEL (MÁY CHIẾU) -->
+        <section id="hostSummaryPanel" class="w-full max-w-5xl mx-auto hazard-card-panel p-6 sm:p-10 rounded-3xl my-auto hidden flex flex-col gap-6">
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto rounded-3xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-4xl shadow-md mb-2.5">
+                    🛡️
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-heading text-white">
+                    TỔNG KẾT KHẢO SÁT AN TOÀN VẬT LÍ 10 - BÀI 2
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400 mt-1 font-medium">Báo cáo đánh giá năng lực làm chủ quy tắc an toàn, nhận diện biển báo và phản xạ xử lí sự cố phòng lab.</p>
+            </div>
+
+            <!-- BẢNG 1: XẾP HẠNG & TỈ LỆ -->
+            <div class="bg-slate-900/90 rounded-3xl p-5 border border-slate-800 overflow-hidden">
+                <h4 class="text-xs font-tech font-bold uppercase text-amber-400 mb-3 flex items-center justify-between">
+                    <span>1. BẢNG XẾP HẠNG KẾT QUẢ TOÀN DIỆN</span>
+                    <span class="text-xs text-slate-500 font-normal">Sắp xếp theo Điểm & Tốc độ</span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-800/80 text-slate-400 text-xs uppercase font-heading">
+                            <tr>
+                                <th class="p-3 rounded-l-xl">Hạng</th>
+                                <th class="p-3">Học sinh</th>
+                                <th class="p-3">Lớp</th>
+                                <th class="p-3 text-center">Tổng Điểm</th>
+                                <th class="p-3 text-center">Số Câu Đúng</th>
+                                <th class="p-3 text-center">Tốc Độ TB</th>
+                                <th class="p-3 text-right rounded-r-xl">Tỉ Lệ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostFinalStatsBody" class="divide-y divide-slate-800 font-bold text-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BẢNG 2: MA TRẬN KẾT QUẢ TỪNG CÂU (C1 ĐẾN C10) -->
+            <div class="bg-slate-900/90 rounded-3xl p-5 border border-slate-800 overflow-hidden">
+                <h4 class="text-xs font-tech font-bold uppercase text-amber-400 mb-3 flex items-center justify-between">
+                    <span>2. MA TRẬN KẾT QUẢ CHI TIẾT (C1 ➔ C10)</span>
+                    <span class="text-xs text-slate-400 font-normal flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">✓ Đúng</span>
+                        <span class="text-rose-400 font-bold">✗ Sai</span>
+                        <span class="text-amber-400 font-bold">C3, C10: Đúng/Sai</span>
+                        <span class="text-indigo-400 font-bold">C7: Xếp 4 bước</span>
+                    </span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-center text-xs">
+                        <thead class="bg-slate-800/80 text-slate-400 text-[11px] uppercase font-heading">
+                            <tr id="hostMatrixHeaderRow">
+                                <th class="p-3 text-left rounded-l-xl">Họ & Tên</th>
+                                <th class="p-3 text-center rounded-r-xl">Tổng Đúng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostMatrixBody" class="divide-y divide-slate-800 font-bold text-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="exportSafetyExcel()" class="px-7 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-heading text-xs sm:text-sm uppercase tracking-wider shadow-md transition flex items-center gap-2 font-black">
+                    <i class="fa-solid fa-file-excel text-base"></i>
+                    <span>XUẤT BẢNG ĐIỂM EXCEL THEO LỚP</span>
+                </button>
+                <button onclick="window.location.reload()" class="px-7 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-heading text-xs sm:text-sm uppercase tracking-wider border border-slate-700 transition flex items-center gap-2 font-bold">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>TỔ CHỨC BÀI THI MỚI</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== GIAO DIỆN HỌC SINH (ĐIỆN THOẠI) ==================== -->
+        <!-- 1. MÀN HÌNH NHẬP THÔNG TIN -->
+        <section id="playerJoinPanel" class="w-full max-w-md mx-auto hazard-card-panel p-6 sm:p-8 rounded-3xl my-auto hidden text-center flex flex-col gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto text-3xl shadow-sm">
+                ⚡
+            </div>
+            <div>
+                <h2 class="text-xl sm:text-2xl font-heading text-white">VÀO PHÒNG KHẢO SÁT</h2>
+                <p class="text-xs text-slate-400 mt-1 font-medium">Nhập mã PIN và tên của bạn để bắt đầu làm bài</p>
+            </div>
+
+            <div class="flex flex-col gap-3 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Mã PIN phòng thi</label>
+                    <input type="text" id="inputPlayerPin" placeholder="Ví dụ: 8899" maxlength="6"
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-900 text-amber-400 font-tech font-black text-2xl border border-slate-700 focus:border-amber-400 focus:outline-none text-center tracking-widest transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Họ và Tên học sinh</label>
+                    <input type="text" id="inputPlayerName" placeholder="Nhập họ và tên..." maxlength="25"
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-sm border border-slate-700 focus:border-amber-400 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Lớp học</label>
+                    <input type="text" id="inputPlayerClass" placeholder="Ví dụ: 10A1..." maxlength="10"
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-xs border border-slate-700 focus:border-amber-400 focus:outline-none uppercase transition">
+                </div>
+            </div>
+
+            <button onclick="playerSubmitJoin()" id="btnJoinSubmit" class="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading text-xs sm:text-sm uppercase tracking-wider shadow-md transition font-black">
+                VÀO PHÒNG CHỜ
+            </button>
+            <p id="playerConnectingStatus" class="text-xs text-amber-400 font-semibold hidden">Đang kết nối vào phòng thi...</p>
+        </section>
+
+        <!-- 2. PHÒNG CHỜ CỦA HỌC SINH -->
+        <section id="playerLobbyPanel" class="w-full max-w-md mx-auto hazard-card-panel p-6 sm:p-8 rounded-3xl my-auto text-center hidden flex flex-col gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-3xl shadow-sm animate-pulse">
+                🛡️
+            </div>
+            <div>
+                <span class="text-xs font-tech uppercase text-amber-400 font-bold tracking-wide block">ĐÃ VÀO PHÒNG AN TOÀN</span>
+                <h2 id="playerDisplayName" class="text-lg sm:text-2xl font-heading text-white mt-1">HỌC SINH</h2>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+                Hãy chú ý quan sát màn hình máy chiếu.<br>Khi giáo viên bấm bắt đầu, điện thoại sẽ tự động mở giao diện tương ứng với từng câu!
+            </div>
+        </section>
+
+        <!-- 3. BÀN ĐIỀU KHIỂN HỌC SINH (GAMEPAD) -->
+        <section id="playerGamepadPanel" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
+            <!-- THANH THÔNG TIN BÀI THI -->
+            <div class="hazard-card-panel p-3.5 rounded-2xl flex items-center justify-between">
+                <div>
+                    <div id="playerLabelName" class="font-heading font-black text-white text-xs sm:text-sm truncate max-w-[150px]">Học sinh</div>
+                    <div class="text-[11px] text-slate-400 font-semibold">Điểm: <span id="playerCurrentScore" class="font-tech font-black text-amber-400 text-sm">0</span></div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div id="playerStreakTag" class="hidden px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-[11px]">
+                        🔥 x<span id="playerStreakNum">2</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-amber-400">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="playerClockDisplay">30s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIÊU ĐỀ CÂU HỎI TRÊN ĐIỆN THOẠI -->
+            <div class="hazard-card-panel p-4 rounded-2xl text-left flex flex-col gap-1.5">
+                <div class="flex justify-between items-center">
+                    <span id="playerQIndexLabel" class="text-xs font-tech font-black uppercase text-amber-400">CÂU 1 / 10</span>
+                    <span id="playerMechanicBadge" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold uppercase font-tech border border-slate-700">TRẮC NGHIỆM</span>
+                </div>
+                <h3 id="playerQTitle" class="text-xs sm:text-sm font-bold text-white leading-snug">
+                    Đang nạp câu hỏi...
+                </h3>
+            </div>
+
+            <!-- KHUNG 1: TRẮC NGHIỆM 4 NÚT A - B - C - D -->
+            <div class="flex flex-col gap-2.5" id="playerMcqContainer">
+                <button onclick="playerSendChoice(0)" class="btn-safety-choice w-full p-3 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm active:scale-95">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">A</span>
+                    <span id="playerOpt0" class="flex-1 text-slate-200 leading-tight">Phương án A</span>
+                </button>
+
+                <button onclick="playerSendChoice(1)" class="btn-safety-choice w-full p-3 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm active:scale-95">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">B</span>
+                    <span id="playerOpt1" class="flex-1 text-slate-200 leading-tight">Phương án B</span>
+                </button>
+
+                <button onclick="playerSendChoice(2)" class="btn-safety-choice w-full p-3 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm active:scale-95">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">C</span>
+                    <span id="playerOpt2" class="flex-1 text-slate-200 leading-tight">Phương án C</span>
+                </button>
+
+                <button onclick="playerSendChoice(3)" class="btn-safety-choice w-full p-3 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm active:scale-95">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">D</span>
+                    <span id="playerOpt3" class="flex-1 text-slate-200 leading-tight">Phương án D</span>
+                </button>
+            </div>
+
+            <!-- KHUNG 2: NÚT THẨM ĐỊNH ĐÚNG / SAI (CÂU 3 & CÂU 10) -->
+            <div class="hidden grid grid-cols-1 gap-3" id="playerTfContainer">
+                <button onclick="playerSendTfChoice('ĐÚNG')" class="btn-tf-true w-full p-4 rounded-2xl flex items-center justify-between font-heading font-black text-base sm:text-lg active:scale-95">
+                    <div class="flex items-center gap-3">
+                        <span class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">✓</span>
+                        <span>ĐÚNG (Chính xác)</span>
+                    </div>
+                    <i class="fa-solid fa-circle-check text-xl"></i>
+                </button>
+
+                <button onclick="playerSendTfChoice('SAI')" class="btn-tf-false w-full p-4 rounded-2xl flex items-center justify-between font-heading font-black text-base sm:text-lg active:scale-95">
+                    <div class="flex items-center gap-3">
+                        <span class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl">✗</span>
+                        <span>SAI (Không đúng / Nguy hiểm)</span>
+                    </div>
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </button>
+            </div>
+
+            <!-- KHUNG 3: KÉO THẢ SẮP XẾP QUY TRÌNH (CÂU 7) -->
+            <div class="hidden flex flex-col gap-2.5" id="playerSequenceContainer">
+                <div class="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 font-bold flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-hand-pointer text-amber-400"></i>
+                        <span>Chạm để đổi chỗ hoặc bấm mũi tên vào 4 Bước:</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-amber-400 text-[10px] font-tech font-bold">4 SLOTS</span>
+                </div>
+
+                <!-- Danh sách 4 slot Bước 1 -> Bước 4 -->
+                <div class="flex flex-col gap-2" id="playerSequenceSlotsBox"></div>
+
+                <button onclick="playerSubmitSequenceAnswer()" class="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading text-sm font-black uppercase shadow-md transition active:scale-95 flex items-center justify-center gap-2 mt-1">
+                    <i class="fa-solid fa-circle-check text-base"></i>
+                    <span>NỘP BÀI QUY TRÌNH 4 BƯỚC</span>
+                </button>
+            </div>
+
+            <!-- OVERLAY ĐÃ NỘP BÀI -->
+            <div id="playerSubmittedNotice" class="hazard-card-panel p-5 rounded-2xl text-center hidden flex flex-col gap-2">
+                <div class="text-3xl text-emerald-400 font-bold">✓</div>
+                <h4 class="font-heading text-sm sm:text-base text-white">ĐÃ GHI NHẬN PHƯƠNG ÁN</h4>
+                <p id="playerSubmittedSummary" class="text-xs font-bold text-amber-400">Đang chuyển đáp án lên hệ thống...</p>
+                <p class="text-[11px] text-slate-400">Hãy theo dõi kết quả công bố và bảng xếp hạng trên màn hình máy chiếu!</p>
+            </div>
+        </section>
+
+        <!-- 4. MÀN HÌNH PHẢN HỒI KẾT QUẢ CÂU (ĐIỆN THOẠI) -->
+        <section id="playerFeedbackPanel" class="w-full max-w-md mx-auto hazard-card-panel p-6 rounded-3xl text-center my-auto hidden flex flex-col items-center gap-2.5">
+            <div id="playerFeedbackEmoji" class="text-4xl mb-1">🎉</div>
+            <h2 id="playerFeedbackTitle" class="text-lg sm:text-xl font-heading text-emerald-400">
+                CHÍNH XÁC!
+            </h2>
+            <div id="playerFeedbackPoints" class="text-xs sm:text-sm font-bold text-slate-200">
+                +115 Điểm
+            </div>
+            <p id="playerFeedbackTimeSpeed" class="text-[11px] text-slate-400">Thời gian phản xạ: 2.1s</p>
+
+            <div class="w-full py-2.5 px-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between my-1">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-heading font-black text-base shadow-sm">
+                        🏆
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">HẠNG CỦA BẠN</span>
+                        <span class="text-xs font-bold text-slate-200">Trong phòng thi</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="playerFeedbackMyRank" class="text-xl sm:text-2xl font-tech font-black text-amber-400">#--</span>
+                    <span id="playerFeedbackTotalLabel" class="text-[11px] text-slate-500 font-bold block">/ -- bạn</span>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-400 mt-1">Hãy quan sát màn hình giáo viên để theo dõi giải thích quy tắc an toàn!</p>
+        </section>
+
+        <!-- 5. MÀN HÌNH BẢNG XẾP HẠNG TRÊN ĐIỆN THOẠI HỌC SINH -->
+        <section id="playerLeaderboardPanel" class="w-full max-w-md mx-auto hazard-card-panel p-5 rounded-3xl my-auto hidden flex flex-col gap-3">
+            <div class="text-center border-b border-slate-800 pb-2">
+                <span class="text-xs font-tech text-amber-400 font-bold uppercase">BẢNG ĐIỂM ĐỒNG BỘ</span>
+                <h3 class="text-base font-heading text-white font-black">TOP 6 DẪN ĐẦU</h3>
+            </div>
+
+            <div class="flex flex-col gap-1.5" id="playerTop6MobileGrid"></div>
+
+            <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-300">Vị trí của bạn:</span>
+                <span class="font-tech font-extrabold text-amber-400 text-sm" id="playerMobileSelfRank">#-- (0 pts)</span>
+            </div>
+        </section>
+
+        <!-- MODAL PHÓNG TO QR CODE DÀNH CHO MÁY CHIẾU LỚN -->
+        <div id="modalQrZoom" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+            <div class="bg-slate-900 max-w-sm w-full p-6 rounded-3xl text-center border-2 border-slate-700 relative shadow-2xl flex flex-col items-center gap-3">
+                <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 class="text-base font-heading text-white font-bold">QUÉT MÃ THAM GIA PHÒNG THI</h3>
+                <p class="text-xs text-slate-400">Mở camera điện thoại quét mã QR để truy cập trực tiếp</p>
+                
+                <div class="p-3.5 bg-white rounded-2xl shadow-md flex items-center justify-center">
+                    <div id="modalQrContainer" class="w-[200px] h-[200px] flex items-center justify-center overflow-hidden"></div>
+                </div>
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-slate-400 font-bold">MÃ PIN:</span>
+                    <span id="modalPinNum" class="text-2xl font-tech font-black text-amber-400 px-3.5 py-0.5 bg-slate-950 rounded-xl border border-slate-800">----</span>
+                </div>
+                <button onclick="closeQrModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition">
+                    Đóng cửa sổ
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /* =========================================================================
+           10 CÂU HỎI CHUẨN HOÁ - BÀI 2: CÁC QUY TẮC AN TOÀN TRONG PHÒNG THỰC HÀNH
+           (PHÂN CHIA 3 CƠ CHẾ: TRẮC NGHIỆM, ĐÚNG/SAI, KÉO THẢ SẮP XẾP QUY TRÌNH)
+           ========================================================================= */
+        const SAFETY_QUESTIONS = [
+            // Câu 1: Trắc nghiệm (MCQ)
+            {
+                id: 1,
+                type: "mcq",
+                category: "Nhận biết – Quy tắc chung",
+                title: "Khi thực hiện thí nghiệm Vật lí trong phòng thực hành, học sinh cần",
+                options: [
+                    "tự ý sử dụng mọi thiết bị có trong phòng.",
+                    "thực hiện đúng hướng dẫn của giáo viên và quy định an toàn.",
+                    "thay đổi cách lắp thí nghiệm nếu thấy thuận tiện hơn.",
+                    "bật thiết bị trước rồi mới kiểm tra cách lắp."
+                ],
+                correct: 1, // B
+                explanation: "Quy tắc cơ bản: Học sinh chỉ được tiến hành thí nghiệm khi có sự cho phép và phải thực hiện đúng hướng dẫn của giáo viên cùng nội quy phòng thực hành."
+            },
+            // Câu 2: Trắc nghiệm tình huống an toàn điện (MCQ)
+            {
+                id: 2,
+                type: "mcq",
+                category: "Tình huống – An toàn điện",
+                title: "Khi phát hiện dây dẫn điện bị bong lớp cách điện, học sinh nên",
+                options: [
+                    "dùng tay chạm vào vị trí bị bong để kiểm tra.",
+                    "tiếp tục sử dụng nếu dòng điện nhỏ.",
+                    "ngừng sử dụng và báo ngay cho giáo viên.",
+                    "dùng dây dẫn đó nhưng giảm thời gian thí nghiệm."
+                ],
+                correct: 2, // C
+                explanation: "Dây dẫn bị bong lớp cách điện có nguy cơ rò rỉ điện gây điện giật hoặc chập cháy. Cần lập tức ngừng sử dụng và báo ngay giáo viên để thay thế an toàn."
+            },
+            // Câu 3: Thẩm định Đúng / Sai (True/False)
+            {
+                id: 3,
+                type: "tf",
+                category: "Thẩm định hành vi – Thiết bị điện",
+                title: "Đánh giá nhận định sau: 'Khi sử dụng thiết bị điện trong phòng thực hành, học sinh có thể dùng tay chạm trực tiếp vào dây dẫn bị hở điện để kiểm tra nhanh.'",
+                correct: "SAI", // Sai
+                explanation: "Mệnh đề SAI. Tuyệt đối không bao giờ dùng tay chạm trực tiếp vào dây điện bị hở vì nguy cơ bị điện giật nguy hiểm đến tính mạng!"
+            },
+            // Câu 4: Trắc nghiệm xử lí sự cố (MCQ)
+            {
+                id: 4,
+                type: "mcq",
+                category: "Xử lí sự cố khẩn cấp",
+                title: "Trong khi làm thí nghiệm, một thiết bị điện xuất hiện khói và có mùi khét. Việc cần làm đầu tiên là",
+                options: [
+                    "tiếp tục quan sát để xác định nguyên nhân.",
+                    "ngắt nguồn điện nếu có thể thực hiện an toàn và báo ngay cho giáo viên.",
+                    "dùng tay kiểm tra nhiệt độ của thiết bị.",
+                    "đổ nước lên thiết bị để làm nguội."
+                ],
+                correct: 1, // B
+                explanation: "Khi thiết bị bốc khói/mùi khét, phản xạ sống còn đầu tiên là lập tức ngắt nguồn điện (nếu bảo đảm an toàn cho bản thân) và báo ngay giáo viên phụ trách. Tuyệt đối không đổ nước vào thiết bị điện đang cắm điện!"
+            },
+            // Câu 5: Trắc nghiệm an toàn với nhiệt (MCQ)
+            {
+                id: 5,
+                type: "mcq",
+                category: "An toàn với nhiệt",
+                title: "Khi cần di chuyển một vật vừa được đun nóng, cách làm phù hợp nhất là",
+                options: [
+                    "cầm trực tiếp bằng tay.",
+                    "chờ nguội hoặc sử dụng dụng cụ bảo hộ phù hợp.",
+                    "nhúng ngay vật vào nước lạnh.",
+                    "dùng giấy mỏng để cầm vật."
+                ],
+                correct: 1, // B
+                explanation: "Vật vừa đun nóng có nhiệt độ rất cao. Cần chờ vật tự nguội bớt hoặc sử dụng kẹp gắp kim loại, găng tay cách nhiệt chuyên dụng để tránh bị bỏng."
+            },
+            // Câu 6: Trắc nghiệm nhận biết biển cảnh báo (MCQ)
+            {
+                id: 6,
+                type: "mcq",
+                category: "Nhận biết biển cảnh báo",
+                title: "Biển cảnh báo có hình tam giác viền đen, nền vàng với biểu tượng tia sét thường được sử dụng để cảnh báo",
+                options: [
+                    "nguy hiểm do nhiệt độ cao.",
+                    "nguy hiểm do điện thế cao / điện giật.",
+                    "nguy hiểm do vật sắc nhọn.",
+                    "nguy hiểm do tia laser."
+                ],
+                correct: 1, // B
+                explanation: "Kí hiệu tia sét trong hình tam giác là biển cảnh báo nguy cơ điện giật hoặc khu vực có điện áp cao nguy hiểm."
+            },
+            // Câu 7: Cơ chế kéo thả sắp xếp quy trình (Sequence Ordering)
+            {
+                id: 7,
+                type: "sequence",
+                category: "Sắp xếp quy trình an toàn",
+                title: "Sắp xếp 4 thao tác sau theo đúng tiến trình khoa học khi thực hành Vật lí:",
+                items: [
+                    { id: 1, text: "(1) Tiến hành thí nghiệm theo hướng dẫn." },
+                    { id: 2, text: "(2) Đọc kĩ hướng dẫn sử dụng thiết bị." },
+                    { id: 3, text: "(3) Ngắt nguồn và sắp xếp dụng cụ sau khi hoàn thành." },
+                    { id: 4, text: "(4) Kiểm tra dụng cụ, thiết bị trước khi sử dụng." }
+                ],
+                correctOrder: [2, 4, 1, 3], // (2) -> (4) -> (1) -> (3)
+                explanation: "Thứ tự hợp lí chuẩn mực: (2) Đọc kĩ hướng dẫn ➔ (4) Kiểm tra dụng cụ trước khi cắm điện ➔ (1) Tiến hành thí nghiệm đúng bài bản ➔ (3) Ngắt nguồn điện và thu dọn ngăn nắp sau khi kết thúc."
+            },
+            // Câu 8: Trắc nghiệm tình huống dụng cụ thủy tinh (MCQ)
+            {
+                id: 8,
+                type: "mcq",
+                category: "Tình huống – Dụng cụ thủy tinh",
+                title: "Trong quá trình thực hành, một ống thủy tinh bị vỡ trên bàn. Học sinh nên",
+                options: [
+                    "dùng tay nhặt ngay các mảnh vỡ.",
+                    "gạt các mảnh vỡ xuống sàn.",
+                    "báo cho giáo viên và thu gom bằng dụng cụ phù hợp theo hướng dẫn.",
+                    "tiếp tục thí nghiệm và xử lí sau."
+                ],
+                correct: 2, // C
+                explanation: "Mảnh thủy tinh vỡ có cạnh sắc bén gây đứt tay, rách da. Tuyệt đối không dùng tay không nhặt, phải báo giáo viên và dùng chổi quét/dụng cụ gắp chuyên dụng thu gom an toàn."
+            },
+            // Câu 9: Vận dụng mạch điện (MCQ)
+            {
+                id: 9,
+                type: "mcq",
+                category: "Vận dụng – Mạch điện",
+                title: "Một nhóm học sinh đã lắp xong mạch điện nhưng chưa được giáo viên kiểm tra. Hành động phù hợp nhất là",
+                options: [
+                    "đóng công tắc để kiểm tra mạch.",
+                    "tăng điện áp để thử hoạt động của mạch.",
+                    "chờ giáo viên kiểm tra trước khi cấp điện theo yêu cầu của bài thực hành.",
+                    "thay đổi vị trí các thiết bị khi mạch đang có điện."
+                ],
+                correct: 2, // C
+                explanation: "Mạch điện tự lắp có thể bị đoản mạch (chập mạch) làm cháy nổ đồng hồ đo và linh kiện. Bắt buộc phải để giáo viên nghiệm thu kiểm tra trước khi cấp điện."
+            },
+            // Câu 10: Thẩm định Đúng / Sai – Quy tắc ứng phó sự cố (True/False)
+            {
+                id: 10,
+                type: "tf",
+                category: "Thẩm định quy tắc – Xử lí sự cố",
+                title: "Đánh giá nhận định sau: 'Khi xảy ra sự cố bất ngờ trong phòng thực hành Vật lí, học sinh cần giữ bình tĩnh, lập tức ngừng thao tác nguy hiểm và báo ngay cho giáo viên phụ trách.'",
+                correct: "ĐÚNG", // Đúng
+                explanation: "Mệnh đề ĐÚNG. Bình tĩnh, ngừng thao tác nguy hiểm và báo ngay giáo viên là nguyên tắc vàng giúp ngăn ngừa tai nạn lan rộng trong phòng thực hành."
+            }
+        ];
+
+        /* =========================================================================
+           HỆ THỐNG ÂM THANH MÔ PHỎNG PHÒNG LAB (WEB AUDIO SYNTHESIZER)
+           ========================================================================= */
+        let webAudioCtx = null;
+        let isAudioOn = true;
+
+        function getAudioContext() {
+            if (!webAudioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioClass) webAudioCtx = new AudioClass();
+            }
+            if (webAudioCtx && webAudioCtx.state === 'suspended') webAudioCtx.resume();
+            return webAudioCtx;
+        }
+
+        const LabSound = {
+            tone(freq, type, duration, gainVal = 0.08, delay = 0) {
+                if (!isAudioOn) return;
+                try {
+                    const ctx = getAudioContext();
+                    if (!ctx) return;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(gainVal, ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + delay);
+                    osc.stop(ctx.currentTime + delay + duration);
+                } catch(e) {}
+            },
+            click() { this.tone(550, 'sine', 0.05, 0.05); },
+            swap() { this.tone(420, 'triangle', 0.06, 0.06); },
+            correct() {
+                this.tone(523.25, 'triangle', 0.12, 0.12, 0);
+                this.tone(659.25, 'triangle', 0.15, 0.12, 0.08);
+                this.tone(783.99, 'triangle', 0.25, 0.14, 0.16);
+            },
+            wrong() {
+                this.tone(240, 'sawtooth', 0.18, 0.1, 0);
+                this.tone(190, 'sawtooth', 0.25, 0.1, 0.12);
+            },
+            alert() {
+                this.tone(880, 'square', 0.1, 0.08, 0);
+                this.tone(880, 'square', 0.1, 0.08, 0.18);
+            },
+            tick() { this.tone(900, 'sine', 0.03, 0.03); },
+            victory() {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                    this.tone(f, 'triangle', 0.25, 0.12, i * 0.1);
+                });
+            }
+        };
+
+        function toggleAudio() {
+            isAudioOn = !isAudioOn;
+            const icon = document.getElementById('soundIcon');
+            if (icon) {
+                icon.className = isAudioOn ? "fa-solid fa-volume-high text-amber-400" : "fa-solid fa-volume-xmark text-slate-500";
+            }
+        }
+
+        function triggerToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toastAlert');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.className = `fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl text-xs font-bold shadow-xl transition-all duration-300 opacity-100 ${
+                isSuccess ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+            }`;
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2600);
+        }
+
+        /* =========================================================================
+           KÊNH TRUYỀN DỮ LIỆU ĐỒNG BỘ (BROADCASTCHANNEL + MQTT INTERNET)
+           ========================================================================= */
+        const MQTT_SERVER = "wss://broker.emqx.io:8084/mqtt";
+        let mqttConnection = null;
+        let globalPin = "";
+        let isHostRole = false;
+
+        const CommBus = {
+            hostChannel: null,
+            playerChannel: null,
+            init(pin, onHostMsg, onPlayerMsg) {
+                const hName = `physafe_${pin}_host`;
+                const pName = `physafe_${pin}_player`;
+                try {
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        if (onHostMsg) {
+                            this.hostChannel = new BroadcastChannel(hName);
+                            this.hostChannel.onmessage = (e) => { if (e.data) onHostMsg(e.data); };
+                        }
+                        if (onPlayerMsg) {
+                            this.playerChannel = new BroadcastChannel(pName);
+                            this.playerChannel.onmessage = (e) => { if (e.data) onPlayerMsg(e.data); };
+                        }
+                    }
+                } catch(e) {}
+
+                window.addEventListener('storage', (e) => {
+                    try {
+                        if (onHostMsg && e.key === hName && e.newValue) onHostMsg(JSON.parse(e.newValue));
+                        if (onPlayerMsg && e.key === pName && e.newValue) onPlayerMsg(JSON.parse(e.newValue));
+                    } catch(err) {}
+                });
+            },
+            sendToHost(pin, payload) {
+                const hName = `physafe_${pin}_host`;
+                if (this.hostChannel) { try { this.hostChannel.postMessage(payload); } catch(e){} }
+                try {
+                    localStorage.setItem(hName, JSON.stringify(payload));
+                    setTimeout(() => { try { localStorage.removeItem(hName); } catch(e){} }, 40);
+                } catch(e) {}
+            },
+            sendToPlayer(pin, payload) {
+                const pName = `physafe_${pin}_player`;
+                if (this.playerChannel) { try { this.playerChannel.postMessage(payload); } catch(e){} }
+                try {
+                    localStorage.setItem(pName, JSON.stringify(payload));
+                    setTimeout(() => { try { localStorage.removeItem(pName); } catch(e){} }, 40);
+                } catch(e) {}
+            }
+        };
+
+        /* =========================================================================
+           BIẾN TRẠNG THÁI GIÁO VIÊN & HỌC SINH
+           ========================================================================= */
+        let hostCtrl = {
+            students: {},
+            qIndex: 0,
+            clock: 30,
+            clockInterval: null,
+            roundStartTime: 0,
+            isEndedRound: false,
+            botIntervals: [],
+            shuffledHostSequence: []
+        };
+
+        let localPlayerId = sessionStorage.getItem('physafe_student_id');
+        if (!localPlayerId) {
+            localPlayerId = "student_" + Math.random().toString(36).substring(2, 7) + "_" + Date.now().toString(36);
+            sessionStorage.setItem('physafe_student_id', localPlayerId);
+        }
+
+        let playerCtrl = {
+            id: localPlayerId,
+            name: "",
+            className: "",
+            score: 0,
+            streak: 0,
+            hasAnswered: false,
+            seqOrder: [2, 4, 1, 3], // Trật tự xáo trộn cho Câu 7
+            selectedTapSlot: null,
+            timer: 30,
+            timerInterval: null,
+            joinCheckInterval: null,
+            joinRetries: 0
+        };
+
+        function hideAllPanels() {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+        }
+
+        /* =========================================================================
+           LOGIC GIÁO VIÊN (MÁY CHIẾU)
+           ========================================================================= */
+        function startHostRole() {
+            isHostRole = true;
+            hideAllPanels();
+            document.getElementById('hostLobbyPanel').classList.remove('hidden');
+
+            globalPin = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('hostPinDisplay').innerText = globalPin;
+
+            renderHostQrCode();
+
+            CommBus.init(globalPin, null, (data) => {
+                receiveHostData(data);
+            });
+
+            // Kết nối MQTT qua Internet
+            try {
+                const cId = "host_" + globalPin + "_" + Math.random().toString(36).substring(2, 6);
+                mqttConnection = mqtt.connect(MQTT_SERVER, { clientId: cId, clean: true, reconnectPeriod: 4000 });
+                mqttConnection.on('connect', () => {
+                    mqttConnection.subscribe(`physafe10/${globalPin}/player`, { qos: 1 });
+                });
+                mqttConnection.on('message', (topic, msg) => {
+                    try { receiveHostData(JSON.parse(msg.toString())); } catch(e){}
+                });
+            } catch(e) {}
+        }
+
+        function hostBroadcast(payload) {
+            CommBus.sendToHost(globalPin, payload);
+            if (mqttConnection && mqttConnection.connected) {
+                try {
+                    mqttConnection.publish(`physafe10/${globalPin}/host`, JSON.stringify(payload), { qos: 1 });
+                } catch(e) {}
+            }
+        }
+
+        function addSafetyBots(count = 4) {
+            const presets = [
+                { name: "Nguyễn Hoàng Nam", class: "10A1" },
+                { name: "Lê Minh Anh", class: "10A1" },
+                { name: "Phạm Quốc Hưng", class: "10A2" },
+                { name: "Trần Thảo Linh", class: "10A2" },
+                { name: "Đỗ Tuấn Kiệt", class: "10A3" },
+                { name: "Vũ Phương Uyên", class: "10A3" }
+            ];
+
+            for (let i = 0; i < count; i++) {
+                const item = presets[i % presets.length];
+                const botId = "bot_" + (i + 1) + "_" + Math.random().toString(36).substring(2, 6);
+                receiveHostData({
+                    type: 'STUDENT_JOIN',
+                    playerId: botId,
+                    name: item.name,
+                    className: item.class,
+                    isBot: true
+                });
+            }
+            triggerToast(`✓ Đã thêm ${count} học sinh mẫu vào phòng!`, true);
+        }
+
+        function clearSafetyBots() {
+            hostCtrl.students = {};
+            refreshHostLobbyList();
+            triggerToast("Đã làm mới danh sách học sinh!", true);
+        }
+
+        function getSortedStudents() {
+            return Object.values(hostCtrl.students).sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.totalResponseTime - b.totalResponseTime;
+            });
+        }
+
+        function receiveHostData(payload) {
+            if (payload.type === 'STUDENT_JOIN') {
+                const sId = payload.playerId;
+                if (!sId) return;
+
+                if (!hostCtrl.students[sId]) {
+                    hostCtrl.students[sId] = {
+                        id: sId,
+                        name: payload.name || "Học sinh",
+                        className: payload.className || "10A",
+                        isBot: Boolean(payload.isBot),
+                        score: 0,
+                        streak: 0,
+                        correctTotal: 0,
+                        totalResponseTime: 0,
+                        answeredCount: 0,
+                        currentAnswer: null,
+                        history: {}
+                    };
+                    LabSound.click();
+                    refreshHostLobbyList();
+                }
+
+                hostBroadcast({
+                    type: 'JOIN_CONFIRM',
+                    playerId: sId,
+                    pin: globalPin
+                });
+            }
+            else if (payload.type === 'STUDENT_ANSWER') {
+                const stu = hostCtrl.students[payload.playerId];
+                if (stu && stu.currentAnswer === null && !hostCtrl.isEndedRound) {
+                    const elapsed = (Date.now() - hostCtrl.roundStartTime) / 1000;
+                    stu.currentAnswer = payload.choice;
+                    stu.totalResponseTime += elapsed;
+                    stu.answeredCount += 1;
+
+                    const curQ = SAFETY_QUESTIONS[hostCtrl.qIndex];
+                    let isRight = false;
+
+                    if (curQ.type === 'sequence') {
+                        const userSeq = payload.choice;
+                        isRight = Array.isArray(userSeq) &&
+                            userSeq.length === curQ.correctOrder.length &&
+                            userSeq.every((v, idx) => v === curQ.correctOrder[idx]);
+                    } else if (curQ.type === 'tf') {
+                        isRight = (payload.choice === curQ.correct);
+                    } else {
+                        isRight = (payload.choice === curQ.correct);
+                    }
+
+                    stu.history[hostCtrl.qIndex] = {
+                        choice: payload.choice,
+                        isRight: isRight,
+                        time: elapsed
+                    };
+
+                    let pointsAdded = 0;
+                    if (isRight) {
+                        stu.correctTotal++;
+                        stu.streak++;
+                        const speedBonus = Math.round((Math.max(0, hostCtrl.clock) / 30) * 20);
+                        const streakBonus = stu.streak >= 2 ? 10 : 0;
+                        pointsAdded = 100 + speedBonus + streakBonus;
+                        stu.score += pointsAdded;
+                    } else {
+                        stu.streak = 0;
+                    }
+
+                    const sorted = getSortedStudents();
+                    const rank = sorted.findIndex(s => s.id === stu.id) + 1;
+
+                    hostBroadcast({
+                        type: 'FEEDBACK_ROUND',
+                        playerId: stu.id,
+                        isRight: isRight,
+                        score: stu.score,
+                        streak: stu.streak,
+                        pointsAdded: pointsAdded,
+                        time: elapsed,
+                        rank: rank,
+                        totalStudents: sorted.length
+                    });
+
+                    updateHostAnswerCounter();
+                    renderHostSquadTracker();
+
+                    const allList = Object.values(hostCtrl.students);
+                    const doneCount = allList.filter(s => s.currentAnswer !== null).length;
+                    if (doneCount >= allList.length && allList.length > 0) {
+                        hostConcludeQuestionRound();
+                    }
+                }
+            }
+        }
+
+        function refreshHostLobbyList() {
+            const count = Object.keys(hostCtrl.students).length;
+            document.getElementById('hostPlayerCountNum').innerText = count;
+
+            const grid = document.getElementById('hostStudentListGrid');
+            const emptyMsg = document.getElementById('emptyStudentNotice');
+            const startBtn = document.getElementById('hostStartQuizBtn');
+
+            if (emptyMsg) emptyMsg.classList.toggle('hidden', count > 0);
+            if (startBtn) startBtn.disabled = (count === 0);
+
+            if (grid) {
+                grid.innerHTML = '';
+                Object.values(hostCtrl.students).forEach(s => {
+                    const tag = document.createElement('div');
+                    tag.className = "px-3.5 py-2 rounded-2xl bg-slate-800 border border-slate-700 text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs";
+                    tag.innerHTML = `<span>🛡️</span> <span>${s.name}</span> <span class="text-xs text-amber-400 font-normal">(${s.className})</span>`;
+                    grid.appendChild(tag);
+                });
+            }
+        }
+
+        function hostBeginQuiz() {
+            hostCtrl.qIndex = 0;
+            hostBroadcast({ type: 'QUIZ_LAUNCH' });
+            hostPresentQuestion();
+        }
+
+        function hostPresentQuestion() {
+            hideAllPanels();
+            document.getElementById('hostQuestionPanel').classList.remove('hidden');
+            document.getElementById('hostRevealControlBar').classList.add('hidden');
+
+            hostCtrl.isEndedRound = false;
+            const q = SAFETY_QUESTIONS[hostCtrl.qIndex];
+
+            document.getElementById('hostQuestionCounter').innerText = `CÂU ${hostCtrl.qIndex + 1} / ${SAFETY_QUESTIONS.length}`;
+            document.getElementById('hostCategoryBadge').innerText = q.category;
+            document.getElementById('hostQuestionText').innerText = q.title;
+
+            const mcqBox = document.getElementById('hostMcqWrapper');
+            const tfBox = document.getElementById('hostTfWrapper');
+            const seqBox = document.getElementById('hostSequenceWrapper');
+            const mechBadge = document.getElementById('hostMechanicBadge');
+            const qIcon = document.getElementById('hostQuestionIcon');
+
+            mcqBox.classList.add('hidden');
+            tfBox.classList.add('hidden');
+            seqBox.classList.add('hidden');
+
+            if (q.type === 'sequence') {
+                mechBadge.innerText = "KÉO THẢ QUY TRÌNH (4 BƯỚC)";
+                mechBadge.className = "text-xs px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 font-tech font-bold uppercase border border-indigo-500/40";
+                qIcon.innerText = "🔀";
+                seqBox.classList.remove('hidden');
+
+                // Xáo trộn 4 thẻ trên máy chiếu
+                let shuffled = [...q.items];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                hostCtrl.shuffledHostSequence = shuffled;
+                renderHostSequencePreview(false);
+            } else if (q.type === 'tf') {
+                mechBadge.innerText = "THẨM ĐỊNH ĐÚNG / SAI";
+                mechBadge.className = "text-xs px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 font-tech font-bold uppercase border border-amber-500/40";
+                qIcon.innerText = "⚖️";
+                tfBox.classList.remove('hidden');
+
+                document.getElementById('hostTfCardTrue').classList.remove('ring-4', 'ring-emerald-400', 'opacity-30');
+                document.getElementById('hostTfCardFalse').classList.remove('ring-4', 'ring-rose-400', 'opacity-30');
+            } else {
+                mechBadge.innerText = "TRẮC NGHIỆM AN TOÀN";
+                mechBadge.className = "text-xs px-2.5 py-1 rounded-lg bg-slate-800 text-amber-400 font-tech font-bold uppercase border border-slate-700";
+                qIcon.innerText = "⚠️";
+                mcqBox.classList.remove('hidden');
+
+                for (let idx = 0; idx < 4; idx++) {
+                    document.getElementById(`hostOptLabel${idx}`).innerText = q.options[idx];
+                    const card = document.getElementById(`hostOptionCard${idx}`);
+                    const badge = document.getElementById(`hostCorrectBadge${idx}`);
+                    badge.classList.add('hidden');
+                    card.classList.remove('ring-4', 'ring-emerald-400', 'opacity-30');
+                }
+            }
+
+            Object.values(hostCtrl.students).forEach(s => { s.currentAnswer = null; });
+            const total = Object.keys(hostCtrl.students).length;
+            document.getElementById('hostTotalStudentsCount').innerText = total;
+            document.getElementById('hostSubmittedCount').innerText = "0";
+
+            renderHostSquadTracker();
+
+            hostBroadcast({
+                type: 'NEW_QUESTION',
+                qIndex: hostCtrl.qIndex,
+                qType: q.type
+            });
+
+            // Tự động giải lập cho bot (nếu có)
+            hostCtrl.botIntervals.forEach(t => clearTimeout(t));
+            hostCtrl.botIntervals = [];
+
+            const bots = Object.values(hostCtrl.students).filter(s => s.isBot);
+            bots.forEach(b => {
+                const delay = 2200 + Math.random() * 8500;
+                const isRight = Math.random() < 0.85;
+                let choice = null;
+
+                if (q.type === 'sequence') {
+                    choice = isRight ? [2, 4, 1, 3] : [4, 2, 3, 1];
+                } else if (q.type === 'tf') {
+                    choice = isRight ? q.correct : (q.correct === "ĐÚNG" ? "SAI" : "ĐÚNG");
+                } else {
+                    choice = isRight ? q.correct : (q.correct + 1) % 4;
+                }
+
+                const timer = setTimeout(() => {
+                    if (!hostCtrl.isEndedRound && b.currentAnswer === null) {
+                        receiveHostData({
+                            type: 'STUDENT_ANSWER',
+                            playerId: b.id,
+                            choice: choice
+                        });
+                    }
+                }, delay);
+                hostCtrl.botIntervals.push(timer);
+            });
+
+            hostCtrl.clock = 30;
+            hostCtrl.roundStartTime = Date.now();
+            document.getElementById('hostClockTime').innerText = hostCtrl.clock;
+
+            clearInterval(hostCtrl.clockInterval);
+            hostCtrl.clockInterval = setInterval(() => {
+                hostCtrl.clock--;
+                document.getElementById('hostClockTime').innerText = hostCtrl.clock;
+                if (hostCtrl.clock <= 5 && hostCtrl.clock > 0) LabSound.tick();
+                if (hostCtrl.clock <= 0) {
+                    hostConcludeQuestionRound();
+                }
+            }, 1000);
+        }
+
+        function renderHostSequencePreview(isRevealed = false) {
+            const container = document.getElementById('hostSequenceDisplayGrid');
+            const stateBadge = document.getElementById('hostSeqStateBadge');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const q7 = SAFETY_QUESTIONS[6];
+            const items = isRevealed ? [
+                q7.items.find(it => it.id === 2),
+                q7.items.find(it => it.id === 4),
+                q7.items.find(it => it.id === 1),
+                q7.items.find(it => it.id === 3)
+            ] : (hostCtrl.shuffledHostSequence || q7.items);
+
+            if (stateBadge) {
+                if (isRevealed) {
+                    stateBadge.innerText = "✓ THỨ TỰ CHUẨN XÁC (BƯỚC 1 ➔ 4)";
+                    stateBadge.className = "px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-tech text-xs font-black shadow-sm animate-pulse";
+                } else {
+                    stateBadge.innerText = "ĐANG XÁO TRỘN";
+                    stateBadge.className = "px-3 py-1 rounded-full bg-slate-800 text-amber-400 font-tech text-xs font-bold border border-slate-700";
+                }
+            }
+
+            items.forEach((it, idx) => {
+                const card = document.createElement('div');
+                if (isRevealed) {
+                    card.className = "p-5 rounded-3xl bg-emerald-500/10 border-2 border-emerald-400 flex flex-col gap-2.5 shadow-lg";
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
+                            <span class="text-xs font-tech font-black text-emerald-400 bg-emerald-500/20 px-2.5 py-1 rounded-lg">BƯỚC ${idx + 1}</span>
+                            <span class="text-emerald-400 font-bold text-xs">✓ Đúng chuẩn</span>
+                        </div>
+                        <h5 class="text-base font-heading font-extrabold text-white leading-snug">${it.text}</h5>
+                    `;
+                } else {
+                    const labelL = ['A', 'B', 'C', 'D'];
+                    card.className = "p-5 rounded-3xl bg-slate-800/80 border-2 border-slate-700 flex flex-col gap-2.5 shadow-sm";
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                            <span class="text-xs font-tech font-bold text-amber-400 bg-slate-900 px-2.5 py-1 rounded-lg">THẺ ${labelL[idx]}</span>
+                            <span class="text-[11px] text-slate-400 font-tech">RANDOM</span>
+                        </div>
+                        <h5 class="text-base font-heading font-extrabold text-slate-200 leading-snug">${it.text}</h5>
+                    `;
+                }
+                container.appendChild(card);
+            });
+        }
+
+        function renderHostSquadTracker() {
+            const grid = document.getElementById('hostRealtimeSquadList');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            Object.values(hostCtrl.students).forEach(s => {
+                const el = document.createElement('div');
+                const done = s.currentAnswer !== null;
+                el.className = `p-2 rounded-xl border text-xs flex items-center justify-between ${
+                    done ? 'bg-amber-500/10 border-amber-500/40 text-amber-300 font-bold' : 'bg-slate-900 border-slate-800 text-slate-500'
+                }`;
+                el.innerHTML = `
+                    <span class="truncate max-w-[100px]">${s.name}</span>
+                    <span class="text-[10px] font-semibold">${done ? '✓ Đã nộp' : 'Đang làm...'}</span>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function updateHostAnswerCounter() {
+            const count = Object.values(hostCtrl.students).filter(s => s.currentAnswer !== null).length;
+            document.getElementById('hostSubmittedCount').innerText = count;
+        }
+
+        function hostConcludeQuestionRound() {
+            if (hostCtrl.isEndedRound) return;
+            hostCtrl.isEndedRound = true;
+            clearInterval(hostCtrl.clockInterval);
+
+            // Ghi nhận các em chưa nộp
+            Object.values(hostCtrl.students).forEach(s => {
+                if (s.currentAnswer === null && !s.history[hostCtrl.qIndex]) {
+                    s.history[hostCtrl.qIndex] = { choice: null, isRight: false, time: 30 };
+                    s.streak = 0;
+                }
+            });
+
+            const q = SAFETY_QUESTIONS[hostCtrl.qIndex];
+
+            if (q.type === 'mcq') {
+                for (let idx = 0; idx < 4; idx++) {
+                    const card = document.getElementById(`hostOptionCard${idx}`);
+                    const badge = document.getElementById(`hostCorrectBadge${idx}`);
+                    if (idx === q.correct) {
+                        card.classList.add('ring-4', 'ring-emerald-400');
+                        badge.classList.remove('hidden');
+                    } else {
+                        card.classList.add('opacity-30');
+                    }
+                }
+            } else if (q.type === 'tf') {
+                const cardTrue = document.getElementById('hostTfCardTrue');
+                const cardFalse = document.getElementById('hostTfCardFalse');
+                if (q.correct === "ĐÚNG") {
+                    cardTrue.classList.add('ring-4', 'ring-emerald-400');
+                    cardFalse.classList.add('opacity-30');
+                } else {
+                    cardFalse.classList.add('ring-4', 'ring-rose-400');
+                    cardTrue.classList.add('opacity-30');
+                }
+            } else if (q.type === 'sequence') {
+                renderHostSequencePreview(true);
+            }
+
+            LabSound.correct();
+
+            const exp = document.getElementById('hostPedagogicalExplanation');
+            if (exp) {
+                exp.innerHTML = `<span class="font-heading font-black text-amber-400">💡 HƯỚNG DẪN AN TOÀN PHÒNG LAB:</span><br>${q.explanation}`;
+            }
+
+            document.getElementById('hostRevealControlBar').classList.remove('hidden');
+        }
+
+        function hostShowLeaderboardScreen() {
+            hideAllPanels();
+            document.getElementById('hostLeaderboardPanel').classList.remove('hidden');
+
+            const curQ = hostCtrl.qIndex + 1;
+            document.getElementById('hostLeaderboardTitleText').innerText = `TOP 6 XUẤT SẮC (SAU CÂU ${curQ})`;
+
+            const nextBtnLabel = document.getElementById('hostBtnNextLabel');
+            if (curQ >= SAFETY_QUESTIONS.length) {
+                nextBtnLabel.innerText = "XEM TỔNG KẾT BÀI THI";
+            } else {
+                nextBtnLabel.innerText = `SANG CÂU TIẾP THEO (${curQ + 1}/${SAFETY_QUESTIONS.length})`;
+            }
+
+            const sorted = getSortedStudents();
+            const top6 = sorted.slice(0, 6);
+
+            // Bục podium
+            document.getElementById('podium1Name').innerText = top6[0] ? top6[0].name : "--";
+            document.getElementById('podium1Score').innerText = top6[0] ? `${top6[0].score} pts` : "0 pts";
+
+            document.getElementById('podium2Name').innerText = top6[1] ? top6[1].name : "--";
+            document.getElementById('podium2Score').innerText = top6[1] ? `${top6[1].score} pts` : "0 pts";
+
+            document.getElementById('podium3Name').innerText = top6[2] ? top6[2].name : "--";
+            document.getElementById('podium3Score').innerText = top6[2] ? `${top6[2].score} pts` : "0 pts";
+
+            // Bảng Top 6
+            const tbody = document.getElementById('hostTop6TableBody');
+            tbody.innerHTML = '';
+
+            top6.forEach((s, i) => {
+                const tr = document.createElement('tr');
+                const lastAns = s.history[hostCtrl.qIndex];
+                const gained = lastAns && lastAns.isRight ? "+ Điểm" : "0 Điểm";
+                const streakText = s.streak >= 2 ? `🔥 x${s.streak}` : '-';
+
+                tr.className = i === 0 ? "bg-amber-500/10" : "";
+                tr.innerHTML = `
+                    <td class="p-3 font-tech text-amber-400 font-black">#${i + 1}</td>
+                    <td class="p-3 font-bold text-white">${s.name} ${i === 0 ? '👑' : ''}</td>
+                    <td class="p-3 text-slate-400 font-normal">${s.className}</td>
+                    <td class="p-3 text-center ${lastAns && lastAns.isRight ? 'text-emerald-400' : 'text-slate-500'}">${gained}</td>
+                    <td class="p-3 text-center text-amber-300 font-extrabold">${streakText}</td>
+                    <td class="p-3 text-right font-tech font-black text-amber-400 text-sm sm:text-base">${s.score}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            hostBroadcast({
+                type: 'SHOW_LEADERBOARD',
+                top6: top6.map((st, idx) => ({
+                    rank: idx + 1,
+                    name: st.name,
+                    className: st.className,
+                    score: st.score,
+                    streak: st.streak
+                }))
+            });
+
+            LabSound.click();
+        }
+
+        function hostGoNextQuestion() {
+            hostCtrl.qIndex++;
+            if (hostCtrl.qIndex >= SAFETY_QUESTIONS.length) {
+                hostDisplayFinalResults();
+            } else {
+                hostPresentQuestion();
+            }
+        }
+
+        function hostDisplayFinalResults() {
+            hideAllPanels();
+            document.getElementById('hostSummaryPanel').classList.remove('hidden');
+
+            LabSound.victory();
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 130, spread: 85, origin: { y: 0.6 } });
+            }
+
+            const sorted = getSortedStudents();
+
+            // Bảng thống kê tổng hợp
+            const tbodyStats = document.getElementById('hostFinalStatsBody');
+            tbodyStats.innerHTML = '';
+
+            sorted.forEach((s, i) => {
+                const avgSpeed = s.answeredCount > 0 ? (s.totalResponseTime / s.answeredCount).toFixed(2) : "0.00";
+                const acc = Math.round((s.correctTotal / SAFETY_QUESTIONS.length) * 100);
+                const tr = document.createElement('tr');
+                tr.className = i === 0 ? "bg-amber-500/10" : "";
+                tr.innerHTML = `
+                    <td class="p-3 font-tech text-amber-400 font-bold">#${i + 1}</td>
+                    <td class="p-3 font-bold text-white">${s.name} ${i === 0 ? '👑' : ''}</td>
+                    <td class="p-3 text-slate-400 font-normal">${s.className}</td>
+                    <td class="p-3 text-center font-tech font-black text-amber-400 text-sm sm:text-base">${s.score}</td>
+                    <td class="p-3 text-center font-bold">${s.correctTotal} / ${SAFETY_QUESTIONS.length}</td>
+                    <td class="p-3 text-center font-tech text-slate-300">${avgSpeed}s</td>
+                    <td class="p-3 text-right font-bold text-emerald-400">${acc}%</td>
+                `;
+                tbodyStats.appendChild(tr);
+            });
+
+            // Bảng Ma trận kết quả C1 -> C10
+            const headerRow = document.getElementById('hostMatrixHeaderRow');
+            headerRow.innerHTML = '<th class="p-3 text-left rounded-l-xl">Họ & Tên</th>';
+            SAFETY_QUESTIONS.forEach((_, idx) => {
+                headerRow.innerHTML += `<th class="p-2 text-center">C${idx + 1}</th>`;
+            });
+            headerRow.innerHTML += '<th class="p-3 text-center rounded-r-xl">Tổng Đúng</th>';
+
+            const matrixBody = document.getElementById('hostMatrixBody');
+            matrixBody.innerHTML = '';
+
+            sorted.forEach(s => {
+                const tr = document.createElement('tr');
+                let row = `<td class="p-2.5 text-left font-bold text-white">${s.name}</td>`;
+                SAFETY_QUESTIONS.forEach((_, qIdx) => {
+                    const h = s.history[qIdx];
+                    if (!h || h.choice === null) {
+                        row += `<td class="p-2 text-center text-slate-600">-</td>`;
+                    } else if (h.isRight) {
+                        row += `<td class="p-2 text-center"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black">✓</span></td>`;
+                    } else {
+                        row += `<td class="p-2 text-center"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 text-xs font-black">✗</span></td>`;
+                    }
+                });
+                row += `<td class="p-2.5 text-center font-tech text-amber-400 font-bold text-xs sm:text-sm">${s.correctTotal}/${SAFETY_QUESTIONS.length}</td>`;
+                tr.innerHTML = row;
+                matrixBody.appendChild(tr);
+            });
+
+            hostBroadcast({ type: 'QUIZ_TERMINATED' });
+        }
+
+        function exportSafetyExcel() {
+            const list = Object.values(hostCtrl.students);
+            if (list.length === 0) {
+                triggerToast("Chưa có học sinh nào để xuất Excel!", false);
+                return;
+            }
+
+            const classes = [...new Set(list.map(s => s.className.trim()))].filter(c => c);
+            const classTitle = classes.length > 0 ? classes.join('_') : "10A";
+
+            const rows = list.map((s, idx) => {
+                const avgSpeed = s.answeredCount > 0 ? (s.totalResponseTime / s.answeredCount).toFixed(2) : "0.00";
+                const r = {
+                    "STT": idx + 1,
+                    "Họ và Tên": s.name,
+                    "Lớp": s.className,
+                    "Tổng Điểm": s.score,
+                    "Số Câu Đúng": `${s.correctTotal}/${SAFETY_QUESTIONS.length}`,
+                    "Tỉ Lệ (%)": Math.round((s.correctTotal / SAFETY_QUESTIONS.length) * 100) + "%",
+                    "Thời Gian TB (s)": avgSpeed
+                };
+                SAFETY_QUESTIONS.forEach((q, qIdx) => {
+                    const h = s.history[qIdx];
+                    r[`Câu ${qIdx + 1} (${q.category})`] = !h || h.choice === null ? "Chưa nộp" : (h.isRight ? "Đúng" : "Sai");
+                });
+                return r;
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(rows);
+            XLSX.utils.book_append_sheet(wb, ws, `KetQua_AnToan_${classTitle}`);
+            XLSX.writeFile(wb, `BangDiem_VatLi10_Bai2_AnToanLab_Lop_${classTitle}.xlsx`);
+            triggerToast(`✓ Đã xuất Excel thành công cho lớp ${classTitle}!`, true);
+        }
+
+        function copyPinUrl() {
+            const url = window.location.href.split('?')[0] + `?pin=${globalPin}`;
+            const input = document.createElement('input');
+            input.value = url;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            triggerToast("✓ Đã sao chép liên kết vào phòng!", true);
+        }
+
+        function renderHostQrCode() {
+            const qrBox = document.getElementById('hostQrBox');
+            if (!qrBox) return;
+            qrBox.innerHTML = '';
+
+            const modalBox = document.getElementById('modalQrContainer');
+            if (modalBox) modalBox.innerHTML = '';
+
+            document.getElementById('modalPinNum').innerText = globalPin;
+            const url = window.location.href.split('?')[0] + `?pin=${globalPin}`;
+
+            try {
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrBox, {
+                        text: url,
+                        width: 120,
+                        height: 120,
+                        colorDark: "#0f172a",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+
+                    if (modalBox) {
+                        new QRCode(modalBox, {
+                            text: url,
+                            width: 200,
+                            height: 200,
+                            colorDark: "#0f172a",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function openQrModal() {
+            document.getElementById('modalQrZoom').classList.remove('hidden');
+        }
+        function closeQrModal() {
+            document.getElementById('modalQrZoom').classList.add('hidden');
+        }
+
+        /* =========================================================================
+           LOGIC HỌC SINH (ĐIỆN THOẠI)
+           ========================================================================= */
+        function startPlayerRole() {
+            isHostRole = false;
+            hideAllPanels();
+            document.getElementById('playerJoinPanel').classList.remove('hidden');
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                document.getElementById('inputPlayerPin').value = params.get('pin');
+            }
+        }
+
+        function playerSubmitJoin() {
+            const pin = document.getElementById('inputPlayerPin').value.trim();
+            const name = document.getElementById('inputPlayerName').value.trim();
+            const className = document.getElementById('inputPlayerClass').value.trim() || "10A";
+            const statusLabel = document.getElementById('playerConnectingStatus');
+            const joinBtn = document.getElementById('btnJoinSubmit');
+
+            if (!pin || !name) {
+                triggerToast("Vui lòng nhập đầy đủ PIN và Họ Tên!", false);
+                return;
+            }
+
+            globalPin = pin;
+            playerCtrl.name = name;
+            playerCtrl.className = className;
+            playerCtrl.score = 0;
+            playerCtrl.streak = 0;
+
+            document.getElementById('playerDisplayName').innerText = `${name} (${className})`;
+            document.getElementById('playerLabelName').innerText = name;
+
+            statusLabel.classList.remove('hidden');
+            statusLabel.innerText = "Đang kết nối vào phòng thi...";
+            joinBtn.disabled = true;
+
+            if (playerCtrl.joinCheckInterval) clearInterval(playerCtrl.joinCheckInterval);
+            playerCtrl.joinRetries = 0;
+
+            CommBus.init(globalPin, (data) => {
+                receivePlayerData(data);
+            }, null);
+
+            const sendJoinPing = () => {
+                playerBroadcast({
+                    type: 'STUDENT_JOIN',
+                    playerId: playerCtrl.id,
+                    name: playerCtrl.name,
+                    className: playerCtrl.className
+                });
+            };
+
+            sendJoinPing();
+
+            // Dự phòng MQTT qua Internet
+            try {
+                const cId = "player_" + globalPin + "_" + playerCtrl.id + "_" + Math.random().toString(36).substring(2, 6);
+                if (mqttConnection) { try { mqttConnection.end(true); } catch(e){} }
+                mqttConnection = mqtt.connect(MQTT_SERVER, { clientId: cId, clean: true, reconnectPeriod: 4000 });
+                mqttConnection.on('connect', () => {
+                    mqttConnection.subscribe(`physafe10/${globalPin}/host`, { qos: 1 }, () => {
+                        sendJoinPing();
+                    });
+                });
+                mqttConnection.on('message', (topic, msg) => {
+                    try { receivePlayerData(JSON.parse(msg.toString())); } catch(e){}
+                });
+            } catch(e) {}
+
+            playerCtrl.joinCheckInterval = setInterval(() => {
+                playerCtrl.joinRetries++;
+                if (playerCtrl.joinRetries > 8) {
+                    clearInterval(playerCtrl.joinCheckInterval);
+                    statusLabel.innerText = "❌ Không tìm thấy phòng hoặc PIN chưa đúng!";
+                    joinBtn.disabled = false;
+                    triggerToast("Mã PIN chưa đúng hoặc giáo viên chưa mở phòng!", false);
+                    return;
+                }
+                sendJoinPing();
+            }, 1000);
+        }
+
+        function playerBroadcast(payload) {
+            CommBus.sendToPlayer(globalPin, payload);
+            if (mqttConnection && mqttConnection.connected) {
+                try {
+                    mqttConnection.publish(`physafe10/${globalPin}/player`, JSON.stringify(payload), { qos: 1 });
+                } catch(e) {}
+            }
+        }
+
+        function receivePlayerData(data) {
+            if (data.type === 'JOIN_CONFIRM' && data.playerId === playerCtrl.id) {
+                if (playerCtrl.joinCheckInterval) clearInterval(playerCtrl.joinCheckInterval);
+                hideAllPanels();
+                document.getElementById('playerLobbyPanel').classList.remove('hidden');
+                LabSound.click();
+            }
+            else if (data.type === 'NEW_QUESTION') {
+                hideAllPanels();
+                document.getElementById('playerGamepadPanel').classList.remove('hidden');
+                document.getElementById('playerSubmittedNotice').classList.add('hidden');
+
+                const qIdx = data.qIndex !== undefined ? data.qIndex : 0;
+                const qType = data.qType || "mcq";
+                const q = SAFETY_QUESTIONS[qIdx];
+
+                document.getElementById('playerQIndexLabel').innerText = `CÂU ${qIdx + 1} / ${SAFETY_QUESTIONS.length}`;
+                document.getElementById('playerQTitle').innerText = q.title;
+
+                const mcqBox = document.getElementById('playerMcqContainer');
+                const tfBox = document.getElementById('playerTfContainer');
+                const seqBox = document.getElementById('playerSequenceContainer');
+                const bBadge = document.getElementById('playerMechanicBadge');
+
+                mcqBox.classList.add('hidden');
+                tfBox.classList.add('hidden');
+                seqBox.classList.add('hidden');
+
+                if (qType === 'sequence') {
+                    bBadge.innerText = "XẾP 4 BƯỚC QUY TRÌNH";
+                    bBadge.className = "text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-bold uppercase font-tech border border-indigo-500/40";
+                    seqBox.classList.remove('hidden');
+
+                    playerCtrl.seqOrder = [2, 4, 1, 3];
+                    if (Math.random() > 0.5) playerCtrl.seqOrder = [4, 1, 3, 2];
+                    playerCtrl.selectedTapSlot = null;
+                    renderPlayerSequenceSlots();
+                } else if (qType === 'tf') {
+                    bBadge.innerText = "THẨM ĐỊNH ĐÚNG / SAI";
+                    bBadge.className = "text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold uppercase font-tech border border-amber-500/40";
+                    tfBox.classList.remove('hidden');
+                } else {
+                    bBadge.innerText = "TRẮC NGHIỆM AN TOÀN";
+                    bBadge.className = "text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold uppercase font-tech border border-slate-700";
+                    mcqBox.classList.remove('hidden');
+
+                    document.getElementById('playerOpt0').innerText = q.options[0];
+                    document.getElementById('playerOpt1').innerText = q.options[1];
+                    document.getElementById('playerOpt2').innerText = q.options[2];
+                    document.getElementById('playerOpt3').innerText = q.options[3];
+                }
+
+                document.getElementById('playerCurrentScore').innerText = playerCtrl.score;
+                const streakTag = document.getElementById('playerStreakTag');
+                if (playerCtrl.streak >= 2) {
+                    streakTag.classList.remove('hidden');
+                    document.getElementById('playerStreakNum').innerText = playerCtrl.streak;
+                } else {
+                    streakTag.classList.add('hidden');
+                }
+
+                clearInterval(playerCtrl.timerInterval);
+                playerCtrl.timer = 30;
+                document.getElementById('playerClockDisplay').innerText = `${playerCtrl.timer}s`;
+
+                playerCtrl.timerInterval = setInterval(() => {
+                    playerCtrl.timer--;
+                    if (playerCtrl.timer >= 0) {
+                        document.getElementById('playerClockDisplay').innerText = `${playerCtrl.timer}s`;
+                    } else {
+                        clearInterval(playerCtrl.timerInterval);
+                    }
+                }, 1000);
+
+                playerCtrl.hasAnswered = false;
+            }
+            else if (data.type === 'FEEDBACK_ROUND' && data.playerId === playerCtrl.id) {
+                clearInterval(playerCtrl.timerInterval);
+                hideAllPanels();
+                document.getElementById('playerFeedbackPanel').classList.remove('hidden');
+
+                playerCtrl.score = data.score;
+                playerCtrl.streak = data.streak;
+
+                if (data.isRight) {
+                    LabSound.correct();
+                    document.getElementById('playerFeedbackEmoji').innerText = "🎉";
+                    document.getElementById('playerFeedbackTitle').innerText = "CHÍNH XÁC!";
+                    document.getElementById('playerFeedbackTitle').className = "text-lg sm:text-xl font-heading text-emerald-400";
+                    document.getElementById('playerFeedbackPoints').innerText = `+${data.pointsAdded} Điểm (Tổng điểm: ${data.score})`;
+                } else {
+                    LabSound.wrong();
+                    document.getElementById('playerFeedbackEmoji').innerText = "💡";
+                    document.getElementById('playerFeedbackTitle').innerText = "CHƯA CHÍNH XÁC!";
+                    document.getElementById('playerFeedbackTitle').className = "text-lg sm:text-xl font-heading text-rose-400";
+                    document.getElementById('playerFeedbackPoints').innerText = "+0 Điểm (Cố gắng ở câu tiếp theo nhé!)";
+                }
+
+                if (data.rank) document.getElementById('playerFeedbackMyRank').innerText = `#${data.rank}`;
+                if (data.totalStudents) document.getElementById('playerFeedbackTotalLabel').innerText = `/ ${data.totalStudents} bạn`;
+                document.getElementById('playerFeedbackTimeSpeed').innerText = `Thời gian phản xạ: ${data.time ? data.time.toFixed(2) : '0.0'}s`;
+            }
+            else if (data.type === 'SHOW_LEADERBOARD') {
+                hideAllPanels();
+                document.getElementById('playerLeaderboardPanel').classList.remove('hidden');
+
+                const container = document.getElementById('playerTop6MobileGrid');
+                if (container && data.top6) {
+                    container.innerHTML = '';
+                    let myRankInTop6 = null;
+
+                    data.top6.forEach(st => {
+                        const item = document.createElement('div');
+                        const isMe = (st.name === playerCtrl.name);
+                        if (isMe) myRankInTop6 = st.rank;
+
+                        item.className = `p-2.5 rounded-xl border flex items-center justify-between text-xs ${
+                            isMe ? 'bg-amber-500/20 border-amber-500/50 font-black text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-300 font-bold'
+                        }`;
+                        item.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <span class="font-tech font-black ${st.rank <= 3 ? 'text-amber-400' : 'text-slate-500'}">#${st.rank}</span>
+                                <span>${st.name}</span>
+                                ${st.streak >= 2 ? `<span class="text-[10px] text-amber-400 font-bold">🔥x${st.streak}</span>` : ''}
+                            </div>
+                            <span class="font-tech font-black text-amber-400">${st.score} pts</span>
+                        `;
+                        container.appendChild(item);
+                    });
+
+                    const mySummary = document.getElementById('playerMobileSelfRank');
+                    if (mySummary) {
+                        const display = myRankInTop6 ? `#${myRankInTop6}` : "Ngoài Top 6";
+                        mySummary.innerText = `${display} (${playerCtrl.score} pts)`;
+                    }
+                }
+            }
+            else if (data.type === 'QUIZ_TERMINATED') {
+                clearInterval(playerCtrl.timerInterval);
+                hideAllPanels();
+                document.getElementById('playerLobbyPanel').classList.remove('hidden');
+                document.getElementById('playerDisplayName').innerText = `Hoàn thành bài thi! Tổng điểm: ${playerCtrl.score}`;
+            }
+        }
+
+        /* --- XỬ LÍ KÉO THẢ & CHẠM ĐỔI CHỖ (CÂU 7) TRÊN ĐIỆN THOẠI --- */
+        function renderPlayerSequenceSlots() {
+            const container = document.getElementById('playerSequenceSlotsBox');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const q7 = SAFETY_QUESTIONS[6];
+            const stepLabels = ["BƯỚC 1", "BƯỚC 2", "BƯỚC 3", "BƯỚC 4"];
+            const stepDesc = ["Đọc kĩ", "Kiểm tra", "Tiến hành", "Ngắt nguồn"];
+
+            playerCtrl.seqOrder.forEach((itemId, slotIdx) => {
+                const itemObj = q7.items.find(it => it.id === itemId);
+                const isSelected = (playerCtrl.selectedTapSlot === slotIdx);
+
+                const slot = document.createElement('div');
+                slot.className = `slot-seq-container p-2.5 rounded-2xl bg-slate-900 border-2 ${
+                    isSelected ? 'slot-selected-active' : 'border-slate-800'
+                } flex items-center justify-between gap-2.5 cursor-pointer`;
+                slot.setAttribute('data-slot-idx', slotIdx);
+
+                slot.innerHTML = `
+                    <div class="flex flex-col items-center justify-center w-16 py-1 rounded-xl bg-slate-800 border border-slate-700 flex-shrink-0">
+                        <span class="text-xs font-tech font-black text-amber-400">${stepLabels[slotIdx]}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase">${stepDesc[slotIdx]}</span>
+                    </div>
+
+                    <div class="flex-1 min-w-0 flex items-center gap-2">
+                        <i class="fa-solid fa-grip-vertical text-slate-600 text-xs flex-shrink-0"></i>
+                        <span class="text-xs sm:text-sm font-bold text-slate-200 leading-snug break-words">
+                            ${itemObj.text}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <button onclick="event.stopPropagation(); shiftPlayerSeq(${slotIdx}, -1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold flex items-center justify-center transition disabled:opacity-20" ${slotIdx === 0 ? 'disabled' : ''}>
+                            <i class="fa-solid fa-chevron-up text-xs"></i>
+                        </button>
+                        <button onclick="event.stopPropagation(); shiftPlayerSeq(${slotIdx}, 1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold flex items-center justify-center transition disabled:opacity-20" ${slotIdx === playerCtrl.seqOrder.length - 1 ? 'disabled' : ''}>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                `;
+
+                // Chạm đổi chỗ (Tap to swap)
+                slot.addEventListener('click', () => {
+                    handlePlayerTapSwap(slotIdx);
+                });
+
+                container.appendChild(slot);
+            });
+        }
+
+        function handlePlayerTapSwap(idx) {
+            if (playerCtrl.selectedTapSlot === null) {
+                playerCtrl.selectedTapSlot = idx;
+                LabSound.click();
+                renderPlayerSequenceSlots();
+            } else if (playerCtrl.selectedTapSlot === idx) {
+                playerCtrl.selectedTapSlot = null;
+                renderPlayerSequenceSlots();
+            } else {
+                swapPlayerSlots(playerCtrl.selectedTapSlot, idx);
+                playerCtrl.selectedTapSlot = null;
+            }
+        }
+
+        function shiftPlayerSeq(idx, offset) {
+            const target = idx + offset;
+            if (target < 0 || target >= playerCtrl.seqOrder.length) return;
+            swapPlayerSlots(idx, target);
+        }
+
+        function swapPlayerSlots(i, j) {
+            const temp = playerCtrl.seqOrder[i];
+            playerCtrl.seqOrder[i] = playerCtrl.seqOrder[j];
+            playerCtrl.seqOrder[j] = temp;
+            LabSound.swap();
+            if (navigator.vibrate) { try { navigator.vibrate(20); } catch(e){} }
+            renderPlayerSequenceSlots();
+        }
+
+        function playerSubmitSequenceAnswer() {
+            if (playerCtrl.hasAnswered) return;
+            playerCtrl.hasAnswered = true;
+
+            document.getElementById('playerSequenceContainer').classList.add('hidden');
+            document.getElementById('playerSubmittedNotice').classList.remove('hidden');
+
+            const orderStr = playerCtrl.seqOrder.map(id => `(${id})`).join(' ➔ ');
+            document.getElementById('playerSubmittedSummary').innerText = `Đã nộp chuỗi quy trình: ${orderStr}`;
+
+            LabSound.click();
+
+            playerBroadcast({
+                type: 'STUDENT_ANSWER',
+                playerId: playerCtrl.id,
+                choice: playerCtrl.seqOrder
+            });
+        }
+
+        function playerSendTfChoice(choiceVal) {
+            if (playerCtrl.hasAnswered) return;
+            playerCtrl.hasAnswered = true;
+
+            document.getElementById('playerTfContainer').classList.add('hidden');
+            document.getElementById('playerSubmittedNotice').classList.remove('hidden');
+            document.getElementById('playerSubmittedSummary').innerText = `Bạn đã thẩm định: [${choiceVal}]`;
+
+            LabSound.click();
+
+            playerBroadcast({
+                type: 'STUDENT_ANSWER',
+                playerId: playerCtrl.id,
+                choice: choiceVal
+            });
+        }
+
+        function playerSendChoice(choiceIdx) {
+            if (playerCtrl.hasAnswered) return;
+            playerCtrl.hasAnswered = true;
+
+            const labels = ['A', 'B', 'C', 'D'];
+            const choiceText = document.getElementById(`playerOpt${choiceIdx}`).innerText;
+
+            document.getElementById('playerMcqContainer').classList.add('hidden');
+            document.getElementById('playerSubmittedNotice').classList.remove('hidden');
+            document.getElementById('playerSubmittedSummary').innerText = `Đã chọn [${labels[choiceIdx]}]: ${choiceText}`;
+
+            LabSound.click();
+
+            playerBroadcast({
+                type: 'STUDENT_ANSWER',
+                playerId: playerCtrl.id,
+                choice: choiceIdx
+            });
+        }
+
+        // Tự động chuyển mode nếu có URL param ?pin=
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                startPlayerRole();
+            }
+        };
+    </script>
+</body>
+</html>
