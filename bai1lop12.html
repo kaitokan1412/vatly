@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cuộc Đua Nguyên Tử Chuyển Thể - Vật Lí 12: Bài 1</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Catching WebSocket / Security errors safely for sandboxes -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
+                e.preventDefault();
+                console.warn("[ThermalBus] Kích hoạt kênh truyền BroadcastChannel/LocalBus an toàn.");
+                return true;
+            }
+        });
+    </script>
+
+    <!-- Font Awesome & Google Fonts (Orbitron, Chakra Petch, Nunito) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Nunito:wght@400;600;700;800;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- KaTeX Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- External Libs: MQTT, SheetJS, Confetti, QRCode -->
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        html { font-size: 16px; }
+        @media (min-width: 640px) { html { font-size: 18px; } }
+        @media (min-width: 1024px) { html { font-size: 20px; } }
+        * {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        .font-tech { font-family: 'Orbitron', monospace, sans-serif; }
+        .font-hud { font-family: 'Chakra Petch', sans-serif; }
+
+        /* Nền không gian phòng thí nghiệm nhiệt động lực học */
+        .thermal-rally-bg {
+            background-color: #050813;
+            background-image: 
+                radial-gradient(circle at 15% 25%, rgba(14, 165, 233, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 85% 30%, rgba(249, 115, 22, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 15%, rgba(239, 68, 68, 0.15) 0%, transparent 45%),
+                radial-gradient(rgba(224, 242, 254, 0.12) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+        }
+
+        .hud-panel {
+            background: rgba(10, 15, 30, 0.92);
+            backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(56, 189, 248, 0.35);
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.85), inset 0 0 25px rgba(56, 189, 248, 0.08);
+        }
+
+        .hud-panel-heat {
+            background: rgba(26, 14, 10, 0.93);
+            backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(251, 146, 60, 0.45);
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.85), inset 0 0 25px rgba(249, 115, 22, 0.1);
+        }
+
+        /* 4 Thẻ đáp án quang phổ phân tử */
+        .btn-atomic-choice {
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-atomic-choice:active { transform: scale(0.97); }
+
+        .choice-solid {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.7));
+            border: 2px solid rgba(96, 165, 250, 0.5);
+            color: #dbeafe;
+        }
+        .choice-solid:hover { background: rgba(37, 99, 235, 0.45); border-color: #93c5fd; color: #fff; box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
+
+        .choice-liquid {
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.35), rgba(6, 78, 59, 0.7));
+            border: 2px solid rgba(45, 212, 191, 0.5);
+            color: #ccfbf1;
+        }
+        .choice-liquid:hover { background: rgba(13, 148, 136, 0.45); border-color: #5eead4; color: #fff; box-shadow: 0 0 20px rgba(20, 184, 166, 0.45); }
+
+        .choice-gas {
+            background: linear-gradient(135deg, rgba(194, 65, 12, 0.35), rgba(124, 45, 18, 0.7));
+            border: 2px solid rgba(251, 146, 60, 0.5);
+            color: #ffedd5;
+        }
+        .choice-gas:hover { background: rgba(234, 88, 12, 0.45); border-color: #fdba74; color: #fff; box-shadow: 0 0 20px rgba(249, 115, 22, 0.45); }
+
+        .choice-plasma {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(88, 28, 135, 0.7));
+            border: 2px solid rgba(216, 180, 254, 0.5);
+            color: #f3e8ff;
+        }
+        .choice-plasma:hover { background: rgba(168, 85, 247, 0.45); border-color: #e9d5ff; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.45); }
+
+        /* Quét quét năng lượng laser nhiệt */
+        @keyframes laserSweep {
+            0% { top: -30%; opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { top: 130%; opacity: 0; }
+        }
+        .laser-sweep-anim {
+            position: absolute;
+            left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, #38bdf8, #f97316, transparent);
+            animation: laserSweep 3.5s linear infinite;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #040712; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    </style>
+</head>
+<body class="thermal-rally-bg text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-x-hidden">
+
+    <!-- THANH ĐIỀU HÀNH CUỘC ĐUA NGUYÊN TỬ -->
+    <header class="w-full bg-slate-950/90 border-b border-cyan-500/30 px-4 sm:px-8 py-3 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md shadow-2xl">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-orange-500 flex items-center justify-center shadow-lg shadow-cyan-500/30 text-white flex-shrink-0 border border-cyan-300/40">
+                <i class="fa-solid fa-atom text-xl animate-spin text-amber-300" style="animation-duration: 9s;"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 font-tech text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-cyan-500/40">PHASE-SHIFT RALLY</span>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-orange-300 font-bold hidden sm:inline">Vật Lí 12: Bài 1 - Cấu Trúc Của Chất & Sự Chuyển Thể</span>
+                </div>
+                <h1 class="font-hud text-base sm:text-lg md:text-xl text-white tracking-wide leading-tight uppercase font-bold">
+                    CUỘC ĐUA NGUYÊN TỬ CHUYỂN THỂ • RẮN - LỎNG - KHÍ
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button id="sfxToggleBtn" onclick="toggleAudio()" class="p-2.5 w-10 h-10 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-cyan-300 border border-cyan-800 text-sm font-bold flex items-center justify-center transition shadow-md" title="Bật/Tắt âm thanh vật lí">
+                <i class="fa-solid fa-volume-high text-cyan-400" id="sfxIcon"></i>
+            </button>
+            <button onclick="window.location.reload()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm font-bold border border-slate-700 flex items-center gap-2 transition text-slate-300">
+                <i class="fa-solid fa-rotate text-orange-400"></i>
+                <span class="hidden sm:inline">Khởi Động Lại</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- TOAST THÔNG BÁO NHIỆT ĐỘNG LỰC -->
+    <div id="toastBox" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none border"></div>
+
+    <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-5xl w-full mx-auto justify-center z-10 relative">
+
+        <!-- ==================== 0. MÀN HÌNH CHỌN VAI TRÒ ==================== -->
+        <section id="roleSelectScreen" class="w-full max-w-4xl mx-auto hud-panel p-6 sm:p-10 rounded-[2.5rem] text-center my-auto flex flex-col gap-6 relative overflow-hidden">
+            <div class="laser-sweep-anim"></div>
+            <div>
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-xs sm:text-sm font-bold mb-2 shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-temperature-arrow-up text-amber-400"></i> VẬT LÍ 12 • BÀI 1: CẤU TRÚC CỦA CHẤT
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-hud font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-sky-100 to-orange-300 mt-1 tracking-wider uppercase">
+                    CUỘC ĐUA NGUYÊN TỬ CHUYỂN THỂ (PHASE-SHIFT RALLY)
+                </h2>
+                <p class="text-xs sm:text-sm md:text-base text-cyan-200/80 max-w-2xl mx-auto mt-2 font-medium leading-relaxed">
+                    Mô phỏng đường đua động học chất: Đội khởi đầu ở <span class="text-cyan-300 font-bold">Thể Rắn 🧊 (1 bước/câu)</span>. Trả lời đúng thu nhiệt nung nóng thăng hạng lên <span class="text-teal-300 font-bold">Thể Lỏng 💧 (2 bước/câu)</span> và đột phá lên <span class="text-orange-400 font-bold">Thể Khí 💨 (3 bước/câu)</span>. Trả lời sai lập tức bị làm lạnh, ngưng tụ/đông đặc tụt trạng thái!
+                </p>
+            </div>
+
+            <!-- CHỌN VAI TRÒ -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- MÁY CHIẾU (GIÁO VIÊN / HOST) -->
+                <button onclick="initHostMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/90 to-cyan-950/70 border-2 border-cyan-500/40 hover:border-cyan-300 shadow-xl hover:shadow-cyan-500/30 transition transform hover:-translate-y-1 active:scale-[0.99] flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition shadow-lg shadow-cyan-600/30">
+                        🖥️
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-hud font-bold text-white uppercase">TRẠM ĐIỀU HÀNH MÁY CHIẾU</h3>
+                    <p class="text-xs sm:text-sm text-cyan-300/70 mt-2 mb-5 leading-relaxed">
+                        Khai mở Mã PIN & QR Code, trình chiếu 10 câu hỏi chuyển thể chất, kích hoạt <b>Đường Đua Nguyên Tử Canvas trực quan</b> và bảng xếp hạng số bước tiến.
+                    </p>
+                    <span class="px-7 py-3 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-orange-500 hover:from-cyan-500 hover:to-orange-400 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition shadow-lg shadow-cyan-600/40">
+                        KHAI MỞ ĐƯỜNG ĐUA TRUNG TÂM
+                    </span>
+                </button>
+
+                <!-- ĐIỆN THOẠI (HỌC SINH / THI ĐẤU) -->
+                <button onclick="initPlayerMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/90 to-orange-950/50 border-2 border-orange-500/40 hover:border-orange-300 shadow-xl hover:shadow-orange-500/30 transition transform hover:-translate-y-1 active:scale-[0.99] flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-orange-500/20 text-orange-300 border border-orange-500/40 flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition shadow-lg shadow-orange-600/30">
+                        📱
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-hud font-bold text-white uppercase">THIẾT BỊ ĐỘI ĐUA (ĐIỆN THOẠI)</h3>
+                    <p class="text-xs sm:text-sm text-orange-300/70 mt-2 mb-5 leading-relaxed">
+                        Nhập Mã PIN và tên Đội / Học sinh, điều khiển cụm phân tử, thu nhận nhiệt lượng bứt phá số bước tiến hoặc tránh bẫy đông đặc.
+                    </p>
+                    <span class="px-7 py-3 rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-teal-600 hover:from-orange-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition shadow-lg shadow-orange-600/40">
+                        GIA NHẬP ĐƯỜNG ĐUA NGUYÊN TỬ
+                    </span>
+                </button>
+            </div>
+
+            <!-- TÓM TẮT CƠ CHẾ SƯ PHẠM VẬT LÍ -->
+            <div class="p-4 rounded-2xl bg-slate-950/90 border border-cyan-900/60 text-left text-xs sm:text-sm text-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center text-base flex-shrink-0 font-bold">⚡</span>
+                    <div>
+                        <span class="font-bold text-white block">Quy tắc Vật Lí Nhiệt Động:</span>
+                        <span class="text-cyan-300/70 text-xs">Xuất phát: <b>Thể Rắn 🧊 (+1 bước)</b> ➔ Đúng 1 câu: nung nóng lên <b>Thể Lỏng 💧 (+2 bước)</b> ➔ Đúng tiếp: hóa hơi lên <b>Thể Khí 💨 (+3 bước)</b>. Trả lời sai: Làm lạnh ➔ Tụt Lỏng (+2 bước) ➔ Sai tiếp tụt Rắn (+1 bước)!</span>
+                    </div>
+                </div>
+                <div class="px-3.5 py-1.5 rounded-full bg-orange-500/20 text-orange-300 font-tech text-xs font-bold whitespace-nowrap border border-orange-500/30">
+                    STEP-BASED RALLY
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== GIAO DIỆN MÁY CHIẾU (GIÁO VIÊN) ==================== -->
+        <!-- 1. SẢNH CHỜ KHAI MỞ ĐƯỜNG ĐUA -->
+        <section id="hostLobbyScreen" class="w-full max-w-5xl mx-auto hud-panel p-6 sm:p-9 rounded-[2.5rem] my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-wrap items-center justify-between border-b border-cyan-900/60 pb-3 gap-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span class="font-hud text-base sm:text-lg text-cyan-300 uppercase tracking-wider font-bold">PHÒNG ĐIỀU KHIỂN ĐƯỜNG ĐUA NGUYÊN TỬ</span>
+                    <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-tech font-bold">THERMAL BUS READY</span>
+                </div>
+                <div class="text-xs sm:text-sm md:text-base font-bold text-cyan-200">
+                    <i class="fa-solid fa-users text-amber-300 mr-1.5"></i>Đội đua đã kết nối: <span class="text-amber-300 font-tech font-black text-xl sm:text-2xl" id="hostPlayerCountNum">0</span> đội
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- CỘT TRÁI: PIN & QR CODE -->
+                <div class="lg:col-span-5 p-6 rounded-3xl bg-slate-950/90 border border-cyan-900/60 flex flex-col items-center justify-between text-center gap-4">
+                    <div>
+                        <span class="text-xs sm:text-sm font-extrabold text-cyan-300 uppercase tracking-widest block font-tech">MÃ PHÒNG ĐUA (PIN)</span>
+                        <div class="flex items-center justify-center gap-2.5 mt-2">
+                            <span id="hostPinDisplay" class="text-5xl sm:text-6xl font-tech font-black text-amber-300 px-6 py-2 rounded-2xl bg-black border-2 border-cyan-500/50 shadow-inner tracking-widest">
+                                ----
+                            </span>
+                            <button onclick="copyJoinLink()" class="p-4 rounded-2xl bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 text-base font-bold transition" title="Sao chép liên kết phòng">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- MÃ QR CODE KẾT NỐI -->
+                    <div class="flex flex-col items-center bg-white p-3.5 rounded-2xl shadow-2xl border-2 border-cyan-400">
+                        <div onclick="openQrModal()" class="cursor-pointer hover:opacity-90 transition p-1" title="Bấm để phóng to mã QR">
+                            <div id="hostQrCodeBox" class="w-[130px] h-[130px] flex items-center justify-center overflow-hidden"></div>
+                        </div>
+                        <button onclick="openQrModal()" class="text-xs font-bold text-slate-950 mt-2 flex items-center gap-1.5 hover:text-cyan-700">
+                            <i class="fa-solid fa-expand"></i> Phóng to QR Code
+                        </button>
+                    </div>
+
+                    <p class="text-xs text-cyan-300/70 font-medium">Học sinh quét mã QR hoặc nhập PIN trên điện thoại để tham gia đường đua.</p>
+                </div>
+
+                <!-- CỘT PHẢI: DANH SÁCH CÁC ĐỘI -->
+                <div class="lg:col-span-7 flex flex-col justify-between gap-5">
+                    <div class="p-5 rounded-3xl bg-slate-950/90 border border-cyan-900/60 flex-1 flex flex-col">
+                        <div class="flex justify-between items-center border-b border-cyan-900/60 pb-2.5 mb-3">
+                            <span class="text-xs sm:text-sm font-bold text-cyan-200 uppercase tracking-wider">Danh sách cụm phân tử / Đội tham gia</span>
+                            <span class="text-xs font-tech text-cyan-400">STATE: SOLID (1 STEP/Q)</span>
+                        </div>
+                        <div class="flex-1 min-h-[190px] max-h-[260px] overflow-y-auto p-2 flex flex-col justify-center">
+                            <p class="text-sm text-cyan-400/50 italic text-center" id="emptyPlayerMsg">Đang lắng nghe tín hiệu nhiệt từ các đội đua...</p>
+                            <div class="flex flex-wrap gap-2 items-center justify-center" id="hostPlayerListContainer"></div>
+                        </div>
+                    </div>
+
+                    <!-- NÚT THAO TÁC -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="addDemoBots(4)" type="button" class="px-4 py-3 rounded-xl bg-cyan-950/60 hover:bg-cyan-900 text-cyan-200 text-xs sm:text-sm font-bold border border-cyan-800 transition flex items-center gap-2 flex-1 sm:flex-none justify-center">
+                                <i class="fa-solid fa-flask text-amber-300"></i> + Thêm 4 Đội Mẫu
+                            </button>
+                            <button onclick="clearDemoBots()" type="button" class="px-3.5 py-3 rounded-xl bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 text-xs sm:text-sm font-bold border border-cyan-800 transition flex items-center gap-1" title="Xóa danh sách">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                        <button onclick="hostStartGame()" id="hostStartBtn" class="w-full sm:w-auto px-9 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-orange-500 hover:from-cyan-500 hover:to-orange-400 text-white font-hud text-sm sm:text-base uppercase tracking-wider transition shadow-lg shadow-cyan-600/40 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-2 font-bold" disabled>
+                            <span>XUẤT PHÁT: CUỘC ĐUA CHUYỂN THỂ</span>
+                            <i class="fa-solid fa-flag-checkered text-amber-300"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. MÀN HÌNH CÂU HỎI TRÊN MÁY CHIẾU -->
+        <section id="hostQuestionScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-5 hidden">
+            <!-- HEADER THÔNG TIN CHẶNG & ĐỒNG HỒ ĐẾM NGƯỢC -->
+            <div class="hud-panel p-4 sm:p-6 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                <div class="flex items-center gap-3">
+                    <span id="hostQCounter" class="px-4 py-1.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-tech text-sm sm:text-base uppercase font-black">CHẶNG 1 / 10</span>
+                    <span id="hostQCategory" class="text-sm sm:text-base font-bold text-cyan-100">Mô hình động học phân tử</span>
+                    <span id="hostMechanicTag" class="text-xs px-2.5 py-1 rounded-lg bg-orange-500/20 text-orange-300 border border-orange-500/30 font-tech font-bold uppercase">RẮN ➔ LỎNG ➔ KHÍ</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300">
+                        <i class="fa-solid fa-stopwatch text-amber-400 text-lg sm:text-xl"></i>
+                        <span id="hostTimerText" class="font-tech font-black text-2xl sm:text-3xl text-amber-400">30</span>
+                        <span class="text-xs sm:text-sm font-bold text-amber-400">s</span>
+                    </div>
+
+                    <div class="px-4 py-2 rounded-2xl bg-slate-900 border border-cyan-900/60 text-xs sm:text-sm font-bold text-cyan-200">
+                        Đã chọn đáp án: <span id="hostAnsweredCount" class="text-orange-400 font-tech font-black text-lg sm:text-xl">0</span> / <span id="hostTotalPlayersCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NỘI DUNG CÂU HỎI TRÊN MÁY CHIẾU -->
+            <div class="hud-panel p-6 sm:p-9 rounded-[2.5rem] shadow-2xl flex flex-col gap-6 relative overflow-hidden">
+                <div class="laser-sweep-anim"></div>
+
+                <h2 id="hostQuestionTitle" class="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-relaxed font-hud mt-1">
+                    Đang tải câu hỏi chuyển thể chất...
+                </h2>
+
+                <!-- 4 LỰA CHỌN ĐÁP ÁN (A-B-C-D) -->
+                <div id="hostMcqContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div id="hostOptCard0" class="p-4 sm:p-5 rounded-2xl choice-solid flex items-center justify-between gap-4 text-base sm:text-lg md:text-xl font-bold btn-atomic-choice">
+                        <div class="flex items-center gap-3.5 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-blue-500/30 border border-blue-400 text-blue-200 flex items-center justify-center font-tech text-base font-black flex-shrink-0">A</span>
+                            <span id="optText0" class="flex-1 break-words">Phương án A</span>
+                        </div>
+                        <span id="optBadge0" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-hud text-xs sm:text-sm whitespace-nowrap">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+
+                    <div id="hostOptCard1" class="p-4 sm:p-5 rounded-2xl choice-liquid flex items-center justify-between gap-4 text-base sm:text-lg md:text-xl font-bold btn-atomic-choice">
+                        <div class="flex items-center gap-3.5 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-teal-500/30 border border-teal-400 text-teal-200 flex items-center justify-center font-tech text-base font-black flex-shrink-0">B</span>
+                            <span id="optText1" class="flex-1 break-words">Phương án B</span>
+                        </div>
+                        <span id="optBadge1" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-hud text-xs sm:text-sm whitespace-nowrap">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+
+                    <div id="hostOptCard2" class="p-4 sm:p-5 rounded-2xl choice-gas flex items-center justify-between gap-4 text-base sm:text-lg md:text-xl font-bold btn-atomic-choice">
+                        <div class="flex items-center gap-3.5 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-orange-500/30 border border-orange-400 text-orange-200 flex items-center justify-center font-tech text-base font-black flex-shrink-0">C</span>
+                            <span id="optText2" class="flex-1 break-words">Phương án C</span>
+                        </div>
+                        <span id="optBadge2" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-hud text-xs sm:text-sm whitespace-nowrap">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+
+                    <div id="hostOptCard3" class="p-4 sm:p-5 rounded-2xl choice-plasma flex items-center justify-between gap-4 text-base sm:text-lg md:text-xl font-bold btn-atomic-choice">
+                        <div class="flex items-center gap-3.5 flex-1">
+                            <span class="w-10 h-10 rounded-xl bg-purple-500/30 border border-purple-400 text-purple-200 flex items-center justify-center font-tech text-base font-black flex-shrink-0">D</span>
+                            <span id="optText3" class="flex-1 break-words">Phương án D</span>
+                        </div>
+                        <span id="optBadge3" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-hud text-xs sm:text-sm whitespace-nowrap">✓ ĐÁP ÁN ĐÚNG</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KHUNG BẢN CHẤT VẬT LÍ (HIỆN KHI HẾT GIỜ) -->
+            <div id="hostQuestionActionArea" class="hud-panel p-6 rounded-3xl border-2 border-cyan-500/60 shadow-2xl flex flex-col gap-4 hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs sm:text-sm font-black uppercase text-cyan-300 tracking-wider block font-tech">KẾT THÚC CHẶNG ĐUA NÀY</span>
+                        <p class="text-xs sm:text-sm text-cyan-100 font-medium">Hệ thống đang nung nóng chuyển thể hoặc kích hoạt bẫy ngưng tụ/đông đặc cho các đội!</p>
+                    </div>
+                    <button onclick="hostOpenRaceCanvasScreen()" class="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-orange-500 hover:from-cyan-500 hover:to-orange-400 text-white font-hud text-xs sm:text-sm uppercase tracking-wider transition shadow-lg shadow-cyan-500/40 flex items-center gap-2 font-black">
+                        <span>XEM ĐƯỜNG ĐUA NGUYÊN TỬ TRỰC QUAN</span>
+                        <i class="fa-solid fa-flag-checkered text-amber-300"></i>
+                    </button>
+                </div>
+
+                <!-- Phân tích bản chất vật lí bài học -->
+                <div id="hostExplanationBox" class="text-xs sm:text-sm md:text-base text-cyan-100 bg-black/60 border border-cyan-500/30 p-4 rounded-2xl font-medium leading-relaxed"></div>
+            </div>
+
+            <!-- LƯỚI TRẠNG THÁI VẬT LÍ CỦA HỌC SINH -->
+            <div class="hud-panel p-5 rounded-3xl">
+                <div class="flex justify-between items-center border-b border-cyan-900/60 pb-2 mb-2">
+                    <span class="text-xs sm:text-sm font-bold text-cyan-200 uppercase tracking-wide">Trạng thái pha của các đội đua</span>
+                    <span class="text-xs font-tech text-cyan-400">TELEMETRY & PHASE SHIFT</span>
+                </div>
+                <div id="hostLiveSquadGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[160px] overflow-y-auto p-1"></div>
+            </div>
+        </section>
+
+        <!-- 3. MÀN HÌNH ĐƯỜNG ĐUA NGUYÊN TỬ TRỰC QUAN (CANVAS) -->
+        <section id="hostRaceCanvasScreen" class="w-full max-w-5xl mx-auto hud-panel p-6 sm:p-9 rounded-[2.5rem] shadow-2xl flex flex-col gap-5 hidden relative overflow-hidden my-auto">
+            <div class="laser-sweep-anim"></div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b border-cyan-900/60 pb-3 gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-300 border border-orange-500/40 flex items-center justify-center text-2xl shadow-lg">
+                        🏁
+                    </div>
+                    <div>
+                        <span class="text-xs font-tech uppercase text-cyan-400 font-bold tracking-wider block" id="raceTrackRoundSubtitle">CHẶNG 1 / 10 HOÀN TẤT</span>
+                        <h3 class="text-lg sm:text-2xl font-hud font-bold text-white uppercase">
+                            ĐƯỜNG ĐUA NGUYÊN TỬ CHUYỂN THỂ (PHASE-SHIFT RALLY)
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="hostTriggerLeaderboardScreen()" class="px-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-700 font-hud text-xs sm:text-sm font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol"></i> Bảng Chi Tiết
+                    </button>
+                    <button onclick="hostContinueFromRaceTrack()" id="hostTrackNextBtn" class="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-orange-500 hover:from-cyan-500 hover:to-orange-400 text-white font-hud text-xs sm:text-sm uppercase tracking-wider transition shadow-lg shadow-cyan-500/40 flex items-center gap-2 font-black">
+                        <span id="hostTrackNextBtnLabel">SANG CHẶNG TIẾP THEO</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CHÚ GIẢI TRẠNG THÁI VẬT LÍ -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs font-hud font-bold">
+                <div class="p-2 rounded-xl bg-blue-950/60 border border-blue-400/40 text-blue-300 flex items-center justify-center gap-1.5">
+                    <span>🧊 THỂ RẮN</span>
+                    <span class="text-[10px] text-slate-400 font-mono">(1 bước/câu)</span>
+                </div>
+                <div class="p-2 rounded-xl bg-teal-950/60 border border-teal-400/40 text-teal-300 flex items-center justify-center gap-1.5">
+                    <span>💧 THỂ LỎNG</span>
+                    <span class="text-[10px] text-slate-400 font-mono">(2 bước/câu)</span>
+                </div>
+                <div class="p-2 rounded-xl bg-orange-950/60 border border-orange-400/40 text-orange-300 flex items-center justify-center gap-1.5">
+                    <span>💨 THỂ KHÍ</span>
+                    <span class="text-[10px] text-slate-400 font-mono">(3 bước/câu)</span>
+                </div>
+            </div>
+
+            <!-- KHUNG CANVAS ĐƯỜNG ĐUA NGUYÊN TỬ -->
+            <div class="w-full bg-slate-950/95 rounded-3xl border-2 border-cyan-500/50 p-2 sm:p-4 shadow-2xl relative overflow-hidden">
+                <div class="w-full h-80 sm:h-96 relative flex items-center justify-center">
+                    <canvas id="atomicRaceCanvas" class="w-full h-full block rounded-2xl"></canvas>
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-black/70 border border-cyan-900/60 text-xs sm:text-sm text-cyan-200 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-orange-400 animate-ping"></span>
+                    <span id="raceTrackTelemetryBadge">Đội tiên phong: Đang bứt phá tốc độ Thể Khí!</span>
+                </div>
+                <div class="font-tech text-amber-300 font-bold text-xs">
+                    XẾP HẠNG HOÀN TOÀN DỰA TRÊN TỔNG SỐ BƯỚC TIẾN (STEPS)!
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. MÀN HÌNH BẢNG XẾP HẠNG SỐ BƯỚC TIẾN -->
+        <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto hud-panel p-6 sm:p-10 rounded-[2.5rem] my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b border-cyan-900/60 pb-4 gap-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-2xl shadow-md">
+                        🏆
+                    </div>
+                    <div>
+                        <span class="text-xs font-tech uppercase font-bold text-cyan-300 tracking-wider block">BẢNG XẾP HẠNG CUỘC ĐUA CHUYỂN THỂ</span>
+                        <h3 class="text-lg sm:text-2xl font-hud font-bold text-white uppercase" id="hostLeaderboardRoundTitle">
+                            TOP ĐỘI ĐUA TIÊN PHONG THEO TỔNG SỐ BƯỚC
+                        </h3>
+                    </div>
+                </div>
+
+                <button onclick="hostOpenRaceCanvasScreen()" class="px-7 py-3 rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-orange-500 hover:from-cyan-500 hover:to-orange-400 text-white font-hud text-xs sm:text-sm uppercase tracking-wider transition shadow-lg shadow-cyan-500/40 flex items-center gap-2 font-bold">
+                    <span>XEM ĐỒ HỌA ĐƯỜNG ĐUA 🏎️</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- BỤC VINH DANH TOP 3 -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 items-end justify-center py-2 max-w-2xl mx-auto w-full">
+                <!-- Hạng 2 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl mb-1">🥈</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900/90 border-2 border-cyan-400/60 text-center flex flex-col items-center shadow-md">
+                        <div class="text-lg mb-1" id="podiumPhaseIcon2">💧</div>
+                        <span class="text-base sm:text-lg md:text-xl font-black text-slate-100 truncate max-w-full" id="podiumName2">--</span>
+                        <span class="text-sm font-tech text-cyan-300 font-bold" id="podiumSteps2">0 Bước</span>
+                        <span class="text-[10px] text-slate-400 font-bold" id="podiumSpeed2">Tốc độ: 1 bước/câu</span>
+                    </div>
+                    <div class="w-full h-14 sm:h-18 bg-cyan-950/70 rounded-b-xl flex items-center justify-center font-tech font-black text-cyan-300 text-sm sm:text-base border border-cyan-800">#2</div>
+                </div>
+
+                <!-- Hạng 1 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">👑 🥇</span>
+                    <div class="w-full p-3.5 rounded-2xl bg-amber-950/50 border-2 border-amber-400 text-center flex flex-col items-center shadow-2xl ring-2 ring-amber-400/50">
+                        <div class="text-2xl mb-1" id="podiumPhaseIcon1">💨</div>
+                        <span class="text-lg sm:text-xl md:text-2xl font-black text-amber-300 truncate max-w-full" id="podiumName1">--</span>
+                        <span class="text-base sm:text-lg font-tech text-amber-400 font-black" id="podiumSteps1">0 Bước</span>
+                        <span class="text-xs text-orange-300 font-extrabold" id="podiumSpeed1">Tốc độ: 3 bước/câu</span>
+                    </div>
+                    <div class="w-full h-20 sm:h-24 bg-gradient-to-t from-amber-600 to-amber-400 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-950 text-base sm:text-lg shadow-lg">#1</div>
+                </div>
+
+                <!-- Hạng 3 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl mb-1">🥉</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900/90 border-2 border-orange-500/50 text-center flex flex-col items-center shadow-md">
+                        <div class="text-lg mb-1" id="podiumPhaseIcon3">🧊</div>
+                        <span class="text-base sm:text-lg md:text-xl font-black text-slate-100 truncate max-w-full" id="podiumName3">--</span>
+                        <span class="text-sm font-tech text-orange-300 font-bold" id="podiumSteps3">0 Bước</span>
+                        <span class="text-[10px] text-slate-400 font-bold" id="podiumSpeed3">Tốc độ: 1 bước/câu</span>
+                    </div>
+                    <div class="w-full h-10 sm:h-14 bg-orange-950/70 rounded-b-xl flex items-center justify-center font-tech font-black text-orange-300 text-xs sm:text-sm border border-orange-800">#3</div>
+                </div>
+            </div>
+
+            <!-- BẢNG CHI TIẾT TOP 6 ĐỘI ĐUA -->
+            <div class="bg-black/80 rounded-3xl p-4 sm:p-5 border border-cyan-900/60 shadow-xl overflow-hidden">
+                <h4 class="text-xs font-tech font-bold uppercase text-cyan-300 mb-3 flex items-center justify-between">
+                    <span>BẢNG XẾP HẠNG BƯỚC TIẾN CHUYỂN THỂ</span>
+                    <span>TỔNG SỐ BƯỚC • TRẠNG THÁI • TỐC ĐỘ</span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-950 text-cyan-300 text-xs uppercase font-hud">
+                            <tr>
+                                <th class="p-3 rounded-l-xl">Hạng</th>
+                                <th class="p-3">Đội Đua / Học Sinh</th>
+                                <th class="p-3">Lớp</th>
+                                <th class="p-3 text-center">Trạng Thái Pha</th>
+                                <th class="p-3 text-center">Vận Tốc Hiện Tại</th>
+                                <th class="p-3 text-right rounded-r-xl">Tổng Số Bước</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostTop6TableBody" class="divide-y divide-cyan-900/60 font-bold text-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. MÀN HÌNH TỔNG KẾT & XUẤT EXCEL -->
+        <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto hud-panel-heat p-6 sm:p-10 rounded-[2.5rem] my-auto hidden flex flex-col gap-6">
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-4xl shadow-md mb-2.5 animate-bounce">
+                    🏆
+                </div>
+                <span class="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-tech text-xs font-bold uppercase tracking-widest border border-amber-500/40">GRAND PRIX FINISH</span>
+                <h2 class="text-2xl sm:text-4xl font-hud font-bold text-white uppercase tracking-wider mt-2">
+                    CUỘC ĐUA NGUYÊN TỬ CHUYỂN THỂ HOÀN TẤT!
+                </h2>
+                <p class="text-xs sm:text-sm text-cyan-200 mt-1 font-medium" id="finalChampionAnnounce">
+                    Đội vô địch đã xuất sắc làm chủ chu trình chuyển thể chất và dẫn đầu về số bước tiến!
+                </p>
+            </div>
+
+            <!-- BẢNG 1: TỔNG KẾT SỐ BƯỚC VÀ TRẠNG THÁI CUỐI -->
+            <div class="bg-black/80 rounded-3xl p-5 border border-cyan-900/60 overflow-hidden shadow-xl">
+                <h4 class="text-xs font-tech font-bold uppercase text-amber-400 mb-3 flex items-center justify-between">
+                    <span>1. BẢNG TỔNG KẾT THỨ HẠNG THEO BƯỚC TIẾN</span>
+                    <span class="text-xs text-cyan-300 font-normal">Sắp xếp theo Tổng Số Bước Đi Được</span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-950 text-cyan-300 text-xs uppercase font-hud">
+                            <tr>
+                                <th class="p-3 rounded-l-xl">Hạng</th>
+                                <th class="p-3">Đội Đua / Học Sinh</th>
+                                <th class="p-3">Lớp</th>
+                                <th class="p-3 text-center">Tổng Số Bước</th>
+                                <th class="p-3 text-center">Trạng Thái Cuối</th>
+                                <th class="p-3 text-center">Số Câu Đúng</th>
+                                <th class="p-3 text-right rounded-r-xl">Tỉ Lệ Đúng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostFinalStatsTbody" class="divide-y divide-cyan-900/60 font-bold text-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BẢNG 2: MA TRẬN NHẬT KÝ CHẶNG ĐUA (CÂU 1 ➔ 10) -->
+            <div class="bg-black/80 rounded-3xl p-5 border border-cyan-900/60 overflow-hidden shadow-xl">
+                <h4 class="text-xs font-tech font-bold uppercase text-cyan-400 mb-3 flex items-center justify-between">
+                    <span>2. MA TRẬN KẾT QUẢ VÀ BƯỚC TIẾN QUA 10 CHẶNG</span>
+                    <span class="text-xs text-cyan-300 font-normal flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">✓ Đúng (Thăng hạng/Tăng bước)</span>
+                        <span class="text-rose-400 font-bold">✗ Sai (Làm lạnh/Tụt trạng thái)</span>
+                    </span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-center text-xs">
+                        <thead class="bg-slate-950 text-cyan-300 text-[11px] uppercase font-hud">
+                            <tr id="hostMatrixHeaderRow">
+                                <th class="p-3 text-left rounded-l-xl">Đội Đua</th>
+                                <th class="p-3 text-center rounded-r-xl">Tổng Bước</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostMatrixTableBody" class="divide-y divide-cyan-900/60 font-bold text-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NÚT XUẤT BÁO CÁO EXCEL -->
+            <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="exportQuizExcel()" class="px-7 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-hud text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-emerald-600/40 transition flex items-center gap-2 font-black">
+                    <i class="fa-solid fa-file-excel text-base"></i>
+                    <span>XUẤT BẢNG XẾP HẠNG BƯỚC TIẾN (EXCEL)</span>
+                </button>
+                <button onclick="window.location.reload()" class="px-7 py-3.5 rounded-2xl bg-cyan-700 hover:bg-cyan-600 text-white font-hud text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-cyan-600/40 transition flex items-center gap-2 font-black">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>KHỞI TẠO CUỘC ĐUA MỚI</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== GIAO DIỆN HỌC SINH (ĐIỆN THOẠI) ==================== -->
+        <!-- 1. FORM THAM GIA ĐUA -->
+        <section id="playerJoinScreen" class="w-full max-w-md mx-auto hud-panel p-6 sm:p-8 rounded-[2.5rem] my-auto hidden text-center flex flex-col gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 flex items-center justify-center mx-auto text-3xl shadow-lg">
+                🏎️
+            </div>
+            <div>
+                <h2 class="text-xl sm:text-2xl font-hud font-bold text-white uppercase">GIA NHẬP ĐƯỜNG ĐUA NGUYÊN TỬ</h2>
+                <p class="text-xs text-cyan-300/80 mt-1 font-medium">Nhập Mã Phòng PIN và tên Đội để nhận cụm phân tử xuất phát</p>
+            </div>
+
+            <div class="flex flex-col gap-3 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-cyan-300 uppercase mb-1 font-tech">MÃ PHÒNG ĐUA (PIN)</label>
+                    <input type="text" id="playerPinInput" placeholder="Ví dụ: 8899" maxlength="6"
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-950 text-amber-300 font-tech font-black text-2xl border border-cyan-500/50 focus:border-cyan-300 focus:outline-none text-center tracking-widest transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-cyan-300 uppercase mb-1">TÊN ĐỘI / HỌC SINH</label>
+                    <input type="text" id="playerNameInput" placeholder="Nhập tên đội hoặc họ tên..." maxlength="25"
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-950 text-white font-bold text-sm border border-cyan-900/80 focus:border-cyan-300 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-cyan-300 uppercase mb-1">LỚP HỌC</label>
+                    <input type="text" id="playerClassInput" placeholder="Ví dụ: 12A1..." maxlength="10"
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-950 text-white font-bold text-xs border border-cyan-900/80 focus:border-cyan-300 focus:outline-none uppercase transition">
+                </div>
+            </div>
+
+            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-orange-500 hover:from-cyan-500 hover:to-orange-400 text-white font-hud text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-cyan-600/40 transition font-bold">
+                KÍCH HOẠT CỤM NGUYÊN TỬ & VÀO VẠCH XUẤT PHÁT
+            </button>
+            <p id="playerConnectStatusMsg" class="text-xs text-cyan-300 font-semibold hidden">Đang truyền sóng nhiệt đến Trạm Máy Chiếu...</p>
+        </section>
+
+        <!-- 2. PHÒNG CHỜ TRÊN THIẾT BỊ HỌC SINH -->
+        <section id="playerLobbyScreen" class="w-full max-w-md mx-auto hud-panel p-6 sm:p-8 rounded-[2.5rem] my-auto text-center hidden flex flex-col gap-4">
+            <div class="w-20 h-20 rounded-3xl bg-cyan-500/20 border-2 border-cyan-400/50 text-cyan-300 flex items-center justify-center mx-auto text-4xl shadow-xl animate-pulse" id="playerLobbyIcon">
+                🧊
+            </div>
+            <div>
+                <span class="text-xs font-tech uppercase text-cyan-400 font-bold tracking-wider block">ĐÃ SẴN SÀNG TẠI VẠCH XUẤT PHÁT</span>
+                <h2 id="playerMyNameDisplay" class="text-lg sm:text-2xl font-hud font-bold text-white mt-1 uppercase">ĐỘI ĐUA</h2>
+                <div class="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-xl bg-slate-900 border border-cyan-500/40 text-xs text-cyan-300 font-bold" id="playerStateInitialBadge">
+                    Trạng thái khởi đầu: THỂ RẮN 🧊 (1 bước/câu đúng)
+                </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/60 border border-cyan-900/60 text-xs sm:text-sm text-cyan-200 leading-relaxed font-medium">
+                Theo dõi màn hình máy chiếu.<br>Trả lời chính xác để được nung nóng thăng hạng lên <b>Thể Lỏng 💧 (+2 bước)</b> và <b>Thể Khí 💨 (+3 bước)</b>. Cẩn thận bẫy làm lạnh khi trả lời sai!
+            </div>
+        </section>
+
+        <!-- 3. MÀN HÌNH ĐIỀU KHIỂN & CHỌN ĐÁP ÁN (A-B-C-D) TRÊN ĐIỆN THOẠI -->
+        <section id="playerGamepadScreen" class="w-full max-w-md mx-auto flex flex-col gap-3 my-auto hidden">
+            <!-- THANH THÔNG TIN PHA & SỐ BƯỚC -->
+            <div class="hud-panel p-3.5 rounded-2xl flex items-center justify-between shadow-lg">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-2xl" id="playerNavPhaseEmoji">🧊</span>
+                    <div>
+                        <div id="playerGameTeamLabel" class="font-hud font-bold text-white text-xs sm:text-sm truncate max-w-[130px]">Đội đua</div>
+                        <div class="text-[11px] text-cyan-300 font-semibold">
+                            Trạng thái: <span id="playerNavPhaseName" class="text-cyan-400 font-bold">THỂ RẮN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div class="px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1">
+                        <span>👣</span>
+                        <span id="playerNavStepBadge" class="font-tech font-black text-sm">0</span>
+                        <span class="text-[10px]">bước</span>
+                    </div>
+
+                    <div class="px-2 py-0.5 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold" id="playerSpeedBadge">
+                        1b/câu
+                    </div>
+
+                    <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-black/60 border border-cyan-900/60 text-xs font-bold text-slate-300">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                        <span id="playerTimerText" class="font-tech text-amber-400">30s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIÊU ĐỀ CÂU HỎI TRÊN ĐIỆN THOẠI -->
+            <div class="hud-panel p-4 rounded-2xl shadow-md text-left flex flex-col gap-1.5">
+                <div class="flex justify-between items-center">
+                    <span id="playerQCounter" class="text-xs font-tech font-black uppercase text-cyan-300">CHẶNG 1 / 10</span>
+                    <span id="playerMechanicBadge" class="text-[10px] px-2.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase font-tech border border-cyan-500/40">VẬT LÍ 12 - BÀI 1</span>
+                </div>
+                <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-bold text-slate-100 leading-snug font-hud">
+                    Đang nạp câu hỏi nhiệt động học...
+                </h3>
+            </div>
+
+            <!-- 4 NÚT TRẮC NGHIỆM A-B-C-D -->
+            <div class="flex flex-col gap-2.5" id="playerMcqContainer">
+                <button onclick="playerSubmitMcq(0)" class="choice-solid w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-md transition active:scale-95 btn-atomic-choice">
+                    <span class="w-8 h-8 rounded-xl bg-blue-500/30 border border-blue-400 text-blue-200 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">A</span>
+                    <span id="playerOptText0" class="flex-1 break-words leading-tight">Phương án A</span>
+                </button>
+
+                <button onclick="playerSubmitMcq(1)" class="choice-liquid w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-md transition active:scale-95 btn-atomic-choice">
+                    <span class="w-8 h-8 rounded-xl bg-teal-500/30 border border-teal-400 text-teal-200 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">B</span>
+                    <span id="playerOptText1" class="flex-1 break-words leading-tight">Phương án B</span>
+                </button>
+
+                <button onclick="playerSubmitMcq(2)" class="choice-gas w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-md transition active:scale-95 btn-atomic-choice">
+                    <span class="w-8 h-8 rounded-xl bg-orange-500/30 border border-orange-400 text-orange-200 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">C</span>
+                    <span id="playerOptText2" class="flex-1 break-words leading-tight">Phương án C</span>
+                </button>
+
+                <button onclick="playerSubmitMcq(3)" class="choice-plasma w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-md transition active:scale-95 btn-atomic-choice">
+                    <span class="w-8 h-8 rounded-xl bg-purple-500/30 border border-purple-400 text-purple-200 flex items-center justify-center font-tech text-xs font-black flex-shrink-0">D</span>
+                    <span id="playerOptText3" class="flex-1 break-words leading-tight">Phương án D</span>
+                </button>
+            </div>
+
+            <!-- OVERLAY KHI ĐÃ GỬI PHƯƠNG ÁN -->
+            <div id="playerSubmittedOverlay" class="hud-panel p-5 rounded-2xl text-center hidden flex flex-col gap-2 shadow-lg">
+                <div class="text-3xl text-cyan-400 font-bold animate-pulse">⚡</div>
+                <h4 class="font-hud font-bold text-sm sm:text-base text-white uppercase">ĐÃ GỬI LỰA CHỌN ĐÁP ÁN</h4>
+                <p id="playerSubmittedLabel" class="text-xs font-bold text-cyan-300">Đang đối chiếu lý thuyết vật lí để điều phối nhiệt lượng...</p>
+                <p class="text-[11px] text-cyan-300/60">Quan sát màn hình máy chiếu để theo dõi đường đua!</p>
+            </div>
+        </section>
+
+        <!-- 4. MÀN HÌNH PHẢN HỒI KẾT QUẢ & CHUYỂN THỂ (ĐIỆN THOẠI) -->
+        <section id="playerFeedbackScreen" class="w-full max-w-md mx-auto hud-panel p-5 rounded-[2.5rem] text-center my-auto hidden shadow-2xl flex flex-col items-center gap-2.5">
+            <div id="playerFeedbackIcon" class="text-4xl mb-0.5">🔥</div>
+            <h2 id="playerFeedbackTitle" class="text-lg sm:text-xl font-hud font-bold text-emerald-400 uppercase">
+                CHÍNH XÁC! THU NHIỆT LƯỢNG THĂNG HẠNG!
+            </h2>
+            <div id="playerFeedbackStepsGain" class="text-sm font-tech font-black text-amber-300">
+                +1 Bước Tiến
+            </div>
+            <div id="playerFeedbackPhaseTransition" class="text-xs font-bold text-cyan-200 bg-black/60 px-3 py-1.5 rounded-xl border border-cyan-500/40">
+                Trạng thái: Thể Rắn 🧊 ➔ Thể Lỏng 💧 (Vận tốc mới: 2 bước/câu)
+            </div>
+
+            <!-- THẺ THỨ HẠNG CÁ NHÂN -->
+            <div class="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-slate-900 to-cyan-950 border border-cyan-500/40 flex items-center justify-between shadow-md my-1">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-cyan-600 text-white flex items-center justify-center font-hud font-black text-base shadow-sm" id="playerRankIcon">
+                        🏆
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[10px] text-cyan-300 font-bold block uppercase tracking-wider">HẠNG HIỆN TẠI</span>
+                        <span class="text-xs font-bold text-cyan-200" id="playerRankSubtitle">Trên đường đua</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="playerMyRankNum" class="text-xl sm:text-2xl font-tech font-black text-amber-300">#--</span>
+                    <span id="playerTotalStepsDisplay" class="text-[11px] text-cyan-400 font-bold block">Tổng: 0 bước</span>
+                </div>
+            </div>
+
+            <div class="w-full p-2.5 rounded-xl bg-black/60 border border-cyan-900/60 text-xs text-cyan-300/80 font-medium">
+                Quan sát Trạm Máy Chiếu để chiêm ngưỡng mô phỏng động học phân tử trên đường đua!
+            </div>
+        </section>
+
+        <!-- MODAL PHÓNG TO QR CODE -->
+        <div id="qrModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+            <div class="bg-slate-900 max-w-sm w-full p-6 rounded-3xl text-center border border-cyan-500/40 relative shadow-2xl flex flex-col items-center gap-3">
+                <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 class="text-base font-hud text-white font-bold uppercase">MÃ QR GIA NHẬP ĐƯỜNG ĐUA</h3>
+                <p class="text-xs text-cyan-300/80">Quét camera điện thoại để tham gia ngay</p>
+
+                <div class="p-3.5 bg-white rounded-2xl border-2 border-cyan-500/40 shadow-xl flex items-center justify-center">
+                    <div id="modalQrCodeBox" class="w-[200px] h-[200px] flex items-center justify-center overflow-hidden"></div>
+                </div>
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-cyan-300 font-bold">MÃ PIN:</span>
+                    <span id="modalPinText" class="text-2xl font-tech font-black text-amber-300 px-3.5 py-0.5 bg-black rounded-xl border border-cyan-500/40">----</span>
+                </div>
+                <button onclick="closeQrModal()" class="w-full py-2.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 text-xs font-bold text-cyan-200 transition">
+                    Đóng cửa sổ
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /* =========================================================================
+           KHO 10 CÂU HỎI VẬT LÍ LỚP 12: BÀI 1. CẤU TRÚC CỦA CHẤT, SỰ CHUYỂN THỂ
+           Chuẩn hóa KaTeX, đáp án A-B-C-D và lời giải thích bản chất vật lí
+           ========================================================================= */
+        const QUESTIONS_DATA = [
+            {
+                category: "Câu 1: Mô hình động học phân tử",
+                title: "Theo mô hình động học phân tử, phát biểu nào sau đây không đúng?",
+                options: [
+                    "Vật chất được cấu tạo từ các hạt riêng biệt như nguyên tử, phân tử.",
+                    "Các phân tử luôn chuyển động không ngừng.",
+                    "Giữa các phân tử có lực tương tác.",
+                    "Các phân tử của một chất luôn đứng yên tại những vị trí xác định."
+                ],
+                correct: 3, // Đáp án D
+                explanation: "Theo mô hình động học phân tử chất khí và chất nói chung: các phân tử luôn chuyển động hỗn loạn không ngừng (chuyển động nhiệt). Nhiệt độ càng cao thì các phân tử chuyển động càng nhanh. Các phân tử không bao giờ đứng yên."
+            },
+            {
+                category: "Câu 2: Khoảng cách giữa các phân tử",
+                title: "Trong ba trạng thái rắn, lỏng và khí, trạng thái nào thường có khoảng cách giữa các phân tử lớn nhất?",
+                options: [
+                    "Rắn.",
+                    "Lỏng.",
+                    "Khí.",
+                    "Khoảng cách trong cả ba trạng thái như nhau."
+                ],
+                correct: 2, // Đáp án C
+                explanation: "Ở thể khí, khoảng cách trung bình giữa các phân tử rất lớn (thường gấp hàng chục lần kích thước của chính phân tử). Lực tương tác giữa các phân tử rất yếu, nên chất khí không có hình dạng và thể tích riêng xác định."
+            },
+            {
+                category: "Câu 3: Đặc điểm của chất rắn",
+                title: "Phát biểu nào sau đây mô tả đúng nhất về chất rắn?",
+                options: [
+                    "Có thể tích và hình dạng xác định.",
+                    "Có thể tích xác định nhưng không có hình dạng xác định.",
+                    "Không có thể tích và hình dạng xác định.",
+                    "Luôn chiếm toàn bộ thể tích của bình chứa."
+                ],
+                correct: 0, // Đáp án A
+                explanation: "Ở thể rắn, khoảng cách giữa các phân tử rất gần nhau, lực tương tác rất mạnh giữ các phân tử chỉ dao động quanh các vị trí cân bằng xác định cố định trong không gian. Do đó, chất rắn có cả thể tích và hình dạng xác định."
+            },
+            {
+                category: "Câu 4: So sánh ba thể của chất",
+                title: "Phát biểu nào sau đây đúng?",
+                options: [
+                    "Chất khí có hình dạng xác định nhưng thể tích không xác định.",
+                    "Chất lỏng có hình dạng và thể tích đều xác định.",
+                    "Chất rắn có hình dạng và thể tích xác định.",
+                    "Chất khí có thể tích xác định nhưng hình dạng không xác định."
+                ],
+                correct: 2, // Đáp án C
+                explanation: "Chất rắn có hình dạng và thể tích xác định. Chất lỏng có thể tích xác định nhưng hình dạng thay đổi theo bình chứa. Chất khí không có thể tích riêng và không có hình dạng xác định."
+            },
+            {
+                category: "Câu 5: Nhận biết các quá trình chuyển thể",
+                title: "Khi lấy một chai nước lạnh ra khỏi tủ lạnh và đặt trong không khí, sau một thời gian xuất hiện các giọt nước ở mặt ngoài chai. Các giọt nước này được hình thành chủ yếu do quá trình nào sau đây?",
+                options: [
+                    "nước trong chai thấm qua thành chai.",
+                    "hơi nước trong không khí ngưng tụ trên bề mặt lạnh của chai.",
+                    "nước trên bề mặt chai bị hóa hơi.",
+                    "thành chai bị nóng chảy."
+                ],
+                correct: 1, // Đáp án B
+                explanation: "Trong không khí xung quanh luôn có hơi nước. Khi gặp bề mặt ngoài của chai nước lạnh (có nhiệt độ thấp), hơi nước bị tỏa nhiệt, giảm nhiệt độ và ngưng tụ chuyển từ thể khí sang thể lỏng đọng lại thành các giọt nước."
+            },
+            {
+                category: "Câu 6: Nóng chảy và đông đặc",
+                title: "Phát biểu nào sau đây đúng về sự nóng chảy và đông đặc của chất kết tinh ở áp suất không đổi?",
+                options: [
+                    "Nhiệt độ nóng chảy luôn cao hơn nhiệt độ đông đặc.",
+                    "Nhiệt độ nóng chảy luôn thấp hơn nhiệt độ đông đặc.",
+                    "Nhiệt độ nóng chảy bằng nhiệt độ đông đặc của chất đó.",
+                    "Nhiệt độ nóng chảy không phụ thuộc vào bản chất của chất."
+                ],
+                correct: 2, // Đáp án C
+                explanation: "Đối với chất rắn kết tinh, ở một áp suất xác định, nhiệt độ nóng chảy bằng chính nhiệt độ đông đặc của chất đó (Ví dụ: Nước tinh khiết nóng chảy ở $0^\\circ\\text{C}$ và đông đặc ở $0^\\circ\\text{C}$ tại áp suất $1\\text{ atm}$)."
+            },
+            {
+                category: "Câu 7: Phân biệt bay hơi và sôi",
+                title: "Điểm khác nhau cơ bản giữa sự bay hơi và sự sôi là",
+                options: [
+                    "bay hơi chỉ xảy ra ở nhiệt độ cao, sôi xảy ra ở mọi nhiệt độ.",
+                    "bay hơi xảy ra ở mặt thoáng, còn sôi xảy ra cả ở mặt thoáng và trong lòng chất lỏng.",
+                    "bay hơi chỉ xảy ra trong lòng chất lỏng.",
+                    "sôi chỉ xảy ra trên mặt thoáng của chất lỏng."
+                ],
+                correct: 1, // Đáp án B
+                explanation: "Sự bay hơi là quá trình hóa hơi chỉ diễn ra ở bề mặt thoáng của chất lỏng và xảy ra ở mọi nhiệt độ. Sự sôi là quá trình hóa hơi đặc biệt diễn ra đồng thời cả ở mặt thoáng và ngay trong lòng khối chất lỏng ở nhiệt độ sôi xác định."
+            },
+            {
+                category: "Câu 8: Các yếu tố ảnh hưởng đến tốc độ bay hơi",
+                title: "Trong cùng điều kiện môi trường, cách nào sau đây làm nước bay hơi nhanh hơn?",
+                options: [
+                    "Đựng nước trong cốc cao, miệng nhỏ.",
+                    "Đổ nước ra một khay rộng.",
+                    "Đậy kín bình chứa nước.",
+                    "Giảm diện tích mặt thoáng của nước."
+                ],
+                correct: 1, // Đáp án B
+                explanation: "Tốc độ bay hơi của chất lỏng phụ thuộc vào: nhiệt độ, diện tích mặt thoáng, độ ẩm và tốc độ gió. Đổ nước ra khay rộng làm tăng đáng kể diện tích mặt thoáng, giúp nhiều phân tử nước có đủ động năng thoát ra ngoài pha khí hơn."
+            },
+            {
+                category: "Câu 9: Giải thích hiện tượng thực tế",
+                title: "Vào ngày trời nóng, mặc quần áo ướt rồi đứng trước quạt thường làm cơ thể cảm thấy mát hơn. Nguyên nhân chủ yếu là",
+                options: [
+                    "nước trên quần áo đông đặc và tỏa nhiệt.",
+                    "nước trên quần áo bay hơi và lấy nhiệt từ cơ thể, môi trường xung quanh.",
+                    "nước trên quần áo ngưng tụ và hấp thụ nhiệt.",
+                    "quạt làm nhiệt độ sôi của nước tăng lên."
+                ],
+                correct: 1, // Đáp án B
+                explanation: "Sự bay hơi là quá trình thu nhiệt lượng (nhiệt hóa hơi). Khi đứng trước quạt, tốc độ bay hơi của nước tăng mạnh, các phân tử nước hấp thụ lượng nhiệt lớn từ bề mặt cơ thể và môi trường để chuyển thể, khiến cơ thể hạ nhiệt và cảm thấy mát mẻ."
+            },
+            {
+                category: "Câu 10: Sơ đồ chu trình chuyển thể",
+                title: "Cho quá trình chuyển thể tuần hoàn: Rắn $\\xrightarrow{(1)}$ Lỏng $\\xrightarrow{(2)}$ Khí $\\xrightarrow{(3)}$ Lỏng. Tên của các quá trình (1), (2), (3) lần lượt là",
+                options: [
+                    "đông đặc – ngưng tụ – hóa hơi.",
+                    "nóng chảy – hóa hơi – ngưng tụ.",
+                    "nóng chảy – ngưng tụ – đông đặc.",
+                    "thăng hoa – hóa hơi – nóng chảy."
+                ],
+                correct: 1, // Đáp án B
+                explanation: "Sơ đồ chuyển thể cơ bản: (1) Rắn sang Lỏng là quá trình nóng chảy (thu nhiệt); (2) Lỏng sang Khí là quá trình hóa hơi (thu nhiệt); (3) Khí chuyển ngược lại về Lỏng là quá trình ngưng tụ (tỏa nhiệt)."
+            }
+        ];
+
+        /* =========================================================================
+           HỆ THỐNG TRẠNG THÁI VẬT LÍ: RẮN - LỎNG - KHÍ (PHASE-SHIFT MECHANICS)
+           - SOLID (Thể Rắn): Tốc độ 1 bước / câu đúng
+           - LIQUID (Thể Lỏng): Tốc độ 2 bước / câu đúng
+           - GAS (Thể Khí): Tốc độ 3 bước / câu đúng
+           ========================================================================= */
+        const PHASES = {
+            SOLID: {
+                id: 'SOLID',
+                name: 'Thể Rắn',
+                icon: '🧊',
+                speed: 1, // 1 bước/câu
+                color: '#38bdf8',
+                badgeBg: 'rgba(56, 189, 248, 0.2)',
+                desc: 'Liên kết chặt chẽ, dao động quanh VTCB cố định'
+            },
+            LIQUID: {
+                id: 'LIQUID',
+                name: 'Thể Lỏng',
+                icon: '💧',
+                speed: 2, // 2 bước/câu
+                color: '#2dd4bf',
+                badgeBg: 'rgba(45, 212, 191, 0.2)',
+                desc: 'Liên kết linh hoạt, các phân tử trượt lên nhau'
+            },
+            GAS: {
+                id: 'GAS',
+                name: 'Thể Khí',
+                icon: '💨',
+                speed: 3, // 3 bước/câu
+                color: '#f97316',
+                badgeBg: 'rgba(249, 115, 22, 0.2)',
+                desc: 'Chuyển động hỗn loạn không ngừng, khoảng cách lớn'
+            }
+        };
+
+        /* =========================================================================
+           ÂM THANH VẬT LÍ TỔNG HỢP WEB AUDIO API (KHÔNG DÙNG EXTERNAL URL)
+           ========================================================================= */
+        let audioCtx = null;
+        let sfxEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioClass) audioCtx = new AudioClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        const Sound = {
+            playTone(freq, type, duration, gainVal = 0.08, delay = 0) {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(gainVal, ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + delay);
+                    osc.stop(ctx.currentTime + delay + duration);
+                } catch(e) {}
+            },
+            tap() { this.playTone(650, 'sine', 0.05, 0.05); },
+            heatUpgrade() {
+                // Âm thanh nung nóng thăng hoa
+                [440, 554.37, 659.25, 880].forEach((f, i) => {
+                    this.playTone(f, 'sine', 0.18, 0.12, i * 0.06);
+                });
+            },
+            freezeDowngrade() {
+                // Âm thanh đóng băng / ngưng tụ làm lạnh
+                [350, 260, 180].forEach((f, i) => {
+                    this.playTone(f, 'sawtooth', 0.2, 0.09, i * 0.08);
+                });
+            },
+            timerTick() { this.playTone(900, 'sine', 0.03, 0.03); },
+            raceFanfare() {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                    this.playTone(f, 'triangle', 0.35, 0.15, i * 0.09);
+                });
+            }
+        };
+
+        function toggleAudio() {
+            sfxEnabled = !sfxEnabled;
+            const icon = document.getElementById('sfxIcon');
+            if (icon) {
+                icon.className = sfxEnabled ? "fa-solid fa-volume-high text-cyan-400" : "fa-solid fa-volume-xmark text-slate-500";
+            }
+        }
+
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toastBox');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.className = `fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl transition-all duration-300 opacity-100 ${
+                isSuccess ? 'bg-cyan-900/95 text-cyan-100 border-cyan-400/50' : 'bg-rose-900/95 text-rose-100 border-rose-400/50'
+            }`;
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2600);
+        }
+
+        /* =========================================================================
+           KÊNH TRUYỀN ĐỒNG BỘ ĐỘI ĐUA: BROADCASTCHANNEL + LOCALSTORAGE + MQTT FALLBACK
+           ========================================================================= */
+        const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
+        let mqttClient = null;
+        let roomPin = "";
+        let isHost = false;
+
+        const NetBus = {
+            hostChannel: null,
+            playerChannel: null,
+            init(pin, onHostMessage, onPlayerMessage) {
+                const hostChName = `thermal_rally_${pin}_host`;
+                const playerChName = `thermal_rally_${pin}_player`;
+
+                try {
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        if (onHostMessage) {
+                            this.hostChannel = new BroadcastChannel(hostChName);
+                            this.hostChannel.onmessage = (e) => { if (e.data) onHostMessage(e.data); };
+                        }
+                        if (onPlayerMessage) {
+                            this.playerChannel = new BroadcastChannel(playerChName);
+                            this.playerChannel.onmessage = (e) => { if (e.data) onPlayerMessage(e.data); };
+                        }
+                    }
+                } catch(e) {}
+
+                window.addEventListener('storage', (e) => {
+                    try {
+                        if (onHostMessage && e.key === hostChName && e.newValue) {
+                            onHostMessage(JSON.parse(e.newValue));
+                        }
+                        if (onPlayerMessage && e.key === playerChName && e.newValue) {
+                            onPlayerMessage(JSON.parse(e.newValue));
+                        }
+                    } catch(err) {}
+                });
+            },
+            publishToHost(pin, data) {
+                const hostChName = `thermal_rally_${pin}_host`;
+                if (this.hostChannel) {
+                    try { this.hostChannel.postMessage(data); } catch(e) {}
+                }
+                try {
+                    localStorage.setItem(hostChName, JSON.stringify(data));
+                    setTimeout(() => { try { localStorage.removeItem(hostChName); } catch(e){} }, 40);
+                } catch(e) {}
+            },
+            publishToPlayer(pin, data) {
+                const playerChName = `thermal_rally_${pin}_player`;
+                if (this.playerChannel) {
+                    try { this.playerChannel.postMessage(data); } catch(e) {}
+                }
+                try {
+                    localStorage.setItem(playerChName, JSON.stringify(data));
+                    setTimeout(() => { try { localStorage.removeItem(playerChName); } catch(e){} }, 40);
+                } catch(e) {}
+            }
+        };
+
+        /* =========================================================================
+           TRẠNG THÁI HỆ THỐNG MÁY CHIẾU & THIẾT BỊ HỌC VIÊN
+           ========================================================================= */
+        let hostState = {
+            players: {},
+            currentQIndex: 0,
+            timer: 30,
+            timerInterval: null,
+            startTime: 0,
+            isRoundEnded: false,
+            botTimers: []
+        };
+
+        let storedPlayerId = sessionStorage.getItem('thermal_player_id');
+        if (!storedPlayerId) {
+            storedPlayerId = "atom_" + Math.random().toString(36).substring(2, 8) + "_" + Date.now().toString(36);
+            sessionStorage.setItem('thermal_player_id', storedPlayerId);
+        }
+
+        let playerState = {
+            playerId: storedPlayerId,
+            myName: "",
+            myClass: "",
+            phase: 'SOLID', // 'SOLID' | 'LIQUID' | 'GAS'
+            steps: 0,
+            selectedChoice: null,
+            playerTimer: 30,
+            playerTimerInterval: null,
+            joinRetryInterval: null,
+            joinAttempts: 0
+        };
+
+        function hideAllScreens() {
+            document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+        }
+
+        function refreshMathRender() {
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        /* =========================================================================
+           CANVAS ĐƯỜNG ĐUA NGUYÊN TỬ TRỰC QUAN (ATOMIC PHASE-SHIFT RALLY CANVAS)
+           Mô phỏng cụm phân tử của từng đội theo thể:
+           - Rắn: dao động quanh nút mạng tinh thể
+           - Lỏng: trượt dập dềnh dạng giọt lỏng
+           - Khí: bay tán loạn tốc độ cao với luồng khí phụt
+           ========================================================================= */
+        let raceAnimFrame = null;
+        let thermalParticles = [];
+
+        function initThermalParticles(w, h) {
+            thermalParticles = [];
+            for (let i = 0; i < 70; i++) {
+                thermalParticles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    vx: (Math.random() - 0.5) * 0.8,
+                    vy: (Math.random() - 0.5) * 0.8,
+                    radius: Math.random() * 2 + 1,
+                    color: ['#38bdf8', '#2dd4bf', '#fb923c'][Math.floor(Math.random() * 3)],
+                    alpha: Math.random() * 0.7 + 0.3
+                });
+            }
+        }
+
+        function runAtomicRaceCanvas() {
+            const canvas = document.getElementById('atomicRaceCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * (window.devicePixelRatio || 1);
+            canvas.height = rect.height * (window.devicePixelRatio || 1);
+            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+            const w = rect.width;
+            const h = rect.height;
+
+            if (thermalParticles.length === 0) initThermalParticles(w, h);
+            if (raceAnimFrame) cancelAnimationFrame(raceAnimFrame);
+
+            const topRacers = calculateHostRankings().slice(0, 6);
+            let frameTick = 0;
+
+            function render() {
+                frameTick += 0.05;
+                ctx.clearRect(0, 0, w, h);
+
+                // 1. Nền đường đua
+                ctx.fillStyle = '#060919';
+                ctx.fillRect(0, 0, w, h);
+
+                // Hạt nhiệt lượng bay lơ lửng
+                thermalParticles.forEach(p => {
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = w;
+                    if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h;
+                    if (p.y > h) p.y = 0;
+                });
+                ctx.globalAlpha = 1.0;
+
+                // 2. Vẽ các làn đua (Lanes) & Tăng kích thước chữ hiển thị đội đua
+                const totalLanes = Math.max(topRacers.length, 1);
+                const laneHeight = (h - 20) / Math.min(totalLanes, 6);
+                const isSmall = w < 540;
+                // Mở rộng lề trái để chữ lớn không chạm vào vạch xuất phát
+                const trackStartX = isSmall ? Math.max(165, w * 0.36) : Math.max(245, Math.min(w * 0.32, 285));
+                const trackEndX = w - 35;
+                const trackLength = trackEndX - trackStartX;
+                const maxStepsDisplay = Math.max(10, Math.max(...topRacers.map(r => r.steps), 1) + 2);
+
+                // Vạch mốc trên đường đua
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+                ctx.lineWidth = 1;
+                for (let step = 0; step <= maxStepsDisplay; step += 2) {
+                    const lineX = trackStartX + (step / maxStepsDisplay) * trackLength;
+                    ctx.beginPath();
+                    ctx.moveTo(lineX, 5);
+                    ctx.lineTo(lineX, h - 5);
+                    ctx.stroke();
+
+                    ctx.fillStyle = 'rgba(148, 163, 184, 0.6)';
+                    ctx.font = isSmall ? '10px monospace' : '11px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${step}b`, lineX, h - 6);
+                }
+
+                // Vạch xuất phát & Đích
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(trackStartX, 5);
+                ctx.lineTo(trackStartX, h - 20);
+                ctx.stroke();
+
+                topRacers.forEach((racer, idx) => {
+                    const laneY = 10 + idx * laneHeight;
+                    const centerY = laneY + laneHeight / 2;
+                    const phase = PHASES[racer.phase] || PHASES.SOLID;
+
+                    // Đường làn đua
+                    ctx.fillStyle = idx % 2 === 0 ? 'rgba(15, 23, 42, 0.7)' : 'rgba(30, 41, 59, 0.45)';
+                    ctx.fillRect(10, laneY + 2, w - 20, laneHeight - 4);
+
+                    // TĂNG KÍCH THƯỚC CHỮ TÊN ĐỘI ĐUA (Từ 12px lên 18px / 14px mobile)
+                    const nameFontSize = isSmall ? 14 : 18;
+                    const statusFontSize = isSmall ? 11 : 14;
+
+                    ctx.fillStyle = idx === 0 ? '#fde047' : '#ffffff';
+                    ctx.font = `bold ${nameFontSize}px "Nunito", sans-serif`;
+                    ctx.textAlign = 'left';
+
+                    // Cắt gọn tên nếu vượt quá chiều rộng cho phép
+                    let displayName = `#${idx + 1} ${racer.name}`;
+                    const maxAllowedW = trackStartX - 28;
+                    while (ctx.measureText(displayName).width > maxAllowedW && displayName.length > 3) {
+                        displayName = displayName.slice(0, -1);
+                    }
+                    if (displayName !== `#${idx + 1} ${racer.name}`) displayName += '..';
+                    ctx.fillText(displayName, 16, centerY - 5);
+
+                    // TĂNG KÍCH THƯỚC CHỮ TRẠNG THÁI & SỐ BƯỚC (Từ 10px lên 14px / 11px mobile)
+                    ctx.fillStyle = phase.color;
+                    ctx.font = `bold ${statusFontSize}px "Nunito", sans-serif`;
+                    ctx.fillText(`${phase.icon} ${phase.name} • ${racer.steps}b`, 16, centerY + 14);
+
+                    // Tọa độ cụm phân tử trên đường đua
+                    const progressRatio = Math.min(1.0, racer.steps / maxStepsDisplay);
+                    const atomX = trackStartX + progressRatio * trackLength;
+
+                    // Vệt luồng di chuyển (Thermal Trail)
+                    const trailGrad = ctx.createLinearGradient(trackStartX, centerY, atomX, centerY);
+                    trailGrad.addColorStop(0, 'transparent');
+                    trailGrad.addColorStop(1, phase.color);
+                    ctx.strokeStyle = trailGrad;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(trackStartX, centerY);
+                    ctx.lineTo(atomX, centerY);
+                    ctx.stroke();
+
+                    // VẼ CỤM NGUYÊN TỬ THEO THỂ
+                    drawAtomicCluster(ctx, atomX, centerY, racer.phase, frameTick, idx);
+                });
+
+                raceAnimFrame = requestAnimationFrame(render);
+            }
+
+            render();
+        }
+
+        // Vẽ mô phỏng cụm phân tử theo trạng thái
+        function drawAtomicCluster(ctx, x, y, phaseId, tick, seed) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            if (phaseId === 'SOLID') {
+                // Thể rắn: mạng tinh thể dao động tuần hoàn quanh VTCB
+                ctx.fillStyle = '#38bdf8';
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+                ctx.lineWidth = 1.2;
+
+                const positions = [
+                    { dx: -10, dy: -8 }, { dx: 10, dy: -8 },
+                    { dx: -10, dy: 8 }, { dx: 10, dy: 8 },
+                    { dx: 0, dy: 0 }
+                ];
+
+                // Liên kết lò xo mạng
+                ctx.beginPath();
+                ctx.moveTo(positions[0].dx, positions[0].dy);
+                ctx.lineTo(positions[1].dx, positions[1].dy);
+                ctx.lineTo(positions[3].dx, positions[3].dy);
+                ctx.lineTo(positions[2].dx, positions[2].dy);
+                ctx.closePath();
+                ctx.stroke();
+
+                positions.forEach((pos, i) => {
+                    const vibX = pos.dx + Math.sin(tick * 8 + i + seed) * 1.5;
+                    const vibY = pos.dy + Math.cos(tick * 8 + i + seed) * 1.5;
+                    ctx.beginPath();
+                    ctx.arc(vibX, vibY, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+            else if (phaseId === 'LIQUID') {
+                // Thể lỏng: giọt nước trượt dập dềnh
+                ctx.fillStyle = '#2dd4bf';
+                const count = 6;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2 + tick * 2;
+                    const dist = 7 + Math.sin(tick * 4 + i) * 3;
+                    const px = Math.cos(angle) * dist;
+                    const py = Math.sin(angle) * (dist * 0.7);
+                    ctx.beginPath();
+                    ctx.arc(px, py, 3.8, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.fillStyle = 'rgba(45, 212, 191, 0.3)';
+                ctx.beginPath();
+                ctx.arc(0, 0, 11, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            else {
+                // Thể khí: các phân tử bay hỗn loạn với vận tốc cực nhanh
+                ctx.fillStyle = '#f97316';
+                for (let i = 0; i < 7; i++) {
+                    const spreadX = Math.sin(tick * 9 + i * 2.1) * 14;
+                    const spreadY = Math.cos(tick * 7 + i * 1.7) * 10;
+                    ctx.beginPath();
+                    ctx.arc(spreadX, spreadY, 3.2, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Tia chuyển động
+                    ctx.strokeStyle = 'rgba(251, 146, 60, 0.4)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(spreadX, spreadY);
+                    ctx.lineTo(spreadX - 6, spreadY);
+                    ctx.stroke();
+                }
+            }
+
+            ctx.restore();
+        }
+
+        /* =========================================================================
+           LOGIC MÁY CHIẾU (GIÁO VIÊN / HOST CONTROLLER)
+           ========================================================================= */
+        function initHostMode() {
+            isHost = true;
+            hideAllScreens();
+            document.getElementById('hostLobbyScreen').classList.remove('hidden');
+
+            roomPin = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('hostPinDisplay').innerText = roomPin;
+
+            generateHostQrCode();
+
+            NetBus.init(roomPin, null, (data) => {
+                handleHostIncomingData(data);
+            });
+
+            try {
+                const clientId = "thermal_host_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
+                mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 4000 });
+
+                mqttClient.on('connect', () => {
+                    const playerTopic = `thermal_rally/${roomPin}/player`;
+                    mqttClient.subscribe(playerTopic, { qos: 1 });
+                });
+
+                mqttClient.on('message', (topic, message) => {
+                    try {
+                        const data = JSON.parse(message.toString());
+                        handleHostIncomingData(data);
+                    } catch(e) {}
+                });
+            } catch(e) {}
+        }
+
+        function hostPublish(data) {
+            NetBus.publishToHost(roomPin, data);
+            if (mqttClient && mqttClient.connected) {
+                try {
+                    const hostTopic = `thermal_rally/${roomPin}/host`;
+                    mqttClient.publish(hostTopic, JSON.stringify(data), { qos: 1 });
+                } catch(e) {}
+            }
+        }
+
+        function addDemoBots(botCount = 4) {
+            const botPresets = [
+                { name: "Đội Phân Tử Alpha", class: "12A1" },
+                { name: "Đội Tinh Thể Băng", class: "12A1" },
+                { name: "Đội Hơi Nước Sôi", class: "12A2" },
+                { name: "Đội Động Học Phân Tử", class: "12A2" },
+                { name: "Đội Chu Trình Nhiệt", class: "12A3" },
+                { name: "Đội Khí Lý Tưởng", class: "12A3" }
+            ];
+
+            for (let i = 0; i < botCount; i++) {
+                const preset = botPresets[i % botPresets.length];
+                const botId = "bot_" + (i + 1) + "_" + Math.random().toString(36).substring(2, 6);
+                handleHostIncomingData({
+                    type: 'PLAYER_JOIN',
+                    playerId: botId,
+                    name: preset.name,
+                    className: preset.class,
+                    isBot: true
+                });
+            }
+            showToast(`✓ Đã thêm ${botCount} đội đua mẫu vào vạch xuất phát!`, true);
+        }
+
+        function clearDemoBots() {
+            hostState.players = {};
+            updateHostLobbyUI();
+            showToast("Đã làm mới danh sách đội đua!", true);
+        }
+
+        function calculateHostRankings() {
+            return Object.values(hostState.players).sort((a, b) => {
+                if (b.steps !== a.steps) return b.steps - a.steps; // XẾP HẠNG HOÀN TOÀN THEO SỐ BƯỚC
+                return a.totalResponseTime - b.totalResponseTime;   // Tie-breaker: tốc độ
+            });
+        }
+
+        function handleHostIncomingData(data) {
+            if (data.type === 'PLAYER_JOIN') {
+                const pId = data.playerId;
+                if (!pId) return;
+
+                if (!hostState.players[pId]) {
+                    hostState.players[pId] = {
+                        id: pId,
+                        name: data.name || "Đội Đua",
+                        className: data.className || "12A",
+                        phase: 'SOLID', // Mặc định khởi đầu ở Thể Rắn
+                        steps: 0,       // Khởi đầu 0 bước
+                        correctCount: 0,
+                        totalResponseTime: 0,
+                        questionsAnswered: 0,
+                        currentAnswer: null,
+                        responseTime: 0,
+                        answerHistory: {},
+                        isBot: Boolean(data.isBot)
+                    };
+                    Sound.tap();
+                    updateHostLobbyUI();
+                } else {
+                    hostState.players[pId].name = data.name || hostState.players[pId].name;
+                    hostState.players[pId].className = data.className || hostState.players[pId].className;
+                    updateHostLobbyUI();
+                }
+
+                const p = hostState.players[pId];
+                hostPublish({
+                    type: 'JOIN_ACK',
+                    playerId: pId,
+                    roomPin: roomPin,
+                    phase: p.phase,
+                    steps: p.steps,
+                    currentQIndex: hostState.currentQIndex
+                });
+            }
+            else if (data.type === 'PLAYER_ANSWER') {
+                const p = hostState.players[data.playerId];
+                if (p && p.currentAnswer === null && !hostState.isRoundEnded) {
+                    const timeTaken = (Date.now() - hostState.startTime) / 1000;
+                    p.currentAnswer = data.choice;
+                    p.responseTime = timeTaken;
+                    p.totalResponseTime += timeTaken;
+                    p.questionsAnswered += 1;
+
+                    const q = QUESTIONS_DATA[hostState.currentQIndex];
+                    const isCorrect = (data.choice === q.correct);
+
+                    let previousPhase = p.phase;
+                    let stepsAdded = 0;
+                    let transitionNote = "";
+
+                    /* =========================================================
+                       LUẬT CHƠI VẬT LÍ:
+                       1. Thăng hạng trạng thái (Thu nhiệt):
+                          - Thể Rắn (1 bước/câu đúng) -> Đúng 1 câu lên Thể Lỏng.
+                          - Thể Lỏng (2 bước/câu đúng) -> Đúng tiếp lên Thể Khí (3 bước/câu).
+                          - Thể Khí -> Đúng tiếp giữ Thể Khí (3 bước/câu).
+                       2. Bẫy ngưng tụ/đông đặc (Làm lạnh tỏa nhiệt):
+                          - Sai câu hỏi -> Bị làm lạnh: Thể Khí tụt về Thể Lỏng (2 bước).
+                          - Sai tiếp -> Tụt về Thể Rắn (1 bước).
+                       ========================================================= */
+                    if (isCorrect) {
+                        p.correctCount++;
+                        if (p.phase === 'SOLID') {
+                            stepsAdded = 1;
+                            p.phase = 'LIQUID';
+                            transitionNote = "Nung nóng nhiệt lượng: Chuyển sang THỂ LỎNG (+1 bước, tốc độ mới: 2 bước/câu)!";
+                        } else if (p.phase === 'LIQUID') {
+                            stepsAdded = 2;
+                            p.phase = 'GAS';
+                            transitionNote = "Hóa hơi: Bứt phá lên THỂ KHÍ (+2 bước, tốc độ cực đại: 3 bước/câu)!";
+                        } else if (p.phase === 'GAS') {
+                            stepsAdded = 3;
+                            transitionNote = "Duy trì THỂ KHÍ: Đạt vận tốc tối đa (+3 bước)!";
+                        }
+                        Sound.heatUpgrade();
+                    } else {
+                        stepsAdded = 0;
+                        if (p.phase === 'GAS') {
+                            p.phase = 'LIQUID';
+                            transitionNote = "Bẫy Ngưng Tụ: Bị làm lạnh, tụt về THỂ LỎNG (Vận tốc giảm còn 2 bước/câu)!";
+                        } else if (p.phase === 'LIQUID') {
+                            p.phase = 'SOLID';
+                            transitionNote = "Bẫy Đông Đặc: Bị làm lạnh tiếp, tụt về THỂ RẮN (Vận tốc giảm còn 1 bước/câu)!";
+                        } else if (p.phase === 'SOLID') {
+                            transitionNote = "Đóng băng: Giữ nguyên THỂ RẮN (Vận tốc: 1 bước/câu)!";
+                        }
+                        Sound.freezeDowngrade();
+                    }
+
+                    p.steps += stepsAdded;
+
+                    p.answerHistory[hostState.currentQIndex] = {
+                        choice: data.choice,
+                        isCorrect: isCorrect,
+                        time: timeTaken,
+                        stepsAdded: stepsAdded,
+                        resultingPhase: p.phase
+                    };
+
+                    const currentRankings = calculateHostRankings();
+                    const rank = currentRankings.findIndex(item => item.id === p.id) + 1;
+                    const totalPlayers = currentRankings.length;
+
+                    hostPublish({
+                        type: 'ROUND_FEEDBACK',
+                        playerId: p.id,
+                        isCorrect: isCorrect,
+                        steps: p.steps,
+                        stepsAdded: stepsAdded,
+                        phase: p.phase,
+                        previousPhase: previousPhase,
+                        transitionNote: transitionNote,
+                        rank: rank,
+                        totalPlayers: totalPlayers
+                    });
+
+                    updateHostAnsweredCounter();
+                    renderHostLiveSquadGrid();
+
+                    const allPlayers = Object.values(hostState.players);
+                    const answeredCount = allPlayers.filter(pl => pl.currentAnswer !== null).length;
+                    if (answeredCount >= allPlayers.length && allPlayers.length > 0) {
+                        hostEndQuestionRound();
+                    }
+                }
+            }
+        }
+
+        function updateHostLobbyUI() {
+            const count = Object.keys(hostState.players).length;
+            document.getElementById('hostPlayerCountNum').innerText = count;
+
+            const container = document.getElementById('hostPlayerListContainer');
+            const emptyMsg = document.getElementById('emptyPlayerMsg');
+            const startBtn = document.getElementById('hostStartBtn');
+
+            if (emptyMsg) {
+                if (count > 0) emptyMsg.classList.add('hidden');
+                else emptyMsg.classList.remove('hidden');
+            }
+            if (startBtn) startBtn.disabled = (count === 0);
+
+            if (container) {
+                container.innerHTML = '';
+                Object.values(hostState.players).forEach(p => {
+                    const phase = PHASES[p.phase] || PHASES.SOLID;
+                    const bubble = document.createElement('div');
+                    bubble.className = "px-3.5 py-2 rounded-2xl bg-slate-900 border border-cyan-500/40 text-cyan-200 font-bold text-xs sm:text-sm shadow-sm flex items-center gap-2";
+                    bubble.innerHTML = `<span>${phase.icon}</span> <span>${p.name}</span> <span class="text-xs text-cyan-400 font-normal">(${p.className})</span>`;
+                    container.appendChild(bubble);
+                });
+            }
+        }
+
+        function hostStartGame() {
+            hostState.currentQIndex = 0;
+            hostPublish({ type: 'QUIZ_START' });
+            hostLoadQuestion();
+        }
+
+        function hostLoadQuestion() {
+            hideAllScreens();
+            document.getElementById('hostQuestionScreen').classList.remove('hidden');
+            document.getElementById('hostQuestionActionArea').classList.add('hidden');
+
+            hostState.isRoundEnded = false;
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+
+            document.getElementById('hostQCounter').innerText = `CHẶNG ${hostState.currentQIndex + 1} / ${QUESTIONS_DATA.length}`;
+            document.getElementById('hostQCategory').innerText = q.category;
+            document.getElementById('hostQuestionTitle').innerText = q.title;
+
+            for (let idx = 0; idx < 4; idx++) {
+                document.getElementById(`optText${idx}`).innerHTML = q.options[idx];
+                const card = document.getElementById(`hostOptCard${idx}`);
+                const badge = document.getElementById(`optBadge${idx}`);
+                badge.classList.add('hidden');
+                card.classList.remove('ring-4', 'ring-emerald-400', 'opacity-40');
+            }
+
+            Object.values(hostState.players).forEach(p => {
+                p.currentAnswer = null;
+            });
+
+            const total = Object.keys(hostState.players).length;
+            document.getElementById('hostTotalPlayersCount').innerText = total;
+            document.getElementById('hostAnsweredCount').innerText = "0";
+
+            renderHostLiveSquadGrid();
+            refreshMathRender();
+
+            hostPublish({
+                type: 'QUESTION_START',
+                qIndex: hostState.currentQIndex
+            });
+
+            // Bot tự động chọn đáp án
+            hostState.botTimers.forEach(t => clearTimeout(t));
+            hostState.botTimers = [];
+
+            const bots = Object.values(hostState.players).filter(p => p.isBot);
+            bots.forEach(bot => {
+                const randomDelay = 2500 + Math.random() * 8500;
+                const willBeCorrect = Math.random() < 0.8;
+                const botChoice = willBeCorrect ? q.correct : (q.correct + 1 + Math.floor(Math.random() * 3)) % 4;
+
+                const timer = setTimeout(() => {
+                    if (!hostState.isRoundEnded && bot.currentAnswer === null) {
+                        handleHostIncomingData({
+                            type: 'PLAYER_ANSWER',
+                            playerId: bot.id,
+                            choice: botChoice
+                        });
+                    }
+                }, randomDelay);
+                hostState.botTimers.push(timer);
+            });
+
+            hostState.timer = 30;
+            hostState.startTime = Date.now();
+            document.getElementById('hostTimerText').innerText = hostState.timer;
+
+            clearInterval(hostState.timerInterval);
+            hostState.timerInterval = setInterval(() => {
+                hostState.timer--;
+                document.getElementById('hostTimerText').innerText = hostState.timer;
+                if (hostState.timer <= 5 && hostState.timer > 0) Sound.timerTick();
+
+                if (hostState.timer <= 0) {
+                    hostEndQuestionRound();
+                }
+            }, 1000);
+        }
+
+        function renderHostLiveSquadGrid() {
+            const grid = document.getElementById('hostLiveSquadGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            Object.values(hostState.players).forEach(p => {
+                const card = document.createElement('div');
+                const isAnswered = p.currentAnswer !== null;
+                const phase = PHASES[p.phase] || PHASES.SOLID;
+
+                card.className = `p-2 rounded-xl border text-xs flex items-center justify-between transition ${
+                    isAnswered ? 'bg-cyan-950/90 border-cyan-400/60 text-cyan-200 font-bold' : 'bg-slate-900 border-cyan-900/60 text-slate-400'
+                }`;
+
+                card.innerHTML = `
+                    <span class="truncate max-w-[100px] font-bold flex items-center gap-1">
+                        <span>${phase.icon}</span> <span>${p.name}</span>
+                    </span>
+                    <span class="text-[11px] font-semibold text-amber-300 font-tech">
+                        ${p.steps}b (${phase.speed}b/câu)
+                    </span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateHostAnsweredCounter() {
+            const answered = Object.values(hostState.players).filter(pl => pl.currentAnswer !== null).length;
+            document.getElementById('hostAnsweredCount').innerText = answered;
+        }
+
+        function hostEndQuestionRound() {
+            if (hostState.isRoundEnded) return;
+            hostState.isRoundEnded = true;
+            clearInterval(hostState.timerInterval);
+
+            // Đội chưa trả lời bị tính sai và làm lạnh tụt trạng thái
+            Object.values(hostState.players).forEach(p => {
+                if (p.currentAnswer === null && !p.answerHistory[hostState.currentQIndex]) {
+                    if (p.phase === 'GAS') p.phase = 'LIQUID';
+                    else if (p.phase === 'LIQUID') p.phase = 'SOLID';
+
+                    p.answerHistory[hostState.currentQIndex] = {
+                        choice: null,
+                        isCorrect: false,
+                        time: 30,
+                        stepsAdded: 0,
+                        resultingPhase: p.phase
+                    };
+                }
+            });
+
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+
+            for (let idx = 0; idx < 4; idx++) {
+                const card = document.getElementById(`hostOptCard${idx}`);
+                const badge = document.getElementById(`optBadge${idx}`);
+                if (idx === q.correct) {
+                    card.classList.add('ring-4', 'ring-emerald-400');
+                    badge.classList.remove('hidden');
+                } else {
+                    card.classList.add('opacity-40');
+                }
+            }
+
+            const expBox = document.getElementById('hostExplanationBox');
+            if (expBox) {
+                expBox.innerHTML = `<span class="font-hud font-bold text-orange-400">💡 BẢN CHẤT VẬT LÍ (CẤU TRÚC CHẤT & SỰ CHUYỂN THỂ):</span><br>${q.explanation}`;
+            }
+
+            document.getElementById('hostQuestionActionArea').classList.remove('hidden');
+            refreshMathRender();
+        }
+
+        function hostOpenRaceCanvasScreen() {
+            hideAllScreens();
+            document.getElementById('hostRaceCanvasScreen').classList.remove('hidden');
+
+            const currentQ = hostState.currentQIndex + 1;
+            document.getElementById('raceTrackRoundSubtitle').innerText = `CHẶNG ${currentQ} / ${QUESTIONS_DATA.length} HOÀN TẤT`;
+
+            const nextBtnLabel = document.getElementById('hostTrackNextBtnLabel');
+            if (currentQ >= QUESTIONS_DATA.length) {
+                nextBtnLabel.innerText = "TỔNG KẾT CUỘC ĐUA (VỀ ĐÍCH)";
+            } else {
+                nextBtnLabel.innerText = `SANG CHẶNG TIẾP THEO (${currentQ + 1}/${QUESTIONS_DATA.length})`;
+            }
+
+            const rankings = calculateHostRankings();
+            if (rankings.length > 0) {
+                const leader = rankings[0];
+                const leadPhase = PHASES[leader.phase] || PHASES.SOLID;
+                document.getElementById('raceTrackTelemetryBadge').innerHTML = `Đội dẫn đầu: <b class="text-amber-400">${leader.name}</b> (${leader.steps} Bước • ${leadPhase.icon} ${leadPhase.name})`;
+            }
+
+            runAtomicRaceCanvas();
+            Sound.tap();
+        }
+
+        function hostTriggerLeaderboardScreen() {
+            hideAllScreens();
+            document.getElementById('hostLeaderboardScreen').classList.remove('hidden');
+
+            const currentQ = hostState.currentQIndex + 1;
+            document.getElementById('hostLeaderboardRoundTitle').innerText = `TOP ĐỘI TIÊN PHONG THEO TỔNG SỐ BƯỚC (SAU CHẶNG ${currentQ})`;
+
+            const sorted = calculateHostRankings();
+            const top6 = sorted.slice(0, 6);
+
+            // Bục Top 3
+            if (top6[0]) {
+                const ph = PHASES[top6[0].phase] || PHASES.SOLID;
+                document.getElementById('podiumName1').innerText = top6[0].name;
+                document.getElementById('podiumSteps1').innerText = `${top6[0].steps} Bước`;
+                document.getElementById('podiumSpeed1').innerText = `Tốc độ: ${ph.speed} bước/câu`;
+                document.getElementById('podiumPhaseIcon1').innerText = ph.icon;
+            } else {
+                document.getElementById('podiumName1').innerText = "--";
+                document.getElementById('podiumSteps1').innerText = "0 Bước";
+            }
+
+            if (top6[1]) {
+                const ph = PHASES[top6[1].phase] || PHASES.SOLID;
+                document.getElementById('podiumName2').innerText = top6[1].name;
+                document.getElementById('podiumSteps2').innerText = `${top6[1].steps} Bước`;
+                document.getElementById('podiumSpeed2').innerText = `Tốc độ: ${ph.speed} bước/câu`;
+                document.getElementById('podiumPhaseIcon2').innerText = ph.icon;
+            } else {
+                document.getElementById('podiumName2').innerText = "--";
+                document.getElementById('podiumSteps2').innerText = "0 Bước";
+            }
+
+            if (top6[2]) {
+                const ph = PHASES[top6[2].phase] || PHASES.SOLID;
+                document.getElementById('podiumName3').innerText = top6[2].name;
+                document.getElementById('podiumSteps3').innerText = `${top6[2].steps} Bước`;
+                document.getElementById('podiumSpeed3').innerText = `Tốc độ: ${ph.speed} bước/câu`;
+                document.getElementById('podiumPhaseIcon3').innerText = ph.icon;
+            } else {
+                document.getElementById('podiumName3').innerText = "--";
+                document.getElementById('podiumSteps3').innerText = "0 Bước";
+            }
+
+            // Bảng Top 6
+            const tbody = document.getElementById('hostTop6TableBody');
+            tbody.innerHTML = '';
+
+            top6.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                const phase = PHASES[p.phase] || PHASES.SOLID;
+                tr.className = idx === 0 ? "bg-cyan-950/40" : "";
+                tr.innerHTML = `
+                    <td class="p-3 font-tech text-cyan-300 font-black">#${idx + 1}</td>
+                    <td class="p-3 font-bold text-white flex items-center gap-2">
+                        <span class="text-lg">${phase.icon}</span>
+                        <span class="text-base font-black">${p.name}</span>
+                    </td>
+                    <td class="p-3 text-cyan-300 font-normal">${p.className}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 rounded-xl text-xs font-bold" style="background:${phase.badgeBg}; color:${phase.color}">
+                            ${phase.icon} ${phase.name}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center text-cyan-300 font-tech font-bold">${phase.speed} bước/câu</td>
+                    <td class="p-3 text-right font-tech font-black text-amber-300 text-base">${p.steps} Bước</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            Sound.tap();
+        }
+
+        function hostContinueFromRaceTrack() {
+            if (raceAnimFrame) {
+                cancelAnimationFrame(raceAnimFrame);
+                raceAnimFrame = null;
+            }
+
+            hostState.currentQIndex++;
+            if (hostState.currentQIndex >= QUESTIONS_DATA.length) {
+                hostShowFinalResults();
+            } else {
+                hostLoadQuestion();
+            }
+        }
+
+        function hostShowFinalResults() {
+            hideAllScreens();
+            document.getElementById('hostFinalScreen').classList.remove('hidden');
+
+            Sound.raceFanfare();
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 180, spread: 110, origin: { y: 0.6 } });
+            }
+
+            const sorted = calculateHostRankings();
+            const champion = sorted[0];
+
+            if (champion) {
+                const champPhase = PHASES[champion.phase] || PHASES.SOLID;
+                document.getElementById('finalChampionAnnounce').innerHTML = `
+                    Xin chúc mừng Đội Quán Quân <b class="text-amber-300 text-base">${champion.name}</b> (Lớp ${champion.className}) đã xuất sắc về đích đầu tiên với <b class="text-orange-400 text-base">${champion.steps} BƯỚC TIẾN</b>, trả lời đúng <b>${champion.correctCount}/${QUESTIONS_DATA.length} câu</b> và hoàn thành ở trạng thái <b style="color:${champPhase.color}">${champPhase.icon} ${champPhase.name}</b>!
+                `;
+            }
+
+            // Bảng 1: Bảng xếp hạng số bước
+            const tbodyStats = document.getElementById('hostFinalStatsTbody');
+            tbodyStats.innerHTML = '';
+
+            sorted.forEach((p, idx) => {
+                const acc = Math.round((p.correctCount / QUESTIONS_DATA.length) * 100);
+                const phase = PHASES[p.phase] || PHASES.SOLID;
+                const tr = document.createElement('tr');
+                tr.className = idx === 0 ? "bg-amber-950/40" : "";
+                tr.innerHTML = `
+                    <td class="p-3 font-tech text-amber-300 font-bold">#${idx + 1}</td>
+                    <td class="p-3 font-bold text-white flex items-center gap-2">
+                        <span>${phase.icon}</span> <span>${p.name} ${idx === 0 ? '👑' : ''}</span>
+                    </td>
+                    <td class="p-3 text-cyan-300 font-normal">${p.className}</td>
+                    <td class="p-3 text-center font-tech font-black text-amber-300 text-base">${p.steps} Bước</td>
+                    <td class="p-3 text-center font-bold" style="color:${phase.color}">${phase.icon} ${phase.name}</td>
+                    <td class="p-3 text-center font-bold">${p.correctCount} / ${QUESTIONS_DATA.length}</td>
+                    <td class="p-3 text-right font-bold text-emerald-400">${acc}%</td>
+                `;
+                tbodyStats.appendChild(tr);
+            });
+
+            // Bảng 2: Ma trận kết quả qua các chặng
+            const headerRow = document.getElementById('hostMatrixHeaderRow');
+            headerRow.innerHTML = '<th class="p-3 text-left rounded-l-xl">Đội Đua</th>';
+            QUESTIONS_DATA.forEach((_, qIdx) => {
+                headerRow.innerHTML += `<th class="p-2 text-center">C${qIdx + 1}</th>`;
+            });
+            headerRow.innerHTML += '<th class="p-3 text-center rounded-r-xl">Tổng Bước</th>';
+
+            const matrixBody = document.getElementById('hostMatrixTableBody');
+            matrixBody.innerHTML = '';
+
+            sorted.forEach((p) => {
+                const tr = document.createElement('tr');
+                let rowHtml = `<td class="p-2.5 text-left font-bold text-slate-200">${p.name}</td>`;
+
+                QUESTIONS_DATA.forEach((_, qIdx) => {
+                    const ans = p.answerHistory[qIdx];
+                    if (!ans || ans.choice === null) {
+                        rowHtml += `<td class="p-2 text-center text-slate-600 font-bold">-</td>`;
+                    } else if (ans.isCorrect) {
+                        rowHtml += `<td class="p-2 text-center"><span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black">✓ +${ans.stepsAdded}b</span></td>`;
+                    } else {
+                        rowHtml += `<td class="p-2 text-center"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 text-xs font-black">✗</span></td>`;
+                    }
+                });
+
+                rowHtml += `<td class="p-2.5 text-center font-tech text-amber-300 font-black text-xs sm:text-sm">${p.steps}b</td>`;
+                tr.innerHTML = rowHtml;
+                matrixBody.appendChild(tr);
+            });
+
+            hostPublish({ type: 'QUIZ_FINISHED' });
+            refreshMathRender();
+        }
+
+        function exportQuizExcel() {
+            const players = Object.values(hostState.players);
+            if (players.length === 0) {
+                showToast("Chưa có dữ liệu đội đua để xuất báo cáo!", false);
+                return;
+            }
+
+            const distinctClasses = [...new Set(players.map(p => p.className.trim()))].filter(c => c);
+            const classNameLabel = distinctClasses.length > 0 ? distinctClasses.join('_') : "12A";
+
+            const sortedPlayers = calculateHostRankings();
+
+            const excelData = sortedPlayers.map((p, index) => {
+                const phase = PHASES[p.phase] || PHASES.SOLID;
+                const row = {
+                    "Hạng": index + 1,
+                    "Tên Đội / Học Sinh": p.name,
+                    "Lớp": p.className,
+                    "Tổng Số Bước Tiến": p.steps,
+                    "Trạng Thái Cuối Cùng": `${phase.icon} ${phase.name}`,
+                    "Vận Tốc Hiện Tại (bước/câu)": phase.speed,
+                    "Số Câu Đúng": `${p.correctCount}/${QUESTIONS_DATA.length}`,
+                    "Tỉ Lệ Chính Xác (%)": Math.round((p.correctCount / QUESTIONS_DATA.length) * 100) + "%"
+                };
+
+                QUESTIONS_DATA.forEach((_, qIdx) => {
+                    const ans = p.answerHistory[qIdx];
+                    row[`Chặng ${qIdx + 1}`] = !ans || ans.choice === null ? "Chưa làm" : (ans.isCorrect ? `Đúng (+${ans.stepsAdded}b)` : "Sai");
+                });
+
+                return row;
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(excelData);
+            XLSX.utils.book_append_sheet(wb, ws, `KetQua_DuaNguyenTu_${classNameLabel}`);
+
+            const fileName = `VatLi12_Bai1_CuocDuaNguyenTu_Lop_${classNameLabel}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            showToast(`✓ Đã xuất bảng xếp hạng số bước tiến Excel cho lớp ${classNameLabel}!`, true);
+        }
+
+        function copyJoinLink() {
+            const url = window.location.href.split('?')[0] + `?pin=${roomPin}`;
+            const el = document.createElement('textarea');
+            el.value = url;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("✓ Đã sao chép liên kết tham gia phòng đua!", true);
+        }
+
+        function generateHostQrCode() {
+            const qrBox = document.getElementById('hostQrCodeBox');
+            if (!qrBox) return;
+            qrBox.innerHTML = '';
+
+            const modalBox = document.getElementById('modalQrCodeBox');
+            if (modalBox) modalBox.innerHTML = '';
+
+            const modalPin = document.getElementById('modalPinText');
+            if (modalPin) modalPin.innerText = roomPin;
+
+            const joinUrl = window.location.href.split('?')[0] + `?pin=${roomPin}`;
+
+            try {
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrBox, {
+                        text: joinUrl,
+                        width: 120,
+                        height: 120,
+                        colorDark: "#0284c7",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+
+                    if (modalBox) {
+                        new QRCode(modalBox, {
+                            text: joinUrl,
+                            width: 200,
+                            height: 200,
+                            colorDark: "#0284c7",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function openQrModal() {
+            const modal = document.getElementById('qrModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeQrModal() {
+            const modal = document.getElementById('qrModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        /* =========================================================================
+           LOGIC ĐIỆN THOẠI HỌC SINH (PLAYER MODE)
+           ========================================================================= */
+        function initPlayerMode() {
+            isHost = false;
+            hideAllScreens();
+            document.getElementById('playerJoinScreen').classList.remove('hidden');
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                document.getElementById('playerPinInput').value = params.get('pin');
+            }
+        }
+
+        function playerJoinRoom() {
+            const pin = document.getElementById('playerPinInput').value.trim();
+            const name = document.getElementById('playerNameInput').value.trim();
+            const className = document.getElementById('playerClassInput').value.trim() || "12A";
+            const statusMsg = document.getElementById('playerConnectStatusMsg');
+            const submitBtn = document.getElementById('btnPlayerJoinSubmit');
+
+            if (!pin || !name) {
+                showToast("Vui lòng nhập Mã PIN và Tên Đội!", false);
+                return;
+            }
+
+            roomPin = pin;
+            playerState.myName = name;
+            playerState.myClass = className;
+            playerState.phase = 'SOLID';
+            playerState.steps = 0;
+
+            document.getElementById('playerMyNameDisplay').innerText = `${name} (${className})`;
+            document.getElementById('playerGameTeamLabel').innerText = name;
+            document.getElementById('playerNavStepBadge').innerText = "0";
+            updatePlayerPhaseHUD();
+
+            statusMsg.classList.remove('hidden');
+            statusMsg.innerText = "Đang kết nối tín hiệu nhiệt với Máy Chiếu...";
+            submitBtn.disabled = true;
+
+            if (playerState.joinRetryInterval) clearInterval(playerState.joinRetryInterval);
+            playerState.joinAttempts = 0;
+
+            NetBus.init(roomPin, (data) => {
+                handlePlayerIncomingData(data);
+            }, null);
+
+            const sendJoinPacket = () => {
+                playerPublish({
+                    type: 'PLAYER_JOIN',
+                    playerId: playerState.playerId,
+                    name: playerState.myName,
+                    className: playerState.myClass
+                });
+            };
+
+            sendJoinPacket();
+
+            try {
+                const clientId = "thermal_pl_" + roomPin + "_" + playerState.playerId + "_" + Math.random().toString(36).substring(2, 6);
+                if (mqttClient) { try { mqttClient.end(true); } catch(e) {} }
+                mqttClient = mqtt.connect(MQTT_BROKER_URL, { clientId: clientId, clean: true, reconnectPeriod: 4000 });
+
+                mqttClient.on('connect', () => {
+                    const hostTopic = `thermal_rally/${roomPin}/host`;
+                    mqttClient.subscribe(hostTopic, { qos: 1 }, () => {
+                        sendJoinPacket();
+                    });
+                });
+
+                mqttClient.on('message', (topic, message) => {
+                    try {
+                        const data = JSON.parse(message.toString());
+                        handlePlayerIncomingData(data);
+                    } catch(e) {}
+                });
+            } catch(e) {}
+
+            playerState.joinRetryInterval = setInterval(() => {
+                playerState.joinAttempts++;
+                if (playerState.joinAttempts > 8) {
+                    clearInterval(playerState.joinRetryInterval);
+                    statusMsg.innerText = "❌ Không tìm thấy phòng đua hoặc Mã PIN chưa đúng!";
+                    submitBtn.disabled = false;
+                    showToast("Mã PIN chưa đúng hoặc Máy Chiếu chưa mở phòng!", false);
+                    return;
+                }
+                sendJoinPacket();
+            }, 1000);
+        }
+
+        function playerPublish(data) {
+            NetBus.publishToPlayer(roomPin, data);
+            if (mqttClient && mqttClient.connected) {
+                try {
+                    const playerTopic = `thermal_rally/${roomPin}/player`;
+                    mqttClient.publish(playerTopic, JSON.stringify(data), { qos: 1 });
+                } catch(e) {}
+            }
+        }
+
+        function updatePlayerPhaseHUD() {
+            const phase = PHASES[playerState.phase] || PHASES.SOLID;
+            document.getElementById('playerNavPhaseEmoji').innerText = phase.icon;
+            document.getElementById('playerNavPhaseName').innerText = phase.name.toUpperCase();
+            document.getElementById('playerNavPhaseName').style.color = phase.color;
+            document.getElementById('playerSpeedBadge').innerText = `${phase.speed}b/câu`;
+        }
+
+        function handlePlayerIncomingData(data) {
+            if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
+                if (playerState.joinRetryInterval) clearInterval(playerState.joinRetryInterval);
+                hideAllScreens();
+                document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                Sound.tap();
+            }
+            else if (data.type === 'QUESTION_START') {
+                hideAllScreens();
+                document.getElementById('playerGamepadScreen').classList.remove('hidden');
+                document.getElementById('playerSubmittedOverlay').classList.add('hidden');
+                document.getElementById('playerMcqContainer').classList.remove('hidden');
+
+                const qIndex = data.qIndex !== undefined ? data.qIndex : 0;
+                const q = QUESTIONS_DATA[qIndex];
+
+                document.getElementById('playerQCounter').innerText = `CHẶNG ${qIndex + 1} / ${QUESTIONS_DATA.length}`;
+                document.getElementById('playerQuestionTitle').innerText = q.title;
+
+                document.getElementById('playerOptText0').innerHTML = q.options[0];
+                document.getElementById('playerOptText1').innerHTML = q.options[1];
+                document.getElementById('playerOptText2').innerHTML = q.options[2];
+                document.getElementById('playerOptText3').innerHTML = q.options[3];
+
+                document.getElementById('playerNavStepBadge').innerText = playerState.steps;
+                updatePlayerPhaseHUD();
+
+                clearInterval(playerState.playerTimerInterval);
+                playerState.playerTimer = 30;
+                document.getElementById('playerTimerText').innerText = `${playerState.playerTimer}s`;
+
+                playerState.playerTimerInterval = setInterval(() => {
+                    playerState.playerTimer--;
+                    if (playerState.playerTimer >= 0) {
+                        document.getElementById('playerTimerText').innerText = `${playerState.playerTimer}s`;
+                    } else {
+                        clearInterval(playerState.playerTimerInterval);
+                    }
+                }, 1000);
+
+                playerState.selectedChoice = null;
+                refreshMathRender();
+            }
+            else if (data.type === 'ROUND_FEEDBACK' && data.playerId === playerState.playerId) {
+                clearInterval(playerState.playerTimerInterval);
+
+                playerState.steps = data.steps;
+                playerState.phase = data.phase;
+                updatePlayerPhaseHUD();
+
+                hideAllScreens();
+                document.getElementById('playerFeedbackScreen').classList.remove('hidden');
+
+                const titleEl = document.getElementById('playerFeedbackTitle');
+                const iconEl = document.getElementById('playerFeedbackIcon');
+                const stepsGainEl = document.getElementById('playerFeedbackStepsGain');
+                const phaseNoteEl = document.getElementById('playerFeedbackPhaseTransition');
+
+                if (data.isCorrect) {
+                    titleEl.innerText = "CHÍNH XÁC! THU NHIỆT LƯỢNG!";
+                    titleEl.className = "text-lg sm:text-xl font-hud font-bold text-emerald-400 uppercase";
+                    iconEl.innerText = "🔥";
+                    stepsGainEl.innerText = `+${data.stepsAdded} Bước Tiến Vào Đường Đua!`;
+                    stepsGainEl.className = "text-base font-tech font-black text-amber-300";
+                } else {
+                    titleEl.innerText = "CHƯA ĐÚNG! BỊ LÀM LẠNH!";
+                    titleEl.className = "text-lg sm:text-xl font-hud font-bold text-rose-400 uppercase";
+                    iconEl.innerText = "❄️";
+                    stepsGainEl.innerText = "+0 Bước";
+                    stepsGainEl.className = "text-base font-tech font-black text-slate-400";
+                }
+
+                phaseNoteEl.innerText = data.transitionNote || "";
+                if (data.rank) document.getElementById('playerMyRankNum').innerText = `#${data.rank}`;
+                document.getElementById('playerTotalStepsDisplay').innerText = `Tổng: ${playerState.steps} bước`;
+            }
+            else if (data.type === 'QUIZ_FINISHED') {
+                clearInterval(playerState.playerTimerInterval);
+                hideAllScreens();
+                document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                document.getElementById('playerMyNameDisplay').innerText = `Hoàn thành cuộc đua: ${playerState.steps} BƯỚC TIẾN!`;
+            }
+        }
+
+        function playerSubmitMcq(choiceIndex) {
+            if (playerState.selectedChoice !== null) return;
+            playerState.selectedChoice = choiceIndex;
+
+            const letters = ['A', 'B', 'C', 'D'];
+            const choiceLabel = letters[choiceIndex] || 'A';
+            const choiceText = document.getElementById(`playerOptText${choiceIndex}`).innerText;
+
+            document.getElementById('playerMcqContainer').classList.add('hidden');
+            document.getElementById('playerSubmittedOverlay').classList.remove('hidden');
+            document.getElementById('playerSubmittedLabel').innerText = `Đã chọn phương án [${choiceLabel}]: ${choiceText}`;
+
+            Sound.tap();
+
+            playerPublish({
+                type: 'PLAYER_ANSWER',
+                playerId: playerState.playerId,
+                choice: choiceIndex
+            });
+        }
+
+        window.onload = function() {
+            refreshMathRender();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                initPlayerMode();
+            }
+        };
+
+        window.addEventListener('resize', () => {
+            if (isHost && !document.getElementById('hostRaceCanvasScreen').classList.contains('hidden')) {
+                runAtomicRaceCanvas();
+            }
+        });
+    </script>
+</body>
+</html>
