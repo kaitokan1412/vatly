@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Card - Đấu Trường Thẻ Bài Dao Động Điều Hòa (Vật Lí 12)</title>
+    <title>Master Card - Đấu Trường Thẻ Bài Dao Động Điều Hòa (Vật Lí 11 - Bài 3)</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -124,6 +124,7 @@
         /* Hệ thống lật thẻ bài 3D mượt mà */
         .card-perspective {
             perspective: 1200px;
+            -webkit-perspective: 1200px;
         }
 
         .card-inner {
@@ -131,15 +132,19 @@
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
             transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+            -webkit-transition: -webkit-transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .card-inner.is-flipped {
             transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
         }
 
         .card-face {
             position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
@@ -149,6 +154,26 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Mặt úp ban đầu của thẻ bài */
+        .card-face.card-back {
+            transform: rotateY(0deg);
+            -webkit-transform: rotateY(0deg);
+            background: linear-gradient(180deg, #090d1a 0%, #1e1b4b 100%);
+            z-index: 2;
+        }
+
+        /* Mặt ngửa của thẻ bài: bắt buộc xoay sẵn 180deg để khi lật sẽ hướng chuẩn về mắt người dùng trên mobile */
+        .card-face.card-front {
+            transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
+            z-index: 1;
+        }
+
+        .card-inner.is-flipped .card-front {
+            z-index: 5;
         }
     /* Thanh cuộn phong cách đấu bài */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -171,7 +196,7 @@
                 <div class="flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 font-numbers text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-indigo-500/40">GACHA BATTLE ARENA</span>
                     <span class="text-xs text-slate-500">•</span>
-                    <span class="text-xs text-slate-400 font-semibold hidden sm:inline">Vật Lí 12: Dao Động Điều Hòa</span>
+                    <span class="text-xs text-slate-400 font-semibold hidden sm:inline">Vật Lí 11 - Bài 3: Vận tốc, gia tốc trong dao động điều hòa</span>
                 </div>
                 <h1 class="font-heading text-base sm:text-lg md:text-xl text-white tracking-wide leading-tight uppercase font-black">
                     MASTER CARD: ĐẤU TRƯỜNG THẺ BÀI
@@ -212,7 +237,7 @@
         <section id="roleSelectScreen" class="w-full max-w-4xl mx-auto magic-panel p-6 sm:p-10 rounded-[2.5rem] text-center my-auto flex flex-col gap-6 relative overflow-hidden">
             <div>
                 <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-400/40 text-indigo-300 text-xs sm:text-sm font-bold mb-2">
-                    <i class="fa-solid fa-sparkles text-amber-400"></i> CHIẾN TRƯỜNG THẺ BÀI MA THUẬT VẬT LÍ 12
+                    <i class="fa-solid fa-sparkles text-amber-400"></i> CHIẾN TRƯỜNG THẺ BÀI MA THUẬT VẬT LÍ 11 - BÀI 3
                 </span>
                 <h2 class="text-2xl sm:text-4xl font-heading font-black text-white mt-1 uppercase tracking-wide">
                     ĐẤU TRƯỜNG THẺ BÀI MASTER CARD
@@ -550,7 +575,7 @@
                     VINH DANH QUÁN QUÂN MASTER CARD!
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-300 mt-1 font-medium" id="finalChampionAnnounce">
-                    Bài thủ xuất sắc nhất đã chinh phục trọn vẹn đấu trường Vật lí 12!
+                    Bài thủ xuất sắc nhất đã chinh phục trọn vẹn đấu trường Vật lí 11 (Bài 3: Vận tốc, gia tốc trong dao động điều hòa)!
                 </p>
             </div>
 
@@ -637,7 +662,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-indigo-300 uppercase mb-1">LỚP HỌC</label>
-                    <input type="text" id="playerClassInput" placeholder="Ví dụ: 12A1..." maxlength="10"
+                    <input type="text" id="playerClassInput" placeholder="Ví dụ: 11A1..." maxlength="10"
                         class="w-full px-4 py-2.5 rounded-2xl bg-slate-950 text-white font-bold text-xs border border-slate-700 focus:border-indigo-400 focus:outline-none uppercase transition">
                 </div>
             </div>
@@ -717,7 +742,7 @@
             <div class="magic-panel p-4 rounded-2xl shadow-md text-left flex flex-col gap-1.5">
                 <div class="flex justify-between items-center">
                     <span id="playerQCounter" class="text-xs font-numbers font-black uppercase text-indigo-400">CÂU 1 / 10</span>
-                    <span id="playerMechanicBadge" class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold uppercase font-numbers">VẬT LÍ 12</span>
+                    <span id="playerMechanicBadge" class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold uppercase font-numbers">VẬT LÍ 11 - BÀI 3</span>
                 </div>
                 <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-bold text-slate-100 leading-snug font-heading">
                     Đang giải mã câu hỏi...
@@ -757,13 +782,13 @@
         </section>
 
         <!-- ==================== CỔNG RÚT BÀI MASTER CARD (GACHA MODAL) ==================== -->
-        <div id="cardGachaModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden">
-            <div class="magic-panel max-w-lg w-full p-5 sm:p-7 rounded-[2.5rem] border-2 border-indigo-500/50 shadow-2xl flex flex-col items-center gap-4 text-center">
+        <div id="cardGachaModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
+            <div class="magic-panel max-w-lg w-full p-4 sm:p-7 rounded-[2.5rem] border-2 border-indigo-500/50 shadow-2xl flex flex-col items-center gap-3 sm:gap-4 text-center my-auto max-h-[95vh] overflow-y-auto">
                 <div>
                     <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-numbers text-xs font-bold uppercase tracking-wider border border-indigo-500/40">
                         CHÍNH XÁC! KÍCH HOẠT VÒNG RÚT BÀI
                     </span>
-                    <h3 class="text-xl sm:text-2xl font-heading font-black text-white uppercase mt-1">
+                    <h3 class="text-lg sm:text-2xl font-heading font-black text-white uppercase mt-1">
                         RÚT 1 TRONG 3 LÁ MASTER CARD
                     </h3>
                     <div id="gachaStreakRateNotice" class="text-xs text-amber-300 font-bold mt-1">
@@ -772,21 +797,21 @@
                 </div>
 
                 <!-- 3 LÁ BÀI ÚP 3D SẴN SÀNG CHO HỌC SINH CHỌN -->
-                <div class="grid grid-cols-3 gap-2 sm:gap-3.5 w-full my-2">
+                <div class="grid grid-cols-3 gap-2 sm:gap-3.5 w-full my-1">
                     <!-- Lá bài 1 -->
                     <div class="card-perspective h-64 sm:h-72 cursor-pointer group" onclick="revealGachaCard(0)">
                         <div id="cardInner0" class="card-inner">
                             <!-- Mặt úp của bài -->
-                            <div class="card-face card-back p-2.5 flex flex-col items-center justify-between border-2 border-indigo-500/40 group-hover:scale-[1.02] transition">
-                                <div class="w-7 h-7 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-xs text-indigo-300 font-numbers font-black">#1</div>
+                            <div class="card-face card-back p-2 sm:p-2.5 flex flex-col items-center justify-between border-2 border-indigo-500/40 group-hover:scale-[1.02] transition">
+                                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-[11px] sm:text-xs text-indigo-300 font-numbers font-black">#1</div>
                                 <div class="text-center">
-                                    <div class="text-3xl sm:text-4xl animate-bounce">🃏</div>
-                                    <span class="text-[10px] font-heading font-bold text-indigo-300 tracking-wider block mt-1">MASTER CARD</span>
+                                    <div class="text-2xl sm:text-4xl animate-bounce">🃏</div>
+                                    <span class="text-[9px] sm:text-[10px] font-heading font-bold text-indigo-300 tracking-wider block mt-1">MASTER CARD</span>
                                 </div>
-                                <span class="text-[9px] text-slate-400 uppercase font-numbers">BẤM MỞ</span>
+                                <span class="text-[8px] sm:text-[9px] text-slate-400 uppercase font-numbers">BẤM MỞ</span>
                             </div>
                             <!-- Mặt ngửa của bài -->
-                            <div id="cardFront0" class="card-face card-front p-3 text-left"></div>
+                            <div id="cardFront0" class="card-face card-front p-2 sm:p-3 text-left"></div>
                         </div>
                     </div>
 
@@ -794,16 +819,16 @@
                     <div class="card-perspective h-64 sm:h-72 cursor-pointer group" onclick="revealGachaCard(1)">
                         <div id="cardInner1" class="card-inner">
                             <!-- Mặt úp của bài -->
-                            <div class="card-face card-back p-2.5 flex flex-col items-center justify-between border-2 border-indigo-500/40 group-hover:scale-[1.02] transition">
-                                <div class="w-7 h-7 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-xs text-indigo-300 font-numbers font-black">#2</div>
+                            <div class="card-face card-back p-2 sm:p-2.5 flex flex-col items-center justify-between border-2 border-indigo-500/40 group-hover:scale-[1.02] transition">
+                                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-[11px] sm:text-xs text-indigo-300 font-numbers font-black">#2</div>
                                 <div class="text-center">
-                                    <div class="text-3xl sm:text-4xl animate-bounce">🃏</div>
-                                    <span class="text-[10px] font-heading font-bold text-indigo-300 tracking-wider block mt-1">MASTER CARD</span>
+                                    <div class="text-2xl sm:text-4xl animate-bounce">🃏</div>
+                                    <span class="text-[9px] sm:text-[10px] font-heading font-bold text-indigo-300 tracking-wider block mt-1">MASTER CARD</span>
                                 </div>
-                                <span class="text-[9px] text-slate-400 uppercase font-numbers">BẤM MỞ</span>
+                                <span class="text-[8px] sm:text-[9px] text-slate-400 uppercase font-numbers">BẤM MỞ</span>
                             </div>
                             <!-- Mặt ngửa của bài -->
-                            <div id="cardFront1" class="card-face card-front p-3 text-left"></div>
+                            <div id="cardFront1" class="card-face card-front p-2 sm:p-3 text-left"></div>
                         </div>
                     </div>
 
@@ -811,21 +836,34 @@
                     <div class="card-perspective h-64 sm:h-72 cursor-pointer group" onclick="revealGachaCard(2)">
                         <div id="cardInner2" class="card-inner">
                             <!-- Mặt úp của bài -->
-                            <div class="card-face card-back p-2.5 flex flex-col items-center justify-between border-2 border-indigo-500/40 group-hover:scale-[1.02] transition">
-                                <div class="w-7 h-7 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-xs text-indigo-300 font-numbers font-black">#3</div>
+                            <div class="card-face card-back p-2 sm:p-2.5 flex flex-col items-center justify-between border-2 border-indigo-500/40 group-hover:scale-[1.02] transition">
+                                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-[11px] sm:text-xs text-indigo-300 font-numbers font-black">#3</div>
                                 <div class="text-center">
-                                    <div class="text-3xl sm:text-4xl animate-bounce">🃏</div>
-                                    <span class="text-[10px] font-heading font-bold text-indigo-300 tracking-wider block mt-1">MASTER CARD</span>
+                                    <div class="text-2xl sm:text-4xl animate-bounce">🃏</div>
+                                    <span class="text-[9px] sm:text-[10px] font-heading font-bold text-indigo-300 tracking-wider block mt-1">MASTER CARD</span>
                                 </div>
-                                <span class="text-[9px] text-slate-400 uppercase font-numbers">BẤM MỞ</span>
+                                <span class="text-[8px] sm:text-[9px] text-slate-400 uppercase font-numbers">BẤM MỞ</span>
                             </div>
                             <!-- Mặt ngửa của bài -->
-                            <div id="cardFront2" class="card-face card-front p-3 text-left"></div>
+                            <div id="cardFront2" class="card-face card-front p-2 sm:p-3 text-left"></div>
                         </div>
                     </div>
                 </div>
 
-                <div id="gachaActionArea" class="w-full hidden flex flex-col gap-2">
+                <div id="gachaActionArea" class="w-full hidden flex flex-col gap-2.5">
+                    <!-- KHUNG HIỂN THỊ RÕ RÀNG TÁC DỤNG THẺ VỪA RÚT ĐƯỢC ĐẶC BIỆT CHO ĐIỆN THOẠI -->
+                    <div id="gachaSelectedCardBanner" class="w-full p-3 rounded-2xl bg-slate-900/90 border border-indigo-500/40 text-left flex items-start gap-3 shadow-xl">
+                        <div id="gachaSelectedIcon" class="text-2xl sm:text-3xl p-2 rounded-xl bg-black/50 border border-white/10 flex-shrink-0">🃏</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                                <span id="gachaSelectedTierBadge" class="px-2 py-0.5 rounded font-numbers text-[9px] font-black uppercase border">TIER R</span>
+                                <span id="gachaSelectedName" class="font-heading font-bold text-xs sm:text-sm text-white uppercase">Tên thẻ</span>
+                            </div>
+                            <div id="gachaSelectedEffect" class="text-xs text-amber-200 font-medium leading-snug">Tác dụng của thẻ bài...</div>
+                            <div id="gachaSelectedTiming" class="text-[10px] text-slate-400 mt-1">Kích hoạt: ...</div>
+                        </div>
+                    </div>
+
                     <button onclick="confirmCardEquip()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white font-heading text-xs sm:text-sm uppercase tracking-wider font-black shadow-lg shadow-amber-500/30 transition">
                         KÍCH HOẠT THẺ BÀI & TIẾP TỤC ➔
                     </button>
@@ -974,7 +1012,7 @@
                                 <span>CÁCH THỨC VÀO PHÒNG & THI ĐẤU</span>
                             </div>
                             <ul class="list-disc list-inside space-y-1.5 text-slate-300 pl-1 font-medium">
-                                <li><b>Máy chiếu (Giáo viên / Host):</b> Tạo phòng thi, hiển thị mã PIN 4 số cùng QR Code lớn. Máy chiếu truyền tải 10 câu trắc nghiệm chuyên sâu về <i>Vận Tốc & Gia Tốc Trong Dao Động Điều Hòa</i> (Vật Lí 12).</li>
+                                <li><b>Máy chiếu (Giáo viên / Host):</b> Tạo phòng thi, hiển thị mã PIN 4 số cùng QR Code lớn. Máy chiếu truyền tải 10 câu trắc nghiệm chuyên sâu về <i>Bài 3: Vận Tốc, Gia Tốc Trong Dao Động Điều Hòa</i> (Vật Lí 11).</li>
                                 <li><b>Bàn đấu điện thoại (Học sinh):</b> Quét mã QR hoặc nhập mã PIN và họ tên. Nhận bộ bài khởi đầu và điều khiển ra đòn A, B, C, D trực tiếp trên màn hình cảm ứng.</li>
                                 <li><b>Thời gian mỗi lượt đấu:</b> Mặc định <b>30 giây</b> mỗi câu để suy nghĩ và xuất chiêu.</li>
                             </ul>
@@ -1088,7 +1126,7 @@
                 <div class="px-6 py-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between text-xs text-slate-400 flex-shrink-0">
                     <span class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span>Đấu trường Thẻ bài Vật Lí 12 • 15 Cơ chế ma thuật cân bằng</span>
+                        <span>Đấu trường Thẻ bài Vật Lí 11 - Bài 3 • 15 Cơ chế ma thuật cân bằng</span>
                     </span>
                     <button onclick="closeRulebookModal()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-heading font-black uppercase text-xs transition shadow-md">
                         ĐÃ HIỂU & SẴN SÀNG
@@ -1101,161 +1139,7 @@
 
     <script>
         /* =========================================================================
-           HỆ THỐNG CẨM NANG LUẬT CHƠI & BÁCH KHOA 15 THẺ BÀI (RULEBOOK MODAL)
-           ========================================================================= */
-        let currentCodexFilter = 'ALL';
-
-        function openRulebookModal(defaultTab = 'rules') {
-            const modal = document.getElementById('rulebookModal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            Sound.tap();
-            switchRulebookTab(defaultTab);
-            renderCodexCardList();
-            refreshMathRender();
-        }
-
-        function closeRulebookModal() {
-            const modal = document.getElementById('rulebookModal');
-            if (modal) modal.classList.add('hidden');
-            Sound.tap();
-        }
-
-        function switchRulebookTab(tab) {
-            const tabRules = document.getElementById('rulebookTabRules');
-            const tabCards = document.getElementById('rulebookTabCards');
-            const btnRules = document.getElementById('btnTabRules');
-            const btnCards = document.getElementById('btnTabCards');
-
-            if (tab === 'rules') {
-                tabRules.classList.remove('hidden');
-                tabCards.classList.add('hidden');
-                btnRules.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-bold transition flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md";
-                btnCards.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-bold transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700";
-            } else {
-                tabRules.classList.add('hidden');
-                tabCards.classList.remove('hidden');
-                btnCards.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-bold transition flex items-center gap-2 bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow-md";
-                btnRules.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-bold transition flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700";
-                renderCodexCardList();
-            }
-            refreshMathRender();
-        }
-
-        function filterCodexCards(tier) {
-            currentCodexFilter = tier;
-            const buttons = {
-                'ALL': document.getElementById('filterBtnAll'),
-                'R': document.getElementById('filterBtnR'),
-                'SR': document.getElementById('filterBtnSR'),
-                'SSR': document.getElementById('filterBtnSSR')
-            };
-
-            Object.keys(buttons).forEach(k => {
-                if (buttons[k]) {
-                    if (k === tier) {
-                        buttons[k].className = "px-3 py-1.5 rounded-xl text-xs font-heading font-black bg-indigo-600 text-white shadow transition";
-                    } else {
-                        buttons[k].className = "px-3 py-1.5 rounded-xl text-xs font-heading font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition";
-                    }
-                }
-            });
-
-            Sound.tap();
-            renderCodexCardList();
-        }
-
-        // Bổ sung phân tích chiến thuật chi tiết cho từng thẻ bài trong bách khoa
-        const CARD_PRO_TIPS = {
-            1: "Cứu cánh đắc lực khi gặp câu hỏi khó hoặc muốn giữ chuỗi streak 4-5 câu liên tiếp.",
-            2: "Chỉ còn 2 đáp án, xác suất chọn chuẩn tăng vọt lên 50%. Cực kỳ hữu hiệu cho câu tính toán dài.",
-            3: "Có thêm 10 giây thong thả suy nghĩ và tính toán nháp mà không lo bị trừ điểm tốc độ.",
-            4: "Cộng điểm trực tiếp ngay khi rút. Không cần điều kiện đúng/sai ở câu tiếp theo.",
-            5: "Thắt chặt tình bạn trong lớp: Bạn nhận điểm và giúp một bạn đang đứng cuối vực dậy tinh thần!",
-            6: "Hiển thị công thức vật lí cốt lõi ngay trên màn hình điện thoại để bạn áp dụng trực tiếp.",
-            7: "Khuếch đại điểm số nhẹ nhàng nhưng an toàn, tích lũy điểm chắc chắn theo từng vòng.",
-            8: "Chiến thuật bứt phá: Kết hợp cùng tốc độ giải nhanh để ẵm trọn hơn 200 điểm trong 1 câu duy nhất!",
-            9: "Kìm hãm đối thủ đang dẫn đầu bảng vàng, triệt tiêu toàn bộ điểm thưởng tốc độ của họ ở vòng kế.",
-            10: "Rút ngắn khoảng cách điểm ngay tức khắc: -40 điểm của Top 1 và +40 điểm vào tài khoản của bạn!",
-            11: "Đưa cả 2 cùng tiến bước trên bảng vàng: Tạo động lực cho bạn cùng lớp cùng vươn lên Top 6.",
-            12: "Lá bài hộ mệnh diệu kỳ: Biến thất bại thành chiến thắng và giữ nguyên vẹn chuỗi streak rực lửa!",
-            13: "Siêu bùa chú hoàng kim: Vừa nhân 3x điểm số vừa tạo khiên bất tử bảo vệ chuỗi thắng nếu có lỡ sai!",
-            14: "Cú quét bão từ đảo lộn toàn bộ cục diện lớp: Giáng đòn -40 điểm vào Top 3 và kích hoạt x1.5 điểm cho mình.",
-            15: "Lá bài tối thượng của Đấu Trường: Nhận ngay +150 điểm, miễn nhiễm đứt chuỗi và soi sáng trực tiếp đáp án chuẩn!"
-        };
-
-        function renderCodexCardList() {
-            const container = document.getElementById('codexCardGrid');
-            if (!container) return;
-
-            const filteredCards = currentCodexFilter === 'ALL' 
-                ? MASTER_CARDS 
-                : MASTER_CARDS.filter(c => c.tier === currentCodexFilter);
-
-            container.innerHTML = '';
-
-            filteredCards.forEach(card => {
-                const cardEl = document.createElement('div');
-                cardEl.className = `p-4 sm:p-5 rounded-3xl bg-slate-900/90 border-2 ${card.glowClass} flex flex-col justify-between gap-3 relative overflow-hidden shadow-xl`;
-
-                let tierColorText = "text-sky-400";
-                let tierFullLabel = "TIER R • LAM (HIẾM)";
-                let timingLabel = card.trigger.startsWith('INSTANT') || ['HELP_BOTTOM_PLAYER','STEAL_40_TOP_1','LINK_BOTTOM_PAIR','MAGNETIC_STORM_TOP3','FREEZE_TOP_1'].includes(card.trigger) 
-                    ? "⚡ Tác dụng TỨC THÌ" 
-                    : "⏳ Kích hoạt VÒNG SAU";
-
-                if (card.tier === 'SR') {
-                    tierColorText = "text-purple-300";
-                    tierFullLabel = "TIER SR • TÍM (SIÊU HIẾM)";
-                } else if (card.tier === 'SSR') {
-                    tierColorText = "text-amber-400";
-                    tierFullLabel = "TIER SSR • VÀNG (TỐI THƯỢNG)";
-                }
-
-                cardEl.innerHTML = `
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
-                                ${card.icon}
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="px-2 py-0.5 rounded ${card.badgeClass} font-numbers text-[9px] font-black uppercase tracking-wider">${card.tier}</span>
-                                    <span class="text-[10px] text-slate-400 font-bold">${timingLabel}</span>
-                                </div>
-                                <h3 class="font-heading font-black text-sm sm:text-base text-white uppercase mt-0.5">${card.name}</h3>
-                                <span class="text-xs ${tierColorText} font-bold block">${card.tagline}</span>
-                            </div>
-                        </div>
-                        <span class="text-xs font-numbers font-black text-slate-500">#${card.id}</span>
-                    </div>
-
-                    <div class="p-3 rounded-2xl bg-black/60 border border-slate-800/80 text-xs text-slate-200 leading-snug">
-                        <span class="text-slate-400 font-bold block mb-1">Quyền năng ma thuật:</span>
-                        <p class="font-medium">${card.effect}</p>
-                    </div>
-
-                    <div class="text-[11px] text-amber-300/90 font-medium flex items-center gap-1.5 pt-1 border-t border-slate-800">
-                        <i class="fa-solid fa-lightbulb text-amber-400"></i>
-                        <span><b>Chiến thuật:</b> ${CARD_PRO_TIPS[card.id] || 'Kích hoạt thông minh để lật ngược tình thế!'}</span>
-                    </div>
-                `;
-                container.appendChild(cardEl);
-            });
-
-            refreshMathRender();
-        }
-
-        // Lắng nghe phím Escape để đóng nhanh cửa sổ cẩm nang
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeRulebookModal();
-                closeQrModal();
-            }
-        });
-
-        /* =========================================================================
-           DỮ LIỆU 10 CÂU HỎI VẬT LÍ 12: VẬN TỐC & GIA TỐC TRONG DAO ĐỘNG ĐIỀU HÒA
+           DỮ LIỆU 10 CÂU HỎI VẬT LÍ 11 - BÀI 3: VẬN TỐC & GIA TỐC TRONG DAO ĐỘNG ĐIỀU HÒA
            ========================================================================= */
         const PHYSICS_QUESTIONS = [
             {
@@ -1790,12 +1674,12 @@
 
         function addDemoBots(botCount = 4) {
             const botPresets = [
-                { name: "Minh Anh", class: "12A1" },
-                { name: "Quang Hải", class: "12A1" },
-                { name: "Bảo Ngọc", class: "12A2" },
-                { name: "Hoàng Nam", class: "12A2" },
-                { name: "Phương Thảo", class: "12A3" },
-                { name: "Tuấn Kiệt", class: "12A3" }
+                { name: "Minh Anh", class: "11A1" },
+                { name: "Quang Hải", class: "11A1" },
+                { name: "Bảo Ngọc", class: "11A2" },
+                { name: "Hoàng Nam", class: "11A2" },
+                { name: "Phương Thảo", class: "11A3" },
+                { name: "Tuấn Kiệt", class: "11A3" }
             ];
 
             for (let i = 0; i < botCount; i++) {
@@ -1834,7 +1718,7 @@
                     hostState.players[pId] = {
                         id: pId,
                         name: data.name || "Bài thủ",
-                        className: data.className || "12A",
+                        className: data.className || "11A",
                         isBot: Boolean(data.isBot),
                         score: 0,
                         streak: 0,
@@ -2292,7 +2176,7 @@
 
             if (champion) {
                 document.getElementById('finalChampionAnnounce').innerHTML = `
-                    Bài thủ <b class="text-amber-300 text-base">${champion.name}</b> (Lớp ${champion.className}) đã xuất sắc giành ngôi vị <b>QUÁN QUÂN MASTER CARD VẬT LÍ 12</b> với tổng điểm <b>${champion.score} điểm</b>!
+                    Bài thủ <b class="text-amber-300 text-base">${champion.name}</b> (Lớp ${champion.className}) đã xuất sắc giành ngôi vị <b>QUÁN QUÂN MASTER CARD VẬT LÍ 11 (BÀI 3)</b> với tổng điểm <b>${champion.score} điểm</b>!
                 `;
             }
 
@@ -2362,7 +2246,7 @@
             }
 
             const distinctClasses = [...new Set(players.map(p => p.className.trim()))].filter(c => c);
-            const classNameLabel = distinctClasses.length > 0 ? distinctClasses.join('_') : "12A";
+            const classNameLabel = distinctClasses.length > 0 ? distinctClasses.join('_') : "11A";
 
             const excelData = players.map((p, index) => {
                 const avgSpeed = p.questionsAnswered > 0 ? (p.totalResponseTime / p.questionsAnswered).toFixed(2) : "0.00";
@@ -2370,6 +2254,7 @@
                     "STT": index + 1,
                     "Họ và Tên": p.name,
                     "Lớp": p.className,
+                    "Môn": "Vật Lí 11 - Bài 3: Vận tốc, gia tốc trong DĐĐH",
                     "Tổng Điểm": p.score,
                     "Số Câu Đúng": `${p.correctCount}/${PHYSICS_QUESTIONS.length}`,
                     "Tỉ Lệ Chính Xác (%)": Math.round((p.correctCount / PHYSICS_QUESTIONS.length) * 100) + "%",
@@ -2388,7 +2273,7 @@
             const ws = XLSX.utils.json_to_sheet(excelData);
             XLSX.utils.book_append_sheet(wb, ws, `MasterCard_Lop_${classNameLabel}`);
 
-            const fileName = `KetQua_MasterCard_VatLi12_Lop_${classNameLabel}.xlsx`;
+            const fileName = `KetQua_MasterCard_VatLi11_Bai3_Lop_${classNameLabel}.xlsx`;
             XLSX.writeFile(wb, fileName);
             showToast(`✓ Đã xuất bảng điểm Excel cho lớp ${classNameLabel}!`, true);
         }
@@ -2469,7 +2354,7 @@
         function playerJoinRoom() {
             const pin = document.getElementById('playerPinInput').value.trim();
             const name = document.getElementById('playerNameInput').value.trim();
-            const className = document.getElementById('playerClassInput').value.trim() || "12A";
+            const className = document.getElementById('playerClassInput').value.trim() || "11A";
             const statusMsg = document.getElementById('playerConnectStatusMsg');
             const submitBtn = document.getElementById('btnPlayerJoinSubmit');
 
@@ -2801,7 +2686,7 @@
                 const inner = document.getElementById(`cardInner${i}`);
                 inner.classList.remove('is-flipped');
                 const front = document.getElementById(`cardFront${i}`);
-                front.className = "card-face card-front p-3 text-left";
+                front.className = "card-face card-front p-2 sm:p-3 text-left";
                 front.innerHTML = "";
             }
 
@@ -2824,27 +2709,46 @@
 
             // Render giao diện mặt ngửa với hiệu ứng viền lấp lánh tương ứng
             const front = document.getElementById(`cardFront${cardIndex}`);
-            front.className = `card-face card-front p-3.5 bg-gradient-to-b ${card.bgGradient} ${card.glowClass} text-white flex flex-col justify-between shadow-2xl`;
+            front.className = `card-face card-front p-2 sm:p-3 bg-gradient-to-b ${card.bgGradient} ${card.glowClass} text-white flex flex-col justify-between shadow-2xl`;
 
-            let tierLabel = "TIER R - HIẾM";
-            if (card.tier === 'SR') tierLabel = "TIER SR - SIÊU HIẾM";
-            if (card.tier === 'SSR') tierLabel = "TIER SSR - TỐI THƯỢNG";
+            let tierLabel = "TIER R";
+            if (card.tier === 'SR') tierLabel = "TIER SR";
+            if (card.tier === 'SSR') tierLabel = "TIER SSR";
 
             front.innerHTML = `
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="px-2 py-0.5 rounded-full ${card.badgeClass} font-numbers text-[9px] font-black tracking-wider uppercase border">${tierLabel}</span>
-                        <span class="text-xl">${card.icon}</span>
+                <div class="flex-1 flex flex-col justify-between overflow-hidden">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="px-1.5 py-0.5 rounded ${card.badgeClass} font-numbers text-[8px] sm:text-[9px] font-black tracking-wider uppercase border leading-none">${tierLabel}</span>
+                            <span class="text-lg sm:text-xl">${card.icon}</span>
+                        </div>
+                        <h4 class="font-heading font-black text-[11px] sm:text-xs text-white uppercase leading-tight line-clamp-2">${card.name}</h4>
+                        <span class="text-[9px] text-amber-300 font-bold block mb-1 leading-tight">${card.tagline}</span>
                     </div>
-                    <h4 class="font-heading font-black text-sm text-white uppercase leading-tight">${card.name}</h4>
-                    <span class="text-[10px] text-amber-300 font-bold block mb-1">${card.tagline}</span>
-                    <p class="text-[10.5px] text-slate-200 leading-snug font-medium">${card.effect}</p>
+                    <p class="text-[9px] sm:text-[10.5px] text-slate-100 leading-snug font-medium break-words overflow-y-auto max-h-[85px] sm:max-h-[105px] pr-0.5">${card.effect}</p>
                 </div>
-                <div class="pt-1 border-t border-white/10 flex items-center justify-between text-[10px]">
+                <div class="pt-1 border-t border-white/15 flex items-center justify-between text-[8px] sm:text-[9px] flex-shrink-0 mt-1">
                     <span class="text-slate-400 font-numbers font-bold">#${card.id}/15</span>
                     <span class="text-emerald-400 font-black">✓ ĐÃ CHỌN</span>
                 </div>
             `;
+
+            // Cập nhật khung chi tiết thẻ bài to rõ nét cho điện thoại
+            const banner = document.getElementById('gachaSelectedCardBanner');
+            if (banner) {
+                banner.className = `w-full p-3 rounded-2xl bg-slate-900/95 border-2 text-left flex items-start gap-3 shadow-xl ${card.glowClass}`;
+                document.getElementById('gachaSelectedIcon').innerText = card.icon;
+                const tierEl = document.getElementById('gachaSelectedTierBadge');
+                tierEl.innerText = `${card.tier} - ${card.tier === 'SSR' ? 'TỐI THƯỢNG' : card.tier === 'SR' ? 'SIÊU HIẾM' : 'HIẾM'}`;
+                tierEl.className = `px-2 py-0.5 rounded font-numbers text-[9px] font-black uppercase border ${card.badgeClass}`;
+                document.getElementById('gachaSelectedName').innerText = `${card.name} • ${card.tagline}`;
+                document.getElementById('gachaSelectedEffect').innerHTML = `⚡ <b>Hiệu ứng:</b> ${card.effect}`;
+                
+                const isInstant = ['INSTANT_50_PTS', 'HELP_BOTTOM_PLAYER', 'STEAL_40_TOP_1', 'LINK_BOTTOM_PAIR', 'MAGNETIC_STORM_TOP3', 'FREEZE_TOP_1', 'OMEGA_SUPREME'].includes(card.trigger);
+                document.getElementById('gachaSelectedTiming').innerHTML = isInstant 
+                    ? `<span class="text-emerald-400 font-bold">⏱️ Kích hoạt tức thời:</span> Áp dụng điểm số trực tiếp lên bảng xếp hạng ngay khi nhận!`
+                    : `<span class="text-amber-300 font-bold">⏱️ Bùa chú dự bị:</span> Tự động giải phóng uy lực ở câu hỏi tiếp theo!`;
+            }
 
             // Phát âm thanh và hiệu ứng tương ứng với độ hiếm
             if (card.tier === 'SSR') {
@@ -2856,7 +2760,7 @@
                 Sound.cardRevealR();
             }
 
-            // Hiện nút xác nhận trang bị
+            // Hiện nút xác nhận trang bị và hộp chi tiết tác dụng
             document.getElementById('gachaActionArea').classList.remove('hidden');
 
             // Lật nốt 2 lá còn lại sau 0.6s để học sinh đối chiếu những lá bài suýt trúng
@@ -2868,18 +2772,20 @@
 
                         const otherCard = playerState.currentDrawnOptions[otherIdx];
                         const otherFront = document.getElementById(`cardFront${otherIdx}`);
-                        otherFront.className = `card-face card-front p-3 bg-gradient-to-b ${otherCard.bgGradient} ${otherCard.glowClass} opacity-60 text-white flex flex-col justify-between`;
+                        otherFront.className = `card-face card-front p-2 sm:p-2.5 bg-gradient-to-b ${otherCard.bgGradient} ${otherCard.glowClass} opacity-60 text-white flex flex-col justify-between`;
 
                         otherFront.innerHTML = `
-                            <div>
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="px-1.5 py-0.5 rounded ${otherCard.badgeClass} font-numbers text-[8px] font-black uppercase">${otherCard.tier}</span>
-                                    <span class="text-base">${otherCard.icon}</span>
+                            <div class="flex-1 flex flex-col justify-between overflow-hidden">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="px-1 py-0.5 rounded ${otherCard.badgeClass} font-numbers text-[7px] sm:text-[8px] font-black uppercase leading-none">${otherCard.tier}</span>
+                                        <span class="text-base sm:text-lg">${otherCard.icon}</span>
+                                    </div>
+                                    <h5 class="font-heading font-bold text-[10px] sm:text-xs text-white uppercase leading-tight line-clamp-2">${otherCard.name}</h5>
                                 </div>
-                                <h5 class="font-heading font-bold text-xs text-white uppercase leading-tight">${otherCard.name}</h5>
-                                <p class="text-[9.5px] text-slate-300 leading-tight mt-1 line-clamp-3">${otherCard.effect}</p>
+                                <p class="text-[8.5px] sm:text-[9.5px] text-slate-300 leading-tight line-clamp-3 mt-1">${otherCard.effect}</p>
                             </div>
-                            <span class="text-[9px] text-slate-500 font-bold uppercase">BỎ QUA</span>
+                            <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold uppercase pt-1 border-t border-white/10">BỎ QUA</span>
                         `;
                     }
                 });
@@ -2934,8 +2840,11 @@
             if (playerState.storedCard) {
                 storedBox.classList.remove('hidden');
                 document.getElementById('playerFeedbackStoredIcon').innerText = playerState.storedCard.icon;
-                document.getElementById('playerFeedbackStoredName').innerText = `Thẻ đang giữ: ${playerState.storedCard.name} (${playerState.storedCard.tier})`;
-                document.getElementById('playerFeedbackStoredDesc').innerText = `Sẽ tự động kích hoạt ở câu hỏi tiếp theo: ${playerState.storedCard.effect}`;
+                document.getElementById('playerFeedbackStoredName').innerText = `Thẻ đã trang bị: ${playerState.storedCard.name} (${playerState.storedCard.tier})`;
+                const isInstant = ['INSTANT_50_PTS', 'HELP_BOTTOM_PLAYER', 'STEAL_40_TOP_1', 'LINK_BOTTOM_PAIR', 'MAGNETIC_STORM_TOP3', 'FREEZE_TOP_1', 'OMEGA_SUPREME'].includes(playerState.storedCard.trigger);
+                document.getElementById('playerFeedbackStoredDesc').innerHTML = isInstant
+                    ? `<span class="text-emerald-400 font-bold">✓ Đã áp dụng tức thì:</span> ${playerState.storedCard.effect}`
+                    : `<span class="text-amber-300 font-bold">⚡ Sẽ kích hoạt ở câu kế tiếp:</span> ${playerState.storedCard.effect}`;
             } else {
                 storedBox.classList.add('hidden');
             }
