@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sky Voyage: Anime Expedition - Vật Lí 12 (Định Luật Charles)</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Catch WebSocket / Sandbox iframe errors gracefully -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
+                e.preventDefault();
+                console.warn("[AnimeAirshipBus] Kích hoạt kênh an toàn BroadcastChannel / LocalStorage.");
+                return true;
+            }
+        });
+    </script>
+
+    <!-- Font Awesome & Google Fonts (Anime & Manga Typography) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700;800;900&family=Fredoka:wght@600;700;800&family=Nunito:wght@700;800;900;1000&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <!-- KaTeX Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- External Libs: MQTT, SheetJS, Confetti, QRCode -->
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        html { font-size: 16px; }
+        @media (min-width: 640px) { html { font-size: 18px; } }
+        @media (min-width: 1024px) { html { font-size: 20px; } }
+        @media (min-width: 1536px) { html { font-size: 22px; } }
+
+        * {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        .font-tech { font-family: 'Orbitron', monospace, sans-serif; }
+        .font-anime-title { font-family: 'Fredoka', 'Chakra Petch', cursive, sans-serif; }
+        .font-manga { font-family: 'Chakra Petch', sans-serif; }
+
+        /* Bầu trời Anime Hoàng hôn Kỳ Ảo (Makoto Shinkai / Isekai Sky) */
+        .anime-sky-bg {
+            background-color: #0b152d;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.28) 0%, transparent 40%),
+                radial-gradient(circle at 85% 15%, rgba(244, 63, 94, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(251, 191, 36, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 30% 90%, rgba(168, 85, 247, 0.22) 0%, transparent 45%),
+                radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 36px 36px;
+            color: #f8fafc;
+        }
+
+        /* Thẻ HUD Anime Cel-Shaded với viền đậm Manga & bóng cứng */
+        .anime-hud-card {
+            background: rgba(13, 22, 45, 0.94);
+            backdrop-filter: blur(18px);
+            border: 3px solid #38bdf8;
+            box-shadow: 0 10px 0 #070d1a, 0 0 25px rgba(56, 189, 248, 0.35);
+            border-radius: 2rem;
+        }
+
+        .anime-hud-card-gold {
+            background: rgba(26, 20, 10, 0.94);
+            backdrop-filter: blur(18px);
+            border: 3px solid #fbbf24;
+            box-shadow: 0 10px 0 #0d0a05, 0 0 25px rgba(251, 191, 36, 0.35);
+            border-radius: 2rem;
+        }
+
+        /* 4 Thẻ lựa chọn Đáp Án Phong Cách Anime Battle Choice */
+        .btn-choice-anime {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.6);
+        }
+        .btn-choice-anime:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.015);
+            box-shadow: 0 9px 0 rgba(0, 0, 0, 0.7);
+        }
+        .btn-choice-anime:active:not(:disabled) {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.7);
+        }
+
+        .choice-btn-a {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.28), rgba(185, 28, 28, 0.45));
+            border: 3px solid #f87171;
+            color: #fff1f2;
+        }
+        .choice-btn-a:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.48), rgba(220, 38, 38, 0.65));
+            border-color: #fca5a5;
+            box-shadow: 0 8px 0 #7f1d1d, 0 0 25px rgba(248, 113, 113, 0.6);
+        }
+
+        .choice-btn-b {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.28), rgba(2, 132, 199, 0.45));
+            border: 3px solid #38bdf8;
+            color: #f0f9ff;
+        }
+        .choice-btn-b:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.48), rgba(3, 105, 161, 0.65));
+            border-color: #7dd3fc;
+            box-shadow: 0 8px 0 #0c4a6e, 0 0 25px rgba(56, 189, 248, 0.6);
+        }
+
+        .choice-btn-c {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.45));
+            border: 3px solid #fbbf24;
+            color: #fffbeb;
+        }
+        .choice-btn-c:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.48), rgba(180, 83, 9, 0.65));
+            border-color: #fde68a;
+            box-shadow: 0 8px 0 #78350f, 0 0 25px rgba(251, 191, 36, 0.6);
+        }
+
+        .choice-btn-d {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(5, 150, 105, 0.45));
+            border: 3px solid #34d399;
+            color: #ecfdf5;
+        }
+        .choice-btn-d:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.48), rgba(4, 120, 87, 0.65));
+            border-color: #a7f3d0;
+            box-shadow: 0 8px 0 #064e3b, 0 0 25px rgba(52, 211, 153, 0.6);
+        }
+
+        /* Manga Speed Lines Animation for Dynamic Danger */
+        @keyframes mangaPulseLines {
+            0% { opacity: 0.25; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+            100% { opacity: 0.25; transform: scale(1); }
+        }
+        .manga-speed-anim {
+            animation: mangaPulseLines 1.2s ease-in-out infinite;
+        }
+
+        @keyframes floatAirship {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-7px) rotate(1.2deg); }
+        }
+        .airship-float-anim { animation: floatAirship 3.5s ease-in-out infinite; }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: #060b17; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border: 2px solid #38bdf8; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    </style>
+</head>
+<body class="anime-sky-bg min-h-screen flex flex-col relative overflow-x-hidden selection:bg-cyan-500/40 selection:text-cyan-100">
+
+    <!-- Anime Expedition Guild Topbar -->
+    <header class="w-full bg-slate-950/95 border-b-4 border-cyan-400 px-4 sm:px-8 py-3.5 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md shadow-2xl">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-rose-500 via-amber-400 to-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/40 text-white flex-shrink-0 text-3xl border-3 border-white transform hover:rotate-6 transition">
+                🎈
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-0.5 rounded-full bg-gradient-to-r from-rose-500 to-amber-500 text-white font-manga text-[11px] sm:text-xs font-black uppercase tracking-widest border border-amber-300 shadow-md">
+                        ⚔️ GUILD THÁM HIỂM BẦU TRỜ • VẬT LÍ 12
+                    </span>
+                    <span class="text-slate-500 text-xs hidden sm:inline">•</span>
+                    <span class="text-xs sm:text-sm text-cyan-300 font-extrabold hidden sm:inline font-anime-title">Bí Kỹ Đẳng Áp ($V/T = \text{hằng số}$)</span>
+                </div>
+                <h1 class="font-anime-title text-base sm:text-xl md:text-2xl text-white tracking-wide leading-tight uppercase font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    SKY VOYAGE: GIẢI CỨU KHÍ CẦU VƯỢT HẺM NÚI MA QUỶ
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <button id="sfxToggleBtn" onclick="toggleAudio()" class="p-2.5 w-11 h-11 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 border-2 border-cyan-400 text-base font-bold flex items-center justify-center transition shadow-[0_4px_0_#0f172a]" title="Bật/Tắt âm thanh Anime">
+                <i class="fa-solid fa-volume-high text-cyan-400 text-lg" id="sfxIcon"></i>
+            </button>
+            <button onclick="window.location.reload()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-xs sm:text-sm font-black border-2 border-white flex items-center gap-2 transition text-white shadow-[0_4px_0_#0369a1] active:translate-y-1 active:shadow-none">
+                <i class="fa-solid fa-rotate text-amber-300"></i>
+                <span class="hidden sm:inline font-manga">TẢI LẠI GUILD</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Toast Notification (Anime Manga Bubble Style) -->
+    <div id="toastBox" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-3 rounded-2xl text-xs sm:text-sm font-black shadow-2xl transition-all duration-300 opacity-0 pointer-events-none border-3"></div>
+
+    <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-6xl w-full mx-auto justify-center z-10 relative">
+
+        <!-- 0. ROLE SELECTION SCREEN -->
+        <section id="roleSelectScreen" class="w-full max-w-5xl mx-auto anime-hud-card p-6 sm:p-10 text-center my-auto flex flex-col gap-6 relative overflow-hidden">
+            <div>
+                <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-cyan-500/30 via-purple-500/30 to-pink-500/30 border-2 border-cyan-400 text-cyan-200 text-xs sm:text-sm font-black mb-3 shadow-lg">
+                    <i class="fa-solid fa-compass text-amber-300 text-base"></i> PHIÊU LƯU NHIỆT ĐỘNG HỌC & ĐỊNH LUẬT CHARLES
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-anime-title font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-rose-300 to-cyan-300 mt-1 tracking-wide uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                    CUỘC THÁM HIỂM BẦU TRỜ HUYỀN BÍ
+                </h2>
+                <p class="text-sm sm:text-base md:text-lg text-slate-200 max-w-3xl mx-auto mt-3 font-bold leading-relaxed">
+                    Khí cầu thám hiểm của Guild đang lướt qua <span class="text-amber-400 font-extrabold">Hẻm Núi Ma Quỷ Chông Gai</span> hiểm trở. 
+                    Mỗi câu thần chú giải đúng sẽ kích hoạt <span class="text-cyan-300 font-extrabold">Lõi Khí Nhiệt</span> điều áp chuẩn xác ($\frac{V}{T} = \text{hằng số}$) giúp khí cầu vút bay lên đỉnh cao! 
+                    Nếu giải sai 1 câu, màng khí cầu lập tức rơi vào <span class="text-amber-400 font-extrabold">BÁO ĐỘNG CẤP 1</span>. Nếu <span class="text-rose-400 font-extrabold">tiếp tục sai</span>, quả bóng sẽ <span class="text-rose-400 font-extrabold">NỔ TUNG (POP!)</span> hoặc bị <span class="text-rose-400 font-extrabold">CHÔNG ĐÁ GAI NHỌN ĐÂM THỦNG</span>!
+                </p>
+            </div>
+
+            <!-- 2 Lựa chọn Máy Chiếu hoặc Điện Thoại (Anime RPG Cards) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+                <!-- Host Mode Card -->
+                <button onclick="initHostMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-cyan-950/80 border-3 border-cyan-400 hover:border-cyan-300 shadow-[0_10px_0_#0f172a] hover:shadow-[0_12px_0_#0f172a] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group relative overflow-hidden">
+                    <div class="w-22 h-22 rounded-3xl bg-cyan-500/25 text-cyan-300 border-3 border-cyan-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl shadow-cyan-500/30">
+                        🖥️
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-cyan-400/20 text-cyan-300 font-manga text-xs font-black uppercase mb-1">GUILD HEADQUARTERS</span>
+                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">TRẠM ĐIỀU PHỐI GUILD (MÁY CHIẾU)</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
+                        Khai mở Mã PIN & QR Anime, trình chiếu đề thi đồ họa to rõ cùng màn hình <b>Mô Phỏng Khí Cầu Phiêu Lưu</b> vượt hẻm núi chông gai đầy kịch tính.
+                    </p>
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white font-anime-title text-sm sm:text-base uppercase tracking-wider transition shadow-xl shadow-cyan-500/40 font-black border-2 border-white">
+                        KHAI MỞ TRẠM MÁY CHIẾU 🚀
+                    </span>
+                </button>
+
+                <!-- Player Mode Card -->
+                <button onclick="initPlayerMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-amber-950/80 border-3 border-amber-400 hover:border-amber-300 shadow-[0_10px_0_#0f172a] hover:shadow-[0_12px_0_#0f172a] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group relative overflow-hidden">
+                    <div class="w-22 h-22 rounded-3xl bg-amber-500/25 text-amber-300 border-3 border-amber-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl shadow-amber-500/30">
+                        🧭
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 font-manga text-xs font-black uppercase mb-1">AIR NAVIGATOR DEVICE</span>
+                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">PHI HÀNH GIA KHÍ CẦU (ĐIỆN THOẠI)</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
+                        Nhập PIN Guild, điều khiển khí cầu qua bảng con / điện thoại với 4 nút chọn A-B-C-D để giải cứu phi hành đoàn an toàn.
+                    </p>
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 text-white font-anime-title text-sm sm:text-base uppercase tracking-wider transition shadow-xl shadow-amber-500/40 font-black border-2 border-white">
+                        KẾT NỐI THIẾT BỊ BAY 🎈
+                    </span>
+                </button>
+            </div>
+
+            <!-- Tóm tắt bí kíp sư phạm nhiệt động Anime -->
+            <div class="p-5 rounded-3xl bg-slate-950/90 border-3 border-cyan-400 text-left flex flex-col sm:flex-row items-center gap-4 shadow-xl">
+                <span class="text-cyan-400 text-5xl"><i class="fa-solid fa-scroll"></i></span>
+                <div class="text-xs sm:text-sm md:text-base text-slate-200 leading-relaxed font-bold">
+                    <b class="text-amber-300 font-anime-title text-base uppercase block mb-1">📜 BÍ KỸ NHIỆT ĐỘNG VÀ NGUY HIỂM HẺM NÚI CHÔNG GAI:</b>
+                    • <b>Định luật Charles (Đẳng áp $p = \text{const}$):</b> $\frac{V_1}{T_1} = \frac{V_2}{T_2}$ (Quy đổi bắt buộc: $T(\text{K}) = t(^\circ\text{C}) + 273$).<br>
+                    • <b>Phát niệm ĐÚNG:</b> Bơm nhiệt an toàn, hóa giải mọi cảnh báo $\to$ Khí cầu bay vút lên <span class="text-emerald-400 font-black">+100 m</span>.<br>
+                    • <b>Phát niệm SAI lần 1:</b> Rơi vào <span class="text-amber-300 font-black">CẢNH BÁO NGUY HIỂM</span> (Màng bóng quá nhiệt rung lắc HOẶC co rút tụt sát bãi gai nhọn, tụt nhẹ <span class="text-amber-400 font-black">-25 m</span>).<br>
+                    • <b>Tiếp tục SAI lần 2:</b> Thảm họa xảy ra! Bóng <span class="text-rose-400 font-black">NỔ TUNG (POP!)</span> hoặc bị <span class="text-rose-400 font-black">CHÔNG ĐÁ ĐÂM THỦNG XẸP LÉP</span>, tụt mạnh <span class="text-rose-400 font-black">-75 m</span>!
+                </div>
+            </div>
+        </section>
+
+        <!-- 1. HOST LOBBY SCREEN -->
+        <section id="hostLobbyScreen" class="w-full max-w-5xl mx-auto anime-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-wrap items-center justify-between border-b-3 border-slate-800 pb-3.5 gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-4 h-4 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span class="font-anime-title text-lg sm:text-2xl text-cyan-300 uppercase tracking-wider font-black">TRẠM ĐIỀU PHỐI GUILD KHÍ CẦU</span>
+                    <span class="text-xs sm:text-sm px-3.5 py-1 rounded-full bg-cyan-500/25 border-2 border-cyan-400 text-cyan-300 font-manga font-extrabold">PHÒNG CHỜ GUILD</span>
+                </div>
+                <div class="text-sm sm:text-lg font-black text-slate-200">
+                    <i class="fa-solid fa-users text-cyan-400 mr-2"></i>Đội Thám Hiểm: <span class="text-amber-300 font-tech font-black text-2xl sm:text-3xl" id="hostPlayerCountNum">0</span> đội
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- PIN & QR Anime Frame -->
+                <div class="lg:col-span-5 p-6 rounded-3xl bg-slate-950/95 border-3 border-slate-800 flex flex-col items-center justify-between text-center gap-4 shadow-xl">
+                    <div>
+                        <span class="text-xs sm:text-sm font-black text-cyan-300 uppercase tracking-widest block font-manga">MÃ KẾT GIỚI (PIN)</span>
+                        <div class="flex items-center justify-center gap-3 mt-2.5">
+                            <span id="hostPinDisplay" class="text-5xl sm:text-7xl font-tech font-black text-amber-300 px-7 py-2 rounded-2xl bg-black border-3 border-amber-400 shadow-[inset_0_0_20px_rgba(251,191,36,0.4)] tracking-widest">
+                                ----
+                            </span>
+                            <button onclick="copyJoinLink()" class="p-4 sm:p-5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-cyan-400 border-2 border-slate-700 text-lg font-bold transition shadow-[0_4px_0_#0f172a]" title="Sao chép liên kết thám hiểm">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white p-4 rounded-3xl shadow-2xl border-4 border-cyan-400">
+                        <div onclick="openQrModal()" class="cursor-pointer hover:opacity-90 transition p-1" title="Bấm để phóng to">
+                            <div id="hostQrCodeBox" class="w-[140px] h-[140px] flex items-center justify-center overflow-hidden"></div>
+                        </div>
+                        <button onclick="openQrModal()" class="text-xs sm:text-sm font-black text-slate-950 mt-2.5 flex items-center gap-2 hover:text-cyan-700 font-manga">
+                            <i class="fa-solid fa-expand"></i> Phóng to Mã QR
+                        </button>
+                    </div>
+
+                    <p class="text-xs sm:text-sm text-slate-300 font-bold">Dùng camera điện thoại quét QR hoặc nhập PIN để vào Guild.</p>
+                </div>
+
+                <!-- Players list in Lobby -->
+                <div class="lg:col-span-7 flex flex-col justify-between gap-5">
+                    <div class="p-6 rounded-3xl bg-slate-950/95 border-3 border-slate-800 flex-1 flex flex-col shadow-xl">
+                        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-3 mb-3">
+                            <span class="text-xs sm:text-base font-black text-slate-200 uppercase tracking-wider font-anime-title">Danh sách phi đội thám hiểm</span>
+                            <span class="text-xs sm:text-sm font-tech font-black text-amber-400">ĐÍCH: 1000m ĐỈNH HẺM NÚI</span>
+                        </div>
+                        <div class="flex-1 min-h-[190px] max-h-[260px] overflow-y-auto p-2 flex flex-col justify-center">
+                            <p class="text-sm sm:text-base text-slate-400 italic text-center font-bold" id="emptyPlayerMsg">Đang đợi các phi hành gia kết nối thiết bị...</p>
+                            <div class="flex flex-wrap gap-2.5 items-center justify-center" id="hostPlayerListContainer"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                        <div class="flex gap-2.5 w-full sm:w-auto">
+                            <button onclick="addDemoBots(4)" type="button" class="px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-2 flex-1 sm:flex-none justify-center shadow-[0_4px_0_#0f172a]">
+                                <i class="fa-solid fa-robot text-cyan-400 text-lg"></i> + 4 Đội Mẫu
+                            </button>
+                            <button onclick="clearDemoBots()" type="button" class="px-4 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-1 shadow-[0_4px_0_#0f172a]" title="Xóa">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                        <button onclick="hostStartGame()" id="hostStartBtn" class="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-white font-anime-title text-sm sm:text-lg uppercase tracking-wider transition shadow-xl shadow-cyan-500/40 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-2.5 font-black border-2 border-white" disabled>
+                            <span>KHỞI HÀNH THÁM HIỂM</span>
+                            <i class="fa-solid fa-rocket text-sm text-amber-300"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. HOST QUESTION SCREEN -->
+        <section id="hostQuestionScreen" class="w-full max-w-6xl mx-auto flex flex-col gap-4 hidden">
+            <!-- Header bar with Timer & Expedition Stage -->
+            <div class="anime-hud-card p-4 sm:p-5 border-3 border-cyan-400 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span id="hostQCounterBadge" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-manga font-black uppercase tracking-wider bg-gradient-to-r from-rose-500 to-amber-500 text-white border border-white shadow-md">
+                        CHẶNG 1 / 10
+                    </span>
+                    <span id="hostQCategory" class="text-sm sm:text-base md:text-lg font-black text-slate-100 font-anime-title">
+                        Câu 1. Nhận biết định luật Charles
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Anime Countdown Stopwatch -->
+                    <div class="flex items-center gap-2.5 px-5 py-2 rounded-2xl bg-slate-900 border-3 border-cyan-400 shadow-[inset_0_0_15px_rgba(56,189,248,0.3)]">
+                        <i class="fa-solid fa-stopwatch text-amber-400 text-lg sm:text-xl animate-spin"></i>
+                        <span id="hostTimerText" class="font-tech font-black text-2xl sm:text-3xl text-cyan-300">30</span>
+                        <span class="text-xs sm:text-sm font-black text-cyan-400">s</span>
+                    </div>
+                    <!-- Answered counter -->
+                    <div class="px-4 py-2 rounded-2xl bg-slate-900 border-2 border-slate-800 text-xs sm:text-sm font-black text-slate-200">
+                        Đã nộp: <span id="hostAnsweredCount" class="text-amber-400 font-tech font-black text-lg sm:text-xl">0</span> / <span id="hostTotalPlayersCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPLIT SCREEN: Left = Question RPG Card (58%), Right = Anime Airship Expedition Canvas (42%) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                <!-- CỘT TRÁI: BẢNG CÂU HỎI JRPG (LG 7 CỘT) -->
+                <div class="lg:col-span-7 flex flex-col gap-4">
+                    <div class="anime-hud-card p-6 sm:p-7 shadow-2xl flex flex-col gap-5 flex-1 justify-between">
+                        <div>
+                            <span class="text-xs font-manga uppercase tracking-widest text-cyan-300 font-black block mb-1">
+                                <i class="fa-solid fa-wind mr-1 text-amber-300"></i> BÀI TOÁN NHIỆT ĐỘNG LỰC HỌC ĐẲNG ÁP
+                            </span>
+                            <h2 id="hostQuestionTitle" class="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed font-anime-title drop-shadow">
+                                Đang tải bí kíp định luật Charles...
+                            </h2>
+                        </div>
+
+                        <!-- 4 Đáp án A-B-C-D to rõ phong cách Manga Battle Choice -->
+                        <div id="hostMcqGrid" class="grid grid-cols-1 gap-3.5">
+                            <div id="hostOptCard0" class="p-4 sm:p-5 rounded-2xl choice-btn-a flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">A</span>
+                                    <span id="hostOptText0" class="flex-1 break-words">Phương án A</span>
+                                </div>
+                                <span id="hostOptBadge0" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN CHÍNH XÁC</span>
+                            </div>
+
+                            <div id="hostOptCard1" class="p-4 sm:p-5 rounded-2xl choice-btn-b flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-sky-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">B</span>
+                                    <span id="hostOptText1" class="flex-1 break-words">Phương án B</span>
+                                </div>
+                                <span id="hostOptBadge1" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN CHÍNH XÁC</span>
+                            </div>
+
+                            <div id="hostOptCard2" class="p-4 sm:p-5 rounded-2xl choice-btn-c flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">C</span>
+                                    <span id="hostOptText2" class="flex-1 break-words">Phương án C</span>
+                                </div>
+                                <span id="hostOptBadge2" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN CHÍNH XÁC</span>
+                            </div>
+
+                            <div id="hostOptCard3" class="p-4 sm:p-5 rounded-2xl choice-btn-d flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-emerald-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">D</span>
+                                    <span id="hostOptText3" class="flex-1 break-words">Phương án D</span>
+                                </div>
+                                <span id="hostOptBadge3" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN CHÍNH XÁC</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI: MÔ PHỎNG KHÍ CẦU PHIÊU LƯU ANIME (LG 5 CỘT) -->
+                <div class="lg:col-span-5 flex flex-col gap-3">
+                    <div class="anime-hud-card p-4 border-3 border-cyan-400 flex-1 flex flex-col justify-between overflow-hidden relative">
+                        <!-- Canvas Header status -->
+                        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-2 mb-2">
+                            <span class="text-xs font-anime-title uppercase tracking-wider text-cyan-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-mountain text-amber-400"></i> HẺM NÚI MA QUỶ VÀ CHÔNG ĐÁ
+                            </span>
+                            <span id="balloonLiveTelemetry" class="font-tech text-xs text-amber-300 font-bold">V = 3.0L • T = 300K</span>
+                        </div>
+
+                        <!-- Canvas Sandbox (Anime Atmosphere) -->
+                        <div class="w-full h-80 sm:h-96 relative bg-slate-950 rounded-2xl border-3 border-cyan-400/50 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] flex items-center justify-center">
+                            <canvas id="balloonSimCanvas" class="w-full h-full block"></canvas>
+
+                            <!-- Alert badge: CẢNH BÁO LẦN 1 (Manga Warning Red Alert Flash) -->
+                            <div id="balloonWarningAlert" class="absolute inset-0 bg-amber-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 manga-speed-anim border-4 border-amber-400">
+                                <span class="text-5xl animate-bounce" id="balloonWarningIcon">⚠️🔥</span>
+                                <h3 class="font-anime-title font-black text-amber-300 text-xl sm:text-2xl uppercase mt-2 drop-shadow" id="balloonWarningTitle">BÁO ĐỘNG CẤP 1!</h3>
+                                <p class="text-xs sm:text-sm text-amber-100 font-bold max-w-xs mt-1" id="balloonWarningDesc">Tính sai khiến màng khí cầu rung lắc bất ổn! Nếu tiếp tục sai câu sau, khí cầu sẽ NỔ TUNG hoặc BỊ CHÔNG ĐÁ ĐÂM RÁCH!</p>
+                            </div>
+
+                            <!-- Alert badge: THẢM HỌA 1 - NỔ TUNG DO TIẾP TỤC SAI (MANA POP!) -->
+                            <div id="balloonPopAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-4 border-rose-500">
+                                <span class="text-6xl animate-ping">💥</span>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2 drop-shadow">KHÍ CẦU NỔ TUNG (POP!)</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Liên tiếp sai nhiệt độ khiến thể tích giãn nở vượt hạn mức màng cao su nổ tung!</p>
+                            </div>
+
+                            <!-- Alert badge: THẢM HỌA 2 - CHÔNG GAI ĐÂM THỦNG DO CO RÚT TIẾP TỤC SAI -->
+                            <div id="balloonSpikeAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-4 border-rose-500">
+                                <span class="text-6xl animate-bounce">📌💥</span>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2 drop-shadow">CHÔNG ĐÁ ĐÂM THỦNG KHÍ CẦU!</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Thể tích co rút quá mức khiến khí cầu rơi thẳng vào bãi chông gai hẻm núi rách toạc!</p>
+                            </div>
+
+                            <!-- Alert badge: THÀNH CÔNG VƯỢT HẺM NÚI -->
+                            <div id="balloonSuccessAlert" class="absolute inset-0 bg-emerald-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-4 border-emerald-400">
+                                <span class="text-5xl animate-bounce">🎈✨</span>
+                                <h3 class="font-anime-title font-black text-emerald-300 text-2xl uppercase mt-2 drop-shadow">VƯỢT HẺM NÚI AN TOÀN!</h3>
+                                <p class="text-xs text-emerald-200 font-bold max-w-xs mt-1">Nhiệt độ và thể tích thăng hoa hoàn hảo theo định luật Charles: V/T = const</p>
+                            </div>
+                        </div>
+
+                        <!-- Thông số nhiệt động học trực quan Anime Telemetry -->
+                        <div class="grid grid-cols-3 gap-2.5 mt-3 text-center text-xs">
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800 shadow">
+                                <span class="text-[10px] text-slate-400 block font-manga uppercase">ÁP SUẤT (p)</span>
+                                <span class="font-tech font-black text-cyan-300">ĐẲNG ÁP (1 atm)</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800 shadow">
+                                <span class="text-[10px] text-slate-400 block font-manga uppercase">ĐỘ CAO ĐỘI</span>
+                                <span id="hostAvgAltText" class="font-tech font-black text-amber-300 text-sm sm:text-base">100 m</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800 shadow">
+                                <span class="text-[10px] text-slate-400 block font-manga uppercase">TRẠNG THÁI</span>
+                                <span id="hostBalloonStatusTag" class="font-anime-title font-black text-emerald-400 text-xs sm:text-sm">BAY ỔN ĐỊNH</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KHUNG BẢN CHẤT VẬT LÍ (HIỆN KHI HẾT CÂU) -->
+            <div id="hostExplanationArea" class="anime-hud-card p-5 sm:p-7 border-3 border-cyan-400 shadow-2xl flex flex-col gap-4 hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b-2 border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs sm:text-sm font-tech font-black uppercase text-cyan-400 tracking-wider block">KẾT QUẢ ĐIỀU PHỐI KHÍ NHIỆT</span>
+                        <p class="text-xs sm:text-base text-slate-300 font-bold">Khí cầu đã cập nhật thể tích và độ cao tương ứng theo định luật Charles.</p>
+                    </div>
+                    <button onclick="hostShowLeaderboardScreen()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl shadow-cyan-500/40 font-black flex items-center gap-2 border-2 border-white">
+                        <span>BẢNG XẾP HẠNG GUILD</span>
+                        <i class="fa-solid fa-trophy text-amber-300"></i>
+                    </button>
+                </div>
+                <div id="hostExplanationText" class="text-xs sm:text-sm md:text-base text-slate-100 bg-slate-900/95 border-2 border-slate-800 p-4 sm:p-5 rounded-2xl font-bold leading-relaxed"></div>
+            </div>
+
+            <!-- TELEMETRY CÁC PHI ĐỘI -->
+            <div class="anime-hud-card p-4 border-2 border-slate-800">
+                <div class="flex justify-between items-center border-b-2 border-slate-800 pb-2 mb-2 text-xs sm:text-sm">
+                    <span class="font-anime-title font-black text-slate-200 uppercase">Độ cao và tình trạng khí cầu các phi đội</span>
+                    <span class="font-tech font-bold text-cyan-400">GUILD AIRSHIP ALTITUDE & INTEGRITY</span>
+                </div>
+                <div id="hostLiveSquadGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[140px] overflow-y-auto p-1"></div>
+            </div>
+        </section>
+
+        <!-- 3. HOST LEADERBOARD SCREEN -->
+        <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto anime-hud-card-gold p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b-3 border-amber-500/40 pb-4 gap-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/25 text-amber-300 border-3 border-amber-400 flex items-center justify-center text-3xl shadow-lg">
+                        🏆
+                    </div>
+                    <div>
+                        <span class="text-xs sm:text-sm font-tech uppercase font-bold text-amber-400 tracking-wider block">BẢNG XẾP HẠNG THÁM HIỂM GUILD</span>
+                        <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase" id="hostLeaderboardRoundTitle">
+                            TOP PHI ĐỘI DẪN ĐẦU (CHẶNG 1)
+                        </h3>
+                    </div>
+                </div>
+
+                <button onclick="hostContinueToNextQuestion()" id="hostLeaderboardNextBtn" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl shadow-cyan-500/40 flex items-center gap-2.5 font-black border-2 border-white">
+                    <span id="hostLeaderboardNextBtnText">SANG CHẶNG TIẾP THEO</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Top 3 Podium (Anime Style) -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 items-end justify-center py-2 max-w-2xl mx-auto w-full">
+                <!-- Hạng 2 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">🥈</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-3 border-sky-400 text-center flex flex-col items-center shadow-lg">
+                        <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName2">--</span>
+                        <span class="text-xs font-tech text-sky-400 font-black" id="podiumAlt2">0 m</span>
+                    </div>
+                    <div class="w-full h-14 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-400 text-base border-2 border-slate-800">#2</div>
+                </div>
+
+                <!-- Hạng 1 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-4xl mb-1 animate-bounce">👑 🥇</span>
+                    <div class="w-full p-4 rounded-2xl bg-amber-950/60 border-3 border-amber-400 text-center flex flex-col items-center shadow-2xl ring-4 ring-amber-400/40">
+                        <span class="text-base sm:text-xl font-black text-amber-300 truncate max-w-full font-anime-title" id="podiumName1">--</span>
+                        <span class="text-sm font-tech text-amber-300 font-black" id="podiumAlt1">0 m</span>
+                    </div>
+                    <div class="w-full h-22 bg-gradient-to-t from-amber-600 to-amber-400 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-950 text-xl shadow-xl">#1</div>
+                </div>
+
+                <!-- Hạng 3 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">🥉</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-3 border-amber-600 text-center flex flex-col items-center shadow-lg">
+                        <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName3">--</span>
+                        <span class="text-xs font-tech text-amber-400 font-black" id="podiumAlt3">0 m</span>
+                    </div>
+                    <div class="w-full h-10 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-500 text-sm border-2 border-slate-800">#3</div>
+                </div>
+            </div>
+
+            <!-- Bảng danh sách thứ hạng Guild -->
+            <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-3 border-slate-800 shadow-2xl overflow-hidden text-xs sm:text-base">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-cyan-300 uppercase font-anime-title">
+                        <tr>
+                            <th class="p-3.5 rounded-l-xl">Hạng</th>
+                            <th class="p-3.5">Phi Đội Khí Cầu</th>
+                            <th class="p-3.5">Lớp</th>
+                            <th class="p-3.5 text-center">Tình Trạng Khí Cầu</th>
+                            <th class="p-3.5 text-center">Đúng</th>
+                            <th class="p-3.5 text-right rounded-r-xl">Độ Cao Đạt Được</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hostTopTableBody" class="divide-y-2 divide-slate-800 font-black text-slate-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. HOST FINAL SCREEN -->
+        <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto anime-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6 text-center">
+            <div>
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 via-rose-500 to-cyan-400 text-white flex items-center justify-center text-6xl shadow-2xl mb-3 animate-bounce border-3 border-white">
+                    🎈
+                </div>
+                <span class="px-5 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-amber-500 text-white font-anime-title text-xs sm:text-sm font-black uppercase tracking-widest border border-white">
+                    CHUYẾN THÁM HIỂM HOÀN TẤT
+                </span>
+                <h2 class="text-2xl sm:text-4xl md:text-5xl font-anime-title font-black text-white uppercase tracking-wider mt-2.5 drop-shadow">
+                    VINH DANH CÁC PHI ĐỘI THÁM HIỂM BẦU TRỜ!
+                </h2>
+                <p class="text-sm sm:text-base md:text-lg text-slate-200 mt-2 font-bold" id="hostFinalChampionAnnounce">
+                    Khí cầu đã điều áp và giãn nở chuẩn xác theo định luật Charles để vượt qua hẻm núi ma quỷ an toàn!
+                </p>
+            </div>
+
+            <!-- Bảng tổng kết đầy đủ -->
+            <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-3 border-slate-800 overflow-hidden shadow-2xl text-left">
+                <div class="overflow-x-auto max-h-[300px]">
+                    <table class="w-full text-left text-xs sm:text-base">
+                        <thead class="bg-slate-900 text-cyan-300 uppercase font-anime-title sticky top-0">
+                            <tr>
+                                <th class="p-3.5 rounded-l-xl">Hạng</th>
+                                <th class="p-3.5">Tên Đội</th>
+                                <th class="p-3.5">Lớp</th>
+                                <th class="p-3.5 text-center">Độ Cao (m)</th>
+                                <th class="p-3.5 text-center">Số Câu Đúng</th>
+                                <th class="p-3.5 text-center">Số Lần Nổ/Chông Đâm</th>
+                                <th class="p-3.5 text-right rounded-r-xl">Tổng Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostFinalStatsTbody" class="divide-y-2 divide-slate-800 font-black text-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="exportQuizExcel()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-xl shadow-emerald-600/40 transition flex items-center gap-2.5 font-black border-2 border-white">
+                    <i class="fa-solid fa-file-excel text-lg"></i>
+                    <span>XUẤT BẢNG ĐIỂM GUILD THÁM HIỂM (EXCEL)</span>
+                </button>
+                <button onclick="window.location.reload()" class="px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-lg transition flex items-center gap-2.5 font-black border-2 border-slate-700">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>TÁI KHỞI ĐỘNG CHUYẾN BAY MỚI</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 1. Player Join Screen -->
+        <section id="playerJoinScreen" class="w-full max-w-lg mx-auto anime-hud-card p-6 sm:p-9 my-auto hidden text-center flex flex-col gap-4">
+            <div class="w-20 h-20 rounded-3xl bg-cyan-500/25 border-3 border-cyan-400 text-cyan-300 flex items-center justify-center mx-auto text-4xl shadow-xl airship-float-anim">
+                🧭
+            </div>
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-anime-title font-black text-white uppercase">TRẠM ĐIỀU KHIỂN KHÍ CẦU</h2>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1.5 font-bold">Nhập Mã PIN và tên đội để bắt đầu hành trình điều phối khí nhiệt</p>
+            </div>
+
+            <div class="flex flex-col gap-3.5 text-left">
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-cyan-300 uppercase mb-1 font-manga">MÃ PHÒNG GUILD (PIN)</label>
+                    <input type="text" id="playerPinInput" placeholder="Ví dụ: 8899" maxlength="6"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-amber-300 font-tech font-black text-3xl border-3 border-cyan-400 focus:outline-none text-center tracking-widest shadow-inner transition">
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">TÊN PHI ĐỘI / HỌ TÊN HỌC SINH</label>
+                    <input type="text" id="playerNameInput" placeholder="Nhập tên phi đội của bạn..." maxlength="25"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-sm sm:text-base border-2 border-slate-700 focus:border-cyan-400 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">LỚP HỌC</label>
+                    <input type="text" id="playerClassInput" placeholder="Ví dụ: 12A1..." maxlength="10"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-xs sm:text-sm border-2 border-slate-700 focus:border-cyan-400 focus:outline-none uppercase transition">
+                </div>
+            </div>
+
+            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-white font-anime-title text-sm sm:text-base uppercase tracking-wider shadow-xl shadow-cyan-500/40 transition font-black border-2 border-white">
+                KẾT NỐI VÀO BUỒNG LÁI KHÍ CẦU
+            </button>
+            <p id="playerConnectStatusMsg" class="text-xs sm:text-sm text-cyan-400 font-bold hidden">Đang truyền tín hiệu đến Tổng Bộ Guild...</p>
+        </section>
+
+        <!-- 2. Player Lobby Screen -->
+        <section id="playerLobbyScreen" class="w-full max-w-lg mx-auto anime-hud-card p-6 sm:p-9 my-auto text-center hidden flex flex-col gap-4">
+            <div class="w-22 h-22 rounded-3xl bg-cyan-500/25 border-3 border-cyan-400 text-cyan-300 flex items-center justify-center mx-auto text-5xl shadow-xl airship-float-anim">
+                🎈
+            </div>
+            <div>
+                <span class="text-xs sm:text-sm font-manga uppercase text-cyan-400 font-extrabold tracking-wider block">THIẾT BỊ BAY SẴN SÀNG</span>
+                <h2 id="playerMyNameDisplay" class="text-xl sm:text-2xl font-anime-title font-black text-white mt-1 uppercase">PHI ĐỘI THÁM HIỂM</h2>
+                <div class="inline-flex items-center gap-2 mt-2 px-4 py-1.5 rounded-xl bg-slate-900 border-2 border-cyan-400 text-xs sm:text-sm text-amber-300 font-tech font-black shadow">
+                    ĐỘ CAO BAN ĐẦU: 0 m (1000m ĐÍCH)
+                </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed font-bold">
+                Quan sát màn hình máy chiếu Guild.<br>
+                • <b>Đúng:</b> Lõi khí nhiệt dâng chuẩn xác $\to$ nâng cao thêm <span class="text-emerald-400 font-black">+100 m</span>.<br>
+                • <b>Sai lần 1:</b> Rơi vào <b>CẢNH BÁO</b> (Quá nhiệt hoặc Co rút sát bãi chông đá, tụt nhẹ <span class="text-amber-400 font-black">-25 m</span>)!<br>
+                • <b>Tiếp tục sai:</b> Khí cầu sẽ <b>NỔ TUNG</b> hoặc bị <b>CHÔNG ĐÁ ĐÂM THỦNG</b> tụt <span class="text-rose-400 font-black">-75 m</span>!<br>
+                • Đừng quên đổi $T(\text{K}) = t(^\circ\text{C}) + 273$ trước khi tính $V/T$!
+            </div>
+        </section>
+
+        <!-- 3. Player Gamepad Screen (A-B-C-D) -->
+        <section id="playerGamepadScreen" class="w-full max-w-lg mx-auto flex flex-col gap-3 my-auto hidden">
+            <!-- HUD top bar -->
+            <div class="anime-hud-card p-4 rounded-2xl flex items-center justify-between shadow-xl">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl text-amber-400">🎈</span>
+                    <div>
+                        <div id="playerNavName" class="font-anime-title font-black text-white text-sm sm:text-base truncate max-w-[130px]">Phi đội</div>
+                        <div class="text-xs text-slate-300 font-bold">Độ cao: <span id="playerAltHUD" class="font-tech font-black text-amber-300 text-base">0 m</span></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span id="playerRankHUD" class="px-3 py-1 rounded-xl bg-cyan-500/25 text-cyan-300 font-anime-title font-black text-xs sm:text-sm border border-cyan-400">
+                        #--
+                    </span>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border-2 border-cyan-400 text-xs sm:text-sm font-black text-cyan-300">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                        <span id="playerTimerText" class="font-tech">30s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question summary on Mobile -->
+            <div class="anime-hud-card p-4 rounded-2xl shadow-md text-left flex flex-col gap-1.5">
+                <div class="flex justify-between items-center">
+                    <span id="playerQCounter" class="text-xs sm:text-sm font-tech font-black uppercase text-cyan-400">CHẶNG 1 / 10</span>
+                    <span class="text-[11px] px-2.5 py-0.5 rounded-lg bg-cyan-500/25 text-cyan-300 font-black uppercase font-manga border border-cyan-400">CHARLES'S LAW</span>
+                </div>
+                <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-black text-slate-100 leading-snug font-anime-title">
+                    Đang nạp bí kíp khí nhiệt...
+                </h3>
+            </div>
+
+            <!-- 4 Nút bấm lớn Anime Choice -->
+            <div class="flex flex-col gap-2.5" id="playerMcqContainer">
+                <button onclick="playerSubmitAnswer(0)" id="playerBtn0" class="choice-btn-a w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">A</span>
+                    <span id="playerOptText0" class="flex-1 break-words leading-tight">Phương án A</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(1)" id="playerBtn1" class="choice-btn-b w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-sky-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">B</span>
+                    <span id="playerOptText1" class="flex-1 break-words leading-tight">Phương án B</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(2)" id="playerBtn2" class="choice-btn-c w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">C</span>
+                    <span id="playerOptText2" class="flex-1 break-words leading-tight">Phương án C</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(3)" id="playerBtn3" class="choice-btn-d w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-emerald-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">D</span>
+                    <span id="playerOptText3" class="flex-1 break-words leading-tight">Phương án D</span>
+                </button>
+            </div>
+
+            <!-- Overlay khi đã nộp bài -->
+            <div id="playerSubmittedOverlay" class="anime-hud-card p-6 rounded-2xl text-center hidden flex flex-col gap-2.5 shadow-2xl">
+                <div class="text-4xl text-cyan-400 font-black animate-pulse">💨</div>
+                <h4 class="font-anime-title font-black text-base sm:text-lg text-white uppercase">LỆNH BƠM NHIỆT ĐÃ TRUYỀN ĐI</h4>
+                <p id="playerSubmittedLabel" class="text-xs sm:text-sm font-extrabold text-slate-200">Đang chờ máy chiếu đối chiếu nhiệt động học...</p>
+                <p class="text-xs text-slate-400 font-bold">Quan sát màn hình Guild xem khí cầu có an toàn vút bay hay gặp hiểm nguy chông gai!</p>
+            </div>
+        </section>
+
+        <!-- 4. Player Feedback Screen -->
+        <section id="playerFeedbackScreen" class="w-full max-w-lg mx-auto anime-hud-card p-6 rounded-[2.5rem] text-center my-auto hidden shadow-2xl flex flex-col items-center gap-3">
+            <div id="playerFeedbackIcon" class="text-5xl mb-1">🎈</div>
+            <h2 id="playerFeedbackTitle" class="text-lg sm:text-2xl font-anime-title font-black text-emerald-400 uppercase">
+                VƯỢT HẺM NÚI AN TOÀN!
+            </h2>
+            <div id="playerFeedbackGain" class="text-sm sm:text-lg font-tech font-black text-amber-300">
+                +100 m • +100 Điểm
+            </div>
+
+            <!-- Thẻ vị trí -->
+            <div class="w-full py-3 px-5 rounded-2xl bg-slate-900 border-2 border-slate-800 flex items-center justify-between shadow-md my-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-cyan-500/25 text-cyan-400 flex items-center justify-center font-anime-title font-black text-xl border-2 border-cyan-400">
+                        🎈
+                    </div>
+                    <div class="text-left">
+                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider font-manga">TÌNH TRẠNG KHÍ CẦU</span>
+                        <span class="text-xs sm:text-sm font-anime-title font-black text-cyan-300" id="playerRankStatusText">Đang nâng độ cao an toàn</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="playerMyRankNum" class="text-2xl font-tech font-black text-amber-400">#--</span>
+                    <span id="playerTotalPlayersBadge" class="text-xs text-slate-400 font-bold block">/ -- đội</span>
+                </div>
+            </div>
+
+            <div class="w-full p-3 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs sm:text-sm text-slate-300 font-bold" id="playerFeedbackSubHint">
+                Quan sát màn hình máy chiếu để theo dõi giải thích định luật Charles!
+            </div>
+        </section>
+
+        <!-- 5. Player Leaderboard Screen -->
+        <section id="playerLeaderboardScreen" class="w-full max-w-lg mx-auto anime-hud-card p-6 rounded-[2.5rem] my-auto hidden shadow-2xl flex flex-col gap-3.5">
+            <div class="text-center border-b-2 border-slate-800 pb-3">
+                <span class="text-xs sm:text-sm font-tech text-cyan-400 font-extrabold uppercase">BẢNG TỔNG SẮP GUILD</span>
+                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">ĐỘ CAO KHÍ CẦU HIỆN TẠI</h3>
+            </div>
+
+            <div class="flex flex-col gap-2 max-h-[280px] overflow-y-auto" id="playerTopListContainer"></div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900 border-2 border-cyan-400 flex items-center justify-between text-xs sm:text-sm">
+                <span class="font-extrabold text-slate-200">Vị trí của bạn:</span>
+                <span class="font-tech font-black text-amber-400 text-base" id="playerMobileMyRankSummary">#-- (0 m)</span>
+            </div>
+        </section>
+
+        <!-- QR Zoom Modal -->
+        <div id="qrModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+            <div class="bg-slate-900 max-w-md w-full p-7 rounded-3xl text-center border-3 border-cyan-400 relative shadow-2xl flex flex-col items-center gap-3.5">
+                <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-14 h-14 rounded-2xl bg-cyan-500/25 text-cyan-400 flex items-center justify-center text-2xl border-2 border-cyan-400">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">QUÉT MÃ QR KHÍ CẦU</h3>
+                <p class="text-xs sm:text-sm text-slate-300 font-bold">Dùng camera điện thoại để kết nối vào buồng lái Guild</p>
+
+                <div class="p-4 bg-white rounded-3xl border-4 border-cyan-400 shadow-2xl flex items-center justify-center">
+                    <div id="modalQrCodeBox" class="w-[220px] h-[220px] flex items-center justify-center overflow-hidden"></div>
+                </div>
+
+                <div class="flex items-center gap-2.5 text-base">
+                    <span class="text-slate-200 font-black">MÃ PIN:</span>
+                    <span id="modalPinText" class="text-3xl font-tech font-black text-amber-400 px-4 py-1 bg-black rounded-xl border-2 border-cyan-400">----</span>
+                </div>
+                <button onclick="closeQrModal()" class="w-full py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-black text-slate-200 transition font-manga">
+                    ĐÓNG CỬA SỔ
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /* =========================================================================
+           KHO 10 CÂU HỎI VẬT LÍ 12: ĐỊNH LUẬT CHARLES (QUÁ TRÌNH ĐẲNG ÁP)
+           ========================================================================= */
+        const QUESTIONS_DATA = [
+            {
+                id: 1,
+                category: "Chặng 1. Nhận biết định luật",
+                title: "Định luật Charles mô tả mối liên hệ giữa",
+                options: [
+                    "áp suất và thể tích của một lượng khí ở nhiệt độ không đổi.",
+                    "thể tích và nhiệt độ tuyệt đối của một lượng khí ở áp suất không đổi.",
+                    "áp suất và nhiệt độ tuyệt đối của một lượng khí ở thể tích không đổi.",
+                    "áp suất, thể tích và khối lượng của chất khí."
+                ],
+                correct: 1, // B
+                explanation: "Định luật Charles: Trong quá trình đẳng áp của một lượng khí xác định, thể tích tỉ lệ thuận với nhiệt độ tuyệt đối: $\\frac{V}{T} = \\text{hằng số}$ hay $\\frac{V_1}{T_1} = \\frac{V_2}{T_2}$."
+            },
+            {
+                id: 2,
+                category: "Chặng 2. Điều kiện áp dụng",
+                title: "Trong quá trình đẳng áp của một lượng khí xác định, đại lượng nào sau đây không đổi?",
+                options: [
+                    "Thể tích.",
+                    "Nhiệt độ.",
+                    "Áp suất.",
+                    "Khối lượng riêng."
+                ],
+                correct: 2, // C
+                explanation: "Quá trình đẳng áp là quá trình biến đổi trạng thái trong đó áp suất $p$ được giữ không đổi ($p = \\text{hằng số}$). Khi đó, thể tích và nhiệt độ tuyệt đối cùng tăng hoặc cùng giảm."
+            },
+            {
+                id: 3,
+                category: "Chặng 3. Công thức định luật",
+                title: "Công thức nào sau đây biểu diễn đúng định luật Charles?",
+                options: [
+                    "$p_1 V_1 = p_2 V_2$",
+                    "$\\frac{p_1}{T_1} = \\frac{p_2}{T_2}$",
+                    "$\\frac{V_1}{T_1} = \\frac{V_2}{T_2}$",
+                    "$\\frac{p_1 V_1}{T_1} = \\frac{p_2 V_2}{T_2}$"
+                ],
+                correct: 2, // C
+                explanation: "Biểu thức của định luật Charles cho quá trình đẳng áp là: $\\frac{V}{T} = \\text{const} \\implies \\frac{V_1}{T_1} = \\frac{V_2}{T_2}$."
+            },
+            {
+                id: 4,
+                category: "Chặng 4. Đổi nhiệt độ Kelvin",
+                title: "Một lượng khí có nhiệt độ $27^\\circ\\text{C}$. Nhiệt độ này theo thang Kelvin là",
+                options: [
+                    "$246\\text{ K}$",
+                    "$273\\text{ K}$",
+                    "$300\\text{ K}$",
+                    "$310\\text{ K}$"
+                ],
+                correct: 2, // C
+                explanation: "Công thức chuyển đổi giữa thang nhiệt độ Celsius ($t$) và thang nhiệt độ Kelvin ($T$):<br>$T = t + 273 = 27 + 273 = 300\\text{ K}$."
+            },
+            {
+                id: 5,
+                category: "Chặng 5. Tính thể tích khí",
+                title: "Một lượng khí ở áp suất không đổi có thể tích $2,0\\text{ L}$ ở nhiệt độ $300\\text{ K}$. Khi nhiệt độ tăng lên $450\\text{ K}$, thể tích của khí là",
+                options: [
+                    "$1,33\\text{ L}$",
+                    "$2,5\\text{ L}$",
+                    "$3,0\\text{ L}$",
+                    "$4,0\\text{ L}$"
+                ],
+                correct: 2, // C
+                explanation: "Theo định luật Charles: $\\frac{V_1}{T_1} = \\frac{V_2}{T_2} \\implies V_2 = V_1 \\cdot \\frac{T_2}{T_1} = 2,0 \\cdot \\frac{450}{300} = 3,0\\text{ L}$."
+            },
+            {
+                id: 6,
+                category: "Chặng 6. Tính nhiệt độ cuối",
+                title: "Một lượng khí có thể tích $4\\text{ L}$ ở $300\\text{ K}$. Giữ áp suất không đổi, khí giãn nở đến thể tích $6\\text{ L}$. Nhiệt độ cuối của khí là",
+                options: [
+                    "$200\\text{ K}$",
+                    "$350\\text{ K}$",
+                    "$400\\text{ K}$",
+                    "$450\\text{ K}$"
+                ],
+                correct: 3, // D
+                explanation: "Theo định luật Charles: $\\frac{V_1}{T_1} = \\frac{V_2}{T_2} \\implies T_2 = T_1 \\cdot \\frac{V_2}{V_1} = 300 \\cdot \\frac{6}{4} = 450\\text{ K}$."
+            },
+            {
+                id: 7,
+                category: "Chặng 7. Suy luận định tính",
+                title: "Một lượng khí được nung nóng từ $300\\text{ K}$ lên $600\\text{ K}$ trong điều kiện áp suất không đổi. Thể tích của khí sẽ",
+                options: [
+                    "giảm 2 lần.",
+                    "không thay đổi.",
+                    "tăng 1,5 lần.",
+                    "tăng 2 lần."
+                ],
+                correct: 3, // D
+                explanation: "Vì trong quá trình đẳng áp thể tích tỉ lệ thuận với nhiệt độ tuyệt đối ($V \\sim T$), khi nhiệt độ tuyệt đối $T$ tăng gấp đôi ($300\\text{ K} \\to 600\\text{ K}$) thì thể tích $V$ cũng tăng 2 lần."
+            },
+            {
+                id: 8,
+                category: "Chặng 8. Dạng đồ thị đẳng áp",
+                title: "Đồ thị biểu diễn sự phụ thuộc của thể tích $V$ vào nhiệt độ tuyệt đối $T$ của một lượng khí trong quá trình đẳng áp có dạng",
+                options: [
+                    "đường thẳng kéo dài đi qua gốc tọa độ.",
+                    "đường thẳng song song với trục $T$.",
+                    "đường hypebol.",
+                    "đường parabol."
+                ],
+                correct: 0, // A
+                explanation: "Trong hệ tọa độ $(V, T)$, đường đẳng áp là đường thẳng có phần kéo dài đi qua gốc tọa độ $O$ (biểu thị sự tỉ lệ thuận $V = \\text{const} \\cdot T$)."
+            },
+            {
+                id: 9,
+                category: "Chặng 9. Bài toán nhiệt độ Celsius",
+                title: "Một lượng khí có thể tích $3,0\\text{ L}$ ở $27^\\circ\\text{C}$. Giữ áp suất không đổi và tăng nhiệt độ lên $127^\\circ\\text{C}$. Thể tích của khí lúc sau xấp xỉ bằng",
+                options: [
+                    "$3,5\\text{ L}$",
+                    "$4,0\\text{ L}$",
+                    "$4,5\\text{ L}$",
+                    "$6,0\\text{ L}$"
+                ],
+                correct: 1, // B
+                explanation: "Bắt buộc đổi nhiệt độ sang thang Kelvin:<br>$T_1 = 27 + 273 = 300\\text{ K}$; $T_2 = 127 + 273 = 400\\text{ K}$.<br>Áp dụng định luật Charles: $V_2 = V_1 \\cdot \\frac{T_2}{T_1} = 3,0 \\cdot \\frac{400}{300} = 4,0\\text{ L}$."
+            },
+            {
+                id: 10,
+                category: "Chặng 10. Vận dụng thực tế",
+                title: "Một quả bóng bay mềm được đặt trong môi trường nóng hơn. Giả sử áp suất của lượng khí bên trong gần như không đổi và bóng có thể giãn nở tự do. Khi nhiệt độ của khí tăng thì",
+                options: [
+                    "thể tích khí giảm.",
+                    "thể tích khí tăng.",
+                    "thể tích khí không đổi.",
+                    "thể tích khí luôn giảm còn một nửa."
+                ],
+                correct: 1, // B
+                explanation: "Khi nhiệt độ của khí bên trong bóng bay tăng lên trong điều kiện đẳng áp, theo định luật Charles các phân tử khí chuyển động nhanh hơn đẩy màng bóng giãn nở làm thể tích khí tăng."
+            }
+        ];
+
+        /* =========================================================================
+           HỆ THỐNG ÂM THANH ANIME WEB AUDIO API
+           ========================================================================= */
+        let audioCtx = null;
+        let sfxEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioClass) audioCtx = new AudioClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        const Sound = {
+            playTone(freq, type, duration, gainVal = 0.08, delay = 0) {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(gainVal, ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + delay);
+                    osc.stop(ctx.currentTime + delay + duration);
+                } catch(e) {}
+            },
+            tap() { this.playTone(720, 'sine', 0.05, 0.05); },
+            correct() {
+                // Hợp âm thăng hoa Anime Fanfare
+                [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => {
+                    this.playTone(f, 'triangle', 0.2, 0.1, i * 0.06);
+                });
+            },
+            warningAlarm() {
+                // Còi báo động Manga Red Alert
+                if (!sfxEnabled) return;
+                this.playTone(493.88, 'sawtooth', 0.15, 0.13, 0);
+                this.playTone(659.25, 'sawtooth', 0.15, 0.13, 0.14);
+                this.playTone(493.88, 'sawtooth', 0.15, 0.13, 0.28);
+                this.playTone(659.25, 'sawtooth', 0.22, 0.15, 0.42);
+            },
+            spikePierce() {
+                // Âm thanh chông đá đâm thủng rách bóng và xì hơi
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    this.playTone(950, 'sawtooth', 0.1, 0.26, 0);
+                    this.playTone(320, 'triangle', 0.25, 0.2, 0.05);
+
+                    const bufferSize = ctx.sampleRate * 0.45;
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.18));
+                    }
+                    const noise = ctx.createBufferSource();
+                    noise.buffer = buffer;
+                    const gain = ctx.createGain();
+                    gain.gain.setValueAtTime(0.32, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                    noise.connect(gain);
+                    gain.connect(ctx.destination);
+                    noise.start(ctx.currentTime + 0.04);
+                } catch(e) {}
+            },
+            balloonPop() {
+                // Anime Starburst Boom
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    const bufferSize = ctx.sampleRate * 0.3;
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+                    const noise = ctx.createBufferSource();
+                    noise.buffer = buffer;
+                    const gain = ctx.createGain();
+                    gain.gain.setValueAtTime(0.38, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                    noise.connect(gain);
+                    gain.connect(ctx.destination);
+                    noise.start();
+
+                    this.playTone(85, 'sawtooth', 0.35, 0.3);
+                } catch(e) {}
+            },
+            timerTick() { this.playTone(1050, 'sine', 0.03, 0.03); },
+            burnerWhoosh() {
+                this.playTone(380, 'sine', 0.35, 0.1, 0);
+                this.playTone(460, 'triangle', 0.28, 0.08, 0.08);
+            }
+        };
+
+        function toggleAudio() {
+            sfxEnabled = !sfxEnabled;
+            const icon = document.getElementById('sfxIcon');
+            if (icon) {
+                icon.className = sfxEnabled ? "fa-solid fa-volume-high text-cyan-400 text-lg" : "fa-solid fa-volume-xmark text-slate-500 text-lg";
+            }
+        }
+
+        function showToast(msg, isPositive = true) {
+            const toast = document.getElementById('toastBox');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-3 rounded-2xl text-xs sm:text-sm font-black shadow-2xl transition-all duration-300 opacity-100 ${
+                isPositive ? 'bg-cyan-950/95 text-cyan-300 border-cyan-400' : 'bg-rose-950/95 text-rose-300 border-rose-500'
+            }`;
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2400);
+        }
+
+        function refreshMathRender() {
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+        }
+
+        /* =========================================================================
+           KÊNH TRUYỀN DỮ LIỆU ĐỒNG BỘ: MÁY CHIẾU & ĐIỆN THOẠI HỌC SINH
+           ========================================================================= */
+        const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
+        let mqttClient = null;
+        let roomPin = "";
+        let isHost = false;
+        let myPlayerId = "";
+        let myPlayerName = "";
+        let myPlayerClass = "";
+        let currentQuestionIndex = 0;
+        let hostTimer = null;
+        let playerTimer = null;
+        let gameStarted = false;
+        let acceptingAnswers = false;
+        const players = {};
+        let clientBoard = [];
+
+        const NetBus = {
+            hostChannel: null,
+            playerChannel: null,
+            hostHandler: null,
+            playerHandler: null,
+            init(pin, onHostMessage, onPlayerMessage) {
+                this.close();
+                const hostName = `anime_balloon_${pin}_host`;
+                const playerName = `anime_balloon_${pin}_player`;
+                this.hostHandler = onHostMessage;
+                this.playerHandler = onPlayerMessage;
+                try {
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        if (onHostMessage) {
+                            this.hostChannel = new BroadcastChannel(hostName);
+                            this.hostChannel.onmessage = e => e.data && onHostMessage(e.data);
+                        }
+                        if (onPlayerMessage) {
+                            this.playerChannel = new BroadcastChannel(playerName);
+                            this.playerChannel.onmessage = e => e.data && onPlayerMessage(e.data);
+                        }
+                    }
+                } catch (e) {}
+                this.hostName = hostName;
+                this.playerName = playerName;
+            },
+            publishToHost(pin, data) {
+                const key = `anime_balloon_${pin}_host`;
+                try { if (this.hostChannel) this.hostChannel.postMessage(data); } catch (e) {}
+                try { localStorage.setItem(key, JSON.stringify({...data, _ts:Date.now()})); } catch (e) {}
+            },
+            publishToPlayers(pin, data) {
+                const key = `anime_balloon_${pin}_player`;
+                try { if (this.playerChannel) this.playerChannel.postMessage(data); } catch (e) {}
+                try { localStorage.setItem(key, JSON.stringify({...data, _ts:Date.now()})); } catch (e) {}
+            },
+            close() {
+                try { this.hostChannel?.close(); } catch (e) {}
+                try { this.playerChannel?.close(); } catch (e) {}
+                this.hostChannel = null;
+                this.playerChannel = null;
+            }
+        };
+
+        let storageBound = false;
+        function bindStorageEvents() {
+            if (storageBound) return;
+            storageBound = true;
+            window.addEventListener('storage', e => {
+                try {
+                    if (NetBus.hostHandler && e.key === NetBus.hostName && e.newValue) NetBus.hostHandler(JSON.parse(e.newValue));
+                    if (NetBus.playerHandler && e.key === NetBus.playerName && e.newValue) NetBus.playerHandler(JSON.parse(e.newValue));
+                } catch (err) {}
+            });
+        }
+
+        function connectMqtt(pin, role, handler) {
+            if (typeof mqtt === 'undefined') return;
+            try {
+                try { mqttClient?.end(true); } catch (e) {}
+                mqttClient = mqtt.connect(MQTT_BROKER_URL, {
+                    clean:true,
+                    reconnectPeriod:3000,
+                    connectTimeout:8000,
+                    clientId:`skyvoyage_${role}_${pin}_${Math.random().toString(16).slice(2)}`
+                });
+                const topic = `anime_balloon/${pin}/${role === 'host' ? 'toHost' : 'toPlayers'}`;
+                mqttClient.on('connect', () => mqttClient.subscribe(topic, {qos:0}));
+                mqttClient.on('message', (_, payload) => {
+                    try { handler(JSON.parse(payload.toString())); } catch (e) {}
+                });
+            } catch (e) {}
+        }
+        function mqttSend(pin, target, data) {
+            try { mqttClient?.publish(`anime_balloon/${pin}/${target}`, JSON.stringify(data), {qos:0}); } catch (e) {}
+        }
+
+        function uid(prefix='p') { return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`; }
+        function cleanText(s, max=40) { return String(s ?? '').replace(/[<>]/g,'').trim().slice(0,max); }
+        function esc(s) { return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function randomPin() { return String(Math.floor(100000 + Math.random()*900000)); }
+
+        function broadcastPlayers(data) {
+            const payload = {...data};
+            NetBus.publishToPlayers(roomPin,payload);
+            mqttSend(roomPin,'toPlayers',payload);
+        }
+        function sendToPlayer(playerId, data) {
+            const payload = {...data,targetId:playerId};
+            broadcastPlayers(payload);
+        }
+
+        function initHostMode() {
+            isHost = true;
+            roomPin = randomPin();
+            Object.keys(players).forEach(k=>delete players[k]);
+            currentQuestionIndex = 0;
+            gameStarted = false;
+            acceptingAnswers = false;
+            hideAllScreens();
+            $('hostLobbyScreen').classList.remove('hidden');
+            $('hostPinDisplay').textContent = roomPin;
+            $('modalPinText').textContent = roomPin;
+            NetBus.init(roomPin, handleHostMessage, null);
+            bindStorageEvents();
+            connectMqtt(roomPin,'host',handleHostMessage);
+            createQrCodes();
+            updateHostLobby();
+            startBalloonSimulation();
+            showToast(`Đã tạo phòng ${roomPin}.`, true);
+        }
+
+        function initPlayerMode() {
+            isHost = false;
+            hideAllScreens();
+            $('playerJoinScreen').classList.remove('hidden');
+            const q = new URLSearchParams(location.search).get('pin');
+            if (q) $('playerPinInput').value = q.replace(/\D/g,'').slice(0,6);
+        }
+
+        function createQrCodes() {
+            if (typeof QRCode === 'undefined') return;
+            const url = `${location.origin}${location.pathname}?pin=${encodeURIComponent(roomPin)}`;
+            [['hostQrCodeBox',140],['modalQrCodeBox',220]].forEach(([id,size])=>{
+                const box=$(id); if(!box) return;
+                box.innerHTML='';
+                try { new QRCode(box,{text:url,width:size,height:size,correctLevel:QRCode.CorrectLevel.M}); } catch(e) {}
+            });
+        }
+        function openQrModal(){ $('qrModal').classList.remove('hidden'); createQrCodes(); }
+        function closeQrModal(){ $('qrModal').classList.add('hidden'); }
+        async function copyJoinLink(){
+            const url=`${location.origin}${location.pathname}?pin=${encodeURIComponent(roomPin)}`;
+            try { await navigator.clipboard.writeText(url); showToast('Đã sao chép liên kết vào phòng.',true); }
+            catch(e){ showToast(url,true); }
+        }
+
+        function playerJoinRoom() {
+            const pin=($('playerPinInput').value||'').replace(/\D/g,'').slice(0,6);
+            const name=cleanText($('playerNameInput').value,25);
+            const className=cleanText($('playerClassInput').value,10)||'—';
+            if(pin.length<4){showToast('PIN không hợp lệ.',false);return;}
+            if(!name){showToast('Hãy nhập tên phi đội.',false);return;}
+            roomPin=pin; myPlayerId=uid('player'); myPlayerName=name; myPlayerClass=className;
+            $('playerMyNameDisplay').textContent=name;
+            $('playerNavName').textContent=name;
+            $('btnPlayerJoinSubmit').disabled=true;
+            $('playerConnectStatusMsg').classList.remove('hidden');
+            NetBus.init(roomPin,null,handlePlayerMessage); bindStorageEvents(); connectMqtt(roomPin,'player',handlePlayerMessage);
+            const join={type:'join',player:{id:myPlayerId,name,className}};
+            NetBus.publishToHost(roomPin,join); mqttSend(roomPin,'toHost',join);
+            hideAllScreens(); $('playerLobbyScreen').classList.remove('hidden');
+        }
+
+        function handleHostMessage(msg){
+            if(!msg||typeof msg!=='object') return;
+            if(msg.type==='join'){
+                const p=msg.player; if(!p?.id) return;
+                if(!players[p.id]) players[p.id]={id:p.id,name:cleanText(p.name,25),className:cleanText(p.className,10)||'—',score:0,correct:0,altitude:0,fails:0,answered:false,currentAnswer:null,isBot:false};
+                updateHostLobby();
+                sendToPlayer(p.id,{type:'state',player:players[p.id]});
+                if(gameStarted && acceptingAnswers) sendQuestionToPlayer(p.id);
+            } else if(msg.type==='answer') processPlayerAnswer(msg);
+        }
+
+        function handlePlayerMessage(msg){
+            if(!msg||typeof msg!=='object') return;
+            if(msg.targetId && msg.targetId!==myPlayerId) return;
+            if(msg.type==='state'){
+                $('playerAltHUD').textContent=`${msg.player.altitude} m`;
+                return;
+            }
+            if(msg.type==='lobby') { hideAllScreens(); $('playerLobbyScreen').classList.remove('hidden'); return; }
+            if(msg.type==='question') showPlayerQuestion(msg);
+            if(msg.type==='feedback') showPlayerFeedback(msg);
+            if(msg.type==='leaderboard') showPlayerLeaderboard(msg);
+            if(msg.type==='final') showPlayerLeaderboard(msg);
+        }
+
+        function updateHostLobby(){
+            const arr=Object.values(players);
+            $('hostPlayerCountNum').textContent=String(arr.length);
+            $('hostStartBtn').disabled=arr.length===0;
+            $('emptyPlayerMsg').classList.toggle('hidden',arr.length>0);
+            $('hostPlayerListContainer').innerHTML=arr.map(p=>`<div class="px-3 py-2 rounded-xl bg-slate-900 border-2 border-cyan-400 text-xs font-black text-white flex items-center gap-2"><span>🎈</span><span>${esc(p.name)}</span><span class="text-slate-500">${esc(p.className)}</span></div>`).join('');
+        }
+        function addDemoBots(count=4){
+            for(let i=0;i<count;i++){
+                const id=uid('bot');
+                players[id]={id,name:`Phi đội Mẫu ${Object.keys(players).length+1}`,className:`12A${i%4+1}`,score:0,correct:0,altitude:0,fails:0,answered:false,currentAnswer:null,isBot:true};
+            }
+            updateHostLobby();
+        }
+        function clearDemoBots(){ Object.keys(players).forEach(k=>{if(players[k].isBot)delete players[k]}); updateHostLobby(); }
+
+        function hostStartGame(){
+            if(!isHost || Object.keys(players).length===0)return;
+            Object.values(players).forEach(p=>{p.score=0;p.correct=0;p.altitude=0;p.fails=0;});
+            currentQuestionIndex=0; gameStarted=true; hideAllScreens(); $('hostQuestionScreen').classList.remove('hidden'); loadQuestion();
+        }
+
+        function loadQuestion(){
+            clearInterval(hostTimer); acceptingAnswers=true;
+            const q=QUESTIONS_DATA[currentQuestionIndex];
+            Object.values(players).forEach(p=>{p.answered=false;p.currentAnswer=null;});
+            $('hostQCounterBadge').textContent=`CHẶNG ${currentQuestionIndex+1} / ${QUESTIONS_DATA.length}`;
+            $('hostQCategory').textContent=q.category;
+            $('hostQuestionTitle').innerHTML=q.title;
+            q.options.forEach((o,i)=>{ $(`hostOptText${i}`).innerHTML=o; $(`hostOptBadge${i}`).classList.add('hidden'); });
+            $('hostAnsweredCount').textContent='0'; $('hostTotalPlayersCount').textContent=String(Object.keys(players).length);
+            $('hostExplanationArea').classList.add('hidden');
+            refreshMathRender();
+            const payload={type:'question',questionIndex:currentQuestionIndex,title:q.title,category:q.category,options:q.options,time:30};
+            broadcastPlayers(payload); Object.keys(players).filter(id=>players[id].isBot).forEach(scheduleBotAnswer);
+            let sec=30; $('hostTimerText').textContent='30';
+            hostTimer=setInterval(()=>{sec--; $('hostTimerText').textContent=String(Math.max(sec,0)); if(sec<=5&&sec>0)Sound.timerTick(); if(sec<=0){clearInterval(hostTimer); finishQuestion();}},1000);
+        }
+        function sendQuestionToPlayer(id){
+            const q=QUESTIONS_DATA[currentQuestionIndex]; sendToPlayer(id,{type:'question',questionIndex:currentQuestionIndex,title:q.title,category:q.category,options:q.options,time:30});
+        }
+        function scheduleBotAnswer(id){
+            const delay=800+Math.random()*7000;
+            setTimeout(()=>{
+                if(!gameStarted||!acceptingAnswers||!players[id]||players[id].answered)return;
+                const q=QUESTIONS_DATA[currentQuestionIndex];
+                const ans=Math.random()<0.75?q.correct:Math.floor(Math.random()*4);
+                processPlayerAnswer({type:'answer',playerId:id,answer:ans,submittedAt:Date.now()});
+            },delay);
+        }
+        function processPlayerAnswer(msg){
+            if(!gameStarted||!acceptingAnswers)return;
+            const p=players[msg.playerId]; if(!p||p.answered)return;
+            const a=Number(msg.answer); if(!Number.isInteger(a)||a<0||a>3)return;
+            const q=QUESTIONS_DATA[currentQuestionIndex]; p.answered=true; p.currentAnswer=a;
+            if(a===q.correct){p.correct++;p.score+=100;p.altitude+=100;} else {p.fails++;p.score=Math.max(0,p.score-25);p.altitude=Math.max(0,p.altitude-25);}
+            updateHostCounters(); updateSquadGrid();
+            if(Object.values(players).every(p=>p.answered))finishQuestion();
+        }
+        function finishQuestion(){
+            if(!gameStarted)return; acceptingAnswers=false; clearInterval(hostTimer);
+            const q=QUESTIONS_DATA[currentQuestionIndex];
+            Object.values(players).forEach(p=>{if(!p.answered){p.answered=true;p.fails++;p.score=Math.max(0,p.score-10);p.altitude=Math.max(0,p.altitude-25);}});
+            for(let i=0;i<4;i++)$(`hostOptBadge${i}`).classList.toggle('hidden',i!==q.correct);
+            const ranked=rankPlayers();
+            $('hostExplanationText').innerHTML=q.explanation; $('hostExplanationArea').classList.remove('hidden');
+            $('hostLeaderboardRoundTitle').textContent=`TOP PHI ĐỘI DẪN ĐẦU (CHẶNG ${currentQuestionIndex+1})`;
+            $('hostLeaderboardNextBtnText').textContent=currentQuestionIndex<QUESTIONS_DATA.length-1?'SANG CHẶNG TIẾP THEO':'XEM KẾT QUẢ CUỐI';
+            renderLeaderboard(ranked); updatePodium(ranked); updateSquadGrid();
+            const results=Object.values(players).map(p=>({id:p.id,correct:p.currentAnswer===q.correct,altitude:p.altitude,score:p.score,rank:ranked.findIndex(x=>x.id===p.id)+1,total:ranked.length,gain:p.currentAnswer===q.correct?100:-25}));
+            broadcastPlayers({type:'feedback',results});
+            broadcastPlayers({type:'leaderboard',players:ranked.map((p,i)=>({id:p.id,rank:i+1,name:p.name,altitude:p.altitude,score:p.score,correct:p.correct}))});
+        }
+        function hostContinueToNextQuestion(){
+            if(currentQuestionIndex>=QUESTIONS_DATA.length-1){finishGame();return;}
+            currentQuestionIndex++; hideAllScreens(); $('hostQuestionScreen').classList.remove('hidden'); loadQuestion();
+        }
+        function hostShowLeaderboardScreen(){ hideAllScreens(); $('hostLeaderboardScreen').classList.remove('hidden'); }
+
+        function rankPlayers(){ return Object.values(players).sort((a,b)=>b.score-a.score||b.altitude-a.altitude||b.correct-a.correct||a.name.localeCompare(b.name,'vi')); }
+        function renderLeaderboard(ranked){
+            $('hostTopTableBody').innerHTML=ranked.map((p,i)=>`<tr><td class="p-3">#${i+1}</td><td class="p-3">${esc(p.name)}</td><td class="p-3">${esc(p.className)}</td><td class="p-3 text-center">${p.fails?'⚠️':'🎈'}</td><td class="p-3 text-center">${p.correct}</td><td class="p-3 text-right font-tech">${p.altitude} m</td></tr>`).join('');
+        }
+        function updatePodium(r){ for(let i=1;i<=3;i++){const p=r[i-1];$(`podiumName${i}`).textContent=p?p.name:'--';$(`podiumAlt${i}`).textContent=p?`${p.altitude} m`:'0 m';} }
+        function updateHostCounters(){const a=Object.values(players);$('hostAnsweredCount').textContent=String(a.filter(p=>p.answered).length);$('hostTotalPlayersCount').textContent=String(a.length);}
+        function updateSquadGrid(){const r=rankPlayers();$('hostLiveSquadGrid').innerHTML=r.map((p,i)=>`<div class="p-2 rounded-xl bg-slate-900 border ${p.fails?'border-rose-500':'border-slate-800'} text-xs"><div class="font-black truncate">#${i+1} ${esc(p.name)}</div><div class="text-cyan-300 font-tech">${p.altitude} m</div><div class="text-slate-400">${p.correct} đúng</div></div>`).join('');}
+
+        function showPlayerQuestion(msg){
+            hideAllScreens(); $('playerGamepadScreen').classList.remove('hidden');
+            $('playerQCounter').textContent=`CHẶNG ${msg.questionIndex+1} / ${QUESTIONS_DATA.length}`;
+            $('playerQuestionTitle').innerHTML=msg.title;
+            msg.options.forEach((o,i)=>{ $(`playerOptText${i}`).innerHTML=o; $(`playerBtn${i}`).disabled=false; });
+            $('playerSubmittedOverlay').classList.add('hidden'); let sec=Number(msg.time)||30; $('playerTimerText').textContent=`${sec}s`;
+            clearInterval(playerTimer); playerTimer=setInterval(()=>{sec--; $('playerTimerText').textContent=`${Math.max(sec,0)}s`; if(sec<=0){clearInterval(playerTimer);document.querySelectorAll('#playerMcqContainer button').forEach(b=>b.disabled=true);}},1000);
+            refreshMathRender();
+        }
+        function playerSubmitAnswer(i){
+            if(!gameStarted && $('playerGamepadScreen').classList.contains('hidden')) return;
+            Sound.tap(); const msg={type:'answer',playerId:myPlayerId,answer:i,submittedAt:Date.now()};
+            NetBus.publishToHost(roomPin,msg); mqttSend(roomPin,'toHost',msg); clearInterval(playerTimer);
+            document.querySelectorAll('#playerMcqContainer button').forEach(b=>b.disabled=true); $('playerSubmittedOverlay').classList.remove('hidden');
+        }
+        function showPlayerFeedback(msg){
+            const r=(msg.results||[]).find(x=>x.id===myPlayerId); if(!r)return;
+            hideAllScreens(); $('playerFeedbackScreen').classList.remove('hidden');
+            $('playerFeedbackIcon').textContent=r.correct?'🎈✨':'⚠️';
+            $('playerFeedbackTitle').textContent=r.correct?'VƯỢT HẺM NÚI AN TOÀN!':'BÁO ĐỘNG CẤP 1!';
+            $('playerFeedbackGain').textContent=`${r.correct?'+100 m':'-25 m'} • ${r.correct?'+100':'-25'} Điểm`;
+            $('playerMyRankNum').textContent=`#${r.rank}`; $('playerTotalPlayersBadge').textContent=`/ ${r.total} đội`;
+            $('playerRankStatusText').textContent=`${r.altitude} m`;
+            $('playerAltHUD').textContent=`${r.altitude} m`;
+        }
+        function showPlayerLeaderboard(msg){
+            clientBoard=msg.players||[]; hideAllScreens(); $('playerLeaderboardScreen').classList.remove('hidden');
+            $('playerTopListContainer').innerHTML=clientBoard.slice(0,20).map(p=>`<div class="p-3 rounded-xl bg-slate-900 border-2 ${p.id===myPlayerId?'border-amber-400':'border-slate-800'} flex items-center justify-between"><span>#${p.rank} ${esc(p.name)}</span><span class="font-tech text-cyan-300">${p.altitude} m</span></div>`).join('');
+            const me=clientBoard.find(p=>p.id===myPlayerId); $('playerMobileMyRankSummary').textContent=me?`#${me.rank} (${me.altitude} m)`:'#--';
+        }
+
+        function finishGame(){
+            gameStarted=false; acceptingAnswers=false; clearInterval(hostTimer); clearInterval(playerTimer);
+            const ranked=rankPlayers(); hideAllScreens(); $('hostFinalScreen').classList.remove('hidden');
+            const champion=ranked[0]; $('hostFinalChampionAnnounce').textContent=champion?`🏆 ${champion.name} dẫn đầu với ${champion.score} điểm và đạt ${champion.altitude} m!`:'Chuyến thám hiểm hoàn tất.';
+            $('hostFinalStatsTbody').innerHTML=ranked.map((p,i)=>`<tr><td class="p-3">#${i+1}</td><td class="p-3">${esc(p.name)}</td><td class="p-3">${esc(p.className)}</td><td class="p-3 text-center">${p.altitude} m</td><td class="p-3 text-center">${p.correct}</td><td class="p-3 text-center">${p.fails}</td><td class="p-3 text-right font-tech">${p.score}</td></tr>`).join('');
+            broadcastPlayers({type:'final',players:ranked.map((p,i)=>({id:p.id,rank:i+1,name:p.name,altitude:p.altitude,score:p.score,correct:p.correct}))});
+        }
+
+        function exportQuizExcel(){
+            if(typeof XLSX==='undefined'){showToast('Thư viện Excel chưa tải xong.',false);return;}
+            const rows=rankPlayers().map((p,i)=>({Hạng:i+1,'Tên đội':p.name,'Lớp':p.className,'Độ cao (m)':p.altitude,'Số câu đúng':p.correct,'Số lần nổ/chông':p.fails,'Tổng điểm':p.score}));
+            const ws=XLSX.utils.json_to_sheet(rows), wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'KetQua'); XLSX.writeFile(wb,`Sky_Voyage_${roomPin||'ketqua'}.xlsx`);
+        }
+
+        let simId=null;
+        function startBalloonSimulation(){
+            const c=$('balloonSimCanvas'); if(!c)return; const ctx=c.getContext('2d');
+            function resize(){const d=window.devicePixelRatio||1,r=c.getBoundingClientRect();c.width=Math.max(1,r.width*d);c.height=Math.max(1,r.height*d);ctx.setTransform(d,0,0,d,0,0);} resize(); window.addEventListener('resize',resize);
+            cancelAnimationFrame(simId);
+            function loop(t){
+                const w=c.clientWidth,h=c.clientHeight; ctx.clearRect(0,0,w,h);
+                const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#07142d');g.addColorStop(1,'#221530');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+                ctx.fillStyle='rgba(255,255,255,.7)';for(let i=0;i<30;i++){ctx.fillRect((i*91+t*.02)%Math.max(w,1),(i*43)%Math.max(h,1),1.5,1.5);}
+                ctx.fillStyle='#0b1022';ctx.beginPath();ctx.moveTo(0,h*.8);for(let x=0;x<=w;x+=30)ctx.lineTo(x,h*.8-Math.abs(Math.sin(x*.045))*55);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.fill();
+                ctx.strokeStyle='#f59e0b';ctx.lineWidth=3;for(let x=5;x<w;x+=38){ctx.beginPath();ctx.moveTo(x,h-2);ctx.lineTo(x+10,h-30-(x%13));ctx.lineTo(x+20,h-2);ctx.stroke();}
+                const alt=Object.values(players).length?Object.values(players).reduce((s,p)=>s+p.altitude,0)/Object.values(players).length:0;
+                const bx=w*.5,by=h*.45-alt*.05+Math.sin(t*.0013)*4,rx=55+Math.min(alt*.01,20),ry=70+Math.min(alt*.012,22);
+                const bg=ctx.createRadialGradient(bx-rx*.3,by-ry*.3,8,bx,by,ry);bg.addColorStop(0,'#ffe7a1');bg.addColorStop(.55,'#fb7185');bg.addColorStop(1,'#f97316');ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(bx,by,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
+                ctx.strokeStyle='#fff';ctx.lineWidth=2;[-20,0,20].forEach(dx=>{ctx.beginPath();ctx.moveTo(bx+dx*.5,by+ry);ctx.lineTo(bx+dx*.45,by+ry+35);ctx.stroke();});ctx.fillStyle='#854d0e';ctx.fillRect(bx-22,by+ry+32,44,15);
+                $('balloonLiveTelemetry').textContent=`V = ${(3+alt*.004).toFixed(1)}L • T = ${Math.round(300+currentQuestionIndex*12)}K`;
+                $('hostAvgAltText').textContent=`${Math.round(alt)} m`;
+                simId=requestAnimationFrame(loop);
+            } loop(0);
+        }
+
+        window.initHostMode=initHostMode;
+        window.initPlayerMode=initPlayerMode;
+        window.playerJoinRoom=playerJoinRoom;
+        window.playerSubmitAnswer=playerSubmitAnswer;
+        window.hostStartGame=hostStartGame;
+        window.hostContinueToNextQuestion=hostContinueToNextQuestion;
+        window.hostShowLeaderboardScreen=hostShowLeaderboardScreen;
+        window.addDemoBots=addDemoBots;
+        window.clearDemoBots=clearDemoBots;
+        window.openQrModal=openQrModal;
+        window.closeQrModal=closeQrModal;
+        window.copyJoinLink=copyJoinLink;
+        window.exportQuizExcel=exportQuizExcel;
+
+        document.addEventListener('DOMContentLoaded',()=>{
+            hideAllScreens(); $('roleSelectScreen').classList.remove('hidden'); bindStorageEvents();
+            const pin=new URLSearchParams(location.search).get('pin'); if(pin)$('playerPinInput').value=pin.replace(/\D/g,'').slice(0,6);
+            startBalloonSimulation();
+        });
+    </script>
+</body>
+</html>
