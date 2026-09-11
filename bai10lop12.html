@@ -13,7 +13,7 @@
         window.addEventListener('error', function(e) {
             if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
                 e.preventDefault();
-                console.warn("[AnimeAirshipBus] Kích hoạt kênh an toàn BroadcastChannel / LocalStorage.");
+                console.warn("[AnimeAirshipBus] Đã xử lý ngoại lệ kết nối an toàn.");
                 return true;
             }
         });
@@ -54,12 +54,10 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Đồng bộ hiển thị phông chữ tiếng Việt cho tiêu đề & huy hiệu anime */
         .font-tech { font-family: 'Orbitron', 'Chakra Petch', monospace, sans-serif; }
         .font-anime-title { font-family: 'Kanit', 'Chakra Petch', 'Nunito', sans-serif; }
         .font-manga { font-family: 'Chakra Petch', 'Nunito', sans-serif; }
 
-        /* Khắc phục lỗi hiển thị dấu tiếng Việt trong công thức KaTeX */
         .katex { font-size: 1.05em; }
         .katex .text { font-family: 'Nunito', sans-serif !important; }
 
@@ -769,7 +767,7 @@
 
     <script>
         /* =========================================================================
-           HỆ THỐNG CÂU HỎI VẬT LÍ 12 CHUẨN TIẾNG VIỆT: ĐỊNH LUẬT CHARLES
+           HỆ THỐNG CÂU HỎI VẬT LÍ 12: ĐỊNH LUẬT CHARLES
            ========================================================================= */
         const QUESTIONS_DATA = [
             {
@@ -1011,11 +1009,12 @@
         }
 
         /* =========================================================================
-           KÊNH TRUYỀN DỮ LIỆU ĐỒNG BỘ ĐA MÁY CHỦ: MÁY CHIẾU & ĐIỆN THOẠI
+           HỆ THỐNG TRUYỀN DỮ LIỆU ĐỒNG BỘ: DÙNG ĐƯỢC CẢ TRÊN MẠNG INTERNET VÀ NỘI BỘ
            ========================================================================= */
         const MQTT_BROKERS = [
+            "wss://broker.emqx.io:8084/mqtt",
             "wss://broker.hivemq.com:8884/mqtt",
-            "wss://broker.emqx.io:8084/mqtt"
+            "wss://test.mosquitto.org:8081/mqtt"
         ];
         let mqttClient = null;
         let roomPin = "";
@@ -1025,20 +1024,34 @@
             let currentIdx = 0;
             let client = null;
             let isConnected = false;
+            let timeoutTimer = null;
 
             function connect() {
+                if (client) {
+                    try { client.end(true); } catch(e) {}
+                }
                 const url = MQTT_BROKERS[currentIdx];
+
                 try {
                     client = mqtt.connect(url, {
                         clientId: clientId,
                         clean: true,
                         reconnectPeriod: 2500,
-                        connectTimeout: 7000,
+                        connectTimeout: 5000,
                         keepalive: 30
                     });
 
+                    if (timeoutTimer) clearTimeout(timeoutTimer);
+                    timeoutTimer = setTimeout(() => {
+                        if (!isConnected && currentIdx < MQTT_BROKERS.length - 1) {
+                            currentIdx++;
+                            connect();
+                        }
+                    }, 5500);
+
                     client.on('connect', () => {
                         isConnected = true;
+                        if (timeoutTimer) clearTimeout(timeoutTimer);
                         if (onConnect) onConnect(client);
                     });
 
@@ -1048,15 +1061,15 @@
 
                     client.on('error', () => {
                         if (!isConnected && currentIdx < MQTT_BROKERS.length - 1) {
-                            try { client.end(true); } catch(e) {}
+                            if (timeoutTimer) clearTimeout(timeoutTimer);
                             currentIdx++;
-                            setTimeout(connect, 600);
+                            setTimeout(connect, 400);
                         }
                     });
                 } catch(e) {
                     if (currentIdx < MQTT_BROKERS.length - 1) {
                         currentIdx++;
-                        setTimeout(connect, 600);
+                        setTimeout(connect, 400);
                     }
                 }
             }
@@ -1065,55 +1078,44 @@
             return () => client;
         }
 
+        // NetBus hợp nhất: Đồng bộ hoàn hảo tức thời 0ms giữa các Tab / Trình duyệt cùng thiết bị
         const NetBus = {
-            hostChannel: null,
-            playerChannel: null,
-            init(pin, onHostMessage, onPlayerMessage) {
-                const hostChName = `anime_balloon_${pin}_host`;
-                const playerChName = `anime_balloon_${pin}_player`;
-
-                try {
-                    if (typeof BroadcastChannel !== 'undefined') {
-                        if (onHostMessage) {
-                            this.hostChannel = new BroadcastChannel(hostChName);
-                            this.hostChannel.onmessage = (e) => { if (e.data) onHostMessage(e.data); };
+            bc: null,
+            init(pin, onMessage) {
+                const chName = `sky_voyage_bus_${pin}`;
+                if (typeof BroadcastChannel !== 'undefined') {
+                    try {
+                        if (this.bc) {
+                            try { this.bc.close(); } catch(e) {}
                         }
-                        if (onPlayerMessage) {
-                            this.playerChannel = new BroadcastChannel(playerChName);
-                            this.playerChannel.onmessage = (e) => { if (e.data) onPlayerMessage(e.data); };
-                        }
-                    }
-                } catch(e) {}
+                        this.bc = new BroadcastChannel(chName);
+                        this.bc.onmessage = (e) => {
+                            if (e.data && onMessage) onMessage(e.data);
+                        };
+                    } catch(e) {}
+                }
 
                 window.addEventListener('storage', (e) => {
                     try {
-                        if (onHostMessage && e.key === hostChName && e.newValue && e.newValue.trim().length > 0) {
-                            onHostMessage(JSON.parse(e.newValue));
-                        }
-                        if (onPlayerMessage && e.key === playerChName && e.newValue && e.newValue.trim().length > 0) {
-                            onPlayerMessage(JSON.parse(e.newValue));
+                        if (e.key === chName && e.newValue) {
+                            const parsed = JSON.parse(e.newValue);
+                            if (parsed && parsed.payload && onMessage) {
+                                onMessage(parsed.payload);
+                            }
                         }
                     } catch(err) {}
                 });
             },
-            publishToHost(pin, data) {
-                const hostChName = `anime_balloon_${pin}_host`;
-                if (this.hostChannel) {
-                    try { this.hostChannel.postMessage(data); } catch(e) {}
+            publish(pin, payload) {
+                const chName = `sky_voyage_bus_${pin}`;
+                if (this.bc) {
+                    try { this.bc.postMessage(payload); } catch(e) {}
                 }
                 try {
-                    localStorage.setItem(hostChName, JSON.stringify(data));
-                    setTimeout(() => { try { localStorage.removeItem(hostChName); } catch(e){} }, 40);
-                } catch(e) {}
-            },
-            publishToPlayer(pin, data) {
-                const playerChName = `anime_balloon_${pin}_player`;
-                if (this.playerChannel) {
-                    try { this.playerChannel.postMessage(data); } catch(e) {}
-                }
-                try {
-                    localStorage.setItem(playerChName, JSON.stringify(data));
-                    setTimeout(() => { try { localStorage.removeItem(playerChName); } catch(e){} }, 40);
+                    localStorage.setItem(chName, JSON.stringify({
+                        payload: payload,
+                        _t: Date.now() + Math.random()
+                    }));
                 } catch(e) {}
             }
         };
@@ -1211,7 +1213,6 @@
                 timeTick += 0.04;
                 ctx.clearRect(0, 0, w, h);
 
-                // 1. Nền chuyển sắc bầu trời
                 const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
                 skyGrad.addColorStop(0, '#0c1a30');
                 skyGrad.addColorStop(0.7, '#1e1b4b');
@@ -1219,7 +1220,6 @@
                 ctx.fillStyle = skyGrad;
                 ctx.fillRect(0, 0, w, h);
 
-                // 2. Vách đá hẻm núi hai bên
                 ctx.fillStyle = '#1e293b';
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
@@ -1239,7 +1239,6 @@
                 ctx.closePath();
                 ctx.fill();
 
-                // 3. Bãi chông đá dưới đáy hẻm núi
                 ctx.fillStyle = '#64748b';
                 const spikeW = 20;
                 const spikeCount = Math.ceil(w / spikeW);
@@ -1252,13 +1251,11 @@
                     ctx.fill();
                 }
 
-                // 4. Tính toán tọa độ khí cầu theo độ cao (0m - 1000m)
                 const clampedAlt = Math.max(0, Math.min(1000, balloonAlt));
                 const targetY = (h - 75) - (clampedAlt / 1000) * (h - 130);
                 let bx = w / 2;
                 let by = targetY;
 
-                // Rung lắc khi bị cảnh báo
                 if (activeHazard === 'warning_heat') {
                     bx += (Math.random() - 0.5) * 6;
                     by += (Math.random() - 0.5) * 6;
@@ -1269,7 +1266,6 @@
                     by += Math.sin(timeTick) * 4;
                 }
 
-                // 5. Vẽ khí cầu thám hiểm
                 if (activeHazard !== 'pop') {
                     let r = 26;
                     if (activeHazard === 'warning_heat') r = 35;
@@ -1294,7 +1290,6 @@
                     ctx.ellipse(0, 0, r, r * 1.25, 0, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Lửa đốt lõi khí nhiệt
                     ctx.fillStyle = '#f59e0b';
                     ctx.beginPath();
                     ctx.moveTo(-4, r * 1.25);
@@ -1302,7 +1297,6 @@
                     ctx.lineTo(4, r * 1.25);
                     ctx.fill();
 
-                    // Dây chằng và giỏ lái
                     ctx.strokeStyle = '#94a3b8';
                     ctx.lineWidth = 1.5;
                     ctx.beginPath();
@@ -1312,13 +1306,11 @@
                     ctx.lineTo(5, r * 1.25 + 16);
                     ctx.stroke();
 
-                    // Giỏ lái thám hiểm
                     ctx.fillStyle = '#78350f';
                     ctx.fillRect(-6, r * 1.25 + 16, 12, 10);
                     ctx.restore();
                 }
 
-                // 6. Hiệu ứng hạt nổ / rách màng
                 particles.forEach(p => {
                     ctx.save();
                     ctx.globalAlpha = Math.max(0, p.life);
@@ -1351,8 +1343,10 @@
 
             generateHostQrCode();
 
-            NetBus.init(roomPin, null, (data) => {
-                handleHostIncomingData(data);
+            NetBus.init(roomPin, (msg) => {
+                if (msg && msg._sender === 'player') {
+                    handleHostIncomingData(msg.data);
+                }
             });
 
             const clientId = "host_sky_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
@@ -1368,7 +1362,7 @@
         }
 
         function hostPublish(data) {
-            NetBus.publishToHost(roomPin, data);
+            NetBus.publish(roomPin, { _sender: 'host', data: data });
             if (mqttClient && mqttClient.connected) {
                 try {
                     mqttClient.publish(`anime_balloon/${roomPin}/host`, JSON.stringify(data), { qos: 0 });
@@ -1425,6 +1419,8 @@
         }
 
         function handleHostIncomingData(data) {
+            if (!data || !data.type) return;
+
             if (data.type === 'PLAYER_JOIN') {
                 const pId = data.playerId;
                 if (!pId) return;
@@ -1448,14 +1444,12 @@
                     updateHostLobbyUI();
                 }
 
-                // Gửi phản hồi kết nối thành công
                 hostPublish({
                     type: 'JOIN_ACK',
                     playerId: pId,
                     roomPin: roomPin
                 });
 
-                // Hỗ trợ học sinh vào muộn nếu cuộc thi đang diễn ra
                 if (hostState.isGameStarted && !hostState.isFinished) {
                     if (!hostState.isRoundEnded) {
                         hostPublish({
@@ -1831,7 +1825,7 @@
             if (modalBox) modalBox.innerHTML = '';
 
             document.getElementById('modalPinText').innerText = roomPin;
-            const joinUrl = window.location.href.split('?')[0] + `?pin=${roomPin}`;
+            const joinUrl = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
 
             try {
                 if (typeof QRCode !== 'undefined') {
@@ -1844,9 +1838,21 @@
         }
 
         function copyJoinLink() {
-            const url = window.location.href.split('?')[0] + `?pin=${roomPin}`;
+            const url = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast("✓ Đã sao chép liên kết vào Guild!", true);
+                }).catch(() => {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
+        }
+
+        function fallbackCopy(text) {
             const el = document.createElement('textarea');
-            el.value = url;
+            el.value = text;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
@@ -1871,7 +1877,7 @@
 
             const params = new URLSearchParams(window.location.search);
             if (params.get('pin')) {
-                document.getElementById('playerPinInput').value = params.get('pin');
+                document.getElementById('playerPinInput').value = params.get('pin').trim();
             }
             const savedName = sessionStorage.getItem('sky_saved_name');
             const savedClass = sessionStorage.getItem('sky_saved_class');
@@ -1880,7 +1886,7 @@
         }
 
         function playerJoinRoom() {
-            const pin = document.getElementById('playerPinInput').value.trim();
+            const pin = document.getElementById('playerPinInput').value.trim().replace(/\s+/g, '');
             const name = document.getElementById('playerNameInput').value.trim();
             const className = document.getElementById('playerClassInput').value.trim() || "12A";
             const statusMsg = document.getElementById('playerConnectStatusMsg');
@@ -1913,9 +1919,12 @@
                 playerState.joinInterval = null;
             }
 
-            NetBus.init(roomPin, (data) => {
-                handlePlayerIncomingData(data);
-            }, null);
+            // Kích hoạt đồng bộ tức thời trong nội bộ tab / trình duyệt
+            NetBus.init(roomPin, (msg) => {
+                if (msg && msg._sender === 'host') {
+                    handlePlayerIncomingData(msg.data);
+                }
+            });
 
             const sendJoin = () => {
                 playerPublish({
@@ -1926,6 +1935,10 @@
                 });
             };
 
+            // Bắn gói join ngay qua NetBus để vào phòng ngay 0ms nếu chung thiết bị
+            sendJoin();
+
+            // Kết nối Internet qua MQTT cho thiết bị di động
             const clientId = "pl_sky_" + roomPin + "_" + playerState.playerId.slice(-6) + "_" + Math.random().toString(36).substring(2, 6);
             if (mqttClient) try { mqttClient.end(true); } catch(e) {}
 
@@ -1944,24 +1957,22 @@
                 } catch(e) {}
             });
 
-            sendJoin();
-
             let attempts = 0;
             playerState.joinInterval = setInterval(() => {
                 attempts++;
-                if (attempts > 14) {
+                if (attempts > 20) {
                     clearInterval(playerState.joinInterval);
                     playerState.joinInterval = null;
-                    statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mã PIN chưa đúng! Vui lòng thử lại.";
+                    statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mã PIN chưa đúng! Vui lòng kiểm tra lại mã PIN của giáo viên.";
                     submitBtn.disabled = false;
                     return;
                 }
                 sendJoin();
-            }, 1200);
+            }, 1000);
         }
 
         function playerPublish(data) {
-            NetBus.publishToPlayer(roomPin, data);
+            NetBus.publish(roomPin, { _sender: 'player', data: data });
             if (mqttClient && mqttClient.connected) {
                 try {
                     mqttClient.publish(`anime_balloon/${roomPin}/player`, JSON.stringify(data), { qos: 0 });
@@ -1970,6 +1981,8 @@
         }
 
         function handlePlayerIncomingData(data) {
+            if (!data || !data.type) return;
+
             if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
                 if (playerState.joinInterval) {
                     clearInterval(playerState.joinInterval);
@@ -2119,4 +2132,3 @@
     </script>
 </body>
 </html>
-```
