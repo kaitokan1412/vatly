@@ -1,3 +1,4 @@
+<!-- STREAMING_CHUNK:Initializing HTML skeleton -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -25,6 +26,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <!-- STREAMING_CHUNK:Styling the application -->
   <style>
     /* Tăng toàn bộ cỡ chữ giao diện lên 40% */
     html {
@@ -112,6 +114,7 @@
     ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
   </style>
 </head>
+<!-- STREAMING_CHUNK:Building application header -->
 <body class="ice-world-bg text-slate-100 min-h-screen flex flex-col selection:bg-sky-500/30 selection:text-sky-200 relative overflow-x-hidden">
 
   <!-- HEADER BAR -->
@@ -124,7 +127,7 @@
         <div class="flex items-center gap-2">
           <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-tech text-[10px] sm:text-xs font-bold uppercase tracking-wider border border-sky-400/30">ICE ARENA BATTLE</span>
           <span class="text-xs text-slate-500">•</span>
-          <span class="text-xs text-sky-200 font-bold hidden sm:inline">Vật Lý 10: Bài 8 - 9 - 10</span>
+          <span class="text-xs text-sky-200 font-bold hidden sm:inline">Vật Lý 10</span>
         </div>
         <h1 class="font-tech text-sm sm:text-base md:text-lg text-white font-bold tracking-wide uppercase leading-none mt-0.5">
           ĐẤU TRƯỜNG BĂNG CẦU • SINH TỒN 3 TRÁI TIM
@@ -146,6 +149,7 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toastBox" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl text-xs font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none border"></div>
 
+  <!-- STREAMING_CHUNK:Main application wrapper -->
   <main class="flex-1 flex flex-col p-3 sm:p-5 max-w-5xl w-full mx-auto justify-center z-10 relative">
 
     <!-- SCREEN 0: ROLE SELECTION -->
@@ -162,37 +166,62 @@
         </p>
       </div>
 
+      <!-- STREAMING_CHUNK:Rendering Host and Player selection cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
         <!-- Host Card -->
-        <button onclick="initHostMode()" class="p-6 rounded-3xl bg-gradient-to-b from-sky-950/50 to-slate-950/90 border-2 border-sky-500/40 hover:border-sky-300 transition transform hover:-translate-y-1 active:scale-95 flex flex-col items-center text-center group shadow-xl">
-          <div class="w-16 h-16 rounded-2xl bg-sky-500/20 text-sky-300 border border-sky-400/40 flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition">
+        <div class="p-6 rounded-3xl bg-gradient-to-b from-sky-950/50 to-slate-950/90 border-2 border-sky-500/40 hover:border-sky-400 transition flex flex-col items-center text-center shadow-xl relative">
+          <div class="w-16 h-16 rounded-2xl bg-sky-500/20 text-sky-300 border border-sky-400/40 flex items-center justify-center text-3xl mb-3 transition">
             🖥️
           </div>
           <h3 class="text-base sm:text-lg font-tech font-bold text-white uppercase">MÁY CHIẾU GIÁO VIÊN (HOST)</h3>
-          <p class="text-xs text-sky-200/70 mt-1 mb-4 leading-relaxed">
-            Mở mã PIN & QR, chiếu đấu trường 4 ô A-B-C-D với hiệu ứng băng nứt sập, rơi xuống nước và vinh danh Top sống sót.
+          <p class="text-xs text-sky-200/70 mt-1 mb-3 leading-relaxed">
+            Mở mã PIN & QR, chiếu đấu trường băng nứt sập và vinh danh Top sống sót.
           </p>
-          <span class="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow">
-            KHỞI CHẠY MÁY CHIẾU
-          </span>
-        </button>
+          
+          <!-- CHỌN BÀI HỌC -->
+          <div class="w-full bg-slate-900/80 p-3.5 rounded-2xl border border-sky-800/60 mb-4 flex flex-col gap-2.5">
+            <span class="text-sky-300 font-bold text-xs uppercase tracking-wider">Chọn nội dung thi:</span>
+            <div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
+              <label class="flex items-center gap-1.5 text-xs text-white cursor-pointer hover:text-sky-300 transition">
+                <input type="checkbox" id="chkLesson8" checked class="w-4 h-4 rounded accent-sky-500 cursor-pointer"> Bài 8
+              </label>
+              <label class="flex items-center gap-1.5 text-xs text-white cursor-pointer hover:text-sky-300 transition">
+                <input type="checkbox" id="chkLesson9" checked class="w-4 h-4 rounded accent-sky-500 cursor-pointer"> Bài 9
+              </label>
+              <label class="flex items-center gap-1.5 text-xs text-white cursor-pointer hover:text-sky-300 transition">
+                <input type="checkbox" id="chkLesson10" checked class="w-4 h-4 rounded accent-sky-500 cursor-pointer"> Bài 10
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-auto w-full">
+            <button onclick="initHostMode()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg transform hover:-translate-y-1 active:scale-95 transition">
+              TẠO PHÒNG & KHỞI CHẠY
+            </button>
+          </div>
+        </div>
 
         <!-- Player Card -->
-        <button onclick="initPlayerMode()" class="p-6 rounded-3xl bg-gradient-to-b from-slate-900/90 to-cyan-950/50 border-2 border-cyan-500/40 hover:border-cyan-300 transition transform hover:-translate-y-1 active:scale-95 flex flex-col items-center text-center group shadow-xl">
-          <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition">
+        <div class="p-6 rounded-3xl bg-gradient-to-b from-slate-900/90 to-cyan-950/50 border-2 border-cyan-500/40 hover:border-cyan-400 transition flex flex-col items-center text-center shadow-xl">
+          <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 flex items-center justify-center text-3xl mb-3 transition">
             📱
           </div>
           <h3 class="text-base sm:text-lg font-tech font-bold text-white uppercase">ĐIỆN THOẠI HỌC SINH (PLAYER)</h3>
           <p class="text-xs text-cyan-200/70 mt-1 mb-4 leading-relaxed">
             Nhập PIN & Tên, nhận 3 trái tim sinh tồn. Chọn nhanh 4 ô A-B-C-D để nhân vật chạy đến ô băng an toàn!
           </p>
-          <span class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider shadow">
-            THAM GIA SINH TỒN
-          </span>
-        </button>
+          <div class="mt-auto w-full">
+            <button onclick="initPlayerMode()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg transform hover:-translate-y-1 active:scale-95 transition">
+              THAM GIA SINH TỒN
+            </button>
+          </div>
+        </div>
+
       </div>
     </section>
 
+    <!-- STREAMING_CHUNK:Rendering Host Lobby Screen -->
     <!-- SCREEN 1: HOST LOBBY -->
     <section id="hostLobbyScreen" class="w-full max-w-4xl mx-auto ice-glass-panel p-5 sm:p-7 rounded-3xl my-auto hidden flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-sky-900/60 pb-2.5">
@@ -264,6 +293,7 @@
       </div>
     </section>
 
+    <!-- STREAMING_CHUNK:Rendering Host Arena & Question Screen -->
     <!-- SCREEN 2: HOST ARENA & QUESTION SCREEN -->
     <section id="hostArenaScreen" class="w-full max-w-5xl mx-auto flex flex-col gap-3 hidden">
       <!-- Top Status Header -->
@@ -400,6 +430,7 @@
       </div>
     </section>
 
+    <!-- STREAMING_CHUNK:Rendering Host Leaderboard Screen -->
     <!-- SCREEN 3: HOST LEADERBOARD SCREEN -->
     <section id="hostLeaderboardScreen" class="w-full max-w-4xl mx-auto ice-glass-panel p-6 sm:p-8 rounded-3xl my-auto hidden flex flex-col gap-5">
       <div class="text-center">
@@ -457,6 +488,7 @@
       </div>
     </section>
 
+    <!-- STREAMING_CHUNK:Rendering Player Join Screen -->
     <!-- SCREEN 4: PLAYER JOIN SCREEN (PHONE) -->
     <section id="playerJoinScreen" class="w-full max-w-sm mx-auto ice-glass-panel p-6 rounded-3xl my-auto hidden text-center flex flex-col gap-4">
       <div class="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 text-sky-300 flex items-center justify-center mx-auto text-2xl shadow-lg">
@@ -491,6 +523,7 @@
       <p id="playerConnectStatusMsg" class="text-xs text-sky-300 font-semibold hidden">Đang kết nối vào đấu trường...</p>
     </section>
 
+    <!-- STREAMING_CHUNK:Rendering Player Gamepad & Result Screens -->
     <!-- SCREEN 5: PLAYER LOBBY SCREEN (PHONE) -->
     <section id="playerLobbyScreen" class="w-full max-w-sm mx-auto ice-glass-panel p-6 rounded-3xl my-auto text-center hidden flex flex-col gap-4">
       <div class="w-16 h-16 rounded-3xl bg-sky-500/20 border-2 border-sky-400 text-sky-300 flex items-center justify-center mx-auto text-3xl animate-bounce">
@@ -645,6 +678,7 @@
 
   </main>
 
+  <!-- STREAMING_CHUNK:Initializing Physics Quiz Data -->
   <script>
     /* =========================================================================
        BỘ 30 CÂU HỎI VẬT LÝ 10: BÀI 8, BÀI 9, BÀI 10 (CHUẨN TÀI LIỆU)
@@ -825,9 +859,8 @@
       }
     ];
 
-    /* =========================================================================
-       WEB AUDIO SYNTHESIZER API
-       ========================================================================= */
+    /* STREAMING_CHUNK:Global state variables and Web Audio API */
+    let selectedQuestions = []; // Mảng chứa các câu hỏi theo bài học đã chọn
     let audioCtx = null;
     let sfxEnabled = true;
 
@@ -862,7 +895,6 @@
       tick() { this.playTone(900, 'sine', 0.03, 0.04); },
       warning() { this.playTone(320, 'sawtooth', 0.15, 0.1); },
       crack() {
-        // Nhiều lớp âm thanh rạn nứt băng đá chân thực và chấn động
         this.playTone(520, 'sawtooth', 0.1, 0.3, 0);
         this.playTone(340, 'square', 0.18, 0.35, 0.04);
         this.playTone(180, 'sawtooth', 0.32, 0.38, 0.09);
@@ -914,9 +946,7 @@
       setTimeout(() => { toast.classList.add('opacity-0', 'pointer-events-none'); }, 2500);
     }
 
-    /* =========================================================================
-       MẠNG ĐỒNG BỘ HYBRID (BROADCASTCHANNEL + LOCALSTORAGE + MQTT)
-       ========================================================================= */
+    /* STREAMING_CHUNK:Networking & Hybrid Sync System */
     const MQTT_BROKER_URL = "wss://broker.emqx.io:8084/mqtt";
     let mqttClient = null;
     let roomPin = "";
@@ -966,9 +996,7 @@
       }
     };
 
-    /* =========================================================================
-       ARENA STATE & PHYSICS ENGINE (FALL GUYS BEAN SIMULATION)
-       ========================================================================= */
+    /* STREAMING_CHUNK:Arena State & Physics Engine */
     const QUADRANT_TARGETS = {
       CENTER: { x: 0, y: 0 },
       A: { x: -0.48, y: -0.48 },
@@ -977,7 +1005,6 @@
       D: { x: 0.48, y: 0.48 }
     };
 
-    // Hàm tạo mạng lưới vết nứt băng ngẫu nhiên nhiều nhánh
     function createProceduralCracks(w, h) {
       const fissures = [];
       const origins = [
@@ -1079,6 +1106,7 @@
       }
     }
 
+    /* STREAMING_CHUNK:Canvas Rendering & Animation logic */
     function initSnowflakes() {
       hostState.snowflakes = [];
       for (let i = 0; i < 45; i++) {
@@ -1166,7 +1194,6 @@
       const cy = h / 2;
       const arenaRadius = Math.min(w, h) * 0.43;
 
-      // 0. Screen shake translation
       ctx.save();
       if (hostState.cameraShake > 0) {
         const shakeX = (Math.random() - 0.5) * hostState.cameraShake;
@@ -1175,7 +1202,7 @@
         hostState.cameraShake = Math.max(0, hostState.cameraShake - 0.35);
       }
 
-      // 1. Deep Ocean Background
+      // Deep Ocean Background
       const oceanGrad = ctx.createRadialGradient(cx, cy, arenaRadius * 0.1, cx, cy, arenaRadius * 1.8);
       oceanGrad.addColorStop(0, "#082f49");
       oceanGrad.addColorStop(0.6, "#0c1e3d");
@@ -1193,7 +1220,7 @@
       ctx.stroke();
       ctx.restore();
 
-      // 2. 4 Ice Platforms
+      // 4 Ice Platforms
       const gap = 14;
       const qW = arenaRadius * 0.94;
       const qH = arenaRadius * 0.84;
@@ -1215,7 +1242,6 @@
         const platX = q.x + (plat.shakeX || 0);
         const curY = q.y + plat.sinkOffset + (plat.shakeY || 0);
 
-        // NẾU TẢNG BĂNG ĐÃ SẬP HOÀN TOÀN
         if (isFallen) {
           ctx.save();
           ctx.fillStyle = "rgba(2, 6, 23, 0.96)";
@@ -1241,7 +1267,6 @@
           return;
         }
 
-        // VẼ TẢNG BĂNG
         ctx.save();
         ctx.globalAlpha = plat.alpha;
 
@@ -1251,12 +1276,10 @@
           ctx.translate(-(platX + qW / 2), -(curY + qH / 2));
         }
 
-        // 3D Depth
         ctx.fillStyle = isWinner ? "#064e3b" : (isCracking ? "#7f1d1d" : "#0c3b60");
         drawRoundedRect(ctx, platX, curY + 10, qW, qH, 18);
         ctx.fill();
 
-        // Top Ice Surface
         const iceGrad = ctx.createLinearGradient(platX, curY, platX + qW, curY + qH);
         if (isWinner) {
           iceGrad.addColorStop(0, "#ecfdf5");
@@ -1283,7 +1306,6 @@
         drawRoundedRect(ctx, platX, curY, qW, qH, 18);
         ctx.fill();
 
-        // Viền & Hào quang
         if (isWinner) {
           ctx.lineWidth = 6;
           ctx.strokeStyle = "#fef08a";
@@ -1311,14 +1333,12 @@
           ctx.stroke();
         }
 
-        // Chữ cái A - B - C - D cực lớn
         ctx.font = "900 76px 'Chakra Petch', sans-serif";
         ctx.fillStyle = isWinner ? "#065f46" : (isCracking || isSinking ? "#7f1d1d" : q.bg);
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(q.key, platX + qW / 2, curY + qH / 2 - 10);
 
-        // Nhãn trạng thái nổi bật trên sàn băng
         if (isWinner) {
           ctx.font = "900 17px 'Plus Jakarta Sans', sans-serif";
           ctx.fillStyle = "#064e3b";
@@ -1340,7 +1360,6 @@
           }
         }
 
-        // HIỆU ỨNG VẾT NỨT BĂNG ĐÁ PHÁT SÁNG NEON TRỰC QUAN
         if (plat.cracks && plat.cracks.length > 0 && (isCracking || isSinking)) {
           ctx.save();
           ctx.shadowColor = "#38bdf8";
@@ -1350,7 +1369,6 @@
           const drawCount = Math.floor(plat.cracks.length * Math.min(1, plat.crackProgress || 1));
           for (let i = 0; i < drawCount; i++) {
             const c = plat.cracks[i];
-            // Lớp viền xanh điện quang neon ngoài
             ctx.strokeStyle = "rgba(56, 189, 248, 0.95)";
             ctx.lineWidth = c.width + 2.5;
             ctx.beginPath();
@@ -1358,7 +1376,6 @@
             ctx.lineTo(platX + c.x2, curY + c.y2);
             ctx.stroke();
 
-            // Lớp lõi rạn nứt trắng tinh khiết sáng chói
             ctx.strokeStyle = "#ffffff";
             ctx.lineWidth = c.width;
             ctx.beginPath();
@@ -1372,7 +1389,7 @@
         ctx.restore();
       });
 
-      // 3. Central Safe Hub
+      // Central Safe Hub
       ctx.save();
       const centerR = arenaRadius * 0.22;
       const centerGrad = ctx.createRadialGradient(cx, cy, 5, cx, cy, centerR);
@@ -1393,7 +1410,7 @@
       ctx.fillText("VÙNG TRUNG TÂM", cx, cy);
       ctx.restore();
 
-      // 4. Mảnh vỡ băng 3D văng tứ phía
+      // Particles & Avatars
       hostState.debris.forEach(d => {
         ctx.save();
         ctx.translate(d.x, d.y);
@@ -1421,7 +1438,6 @@
       });
       hostState.debris = hostState.debris.filter(d => d.alpha > 0);
 
-      // 5. Vòng sóng nước vỡ
       hostState.splashes.forEach(s => {
         ctx.save();
         ctx.strokeStyle = `rgba(186, 230, 253, ${s.alpha})`;
@@ -1435,7 +1451,6 @@
       });
       hostState.splashes = hostState.splashes.filter(s => s.alpha > 0);
 
-      // 6. Fall Guys Avatar Beans
       Object.values(hostState.players).forEach(p => {
         if (!p.alive && !p.falling) return;
 
@@ -1459,7 +1474,6 @@
           ctx.fill();
         }
 
-        // Bean Body
         const r = 13.5 * scale;
         ctx.fillStyle = p.color || "#0ea5e9";
         ctx.beginPath();
@@ -1469,14 +1483,12 @@
         ctx.strokeStyle = "#ffffff";
         ctx.stroke();
 
-        // Eyes
         ctx.fillStyle = p.falling ? "#ffffff" : "#0f172a";
         ctx.beginPath();
         ctx.arc(screenX - 4 * scale, screenY - 2 * scale, 2.5 * scale, 0, Math.PI * 2);
         ctx.arc(screenX + 4 * scale, screenY - 2 * scale, 2.5 * scale, 0, Math.PI * 2);
         ctx.fill();
 
-        // Nametag & Hearts
         if (!p.falling) {
           ctx.font = "bold 14px 'Plus Jakarta Sans', sans-serif";
           ctx.fillStyle = "#ffffff";
@@ -1494,7 +1506,6 @@
         ctx.restore();
       });
 
-      // 7. Nhãn tổn thương "-1 ❤️" bay lên
       hostState.floatingTexts.forEach(ft => {
         ctx.save();
         ctx.globalAlpha = ft.alpha;
@@ -1511,7 +1522,6 @@
       });
       hostState.floatingTexts = hostState.floatingTexts.filter(ft => ft.alpha > 0);
 
-      // 8. Snowflakes
       ctx.save();
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
       hostState.snowflakes.forEach(snow => {
@@ -1526,7 +1536,6 @@
       });
       ctx.restore();
 
-      // Cập nhật tiến trình nứt vỡ và sập sàn
       Object.keys(hostState.platforms).forEach(k => {
         const plat = hostState.platforms[k];
         if (plat.status === "cracking") {
@@ -1566,10 +1575,27 @@
       c.closePath();
     }
 
-    /* =========================================================================
-       HOST CONTROLLER LOGIC
-       ========================================================================= */
+    /* STREAMING_CHUNK:Host Controller Logic */
     function initHostMode() {
+      // Đọc trạng thái bài học được chọn
+      const chk8 = document.getElementById('chkLesson8').checked;
+      const chk9 = document.getElementById('chkLesson9').checked;
+      const chk10 = document.getElementById('chkLesson10').checked;
+
+      const selectedLessons = [];
+      if (chk8) selectedLessons.push("Bài 8: Gia Tốc");
+      if (chk9) selectedLessons.push("Bài 9: CĐ Thẳng Biến Đổi Đều");
+      if (chk10) selectedLessons.push("Bài 10: Rơi Tự Do");
+
+      // Cảnh báo nếu không chọn bài nào
+      if (selectedLessons.length === 0) {
+        showToast("Vui lòng chọn ít nhất 1 bài học để tạo phòng!", false);
+        return;
+      }
+
+      // Lọc câu hỏi theo lựa chọn
+      selectedQuestions = PHYSICS_QUIZ_DATA.filter(q => selectedLessons.includes(q.lessonName));
+
       isHost = true;
       hideAllScreens();
       document.getElementById('hostLobbyScreen').classList.remove('hidden');
@@ -1659,7 +1685,8 @@
     }
 
     function hostStartGame() {
-      hostState.activeQuestions = [...PHYSICS_QUIZ_DATA];
+      // Sử dụng danh sách câu hỏi đã được lọc từ trước
+      hostState.activeQuestions = [...selectedQuestions];
       hostState.currentQIndex = 0;
       hostPublish({ type: 'GAME_STARTED' });
       hostLoadQuestion();
@@ -1687,7 +1714,6 @@
       hostState.floatingTexts = [];
       const q = hostState.activeQuestions[idx];
 
-      // Khôi phục trạng thái 4 tảng băng
       Object.keys(hostState.platforms).forEach(k => {
         hostState.platforms[k].status = "stable";
         hostState.platforms[k].sinkOffset = 0;
@@ -1699,7 +1725,6 @@
         hostState.platforms[k].tilt = 0;
       });
 
-      // Reset lựa chọn
       Object.values(hostState.players).forEach(p => {
         if (p.alive) {
           p.currentChoice = null;
@@ -1731,7 +1756,6 @@
 
       simulateBotChoices(q);
 
-      // Countdown
       hostState.timer = hostState.questionDuration;
       document.getElementById('hostTimerText').innerText = hostState.timer;
       document.getElementById('hostCountdownBar').style.width = "100%";
@@ -1768,10 +1792,7 @@
       const q = hostState.activeQuestions[hostState.currentQIndex];
       const correctLetter = ["A", "B", "C", "D"][q.ans];
 
-      // Âm thanh rạn nứt băng đầu tiên
       Sound.crack();
-
-      // Rung chấn màn hình mạnh
       hostState.cameraShake = 12;
       const arenaWrapper = document.getElementById('arenaCanvasWrapper');
       if (arenaWrapper) {
@@ -1784,12 +1805,10 @@
       const qW = arenaR * 0.94;
       const qH = arenaR * 0.84;
 
-      // HIỆN BANNER CẢNH BÁO NỨT VỠ
       const dangerEl = document.getElementById('dangerBanner');
       dangerEl.classList.remove('hidden');
       document.getElementById('dangerBannerText').innerText = "⚡ BĂNG NỨT VỠ TOÁC - SẮP SẬP SÀN! ⚡";
 
-      // GIAI ĐOẠN 1: KHỞI TẠO NỨT BĂNG CHO CÁC Ô SAI
       ["A", "B", "C", "D"].forEach((letter, idx) => {
         const plat = hostState.platforms[letter];
         const card = document.getElementById(`hostOptCard${idx}`);
@@ -1822,7 +1841,6 @@
         }
       });
 
-      // GIAI ĐOẠN 2: SAU 1.0 GIÂY NỨT BĂNG, BẮT ĐẦU SẬP SÀN VÀ RƠI XUỐNG BIỂN
       setTimeout(() => {
         Sound.crack();
         Sound.splash();
@@ -1847,7 +1865,6 @@
           }
         });
 
-        // Xử lý học sinh đứng trên tảng băng
         Object.values(hostState.players).forEach(p => {
           if (!p.alive) return;
 
@@ -2030,9 +2047,7 @@
       }
     }
 
-    /* =========================================================================
-       PLAYER (MOBILE) CONTROLLER LOGIC
-       ========================================================================= */
+    /* STREAMING_CHUNK:Player Controller Logic */
     function initPlayerMode() {
       isHost = false;
       hideAllScreens();
@@ -2243,9 +2258,7 @@
       });
     }
 
-    /* =========================================================================
-       UTILITIES & EXCEL EXPORT
-       ========================================================================= */
+    /* STREAMING_CHUNK:Utilities and Excel Export Module */
     function emulatorPickChoice(choice) {
       let targetPlayer = Object.values(hostState.players).find(p => !p.isBot && p.alive);
       if (!targetPlayer) targetPlayer = Object.values(hostState.players).find(p => p.alive);
@@ -2336,3 +2349,11 @@
   </script>
 </body>
 </html>
+```eof
+
+### Những thay đổi chính tôi đã thực hiện:
+
+1.  **Giao diện Menu:** Tại khung "Máy chiếu giáo viên", tôi đã thay đổi từ 1 khối thẻ bấm được (button) thành 1 khung vuông (div), bên trong có chứa khu vực chọn danh sách bài học và một nút "Tạo phòng & khởi chạy" riêng lẻ bên dưới.
+2.  **Khối (CheckBox) chọn bài:** Đã được thiết kế với phong cách UI Cyber/Ice để phù hợp với giao diện nền (tick xanh biển, hover phát sáng). Học sinh bấm vào chữ bài học hoặc ô checkbox đều được.
+3.  **Lọc câu hỏi:** Logic Javascript (trong hàm `initHostMode`) giờ đây sẽ nhận biết các Checkbox nào được tích. Nếu giáo viên chỉ tích Bài 8 và 10, ứng dụng sẽ lọc ngay mảng `PHYSICS_QUIZ_DATA` gốc và chỉ trích xuất các câu hỏi tương ứng để chạy vòng lặp Game.
+4.  **Cảnh báo an toàn:** Nếu giáo viên quên tích chọn (bỏ chọn hết) mà vẫn ấn vào Bắt đầu tạo phòng, hệ thống sẽ chặn thao tác đó và thả một dòng thông báo nổi (Toast) yêu cầu chọn tối thiểu 1 bài học.
