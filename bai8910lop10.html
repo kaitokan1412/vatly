@@ -2349,11 +2349,5 @@
   </script>
 </body>
 </html>
-```eof
 
-### Những thay đổi chính tôi đã thực hiện:
 
-1.  **Giao diện Menu:** Tại khung "Máy chiếu giáo viên", tôi đã thay đổi từ 1 khối thẻ bấm được (button) thành 1 khung vuông (div), bên trong có chứa khu vực chọn danh sách bài học và một nút "Tạo phòng & khởi chạy" riêng lẻ bên dưới.
-2.  **Khối (CheckBox) chọn bài:** Đã được thiết kế với phong cách UI Cyber/Ice để phù hợp với giao diện nền (tick xanh biển, hover phát sáng). Học sinh bấm vào chữ bài học hoặc ô checkbox đều được.
-3.  **Lọc câu hỏi:** Logic Javascript (trong hàm `initHostMode`) giờ đây sẽ nhận biết các Checkbox nào được tích. Nếu giáo viên chỉ tích Bài 8 và 10, ứng dụng sẽ lọc ngay mảng `PHYSICS_QUIZ_DATA` gốc và chỉ trích xuất các câu hỏi tương ứng để chạy vòng lặp Game.
-4.  **Cảnh báo an toàn:** Nếu giáo viên quên tích chọn (bỏ chọn hết) mà vẫn ấn vào Bắt đầu tạo phòng, hệ thống sẽ chặn thao tác đó và thả một dòng thông báo nổi (Toast) yêu cầu chọn tối thiểu 1 bài học.
