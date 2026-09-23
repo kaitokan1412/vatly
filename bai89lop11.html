@@ -1797,8 +1797,89 @@
     }
 
     /* =========================================================================
-       LOGIC MÁY CHIẾU (HOST MODE)
+       LOGIC MÁY CHIẾU (HOST MODE) & CÁC HÀM BỊ THIẾU
        ========================================================================= */
+
+    // HÀM BỔ SUNG: Xử lý dữ liệu đến máy chiếu (Thêm Bot, Thêm Học sinh, Xử lý chọn đáp án)
+    function handleHostIncomingData(data) {
+      if (!data || !data.type) return;
+
+      if (data.type === 'PLAYER_JOIN') {
+        if (!hostState.players[data.playerId]) {
+          const colors = ["#0ea5e9", "#f43f5e", "#10b981", "#eab308", "#8b5cf6", "#f97316"];
+          hostState.players[data.playerId] = {
+            id: data.playerId,
+            name: data.name,
+            className: data.className || "11A",
+            isBot: data.isBot || false,
+            color: colors[Object.keys(hostState.players).length % colors.length],
+            hearts: 3,
+            score: 0,
+            alive: true,
+            history: [],
+            currentChoice: null,
+            targetQuadrant: "CENTER",
+            x: (Math.random() - 0.5) * 0.15,
+            y: (Math.random() - 0.5) * 0.15,
+            jitterX: (Math.random() - 0.5) * 0.08,
+            jitterY: (Math.random() - 0.5) * 0.08
+          };
+        }
+        
+        updateHostLobbyUI();
+        hostPublish({ type: 'JOIN_ACK', playerId: data.playerId });
+        Sound.tap();
+      }
+      else if (data.type === 'PLAYER_CHOICE' && !hostState.isRoundEnded) {
+        const p = hostState.players[data.playerId];
+        if (p && p.alive && p.currentChoice === null) {
+          p.currentChoice = data.choice;
+          p.targetQuadrant = data.choice;
+          p.choiceTime = hostState.timer; // Dùng thời gian để tính điểm thưởng
+          
+          // Tạo độ lệch ngẫu nhiên để các học sinh đứng cùng 1 ô không bị đè lên nhau
+          p.jitterX = (Math.random() - 0.5) * 0.35;
+          p.jitterY = (Math.random() - 0.5) * 0.35;
+          
+          Sound.tick();
+        }
+      }
+    }
+
+    // HÀM BỔ SUNG: Cập nhật giao diện phòng chờ máy chiếu và mở khóa Nút Bắt Đầu
+    function updateHostLobbyUI() {
+      const players = Object.values(hostState.players);
+      const container = document.getElementById('hostPlayerListContainer');
+      const emptyMsg = document.getElementById('emptyPlayerMsg');
+      const countNum = document.getElementById('hostPlayerCountNum');
+      const startBtn = document.getElementById('hostStartBtn');
+
+      if (countNum) countNum.innerText = players.length;
+
+      if (players.length > 0) {
+        if (emptyMsg) emptyMsg.classList.add('hidden');
+        if (startBtn) startBtn.disabled = false;
+      } else {
+        if (emptyMsg) emptyMsg.classList.remove('hidden');
+        if (startBtn) startBtn.disabled = true;
+      }
+
+      if (container) {
+        container.innerHTML = '';
+        players.forEach(p => {
+          const el = document.createElement('div');
+          el.className = `px-3.5 py-2 rounded-xl bg-slate-900 border text-xs font-bold font-tech flex items-center gap-1.5 shadow ${p.isBot ? 'border-amber-700/50 text-amber-200' : 'border-sky-800 text-sky-200'}`;
+          el.innerHTML = `
+            <span>🏄</span>
+            <span>${p.name}</span>
+            ${p.isBot ? '<i class="fa-solid fa-robot text-amber-500/80 ml-1"></i>' : ''}
+          `;
+          container.appendChild(el);
+        });
+      }
+    }
+
+
     function initHostMode() {
       isHost = true;
       hideAllScreens();
@@ -1981,6 +2062,8 @@
         p.fallScale = 1;
         p.fallOpacity = 1;
         p.fallRotate = 0;
+        p.jitterX = (Math.random() - 0.5) * 0.15; // Reset độ phân tán
+        p.jitterY = (Math.random() - 0.5) * 0.15;
       });
 
       updateHostSurvivorBadge();
@@ -2004,7 +2087,7 @@
       const bots = Object.values(hostState.players).filter(p => p.isBot && p.alive);
       bots.forEach(bot => {
         const delay = 3000 + Math.random() * 11000;
-        const willBeCorrect = Math.random() < 0.78;
+        const willBeCorrect = Math.random() < 0.78; // Tỉ lệ bot đúng 78%
         const letters = ["A", "B", "C", "D"];
         const chosen = willBeCorrect ? letters[q.ans] : letters[(q.ans + 1 + Math.floor(Math.random() * 3)) % 4];
 
@@ -2745,3 +2828,7 @@
   </script>
 </body>
 </html>
+
+
+
+Bạn có thể thay thế toàn bộ code cũ bằng file mới này. Hãy thử bấm **"+ Thêm 4 Bot"**, bạn sẽ thấy danh sách cập nhật và nút **BẮT ĐẦU** sáng lên để chạy trò chơi. Nếu bạn cần điều chỉnh thêm logic điểm hay hiệu ứng nào, hãy cho tôi biết nhé!
