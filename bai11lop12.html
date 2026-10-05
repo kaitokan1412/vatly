@@ -8,7 +8,6 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Chống lỗi iframe sandbox / WebSocket -->
     <script>
         window.addEventListener('error', function(e) {
             if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
@@ -24,12 +23,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=Kanit:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Nunito:ital,wght@0,700;0,800;0,900;0,1000;1,800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
 
-    <!-- KaTeX Công thức Toán/Lí -->
+    <!-- KaTeX Công thức Toán/Lí (Tải đồng bộ để hiển thị ngay lập tức) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
-    <!-- Thư viện ngoài: MQTT, SheetJS, Confetti, QRCode -->
     <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -997,7 +995,7 @@
                     });
                 } catch(e) {}
             } else {
-                setTimeout(refreshMathRender, 350);
+                setTimeout(refreshMathRender, 200);
             }
         }
 
@@ -1285,7 +1283,7 @@
                 const chamberBottom = cylY + cylH;
                 const chamberHeight = chamberBottom - chamberTop;
 
-                // Tốc độ phân tử tỉ lệ với căn bậc 2 nhiệt độ (Kinetict theory: v ~ sqrt(T))
+                // Tốc độ phân tử tỉ lệ với căn bậc 2 nhiệt độ (Kinetic theory: v ~ sqrt(T))
                 let speedMultiplier = 1.0;
                 if (activeHazard === 'warning_heat') speedMultiplier = 2.2;
                 if (activeHazard === 'warning_cold') speedMultiplier = 0.4;
@@ -1569,7 +1567,7 @@
                     <div class="flex flex-col items-center">
                         <svg width="260" height="150" viewBox="0 0 260 150" class="overflow-visible">
                             <!-- Trục V và T -->
-                            <line x1="30" y1="130" x2="240" y2="130" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#arrow)" />
+                            <line x1="30" y1="130" x2="240" y2="130" stroke="#38bdf8" stroke-width="2.5" />
                             <line x1="30" y1="130" x2="30" y2="20" stroke="#38bdf8" stroke-width="2.5" />
                             <text x="245" y="134" fill="#38bdf8" font-size="13" font-weight="bold">T</text>
                             <text x="25" y="15" fill="#38bdf8" font-size="13" font-weight="bold">V</text>
