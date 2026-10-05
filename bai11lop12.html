@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aero-Reactor: Động Cơ Khí Lý Tưởng - Vật Lí 12 (Clapeyron - Mendeleev)</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chống lỗi iframe sandbox / WebSocket -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
+                e.preventDefault();
+                console.warn("[ReactorBus] Đã xử lý an toàn ngoại lệ mạng.");
+                return true;
+            }
+        });
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=Kanit:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Nunito:ital,wght@0,700;0,800;0,900;0,1000;1,800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <!-- KaTeX Công thức Toán/Lí -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Thư viện ngoài: MQTT, SheetJS, Confetti, QRCode -->
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        html { font-size: 16px; }
+        @media (min-width: 640px) { html { font-size: 18px; } }
+        @media (min-width: 1024px) { html { font-size: 20px; } }
+        @media (min-width: 1536px) { html { font-size: 22px; } }
+
+        * {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .font-tech { font-family: 'Orbitron', 'Chakra Petch', monospace, sans-serif; }
+        .font-anime-title { font-family: 'Kanit', 'Chakra Petch', 'Nunito', sans-serif; }
+        .font-manga { font-family: 'Chakra Petch', 'Nunito', sans-serif; }
+
+        .katex { font-size: 1.05em; }
+        .katex .text { font-family: 'Nunito', sans-serif !important; }
+
+        .cyber-reactor-bg {
+            background-color: #050b18;
+            background-image:
+                radial-gradient(circle at 15% 25%, rgba(6, 182, 212, 0.28) 0%, transparent 40%),
+                radial-gradient(circle at 85% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(245, 158, 11, 0.22) 0%, transparent 50%),
+                radial-gradient(circle at 35% 90%, rgba(139, 92, 246, 0.22) 0%, transparent 45%),
+                radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 36px 36px;
+            color: #f8fafc;
+        }
+
+        .reactor-hud-card {
+            background: rgba(10, 19, 40, 0.94);
+            backdrop-filter: blur(18px);
+            border: 3px solid #06b6d4;
+            box-shadow: 0 10px 0 #040914, 0 0 25px rgba(6, 182, 212, 0.35);
+            border-radius: 2rem;
+        }
+
+        .reactor-hud-card-gold {
+            background: rgba(26, 20, 10, 0.94);
+            backdrop-filter: blur(18px);
+            border: 3px solid #fbbf24;
+            box-shadow: 0 10px 0 #0d0a05, 0 0 25px rgba(251, 191, 36, 0.35);
+            border-radius: 2rem;
+        }
+
+        .btn-choice-anime {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.6);
+        }
+        .btn-choice-anime:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.015);
+            box-shadow: 0 9px 0 rgba(0, 0, 0, 0.7);
+        }
+        .btn-choice-anime:active:not(:disabled) {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.7);
+        }
+
+        .choice-btn-a {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.28), rgba(185, 28, 28, 0.45));
+            border: 3px solid #f87171;
+            color: #fff1f2;
+        }
+        .choice-btn-b {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.28), rgba(2, 132, 199, 0.45));
+            border: 3px solid #38bdf8;
+            color: #f0f9ff;
+        }
+        .choice-btn-c {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.45));
+            border: 3px solid #fbbf24;
+            color: #fffbeb;
+        }
+        .choice-btn-d {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(5, 150, 105, 0.45));
+            border: 3px solid #34d399;
+            color: #ecfdf5;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.02); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+        .pulse-anim { animation: pulseGlow 1.2s ease-in-out infinite; }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: #040813; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border: 2px solid #06b6d4; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+    </style>
+</head>
+<body class="cyber-reactor-bg min-h-screen flex flex-col relative overflow-x-hidden selection:bg-cyan-500/40 selection:text-cyan-100">
+
+    <header class="w-full bg-slate-950/95 border-b-4 border-cyan-400 px-4 sm:px-8 py-3.5 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md shadow-2xl">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-amber-400 flex items-center justify-center shadow-lg shadow-cyan-500/40 text-white flex-shrink-0 text-3xl border-3 border-white transform hover:rotate-6 transition">
+                ⚡
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white font-manga text-[11px] sm:text-xs font-black uppercase tracking-widest border border-cyan-300 shadow-md">
+                        ⚛️ VIỆN NĂNG LƯỢNG LÝ TƯỞNG • VẬT LÍ 12
+                    </span>
+                    <span class="text-slate-500 text-xs hidden sm:inline">•</span>
+                    <span class="text-xs sm:text-sm text-cyan-300 font-extrabold hidden sm:inline font-anime-title">Clapeyron - Mendeleev ($pV = nRT$)</span>
+                </div>
+                <h1 class="font-anime-title text-base sm:text-xl md:text-2xl text-white tracking-wide leading-tight uppercase font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    AERO-REACTOR: CUỘC ĐUA ĐIỀU ÁP ĐỘNG CƠ KHÍ LÝ TƯỞNG
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <button id="sfxToggleBtn" onclick="toggleAudio()" class="p-2.5 w-11 h-11 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 border-2 border-cyan-400 text-base font-bold flex items-center justify-center transition shadow-[0_4px_0_#0f172a]" title="Bật/Tắt âm thanh">
+                <i class="fa-solid fa-volume-high text-cyan-400 text-lg" id="sfxIcon"></i>
+            </button>
+            <button onclick="window.location.reload()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-xs sm:text-sm font-black border-2 border-white flex items-center gap-2 transition text-white shadow-[0_4px_0_#0369a1] active:translate-y-1 active:shadow-none">
+                <i class="fa-solid fa-rotate text-amber-300"></i>
+                <span class="hidden sm:inline font-manga">TẢI LẠI</span>
+            </button>
+        </div>
+    </header>
+
+    <div id="toastBox" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-3 rounded-2xl text-xs sm:text-sm font-black shadow-2xl transition-all duration-300 opacity-0 pointer-events-none border-3"></div>
+
+    <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-6xl w-full mx-auto justify-center z-10 relative">
+
+        <!-- 0. MÀN HÌNH CHỌN VAI TRÒ -->
+        <section id="roleSelectScreen" class="w-full max-w-5xl mx-auto reactor-hud-card p-6 sm:p-10 text-center my-auto flex flex-col gap-6 relative overflow-hidden">
+            <div>
+                <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-cyan-500/30 via-indigo-500/30 to-rose-500/30 border-2 border-cyan-400 text-cyan-200 text-xs sm:text-sm font-black mb-3 shadow-lg">
+                    <i class="fa-solid fa-gauge-high text-amber-300 text-base"></i> NHIỆT ĐỘNG LỰC HỌC CHẤT KHÍ (BÀI TẬP CLAPEYRON - MENDELEEV)
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-anime-title font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-amber-300 to-rose-400 mt-1 tracking-wide uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                    KÍCH HOẠT LÕI ĐỘNG CƠ KHÍ LÝ TƯỞNG
+                </h2>
+                <p class="text-sm sm:text-base md:text-lg text-slate-200 max-w-3xl mx-auto mt-3 font-bold leading-relaxed">
+                    Trạm nghiên cứu đang thử nghiệm buồng nén khí siêu cao áp. Nhiệm vụ của các kỹ sư là duy trì cân bằng trạng thái:
+                    <span class="text-amber-300 font-extrabold">$pV = nRT$</span> và <span class="text-cyan-300 font-extrabold">$\frac{p_1V_1}{T_1} = \frac{p_2V_2}{T_2}$</span>.<br>
+                    Mỗi câu giải đúng giúp nạp <span class="text-emerald-400 font-black">+100 MW</span> công suất động cơ. 
+                    Nếu sai 1 câu, lõi phản ứng rơi vào <span class="text-amber-400 font-black">CẢNH BÁO MẤT ÁP/QUÁ ÁP</span> (-25 MW). Nếu <span class="text-rose-400 font-black">tiếp tục sai lần 2</span>, buồng đốt sẽ <span class="text-rose-400 font-black">QUÁ TẢI PHÁT NỔ</span> hoặc <span class="text-rose-400 font-black">SẬP CHÂN KHÔNG</span> (-75 MW)!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+                <button onclick="initHostMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-cyan-950/80 border-3 border-cyan-400 hover:border-cyan-300 shadow-[0_10px_0_#0f172a] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-cyan-500/25 text-cyan-300 border-3 border-cyan-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
+                        🖥️
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-cyan-400/20 text-cyan-300 font-manga text-xs font-black uppercase mb-1">MAIN CONTROL CENTER</span>
+                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">TRẠM ĐIỀU PHỐI (MÁY CHIẾU LỚN)</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
+                        Trình chiếu Mã PIN & QR, hiển thị buồng Piston động cơ với phân tử khí mô phỏng trực tiếp, đồng hồ đếm ngược và bảng xếp hạng.
+                    </p>
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white">
+                        KHAI MỞ TRẠM MÁY CHIẾU ⚡
+                    </span>
+                </button>
+
+                <button onclick="initPlayerMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-amber-950/80 border-3 border-amber-400 hover:border-amber-300 shadow-[0_10px_0_#0f172a] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-amber-500/25 text-amber-300 border-3 border-amber-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
+                        🎮
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 font-manga text-xs font-black uppercase mb-1">ENGINEER GAMEPAD</span>
+                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">KỸ SƯ ĐIỀU KHIỂN (ĐIỆN THOẠI)</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
+                        Gia nhập trạm bằng PIN hoặc QR, điều khiển van xả, đánh giá thông số áp suất - thể tích - nhiệt độ bằng 4 nút bấm nhạy bén.
+                    </p>
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white">
+                        KẾT NỐI TAY CẦM KỸ SƯ 🚀
+                    </span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 1. MÀN HÌNH CHỜ MÁY CHIẾU (HOST LOBBY) -->
+        <section id="hostLobbyScreen" class="w-full max-w-5xl mx-auto reactor-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-wrap items-center justify-between border-b-3 border-slate-800 pb-3.5 gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-4 h-4 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span class="font-anime-title text-lg sm:text-2xl text-cyan-300 uppercase tracking-wider font-black">PHÒNG THÍ NGHIỆM ĐỘNG CƠ KHÍ LÝ TƯỞNG</span>
+                </div>
+                <div class="text-sm sm:text-lg font-black text-slate-200">
+                    <i class="fa-solid fa-users text-cyan-400 mr-2"></i>Đội Kỹ Sư: <span class="text-amber-300 font-tech font-black text-2xl sm:text-3xl" id="hostPlayerCountNum">0</span> đội
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <div class="lg:col-span-5 p-6 rounded-3xl bg-slate-950/95 border-3 border-slate-800 flex flex-col items-center justify-between text-center gap-4 shadow-xl">
+                    <div>
+                        <span class="text-xs sm:text-sm font-black text-cyan-300 uppercase tracking-widest block font-manga">MÃ PHÒNG (PIN CODE)</span>
+                        <div class="flex items-center justify-center gap-3 mt-2.5">
+                            <span id="hostPinDisplay" class="text-5xl sm:text-7xl font-tech font-black text-amber-300 px-7 py-2 rounded-2xl bg-black border-3 border-amber-400 tracking-widest">
+                                ----
+                            </span>
+                            <button onclick="copyJoinLink()" class="p-4 sm:p-5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-cyan-400 border-2 border-slate-700 text-lg font-bold transition" title="Sao chép link">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white p-4 rounded-3xl shadow-2xl border-4 border-cyan-400">
+                        <div onclick="openQrModal()" class="cursor-pointer hover:opacity-90 transition p-1">
+                            <div id="hostQrCodeBox" class="w-[140px] h-[140px] flex items-center justify-center overflow-hidden"></div>
+                        </div>
+                        <button onclick="openQrModal()" class="text-xs sm:text-sm font-black text-slate-950 mt-2.5 flex items-center gap-2 hover:text-cyan-700 font-manga">
+                            <i class="fa-solid fa-expand"></i> Phóng To Mã QR
+                        </button>
+                    </div>
+
+                    <p class="text-xs sm:text-sm text-slate-300 font-bold">Quét mã QR bằng Camera điện thoại hoặc nhập mã PIN để vào phòng thí nghiệm.</p>
+                </div>
+
+                <div class="lg:col-span-7 flex flex-col justify-between gap-5">
+                    <div class="p-6 rounded-3xl bg-slate-950/95 border-3 border-slate-800 flex-1 flex flex-col shadow-xl">
+                        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-3 mb-3">
+                            <span class="text-xs sm:text-base font-black text-slate-200 uppercase font-anime-title">Danh sách các đội kỹ sư đã kết nối</span>
+                            <span class="text-xs sm:text-sm font-manga font-black text-amber-400">MỤC TIÊU: 1000 MW CÔNG SUẤT</span>
+                        </div>
+                        <div class="flex-1 min-h-[190px] max-h-[260px] overflow-y-auto p-2 flex flex-col justify-center">
+                            <p class="text-sm sm:text-base text-slate-400 italic text-center font-bold" id="emptyPlayerMsg">Đang chờ tín hiệu từ điện thoại học sinh...</p>
+                            <div class="flex flex-wrap gap-2.5 items-center justify-center" id="hostPlayerListContainer"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                        <div class="flex gap-2.5 w-full sm:w-auto">
+                            <button onclick="addDemoBots(4)" type="button" class="px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-2 flex-1 sm:flex-none justify-center font-manga">
+                                <i class="fa-solid fa-robot text-cyan-400"></i> +4 Đội Mẫu
+                            </button>
+                            <button onclick="clearDemoBots()" type="button" class="px-4 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-1" title="Xóa danh sách">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                        <button onclick="hostStartGame()" id="hostStartBtn" class="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-white font-anime-title text-sm sm:text-lg uppercase tracking-wider transition shadow-xl disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-2.5 font-black border-2 border-white" disabled>
+                            <span>KHỞI ĐỘNG LÕI PHẢN ỨNG</span>
+                            <i class="fa-solid fa-bolt text-sm text-amber-300"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. MÀN HÌNH CÂU HỎI MÁY CHIẾU (HOST QUESTION) -->
+        <section id="hostQuestionScreen" class="w-full max-w-6xl mx-auto flex flex-col gap-4 hidden">
+            <div class="reactor-hud-card p-4 sm:p-5 border-3 border-cyan-400 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span id="hostQCounterBadge" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-manga font-black uppercase tracking-wider bg-gradient-to-r from-cyan-500 to-indigo-600 text-white border border-white shadow-md">
+                        CÂU 1 / 10
+                    </span>
+                    <span id="hostQCategory" class="text-sm sm:text-base md:text-lg font-black text-slate-100 font-anime-title">
+                        Nhận biết: Phương trình trạng thái khí lý tưởng
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2.5 px-5 py-2 rounded-2xl bg-slate-900 border-3 border-cyan-400">
+                        <i class="fa-solid fa-stopwatch text-amber-400 text-lg sm:text-xl animate-spin"></i>
+                        <span id="hostTimerText" class="font-tech font-black text-2xl sm:text-3xl text-cyan-300">30</span>
+                        <span class="text-xs sm:text-sm font-black text-cyan-400 font-manga">giây</span>
+                    </div>
+                    <div class="px-4 py-2 rounded-2xl bg-slate-900 border-2 border-slate-800 text-xs sm:text-sm font-black text-slate-200 font-manga">
+                        Đã nộp: <span id="hostAnsweredCount" class="text-amber-400 font-tech font-black text-lg sm:text-xl">0</span> / <span id="hostTotalPlayersCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                <!-- Cột trái: Đề bài & 4 phương án -->
+                <div class="lg:col-span-7 flex flex-col gap-4">
+                    <div class="reactor-hud-card p-6 sm:p-7 shadow-2xl flex flex-col gap-4 flex-1 justify-between">
+                        <div>
+                            <span class="text-xs font-manga uppercase tracking-widest text-cyan-300 font-black block mb-1">
+                                <i class="fa-solid fa-atom mr-1 text-amber-300"></i> PHƯƠNG TRÌNH CLAPEYRON - MENDELEEV
+                            </span>
+                            <h2 id="hostQuestionTitle" class="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed font-anime-title">
+                                Đang tải câu hỏi...
+                            </h2>
+                            <!-- Khung chứa hình đồ thị câu 9 nếu có -->
+                            <div id="hostQuestionGraphContainer" class="hidden mt-3 p-3 bg-slate-950/80 rounded-2xl border-2 border-cyan-400/60 flex items-center justify-center"></div>
+                        </div>
+
+                        <div id="hostMcqGrid" class="grid grid-cols-1 gap-3.5">
+                            <div id="hostOptCard0" class="p-4 sm:p-5 rounded-2xl choice-btn-a flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">A</span>
+                                    <span id="hostOptText0" class="flex-1 break-words">Phương án A</span>
+                                </div>
+                                <span id="hostOptBadge0" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+
+                            <div id="hostOptCard1" class="p-4 sm:p-5 rounded-2xl choice-btn-b flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-sky-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">B</span>
+                                    <span id="hostOptText1" class="flex-1 break-words">Phương án B</span>
+                                </div>
+                                <span id="hostOptBadge1" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+
+                            <div id="hostOptCard2" class="p-4 sm:p-5 rounded-2xl choice-btn-c flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">C</span>
+                                    <span id="hostOptText2" class="flex-1 break-words">Phương án C</span>
+                                </div>
+                                <span id="hostOptBadge2" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+
+                            <div id="hostOptCard3" class="p-4 sm:p-5 rounded-2xl choice-btn-d flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-emerald-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">D</span>
+                                    <span id="hostOptText3" class="flex-1 break-words">Phương án D</span>
+                                </div>
+                                <span id="hostOptBadge3" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột phải: Mô phỏng buồng piston khí lý tưởng -->
+                <div class="lg:col-span-5 flex flex-col gap-3">
+                    <div class="reactor-hud-card p-4 border-3 border-cyan-400 flex-1 flex flex-col justify-between overflow-hidden relative">
+                        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-2 mb-2">
+                            <span class="text-xs font-anime-title uppercase tracking-wider text-cyan-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip text-amber-400"></i> BUỒNG NÉN PISTON ĐỘNG LỰC HỌC
+                            </span>
+                            <span id="reactorLiveTelemetry" class="font-tech text-xs text-amber-300 font-bold">p = 1.0 atm • V = 10.0L • T = 300K</span>
+                        </div>
+
+                        <div class="w-full h-80 sm:h-96 relative bg-slate-950 rounded-2xl border-3 border-cyan-400/50 overflow-hidden shadow-inner flex items-center justify-center">
+                            <canvas id="reactorSimCanvas" class="w-full h-full block"></canvas>
+
+                            <!-- Báo động 1: Cảnh báo mất cân bằng áp suất -->
+                            <div id="reactorWarningAlert" class="absolute inset-0 bg-amber-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 pulse-anim border-4 border-amber-400">
+                                <span class="text-5xl animate-bounce">⚠️⚡</span>
+                                <h3 class="font-anime-title font-black text-amber-300 text-xl sm:text-2xl uppercase mt-2">CẢNH BÁO LÕI ÁP SUẤT!</h3>
+                                <p class="text-xs sm:text-sm text-amber-100 font-bold max-w-xs mt-1">Sai số trạng thái khiến Piston rung lắc dữ dội! Tiếp tục sai sẽ gây sập buồng nén!</p>
+                            </div>
+
+                            <!-- Báo động 2: Nổ buồng đốt -->
+                            <div id="reactorPopAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-4 border-rose-500">
+                                <span class="text-6xl animate-ping">💥</span>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">BUỒNG NÉN PHÁT NỔ!</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Áp suất vượt quá giới hạn bền của xilanh, phá hủy cấu trúc buồng nhiệt!</p>
+                            </div>
+
+                            <!-- Báo động 3: Sập chân không -->
+                            <div id="reactorSpikeAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-4 border-rose-500">
+                                <span class="text-6xl animate-bounce">❄️⚠️</span>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">SẬP ÁP SUẤT CHÂN KHÔNG!</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Nhiệt độ tụt dốc thảm hại làm Piston bị kẹt cứng trong lòng xi lanh!</p>
+                            </div>
+
+                            <!-- Báo động 4: Vận hành chuẩn xác -->
+                            <div id="reactorSuccessAlert" class="absolute inset-0 bg-emerald-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-4 border-emerald-400">
+                                <span class="text-5xl animate-bounce">⚡✨</span>
+                                <h3 class="font-anime-title font-black text-emerald-300 text-2xl uppercase mt-2">CÂN BẰNG HOÀN HẢO!</h3>
+                                <p class="text-xs text-emerald-200 font-bold max-w-xs mt-1">Phương trình Clapeyron - Mendeleev được bảo toàn: $pV = nRT$ $\to$ Nạp năng lượng tối đa!</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2.5 mt-3 text-center text-xs">
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
+                                <span class="text-[10px] text-slate-400 block font-manga uppercase">TRẠNG THÁI</span>
+                                <span class="font-manga font-black text-cyan-300">KHÍ LÝ TƯỞNG</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
+                                <span class="text-[10px] text-slate-400 block font-manga uppercase">CÔNG SUẤT ĐỘI</span>
+                                <span id="hostAvgAltText" class="font-tech font-black text-amber-300 text-sm sm:text-base">0 MW</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
+                                <span class="text-[10px] text-slate-400 block font-manga uppercase">LÕI PISTON</span>
+                                <span id="hostReactorStatusTag" class="font-anime-title font-black text-emerald-400 text-xs sm:text-sm">VẬN HÀNH TỐT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khu vực giải thích vật lí -->
+            <div id="hostExplanationArea" class="reactor-hud-card p-5 sm:p-7 border-3 border-cyan-400 shadow-2xl flex flex-col gap-4 hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b-2 border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs sm:text-sm font-manga font-black uppercase text-cyan-400 tracking-wider block">PHÂN TÍCH NHIỆT ĐỘNG LỰC HỌC</span>
+                        <p class="text-xs sm:text-base text-slate-300 font-bold">Hệ thống đối chiếu công thức Clapeyron - Mendeleev và các đẳng quá trình.</p>
+                    </div>
+                    <button onclick="hostShowLeaderboardScreen()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl font-black flex items-center gap-2 border-2 border-white">
+                        <span>BẢNG XẾP HẠNG KỸ SƯ</span>
+                        <i class="fa-solid fa-trophy text-amber-300"></i>
+                    </button>
+                </div>
+                <div id="hostExplanationText" class="text-xs sm:text-sm md:text-base text-slate-100 bg-slate-900/95 border-2 border-slate-800 p-4 sm:p-5 rounded-2xl font-bold leading-relaxed"></div>
+            </div>
+
+            <!-- Lưới trạng thái các đội -->
+            <div class="reactor-hud-card p-4 border-2 border-slate-800">
+                <div class="flex justify-between items-center border-b-2 border-slate-800 pb-2 mb-2 text-xs sm:text-sm">
+                    <span class="font-anime-title font-black text-slate-200 uppercase">Công suất và độ ổn định của các phi đội kỹ sư</span>
+                    <span class="font-manga font-bold text-cyan-400">ENGINEER SQUAD POWER & STATUS</span>
+                </div>
+                <div id="hostLiveSquadGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[140px] overflow-y-auto p-1"></div>
+            </div>
+        </section>
+
+        <!-- 3. MÀN HÌNH BẢNG XẾP HẠNG VÒNG (HOST LEADERBOARD) -->
+        <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto reactor-hud-card-gold p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b-3 border-amber-500/40 pb-4 gap-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/25 text-amber-300 border-3 border-amber-400 flex items-center justify-center text-3xl shadow-lg">
+                        🏆
+                    </div>
+                    <div>
+                        <span class="text-xs sm:text-sm font-manga uppercase font-bold text-amber-400 tracking-wider block">BẢNG XẾP HẠNG ĐIỀU ÁP ĐỘNG CƠ</span>
+                        <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase" id="hostLeaderboardRoundTitle">
+                            TOP ĐỘI KỸ SƯ DẪN ĐẦU (CÂU 1)
+                        </h3>
+                    </div>
+                </div>
+
+                <button onclick="hostContinueToNextQuestion()" id="hostLeaderboardNextBtn" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 hover:from-amber-400 hover:to-cyan-400 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl flex items-center gap-2.5 font-black border-2 border-white">
+                    <span id="hostLeaderboardNextBtnText">SANG CÂU TIẾP THEO</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Bục vinh danh Top 3 -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 items-end justify-center py-2 max-w-2xl mx-auto w-full">
+                <!-- Hạng 2 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">🥈</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-3 border-sky-400 text-center flex flex-col items-center shadow-lg">
+                        <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName2">--</span>
+                        <span class="text-xs font-tech text-sky-400 font-black" id="podiumAlt2">0 MW</span>
+                    </div>
+                    <div class="w-full h-14 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-400 text-base border-2 border-slate-800">#2</div>
+                </div>
+
+                <!-- Hạng 1 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-4xl mb-1 animate-bounce">👑 🥇</span>
+                    <div class="w-full p-4 rounded-2xl bg-amber-950/60 border-3 border-amber-400 text-center flex flex-col items-center shadow-2xl ring-4 ring-amber-400/40">
+                        <span class="text-base sm:text-xl font-black text-amber-300 truncate max-w-full font-anime-title" id="podiumName1">--</span>
+                        <span class="text-sm font-tech text-amber-300 font-black" id="podiumAlt1">0 MW</span>
+                    </div>
+                    <div class="w-full h-22 bg-gradient-to-t from-amber-600 to-amber-400 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-950 text-xl shadow-xl">#1</div>
+                </div>
+
+                <!-- Hạng 3 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">🥉</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-3 border-amber-600 text-center flex flex-col items-center shadow-lg">
+                        <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName3">--</span>
+                        <span class="text-xs font-tech text-amber-400 font-black" id="podiumAlt3">0 MW</span>
+                    </div>
+                    <div class="w-full h-10 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-500 text-sm border-2 border-slate-800">#3</div>
+                </div>
+            </div>
+
+            <!-- Bảng chi tiết điểm -->
+            <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-3 border-slate-800 shadow-2xl overflow-hidden text-xs sm:text-base">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-cyan-300 uppercase font-anime-title">
+                        <tr>
+                            <th class="p-3.5 rounded-l-xl">Hạng</th>
+                            <th class="p-3.5">Đội Kỹ Sư</th>
+                            <th class="p-3.5">Lớp</th>
+                            <th class="p-3.5 text-center">Trạng Thái Lõi</th>
+                            <th class="p-3.5 text-center">Đúng</th>
+                            <th class="p-3.5 text-right rounded-r-xl">Công Suất</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hostTopTableBody" class="divide-y-2 divide-slate-800 font-black text-slate-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. MÀN HÌNH TỔNG KẾT CHUNG CUỘC (HOST FINAL) -->
+        <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto reactor-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6 text-center">
+            <div>
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-cyan-400 via-indigo-500 to-amber-400 text-white flex items-center justify-center text-6xl shadow-2xl mb-3 animate-bounce border-3 border-white">
+                    ⚡
+                </div>
+                <span class="px-5 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-amber-500 text-white font-anime-title text-xs sm:text-sm font-black uppercase tracking-widest border border-white">
+                    HOÀN TẤT THỬ NGHIỆM ĐỘNG CƠ
+                </span>
+                <h2 class="text-2xl sm:text-4xl md:text-5xl font-anime-title font-black text-white uppercase tracking-wider mt-2.5">
+                    VINH DANH CÁC KỸ SƯ NHIỆT ĐỘNG XUẤT SẮC!
+                </h2>
+                <p class="text-sm sm:text-base md:text-lg text-slate-200 mt-2 font-bold" id="hostFinalChampionAnnounce">
+                    Hệ thống Piston và van điều áp đã vận hành tối ưu chuẩn xác theo phương trình $pV = nRT$!
+                </p>
+            </div>
+
+            <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-3 border-slate-800 overflow-hidden shadow-2xl text-left">
+                <div class="overflow-x-auto max-h-[300px]">
+                    <table class="w-full text-left text-xs sm:text-base">
+                        <thead class="bg-slate-900 text-cyan-300 uppercase font-anime-title sticky top-0">
+                            <tr>
+                                <th class="p-3.5 rounded-l-xl">Hạng</th>
+                                <th class="p-3.5">Tên Đội</th>
+                                <th class="p-3.5">Lớp</th>
+                                <th class="p-3.5 text-center">Công Suất (MW)</th>
+                                <th class="p-3.5 text-center">Số Câu Đúng</th>
+                                <th class="p-3.5 text-center">Số Lần Sự Cố</th>
+                                <th class="p-3.5 text-right rounded-r-xl">Tổng Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostFinalStatsTbody" class="divide-y-2 divide-slate-800 font-black text-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="exportQuizExcel()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-xl transition flex items-center gap-2.5 font-black border-2 border-white">
+                    <i class="fa-solid fa-file-excel text-lg"></i>
+                    <span>XUẤT BẢNG ĐIỂM (EXCEL)</span>
+                </button>
+                <button onclick="window.location.reload()" class="px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-lg transition flex items-center gap-2.5 font-black border-2 border-slate-700">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>CHƠI LẠI TỪ ĐẦU</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. MÀN HÌNH NHẬP PHÒNG KỸ SƯ (PLAYER JOIN) -->
+        <section id="playerJoinScreen" class="w-full max-w-lg mx-auto reactor-hud-card p-6 sm:p-9 my-auto hidden text-center flex flex-col gap-4">
+            <div class="w-20 h-20 rounded-3xl bg-cyan-500/25 border-3 border-cyan-400 text-cyan-300 flex items-center justify-center mx-auto text-4xl shadow-xl">
+                ⚡
+            </div>
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-anime-title font-black text-white uppercase">TRẠM ĐIỀU KHIỂN KỸ SƯ</h2>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1.5 font-bold">Nhập mã PIN và tên đội để kết nối van điều áp động cơ</p>
+            </div>
+
+            <div class="flex flex-col gap-3.5 text-left">
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-cyan-300 uppercase mb-1 font-manga">MÃ PHÒNG (PIN CODE)</label>
+                    <input type="text" id="playerPinInput" placeholder="Ví dụ: 8899" maxlength="6"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-amber-300 font-tech font-black text-3xl border-3 border-cyan-400 focus:outline-none text-center tracking-widest shadow-inner transition">
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">TÊN PHI ĐỘI / HỌ TÊN HỌC SINH</label>
+                    <input type="text" id="playerNameInput" placeholder="Nhập tên phi đội..." maxlength="25"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-sm sm:text-base border-2 border-slate-700 focus:border-cyan-400 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">LỚP HỌC (VÍ DỤ: 12A1)</label>
+                    <input type="text" id="playerClassInput" placeholder="Ví dụ: 12A1..." maxlength="10"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-xs sm:text-sm border-2 border-slate-700 focus:border-cyan-400 focus:outline-none uppercase transition">
+                </div>
+            </div>
+
+            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-amber-500 hover:from-cyan-400 hover:to-amber-400 text-white font-anime-title text-sm sm:text-base uppercase tracking-wider shadow-xl transition font-black border-2 border-white">
+                KẾT NỐI VÀO BUỒNG NÉN ĐỘNG CƠ
+            </button>
+            <p id="playerConnectStatusMsg" class="text-xs sm:text-sm text-cyan-400 font-bold hidden font-manga">Đang thiết lập kênh truyền thông đến máy chủ...</p>
+        </section>
+
+        <!-- 6. PHÒNG CHỜ HỌC SINH (PLAYER LOBBY) -->
+        <section id="playerLobbyScreen" class="w-full max-w-lg mx-auto reactor-hud-card p-6 sm:p-9 my-auto text-center hidden flex flex-col gap-4">
+            <div class="w-22 h-22 rounded-3xl bg-cyan-500/25 border-3 border-cyan-400 text-cyan-300 flex items-center justify-center mx-auto text-5xl shadow-xl">
+                ⚡
+            </div>
+            <div>
+                <span class="text-xs sm:text-sm font-manga uppercase text-cyan-400 font-extrabold tracking-wider block">THIẾT BỊ ĐIỀU ÁP SẴN SÀNG</span>
+                <h2 id="playerMyNameDisplay" class="text-xl sm:text-2xl font-anime-title font-black text-white mt-1 uppercase">ĐỘI KỸ SƯ</h2>
+                <div class="inline-flex items-center gap-2 mt-2 px-4 py-1.5 rounded-xl bg-slate-900 border-2 border-cyan-400 text-xs sm:text-sm text-amber-300 font-manga font-black shadow">
+                    CÔNG SUẤT BAN ĐẦU: 0 MW (MỤC TIÊU 1000 MW)
+                </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed font-bold">
+                Quan sát màn hình máy chiếu phòng thí nghiệm.<br>
+                • <b>Đúng:</b> Cân bằng $pV = nRT$ $\to$ nạp công suất <span class="text-emerald-400 font-black">+100 MW</span>.<br>
+                • <b>Sai lần 1:</b> <b>CẢNH BÁO</b> (Mất cân bằng áp suất/nhiệt, tụt <span class="text-amber-400 font-black">-25 MW</span>)!<br>
+                • <b>Tiếp tục sai:</b> <b>NỔ BUỒNG ĐỐT</b> hoặc <b>SẬP CHÂN KHÔNG</b> tụt <span class="text-rose-400 font-black">-75 MW</span>!<br>
+                • Nhớ đổi nhiệt độ sang Kelvin: $T(\text{K}) = t(^\circ\text{C}) + 273$!
+            </div>
+        </section>
+
+        <!-- 7. MÀN HÌNH TAY CẦM TRẢ LỜI (PLAYER GAMEPAD) -->
+        <section id="playerGamepadScreen" class="w-full max-w-lg mx-auto flex flex-col gap-3 my-auto hidden">
+            <div class="reactor-hud-card p-4 rounded-2xl flex items-center justify-between shadow-xl">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl text-amber-400">⚡</span>
+                    <div>
+                        <div id="playerNavName" class="font-anime-title font-black text-white text-sm sm:text-base truncate max-w-[130px]">Đội Kỹ Sư</div>
+                        <div class="text-xs text-slate-300 font-bold">Công suất: <span id="playerAltHUD" class="font-tech font-black text-amber-300 text-base">0 MW</span></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span id="playerRankHUD" class="px-3 py-1 rounded-xl bg-cyan-500/25 text-cyan-300 font-anime-title font-black text-xs sm:text-sm border border-cyan-400">
+                        #--
+                    </span>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border-2 border-cyan-400 text-xs sm:text-sm font-black text-cyan-300">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                        <span id="playerTimerText" class="font-tech">30s</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reactor-hud-card p-4 rounded-2xl shadow-md text-left flex flex-col gap-1.5">
+                <div class="flex justify-between items-center">
+                    <span id="playerQCounter" class="text-xs sm:text-sm font-manga font-black uppercase text-cyan-400">CÂU 1 / 10</span>
+                    <span class="text-[11px] px-2.5 py-0.5 rounded-lg bg-cyan-500/25 text-cyan-300 font-black uppercase font-manga border border-cyan-400">IDEAL GAS LAW</span>
+                </div>
+                <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-black text-slate-100 leading-snug font-anime-title">
+                    Đang tải câu hỏi...
+                </h3>
+            </div>
+
+            <div class="flex flex-col gap-2.5" id="playerMcqContainer">
+                <button onclick="playerSubmitAnswer(0)" id="playerBtn0" class="choice-btn-a w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">A</span>
+                    <span id="playerOptText0" class="flex-1 break-words leading-tight">Phương án A</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(1)" id="playerBtn1" class="choice-btn-b w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-sky-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">B</span>
+                    <span id="playerOptText1" class="flex-1 break-words leading-tight">Phương án B</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(2)" id="playerBtn2" class="choice-btn-c w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">C</span>
+                    <span id="playerOptText2" class="flex-1 break-words leading-tight">Phương án C</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(3)" id="playerBtn3" class="choice-btn-d w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-emerald-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">D</span>
+                    <span id="playerOptText3" class="flex-1 break-words leading-tight">Phương án D</span>
+                </button>
+            </div>
+
+            <div id="playerSubmittedOverlay" class="reactor-hud-card p-6 rounded-2xl text-center hidden flex flex-col gap-2.5 shadow-2xl">
+                <div class="text-4xl text-cyan-400 font-black animate-pulse">⚡</div>
+                <h4 class="font-anime-title font-black text-base sm:text-lg text-white uppercase">LỆNH ĐIỀU ÁP ĐÃ ĐƯỢC GỬI</h4>
+                <p id="playerSubmittedLabel" class="text-xs sm:text-sm font-extrabold text-slate-200">Đang đồng bộ với máy chủ phòng thí nghiệm...</p>
+                <p class="text-xs text-slate-400 font-bold">Quan sát màn hình trung tâm xem Piston vận hành ổn định hay gặp sự cố quá tải!</p>
+            </div>
+        </section>
+
+        <!-- 8. MÀN HÌNH KẾT QUẢ TỪNG CÂU CHO HỌC SINH -->
+        <section id="playerFeedbackScreen" class="w-full max-w-lg mx-auto reactor-hud-card p-6 rounded-[2.5rem] text-center my-auto hidden shadow-2xl flex flex-col items-center gap-3">
+            <div id="playerFeedbackIcon" class="text-5xl mb-1">⚡</div>
+            <h2 id="playerFeedbackTitle" class="text-lg sm:text-2xl font-anime-title font-black text-emerald-400 uppercase">
+                ĐIỀU ÁP THÀNH CÔNG!
+            </h2>
+            <div id="playerFeedbackGain" class="text-sm sm:text-lg font-tech font-black text-amber-300">
+                +100 MW • +100 Điểm
+            </div>
+
+            <div class="w-full py-3 px-5 rounded-2xl bg-slate-900 border-2 border-slate-800 flex items-center justify-between shadow-md my-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-cyan-500/25 text-cyan-400 flex items-center justify-center font-anime-title font-black text-xl border-2 border-cyan-400">
+                        ⚛️
+                    </div>
+                    <div class="text-left">
+                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider font-manga">TRẠNG THÁI LÕI KHÍ</span>
+                        <span class="text-xs sm:text-sm font-anime-title font-black text-cyan-300" id="playerRankStatusText">Động cơ tăng tốc ổn định</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="playerMyRankNum" class="text-2xl font-tech font-black text-amber-400">#--</span>
+                    <span id="playerTotalPlayersBadge" class="text-xs text-slate-400 font-bold block">/ -- đội</span>
+                </div>
+            </div>
+
+            <div class="w-full p-3 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs sm:text-sm text-slate-300 font-bold" id="playerFeedbackSubHint">
+                Theo dõi giải thích công thức trên màn hình máy chiếu!
+            </div>
+        </section>
+
+        <!-- 9. BẢNG XẾP HẠNG TRÊN ĐIỆN THOẠI HỌC SINH -->
+        <section id="playerLeaderboardScreen" class="w-full max-w-lg mx-auto reactor-hud-card p-6 rounded-[2.5rem] my-auto hidden shadow-2xl flex flex-col gap-3.5">
+            <div class="text-center border-b-2 border-slate-800 pb-3">
+                <span class="text-xs sm:text-sm font-manga text-cyan-400 font-extrabold uppercase">BẢNG XẾP HẠNG TRẠM</span>
+                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">CÔNG SUẤT ĐỘNG CƠ HIỆN TẠI</h3>
+            </div>
+
+            <div class="flex flex-col gap-2 max-h-[280px] overflow-y-auto" id="playerTopListContainer"></div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900 border-2 border-cyan-400 flex items-center justify-between text-xs sm:text-sm">
+                <span class="font-extrabold text-slate-200 font-manga">Vị trí của bạn:</span>
+                <span class="font-tech font-black text-amber-400 text-base" id="playerMobileMyRankSummary">#-- (0 MW)</span>
+            </div>
+        </section>
+
+        <!-- CỬA SỔ PHÓNG TO MÃ QR -->
+        <div id="qrModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+            <div class="bg-slate-900 max-w-md w-full p-7 rounded-3xl text-center border-3 border-cyan-400 relative shadow-2xl flex flex-col items-center gap-3.5">
+                <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-14 h-14 rounded-2xl bg-cyan-500/25 text-cyan-400 flex items-center justify-center text-2xl border-2 border-cyan-400">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">QUÉT MÃ QR KẾT NỐI</h3>
+                <p class="text-xs sm:text-sm text-slate-300 font-bold">Dùng camera điện thoại để kết nối vào buồng nén động cơ</p>
+
+                <div class="p-4 bg-white rounded-3xl border-4 border-cyan-400 shadow-2xl flex items-center justify-center">
+                    <div id="modalQrCodeBox" class="w-[220px] h-[220px] flex items-center justify-center overflow-hidden"></div>
+                </div>
+
+                <div class="flex items-center gap-2.5 text-base font-manga">
+                    <span class="text-slate-200 font-black">MÃ PIN:</span>
+                    <span id="modalPinText" class="text-3xl font-tech font-black text-amber-400 px-4 py-1 bg-black rounded-xl border-2 border-cyan-400">----</span>
+                </div>
+                <button onclick="closeQrModal()" class="w-full py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-black text-slate-200 transition font-manga">
+                    ĐÓNG CỬA SỔ
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /* =========================================================================
+           HỆ THỐNG CÂU HỎI VẬT LÍ 12: PHƯƠNG TRÌNH TRẠNG THÁI KHÍ LÝ TƯỞNG
+           ========================================================================= */
+        const QUESTIONS_DATA = [
+            {
+                id: 1,
+                category: "Câu 1. Nhận biết - Dạng phương trình trạng thái",
+                title: "Biểu thức nào sau đây diễn tả đúng phương trình trạng thái của khí lý tưởng?",
+                options: [
+                    "$pV = nRT$",
+                    "$\\frac{pV}{T} = \\text{hằng số}$",
+                    "$\\frac{p_1 V_1}{T_1} = \\frac{p_2 V_2}{T_2}$",
+                    "Cả A, B và C đều đúng"
+                ],
+                correct: 3,
+                explanation: "Phương trình trạng thái của khí lí tưởng có thể viết dưới các dạng tương đương:<br>• Dạng Clapeyron - Mendeleev: $pV = nRT = \\frac{m}{M}RT$.<br>• Dạng liên hệ trạng thái: $\\frac{pV}{T} = \\text{hằng số} \\implies \\frac{p_1 V_1}{T_1} = \\frac{p_2 V_2}{T_2}$. Do đó cả A, B và C đều đúng."
+            },
+            {
+                id: 2,
+                category: "Câu 2. Nhận biết - Đường đẳng tích trong hệ (p, T)",
+                title: "Trong hệ tọa độ $(p, T)$, đường biểu diễn nào sau đây là đường đẳng tích?",
+                options: [
+                    "Đường thẳng song song với trục hoành.",
+                    "Đường thẳng song song với trục tung.",
+                    "Đường thẳng có đường kéo dài đi qua gốc tọa độ.",
+                    "Đường hyperbol."
+                ],
+                correct: 2,
+                explanation: "Trong quá trình đẳng tích ($V = \\text{hằng số}$), theo định luật Charles: $\\frac{p}{T} = \\text{hằng số} \\implies p = \\text{const} \\cdot T$. Do đó, trong hệ tọa độ $(p, T)$, đồ thị là đường thẳng có phần kéo dài đi qua gốc tọa độ $O$."
+            },
+            {
+                id: 3,
+                category: "Câu 3. Thông hiểu - Biến đổi trạng thái khi V tăng, T giảm",
+                title: "Một lượng khí lý tưởng có khối lượng không đổi, ở trạng thái 1 có áp suất $p_1$, thể tích $V_1$, nhiệt độ tuyệt đối $T_1$. Khi chuyển sang trạng thái 2, nếu thể tích tăng gấp đôi ($V_2 = 2V_1$) và nhiệt độ tuyệt đối giảm một nửa ($T_2 = T_1/2$) thì áp suất khí ở trạng thái 2 sẽ:",
+                options: [
+                    "tăng gấp đôi.",
+                    "giảm 4 lần.",
+                    "không đổi.",
+                    "giảm 2 lần."
+                ],
+                correct: 1,
+                explanation: "Áp dụng phương trình trạng thái khí lý tưởng:<br>$\\frac{p_1 V_1}{T_1} = \\frac{p_2 V_2}{T_2} \\implies p_2 = p_1 \\cdot \\frac{V_1}{V_2} \\cdot \\frac{T_2}{T_1} = p_1 \\cdot \\frac{1}{2} \\cdot \\frac{1}{2} = \\frac{p_1}{4}$.<br>Vậy áp suất $p_2$ giảm 4 lần."
+            },
+            {
+                id: 4,
+                category: "Câu 4. Thông hiểu - Đặc điểm quá trình đẳng áp",
+                title: "Biểu thức hoặc điều kiện nào mô tả đúng quá trình đẳng áp của một lượng khí xác định?",
+                options: [
+                    "Nhiệt độ và thể tích tỉ lệ nghịch với nhau.",
+                    "Thể tích tỉ lệ thuận với nhiệt độ tuyệt đối.",
+                    "Áp suất tỉ lệ thuận với nhiệt độ tuyệt đối.",
+                    "Áp suất và thể tích tỉ lệ nghịch với nhau."
+                ],
+                correct: 1,
+                explanation: "Trong quá trình đẳng áp ($p = \\text{hằng số}$), thể tích của một lượng khí xác định tỉ lệ thuận với nhiệt độ tuyệt đối: $\\frac{V}{T} = \\text{hằng số}$ hay $\\frac{V_1}{T_1} = \\frac{V_2}{T_2}$."
+            },
+            {
+                id: 5,
+                category: "Câu 5. Vận dụng thấp - Tính nhiệt độ sau nén ép",
+                title: "Một lượng khí ở trạng thái 1 có áp suất $1\\text{ atm}$, thể tích $10\\text{ lít}$, nhiệt độ $27^\\circ\\text{C}$. Khi áp suất khí tăng lên đến $2\\text{ atm}$ và thể tích giảm còn $5\\text{ lít}$ thì nhiệt độ tuyệt đối của khối khí lúc này là:",
+                options: [
+                    "$300\\text{ K}$",
+                    "$600\\text{ K}$",
+                    "$150\\text{ K}$",
+                    "$327\\text{ K}$"
+                ],
+                correct: 0,
+                explanation: "Đổi nhiệt độ ban đầu sang Kelvin: $T_1 = 27 + 273 = 300\\text{ K}$.<br>Áp dụng phương trình trạng thái:<br>$\\frac{p_1 V_1}{T_1} = \\frac{p_2 V_2}{T_2} \\implies T_2 = T_1 \\cdot \\frac{p_2 V_2}{p_1 V_1} = 300 \\cdot \\frac{2 \\cdot 5}{1 \\cdot 10} = 300\\text{ K}$.<br>(Vì tích $p_1 V_1 = p_2 V_2 = 10$, đây thực chất là quá trình đẳng nhiệt $T_2 = T_1 = 300\\text{ K}$)."
+            },
+            {
+                id: 6,
+                category: "Câu 6. Vận dụng thấp - Bình chứa mở van an toàn đẳng áp",
+                title: "Bình kín dung tích $20\\text{ lít}$ chứa khí ở nhiệt độ $27^\\circ\\text{C}$ và áp suất $1\\text{ atm}$. Đun nóng bình tới nhiệt độ $127^\\circ\\text{C}$ và khí thoát ra ngoài do van an toàn mở, biết áp suất trong bình vẫn giữ không đổi bằng $1\\text{ atm}$. Thể tích lượng khí còn lại trong bình ở nhiệt độ sau là:",
+                options: [
+                    "$15\\text{ lít}$",
+                    "$26,67\\text{ lít}$",
+                    "$20\\text{ lít}$",
+                    "$16,67\\text{ lít}$"
+                ],
+                correct: 2,
+                explanation: "<b>Bẫy vật lí kinh điển:</b> Vì bình có dung tích không đổi là $20\\text{ lít}$, chất khí luôn lan tỏa và chiếm toàn bộ dung tích của bình chứa.<br>Do đó, dù một lượng khí đã thoát ra ngoài qua van an toàn thì lượng khí còn lại trong bình vẫn có thể tích đúng bằng dung tích bình, tức là <b>$20\\text{ lít}$</b>.<br>(Nếu xét lượng khí ban đầu khi giãn nở tự do ở $127^\\circ\\text{C}$ thì $V' = 20 \\cdot \\frac{400}{300} = 26,67\\text{ lít}$, nhưng lượng khí CÒN LẠI TRONG BÌNH luôn chiếm $20\\text{ lít}$)."
+            },
+            {
+                id: 7,
+                category: "Câu 7. Vận dụng cao - Tăng áp suất 20% trong bình kín",
+                title: "Một bình kín có dung tích không đổi chứa một lượng khí lý tưởng ở $27^\\circ\\text{C}$. Khi nung nóng bình để áp suất khí tăng thêm $20\\%$ so với áp suất ban đầu thì nhiệt độ của khí trong bình là:",
+                options: [
+                    "$327^\\circ\\text{C}$",
+                    "$87^\\circ\\text{C}$",
+                    "$360^\\circ\\text{C}$",
+                    "$54^\\circ\\text{C}$"
+                ],
+                correct: 1,
+                explanation: "Vì bình kín có dung tích không đổi nên đây là quá trình đẳng tích ($V = \\text{const}$).<br>Nhiệt độ đầu: $T_1 = 27 + 273 = 300\\text{ K}$.<br>Áp suất tăng thêm $20\\% \\implies p_2 = p_1 + 0,2p_1 = 1,2 p_1$.<br>Theo định luật Charles: $\\frac{p_1}{T_1} = \\frac{p_2}{T_2} \\implies T_2 = 1,2 \\cdot T_1 = 1,2 \\cdot 300 = 360\\text{ K}$.<br>Chuyển về độ Celsius: $t_2 = 360 - 273 = 87^\\circ\\text{C}$."
+            },
+            {
+                id: 8,
+                category: "Câu 8. Vận dụng thấp - Phương trình Clapeyron - Mendeleev",
+                title: "Cho $3,2\\text{ gam}$ khí ôxy ($O_2$, khối lượng mol $M = 32\\text{ g/mol}$) ở nhiệt độ $27^\\circ\\text{C}$ và áp suất $1\\text{ atm}$. Thể tích của lượng khí này gần nhất với giá trị nào sau đây? (Cho hằng số khí $R = 0,082\\text{ L}\\cdot\\text{atm}/(\\text{mol}\\cdot\\text{K})$)",
+                options: [
+                    "$3,08\\text{ lít}$",
+                    "$2,46\\text{ lít}$",
+                    "$1,23\\text{ lít}$",
+                    "$4,92\\text{ lít}$"
+                ],
+                correct: 1,
+                explanation: "Số mol khí ôxy: $n = \\frac{m}{M} = \\frac{3,2}{32} = 0,1\\text{ mol}$.<br>Nhiệt độ tuyệt đối: $T = 27 + 273 = 300\\text{ K}$.<br>Áp dụng phương trình Clapeyron - Mendeleev: $pV = nRT$<br>$\\implies V = \\frac{nRT}{p} = \\frac{0,1 \\cdot 0,082 \\cdot 300}{1} = 2,46\\text{ L}$."
+            },
+            {
+                id: 9,
+                category: "Câu 9. Thông hiểu - Đọc đồ thị đường đẳng áp (V, T)",
+                title: "Trên hình vẽ bên dưới là đồ thị biểu diễn sự biến đổi trạng thái của một lượng khí lý tưởng trong hệ tọa độ $(V, T)$. Quá trình từ trạng thái (1) sang trạng thái (2) là quá trình gì?",
+                options: [
+                    "đẳng nhiệt",
+                    "đẳng tích",
+                    "đẳng áp",
+                    "đoạn nhiệt"
+                ],
+                correct: 2,
+                hasGraph: true,
+                explanation: "Trong hệ tọa độ $(V, T)$, đường biểu diễn là một đoạn thẳng có đường kéo dài đi qua gốc tọa độ $O$. Điều này chứng minh $V$ tỉ lệ thuận với $T$ ($V = \\text{const} \\cdot T$), tức là $\\frac{V}{T} = \\text{hằng số}$. Đây chính là đặc trưng của <b>quá trình đẳng áp</b>."
+            },
+            {
+                id: 10,
+                category: "Câu 10. Vận dụng cao - Bài toán nối hai bình cầu khí",
+                title: "Hai bình cầu chứa cùng một loại khí lý tưởng được nối với nhau bằng một ống nhỏ có khóa. Ban đầu khóa đóng, bình 1 chứa khí ở áp suất $p_1$, thể tích $V_1$; bình 2 chứa khí ở áp suất $p_2 = 2p_1$, thể tích $V_2 = 2V_1$; nhiệt độ hai bình như nhau. Mở khóa nhẹ nhàng cho khí thông nhau mà không làm thay đổi nhiệt độ. Áp suất chung $p$ của hệ thống khi cân bằng là:",
+                options: [
+                    "$p = 1,5\\, p_1$",
+                    "$p = 1,67\\, p_1$",
+                    "$p = 2\\, p_1$",
+                    "$p = 1,2\\, p_1$"
+                ],
+                correct: 1,
+                explanation: "Vì nhiệt độ $T$ không đổi, theo phương trình Clapeyron - Mendeleev số mol tỉ lệ với tích $pV$ ($n = \\frac{pV}{RT}$):<br>• Bình 1: $n_1 = \\frac{p_1 V_1}{RT}$.<br>• Bình 2: $n_2 = \\frac{p_2 V_2}{RT} = \\frac{(2p_1)(2V_1)}{RT} = \\frac{4 p_1 V_1}{RT}$.<br>• Tổng số mol khi mở khóa: $n = n_1 + n_2 = \\frac{5 p_1 V_1}{RT}$.<br>• Tổng thể tích hệ thống: $V = V_1 + V_2 = V_1 + 2V_1 = 3V_1$.<br>$\\implies p = \\frac{nRT}{V} = \\frac{5 p_1 V_1}{3 V_1} = \\frac{5}{3} p_1 \\approx 1,67\\, p_1$."
+            }
+        ];
+
+        /* =========================================================================
+           HỆ THỐNG ÂM THANH WEB AUDIO SYNTHESIZER
+           ========================================================================= */
+        let audioCtx = null;
+        let sfxEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioClass) audioCtx = new AudioClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        const Sound = {
+            playTone(freq, type, duration, gainVal = 0.08, delay = 0) {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(gainVal, ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + delay);
+                    osc.stop(ctx.currentTime + delay + duration);
+                } catch(e) {}
+            },
+            tap() { this.playTone(720, 'sine', 0.05, 0.05); },
+            correct() {
+                [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => {
+                    this.playTone(f, 'triangle', 0.2, 0.1, i * 0.06);
+                });
+            },
+            warningAlarm() {
+                if (!sfxEnabled) return;
+                this.playTone(493.88, 'sawtooth', 0.15, 0.13, 0);
+                this.playTone(659.25, 'sawtooth', 0.15, 0.13, 0.14);
+                this.playTone(493.88, 'sawtooth', 0.15, 0.13, 0.28);
+                this.playTone(659.25, 'sawtooth', 0.22, 0.15, 0.42);
+            },
+            spikePierce() {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    this.playTone(950, 'sawtooth', 0.1, 0.26, 0);
+                    this.playTone(320, 'triangle', 0.25, 0.2, 0.05);
+                } catch(e) {}
+            },
+            balloonPop() {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    this.playTone(85, 'sawtooth', 0.35, 0.3);
+                } catch(e) {}
+            },
+            timerTick() { this.playTone(1050, 'sine', 0.03, 0.03); }
+        };
+
+        function toggleAudio() {
+            sfxEnabled = !sfxEnabled;
+            const icon = document.getElementById('sfxIcon');
+            if (icon) {
+                icon.className = sfxEnabled ? "fa-solid fa-volume-high text-cyan-400 text-lg" : "fa-solid fa-volume-xmark text-slate-500 text-lg";
+            }
+        }
+
+        function showToast(msg, isPositive = true) {
+            const toast = document.getElementById('toastBox');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-3 rounded-2xl text-xs sm:text-sm font-black shadow-2xl transition-all duration-300 opacity-100 ${
+                isPositive ? 'bg-cyan-950/95 text-cyan-300 border-cyan-400' : 'bg-rose-950/95 text-rose-300 border-rose-500'
+            }`;
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2400);
+        }
+
+        function refreshMathRender() {
+            if (typeof renderMathInElement === 'function') {
+                try {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            { left: "$$", right: "$$", display: true },
+                            { left: "$", right: "$", display: false }
+                        ],
+                        throwOnError: false
+                    });
+                } catch(e) {}
+            } else {
+                setTimeout(refreshMathRender, 350);
+            }
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+        }
+
+        /* =========================================================================
+           HỆ THỐNG TRUYỀN DỮ LIỆU ĐỒNG BỘ HAI LỚP: NETBUS (LOCAL) + MQTT (INTERNET)
+           ========================================================================= */
+        const MQTT_BROKERS = [
+            "wss://broker.emqx.io:8084/mqtt",
+            "wss://broker.hivemq.com:8884/mqtt",
+            "wss://test.mosquitto.org:8081/mqtt"
+        ];
+        let mqttClient = null;
+        let roomPin = "";
+        let isHost = false;
+
+        function createMqttClient(clientId, onConnect, onMessage) {
+            let currentIdx = 0;
+            let client = null;
+            let isConnected = false;
+            let timeoutTimer = null;
+
+            function connect() {
+                if (client) {
+                    try { client.end(true); } catch(e) {}
+                }
+                const url = MQTT_BROKERS[currentIdx];
+
+                try {
+                    client = mqtt.connect(url, {
+                        clientId: clientId,
+                        clean: true,
+                        reconnectPeriod: 2500,
+                        connectTimeout: 5000,
+                        keepalive: 30
+                    });
+
+                    if (timeoutTimer) clearTimeout(timeoutTimer);
+                    timeoutTimer = setTimeout(() => {
+                        if (!isConnected && currentIdx < MQTT_BROKERS.length - 1) {
+                            currentIdx++;
+                            connect();
+                        }
+                    }, 5500);
+
+                    client.on('connect', () => {
+                        isConnected = true;
+                        if (timeoutTimer) clearTimeout(timeoutTimer);
+                        if (onConnect) onConnect(client);
+                    });
+
+                    client.on('message', (t, m) => {
+                        if (onMessage) onMessage(t, m);
+                    });
+
+                    client.on('error', () => {
+                        if (!isConnected && currentIdx < MQTT_BROKERS.length - 1) {
+                            if (timeoutTimer) clearTimeout(timeoutTimer);
+                            currentIdx++;
+                            setTimeout(connect, 400);
+                        }
+                    });
+                } catch(e) {
+                    if (currentIdx < MQTT_BROKERS.length - 1) {
+                        currentIdx++;
+                        setTimeout(connect, 400);
+                    }
+                }
+            }
+
+            connect();
+            return () => client;
+        }
+
+        const NetBus = {
+            bc: null,
+            init(pin, onMessage) {
+                const chName = `aero_reactor_bus_${pin}`;
+                if (typeof BroadcastChannel !== 'undefined') {
+                    try {
+                        if (this.bc) {
+                            try { this.bc.close(); } catch(e) {}
+                        }
+                        this.bc = new BroadcastChannel(chName);
+                        this.bc.onmessage = (e) => {
+                            if (e.data && onMessage) onMessage(e.data);
+                        };
+                    } catch(e) {}
+                }
+
+                window.addEventListener('storage', (e) => {
+                    try {
+                        if (e.key === chName && e.newValue) {
+                            const parsed = JSON.parse(e.newValue);
+                            if (parsed && parsed.payload && onMessage) {
+                                onMessage(parsed.payload);
+                            }
+                        }
+                    } catch(err) {}
+                });
+            },
+            publish(pin, payload) {
+                const chName = `aero_reactor_bus_${pin}`;
+                if (this.bc) {
+                    try { this.bc.postMessage(payload); } catch(e) {}
+                }
+                try {
+                    localStorage.setItem(chName, JSON.stringify({
+                        payload: payload,
+                        _t: Date.now() + Math.random()
+                    }));
+                } catch(e) {}
+            }
+        };
+
+        /* =========================================================================
+           TRẠNG THÁI GAME & PHI ĐỘI KỸ SƯ
+           ========================================================================= */
+        let hostState = {
+            players: {},
+            currentQIndex: 0,
+            timer: 30,
+            timerInterval: null,
+            startTime: 0,
+            isRoundEnded: false,
+            isGameStarted: false,
+            isFinished: false,
+            botTimers: []
+        };
+
+        let storedPlayerId = sessionStorage.getItem('aero_reactor_player_id');
+        if (!storedPlayerId) {
+            storedPlayerId = "eng_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 8);
+            sessionStorage.setItem('aero_reactor_player_id', storedPlayerId);
+        }
+
+        let playerState = {
+            playerId: storedPlayerId,
+            myName: "",
+            myClass: "",
+            altitude: 0, // Công suất MW
+            score: 0,
+            consecutiveWrong: 0,
+            hazardState: 'normal',
+            selectedChoice: null,
+            timerInterval: null,
+            joinInterval: null
+        };
+
+        /* =========================================================================
+           MÔ PHỎNG CANVAS 2D: BUỒNG NÉN PISTON & PHÂN TỬ KHÍ LÝ TƯỞNG
+           ========================================================================= */
+        let simAnimFrame = null;
+        let gasParticles = [];
+        let burstParticles = [];
+
+        function initGasMolecules(count = 35) {
+            gasParticles = [];
+            for (let i = 0; i < count; i++) {
+                gasParticles.push({
+                    x: Math.random(),
+                    y: Math.random(),
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: (Math.random() - 0.5) * 3,
+                    radius: 3.5 + Math.random() * 2,
+                    color: Math.random() > 0.5 ? '#38bdf8' : '#fbbf24'
+                });
+            }
+        }
+
+        function triggerPopParticles(cx, cy) {
+            burstParticles = [];
+            for (let i = 0; i < 50; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 7;
+                burstParticles.push({
+                    x: cx,
+                    y: cy,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1.0,
+                    size: 3 + Math.random() * 5,
+                    color: ['#f43f5e', '#fbbf24', '#38bdf8', '#fb7185'][Math.floor(Math.random() * 4)]
+                });
+            }
+        }
+
+        function triggerColdCollapse(cx, cy) {
+            burstParticles = [];
+            for (let i = 0; i < 35; i++) {
+                burstParticles.push({
+                    x: cx + (Math.random() - 0.5) * 40,
+                    y: cy,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: Math.random() * 5 + 1,
+                    life: 1.0,
+                    size: 2 + Math.random() * 4,
+                    color: '#94a3b8'
+                });
+            }
+        }
+
+        function runReactorCanvas(activeHazard = 'normal', powerVal = 100) {
+            const canvas = document.getElementById('reactorSimCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+
+            canvas.width = rect.width * (window.devicePixelRatio || 1);
+            canvas.height = rect.height * (window.devicePixelRatio || 1);
+            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+            const w = rect.width;
+            const h = rect.height;
+            let timeTick = 0;
+
+            if (gasParticles.length === 0) initGasMolecules(32);
+            if (simAnimFrame) cancelAnimationFrame(simAnimFrame);
+
+            function render() {
+                timeTick += 0.04;
+                ctx.clearRect(0, 0, w, h);
+
+                // Nền lò phản ứng
+                const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+                bgGrad.addColorStop(0, '#060f22');
+                bgGrad.addColorStop(1, '#020612');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                // Khung vỏ Xilanh Thép
+                const cylX = w * 0.15;
+                const cylW = w * 0.7;
+                const cylY = h * 0.12;
+                const cylH = h * 0.76;
+
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 5;
+                ctx.strokeRect(cylX, cylY, cylW, cylH);
+
+                // Vạch khắc thể tích V trên thân xilanh
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+                ctx.lineWidth = 1.5;
+                for (let i = 1; i <= 5; i++) {
+                    const vy = cylY + (cylH / 6) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(cylX, vy);
+                    ctx.lineTo(cylX + 15, vy);
+                    ctx.stroke();
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.font = '10px Nunito, sans-serif';
+                    ctx.fillText(`${(6 - i) * 2}L`, cylX + 18, vy + 3);
+                }
+
+                // Tính toán vị trí Piston theo áp suất & công suất
+                const clampedPower = Math.max(0, Math.min(1000, powerVal));
+                let pistonYRatio = 0.28 + (1 - clampedPower / 1000) * 0.4;
+                if (activeHazard === 'warning_heat') {
+                    pistonYRatio += Math.sin(timeTick * 12) * 0.04;
+                } else if (activeHazard === 'warning_cold') {
+                    pistonYRatio = 0.72 + Math.sin(timeTick * 4) * 0.01;
+                } else {
+                    pistonYRatio += Math.sin(timeTick * 2) * 0.01;
+                }
+
+                const pistonY = cylY + cylH * pistonYRatio;
+
+                // Vẽ trục piston
+                ctx.fillStyle = '#64748b';
+                ctx.fillRect(w / 2 - 12, cylY - 20, 24, pistonY - cylY + 20);
+
+                // Vẽ mặt Piston thủy lực
+                ctx.fillStyle = activeHazard === 'warning_heat' ? '#e11d48' : '#0369a1';
+                ctx.fillRect(cylX + 4, pistonY, cylW - 8, 20);
+                ctx.strokeStyle = '#f8fafc';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cylX + 4, pistonY, cylW - 8, 20);
+
+                // Cập nhật và vẽ các phân tử khí lý tưởng bên dưới Piston
+                const chamberTop = pistonY + 20;
+                const chamberBottom = cylY + cylH;
+                const chamberHeight = chamberBottom - chamberTop;
+
+                // Tốc độ phân tử tỉ lệ với căn bậc 2 nhiệt độ (Kinetict theory: v ~ sqrt(T))
+                let speedMultiplier = 1.0;
+                if (activeHazard === 'warning_heat') speedMultiplier = 2.2;
+                if (activeHazard === 'warning_cold') speedMultiplier = 0.4;
+
+                gasParticles.forEach(p => {
+                    p.x += (p.vx * speedMultiplier) / (cylW - 20);
+                    p.y += (p.vy * speedMultiplier) / Math.max(20, chamberHeight);
+
+                    // Phản xạ đàn hồi hoàn toàn với thành xilanh và mặt piston
+                    if (p.x < 0) { p.x = 0; p.vx = -p.vx; }
+                    if (p.x > 1) { p.x = 1; p.vx = -p.vx; }
+                    if (p.y < 0) { p.y = 0; p.vy = -p.vy; }
+                    if (p.y > 1) { p.y = 1; p.vy = -p.vy; }
+
+                    const realX = cylX + 10 + p.x * (cylW - 20);
+                    const realY = chamberTop + p.y * Math.max(10, chamberHeight - 10);
+
+                    ctx.save();
+                    ctx.fillStyle = activeHazard === 'warning_heat' ? '#f43f5e' : p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.arc(realX, realY, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+
+                // Hạt nổ văng ra khi sự cố
+                burstParticles.forEach(p => {
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, p.life);
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.02;
+                });
+                burstParticles = burstParticles.filter(p => p.life > 0);
+
+                simAnimFrame = requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        // Tự động resize canvas khi xoay màn hình hoặc mở fullscreen
+        window.addEventListener('resize', () => {
+            const screen = document.getElementById('hostQuestionScreen');
+            if (screen && !screen.classList.contains('hidden')) {
+                const players = Object.values(hostState.players);
+                const avgPower = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+                runReactorCanvas('normal', avgPower);
+            }
+        });
+
+        /* =========================================================================
+           LOGIC MÁY CHIẾU (HOST CONTROLLER)
+           ========================================================================= */
+        function initHostMode() {
+            isHost = true;
+            hideAllScreens();
+            document.getElementById('hostLobbyScreen').classList.remove('hidden');
+
+            roomPin = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('hostPinDisplay').innerText = roomPin;
+
+            generateHostQrCode();
+
+            NetBus.init(roomPin, (msg) => {
+                if (msg && msg._sender === 'player') {
+                    handleHostIncomingData(msg.data);
+                }
+            });
+
+            const clientId = "host_aero_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
+            createMqttClient(clientId, (client) => {
+                mqttClient = client;
+                mqttClient.subscribe(`aero_reactor/${roomPin}/player`, { qos: 0 });
+            }, (topic, message) => {
+                try {
+                    const data = JSON.parse(message.toString());
+                    handleHostIncomingData(data);
+                } catch(e) {}
+            });
+        }
+
+        function hostPublish(data) {
+            NetBus.publish(roomPin, { _sender: 'host', data: data });
+            if (mqttClient && mqttClient.connected) {
+                try {
+                    mqttClient.publish(`aero_reactor/${roomPin}/host`, JSON.stringify(data), { qos: 0 });
+                } catch(e) {}
+            }
+        }
+
+        function addDemoBots(count = 4) {
+            const presets = [
+                { name: "Lõi Lửa Plasma", class: "12A1" },
+                { name: "Piston Siêu Âm", class: "12A1" },
+                { name: "Động Cơ Phượng Hoàng", class: "12A2" },
+                { name: "Tua-bin Lượng Tử", class: "12A2" }
+            ];
+            for (let i = 0; i < count; i++) {
+                const p = presets[i % presets.length];
+                const botId = "bot_" + (i + 1) + "_" + Math.random().toString(36).substring(2, 6);
+                handleHostIncomingData({
+                    type: 'PLAYER_JOIN',
+                    playerId: botId,
+                    name: p.name,
+                    className: p.class,
+                    isBot: true
+                });
+            }
+            showToast(`✓ Đã thêm ${count} đội kỹ sư mẫu!`, true);
+        }
+
+        function clearDemoBots() {
+            hostState.players = {};
+            updateHostLobbyUI();
+            showToast("Đã làm sạch danh sách!", true);
+        }
+
+        function updateHostLobbyUI() {
+            const count = Object.keys(hostState.players).length;
+            document.getElementById('hostPlayerCountNum').innerText = count;
+            const container = document.getElementById('hostPlayerListContainer');
+            const emptyMsg = document.getElementById('emptyPlayerMsg');
+            const startBtn = document.getElementById('hostStartBtn');
+
+            if (emptyMsg) emptyMsg.classList.toggle('hidden', count > 0);
+            if (startBtn) startBtn.disabled = (count === 0);
+
+            if (container) {
+                container.innerHTML = '';
+                Object.values(hostState.players).forEach(p => {
+                    const tag = document.createElement('div');
+                    tag.className = "px-4 py-2 rounded-2xl bg-slate-900 border-2 border-cyan-400 text-cyan-300 font-bold text-xs sm:text-sm flex items-center gap-2";
+                    tag.innerHTML = `<span>⚡</span> <span>${p.name}</span> <span class="text-xs text-slate-400">(${p.className})</span>`;
+                    container.appendChild(tag);
+                });
+            }
+        }
+
+        function handleHostIncomingData(data) {
+            if (!data || !data.type) return;
+
+            if (data.type === 'PLAYER_JOIN') {
+                const pId = data.playerId;
+                if (!pId) return;
+
+                if (!hostState.players[pId]) {
+                    hostState.players[pId] = {
+                        id: pId,
+                        name: data.name || "Kỹ sư",
+                        className: data.className || "12A",
+                        isBot: Boolean(data.isBot),
+                        altitude: 0, // Công suất MW
+                        score: 0,
+                        consecutiveWrong: 0,
+                        hazardState: 'normal',
+                        correctCount: 0,
+                        popCount: 0,
+                        currentAnswer: null,
+                        answerHistory: {}
+                    };
+                    Sound.tap();
+                    updateHostLobbyUI();
+                }
+
+                hostPublish({
+                    type: 'JOIN_ACK',
+                    playerId: pId,
+                    roomPin: roomPin
+                });
+
+                if (hostState.isGameStarted && !hostState.isFinished) {
+                    if (!hostState.isRoundEnded) {
+                        hostPublish({
+                            type: 'QUESTION_START',
+                            qIndex: hostState.currentQIndex,
+                            playerId: pId
+                        });
+                    }
+                }
+            } else if (data.type === 'PLAYER_ANSWER') {
+                const p = hostState.players[data.playerId];
+                if (p && p.currentAnswer === null && !hostState.isRoundEnded) {
+                    p.currentAnswer = data.choice;
+                    const q = QUESTIONS_DATA[hostState.currentQIndex];
+                    const isCorrect = (data.choice === q.correct);
+
+                    p.answerHistory[hostState.currentQIndex] = {
+                        choice: data.choice,
+                        isCorrect: isCorrect
+                    };
+
+                    let altGain = 0;
+                    if (isCorrect) {
+                        p.correctCount++;
+                        p.consecutiveWrong = 0;
+                        p.hazardState = 'normal';
+                        altGain = 100;
+                        p.altitude = Math.min(1000, p.altitude + 100);
+                        p.score += 100;
+                    } else {
+                        p.consecutiveWrong++;
+                        if (p.consecutiveWrong === 1) {
+                            p.hazardState = (hostState.currentQIndex % 2 === 0) ? 'warning_heat' : 'warning_cold';
+                            altGain = -25;
+                            p.altitude = Math.max(0, p.altitude - 25);
+                        } else {
+                            p.popCount++;
+                            p.hazardState = (p.hazardState === 'warning_heat') ? 'pop' : 'spike';
+                            altGain = -75;
+                            p.altitude = Math.max(0, p.altitude - 75);
+                        }
+                    }
+
+                    const rankings = Object.values(hostState.players).sort((a, b) => b.altitude - a.altitude);
+                    const myRank = rankings.findIndex(item => item.id === p.id) + 1;
+
+                    hostPublish({
+                        type: 'ROUND_FEEDBACK',
+                        playerId: p.id,
+                        isCorrect: isCorrect,
+                        altGain: altGain,
+                        altitude: p.altitude,
+                        score: p.score,
+                        hazardState: p.hazardState,
+                        rank: myRank,
+                        totalPlayers: rankings.length
+                    });
+
+                    updateHostAnsweredCounter();
+                    renderHostLiveSquadGrid();
+
+                    const allPlayers = Object.values(hostState.players);
+                    const answeredCount = allPlayers.filter(pl => pl.currentAnswer !== null).length;
+                    if (answeredCount >= allPlayers.length && allPlayers.length > 0) {
+                        hostEndQuestionRound();
+                    }
+                }
+            }
+        }
+
+        function updateHostAnsweredCounter() {
+            const answered = Object.values(hostState.players).filter(pl => pl.currentAnswer !== null).length;
+            document.getElementById('hostAnsweredCount').innerText = answered;
+        }
+
+        function hostStartGame() {
+            hostState.isGameStarted = true;
+            hostState.currentQIndex = 0;
+            hostPublish({ type: 'QUIZ_START' });
+            hostLoadQuestion();
+        }
+
+        function hostLoadQuestion() {
+            hideAllScreens();
+            document.getElementById('hostQuestionScreen').classList.remove('hidden');
+            document.getElementById('hostExplanationArea').classList.add('hidden');
+
+            document.getElementById('reactorWarningAlert').classList.add('hidden');
+            document.getElementById('reactorPopAlert').classList.add('hidden');
+            document.getElementById('reactorSpikeAlert').classList.add('hidden');
+            document.getElementById('reactorSuccessAlert').classList.add('hidden');
+
+            hostState.isRoundEnded = false;
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+
+            document.getElementById('hostQCounterBadge').innerText = `CÂU ${hostState.currentQIndex + 1} / ${QUESTIONS_DATA.length}`;
+            document.getElementById('hostQCategory').innerText = q.category;
+            document.getElementById('hostQuestionTitle').innerText = q.title;
+
+            // Xử lý đồ thị vector cho câu 9
+            const graphBox = document.getElementById('hostQuestionGraphContainer');
+            if (q.hasGraph) {
+                graphBox.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <svg width="260" height="150" viewBox="0 0 260 150" class="overflow-visible">
+                            <!-- Trục V và T -->
+                            <line x1="30" y1="130" x2="240" y2="130" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#arrow)" />
+                            <line x1="30" y1="130" x2="30" y2="20" stroke="#38bdf8" stroke-width="2.5" />
+                            <text x="245" y="134" fill="#38bdf8" font-size="13" font-weight="bold">T</text>
+                            <text x="25" y="15" fill="#38bdf8" font-size="13" font-weight="bold">V</text>
+                            <text x="18" y="142" fill="#94a3b8" font-size="12">O</text>
+
+                            <!-- Đường kéo dài nét đứt qua gốc O -->
+                            <line x1="30" y1="130" x2="70" y2="95" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4" />
+                            <!-- Quá trình từ (1) đến (2) -->
+                            <line x1="70" y1="95" x2="190" y2="35" stroke="#fbbf24" stroke-width="3.5" />
+                            <!-- Điểm trạng thái (1) và (2) -->
+                            <circle cx="70" cy="95" r="4.5" fill="#f43f5e" />
+                            <text x="65" y="85" fill="#ffffff" font-size="12" font-weight="bold">(1)</text>
+                            <circle cx="190" cy="35" r="4.5" fill="#10b981" />
+                            <text x="185" y="25" fill="#ffffff" font-size="12" font-weight="bold">(2)</text>
+                        </svg>
+                        <span class="text-xs text-amber-300 font-manga mt-1 font-bold">Đồ thị biến đổi trạng thái (1) $\\to$ (2) trong hệ (V, T)</span>
+                    </div>
+                `;
+                graphBox.classList.remove('hidden');
+            } else {
+                graphBox.classList.add('hidden');
+                graphBox.innerHTML = '';
+            }
+
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`hostOptText${i}`).innerHTML = q.options[i];
+                const card = document.getElementById(`hostOptCard${i}`);
+                const badge = document.getElementById(`hostOptBadge${i}`);
+                badge.classList.add('hidden');
+                card.classList.remove('ring-4', 'ring-emerald-400', 'opacity-30');
+            }
+
+            Object.values(hostState.players).forEach(p => {
+                p.currentAnswer = null;
+            });
+
+            document.getElementById('hostTotalPlayersCount').innerText = Object.keys(hostState.players).length;
+            document.getElementById('hostAnsweredCount').innerText = "0";
+
+            renderHostLiveSquadGrid();
+            refreshMathRender();
+
+            const players = Object.values(hostState.players);
+            const avgPower = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+            document.getElementById('hostAvgAltText').innerText = `${avgPower} MW`;
+            runReactorCanvas('normal', avgPower);
+
+            hostPublish({
+                type: 'QUESTION_START',
+                qIndex: hostState.currentQIndex
+            });
+
+            hostState.botTimers.forEach(t => clearTimeout(t));
+            hostState.botTimers = [];
+            const bots = Object.values(hostState.players).filter(p => p.isBot);
+            bots.forEach(bot => {
+                const delay = 2500 + Math.random() * 8000;
+                const isCorrect = Math.random() < 0.8;
+                const botChoice = isCorrect ? q.correct : (q.correct + 1) % 4;
+                const timer = setTimeout(() => {
+                    if (!hostState.isRoundEnded && bot.currentAnswer === null) {
+                        handleHostIncomingData({
+                            type: 'PLAYER_ANSWER',
+                            playerId: bot.id,
+                            choice: botChoice
+                        });
+                    }
+                }, delay);
+                hostState.botTimers.push(timer);
+            });
+
+            hostState.timer = 30;
+            document.getElementById('hostTimerText').innerText = hostState.timer;
+            clearInterval(hostState.timerInterval);
+            hostState.timerInterval = setInterval(() => {
+                hostState.timer--;
+                document.getElementById('hostTimerText').innerText = hostState.timer;
+                if (hostState.timer <= 5 && hostState.timer > 0) Sound.timerTick();
+                if (hostState.timer <= 0) {
+                    hostEndQuestionRound();
+                }
+            }, 1000);
+        }
+
+        function hostEndQuestionRound() {
+            if (hostState.isRoundEnded) return;
+            hostState.isRoundEnded = true;
+            clearInterval(hostState.timerInterval);
+
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+
+            for (let i = 0; i < 4; i++) {
+                const card = document.getElementById(`hostOptCard${i}`);
+                const badge = document.getElementById(`hostOptBadge${i}`);
+                if (i === q.correct) {
+                    card.classList.add('ring-4', 'ring-emerald-400');
+                    badge.classList.remove('hidden');
+                } else {
+                    card.classList.add('opacity-30');
+                }
+            }
+
+            const players = Object.values(hostState.players);
+            let worstHazard = 'normal';
+            if (players.some(p => p.hazardState === 'pop')) worstHazard = 'pop';
+            else if (players.some(p => p.hazardState === 'spike')) worstHazard = 'spike';
+            else if (players.some(p => p.hazardState === 'warning_heat')) worstHazard = 'warning_heat';
+            else if (players.some(p => p.hazardState === 'warning_cold')) worstHazard = 'warning_cold';
+
+            const avgPower = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+            document.getElementById('hostAvgAltText').innerText = `${avgPower} MW`;
+
+            const canvas = document.getElementById('reactorSimCanvas');
+            const rect = canvas ? canvas.getBoundingClientRect() : { width: 300, height: 300 };
+
+            if (worstHazard === 'pop') {
+                document.getElementById('reactorPopAlert').classList.remove('hidden');
+                triggerPopParticles(rect.width / 2, rect.height / 2);
+                Sound.balloonPop();
+            } else if (worstHazard === 'spike') {
+                document.getElementById('reactorSpikeAlert').classList.remove('hidden');
+                triggerColdCollapse(rect.width / 2, rect.height * 0.7);
+                Sound.spikePierce();
+            } else if (worstHazard.startsWith('warning')) {
+                document.getElementById('reactorWarningAlert').classList.remove('hidden');
+                Sound.warningAlarm();
+            } else {
+                document.getElementById('reactorSuccessAlert').classList.remove('hidden');
+                Sound.correct();
+            }
+
+            runReactorCanvas(worstHazard, avgPower);
+
+            document.getElementById('hostExplanationText').innerHTML = `<span class="text-amber-300 font-anime-title text-base block mb-1">💡 PHÂN TÍCH VẬT LÍ:</span>${q.explanation}`;
+            document.getElementById('hostExplanationArea').classList.remove('hidden');
+            refreshMathRender();
+        }
+
+        function renderHostLiveSquadGrid() {
+            const grid = document.getElementById('hostLiveSquadGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            Object.values(hostState.players).forEach(p => {
+                const card = document.createElement('div');
+                const isAnswered = p.currentAnswer !== null;
+                card.className = `p-2 rounded-xl border text-xs flex items-center justify-between font-bold ${
+                    isAnswered ? 'bg-slate-900 border-cyan-400 text-cyan-200' : 'bg-slate-950 border-slate-800 text-slate-400'
+                }`;
+                card.innerHTML = `
+                    <span class="truncate max-w-[90px]">⚡ ${p.name}</span>
+                    <span class="font-tech text-amber-300">${p.altitude}MW</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function hostShowLeaderboardScreen() {
+            hideAllScreens();
+            document.getElementById('hostLeaderboardScreen').classList.remove('hidden');
+
+            const sorted = Object.values(hostState.players).sort((a, b) => b.altitude - a.altitude);
+
+            document.getElementById('hostLeaderboardRoundTitle').innerText = `TOP ĐỘI KỸ SƯ DẪN ĐẦU (CÂU ${hostState.currentQIndex + 1})`;
+
+            if (sorted[0]) {
+                document.getElementById('podiumName1').innerText = sorted[0].name;
+                document.getElementById('podiumAlt1').innerText = `${sorted[0].altitude} MW`;
+            } else {
+                document.getElementById('podiumName1').innerText = "--";
+                document.getElementById('podiumAlt1').innerText = "0 MW";
+            }
+            if (sorted[1]) {
+                document.getElementById('podiumName2').innerText = sorted[1].name;
+                document.getElementById('podiumAlt2').innerText = `${sorted[1].altitude} MW`;
+            } else {
+                document.getElementById('podiumName2').innerText = "--";
+                document.getElementById('podiumAlt2').innerText = "0 MW";
+            }
+            if (sorted[2]) {
+                document.getElementById('podiumName3').innerText = sorted[2].name;
+                document.getElementById('podiumAlt3').innerText = `${sorted[2].altitude} MW`;
+            } else {
+                document.getElementById('podiumName3').innerText = "--";
+                document.getElementById('podiumAlt3').innerText = "0 MW";
+            }
+
+            const tbody = document.getElementById('hostTopTableBody');
+            tbody.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx === 0 ? "bg-amber-950/40" : "";
+                let statusLabel = "Vận hành tốt";
+                if (p.hazardState === 'warning_heat') statusLabel = "Quá áp lò!";
+                if (p.hazardState === 'warning_cold') statusLabel = "Tụt nhiệt kẹt piston!";
+                if (p.hazardState === 'pop') statusLabel = "Đã nổ buồng đốt!";
+                if (p.hazardState === 'spike') statusLabel = "Sập chân không!";
+
+                tr.innerHTML = `
+                    <td class="p-3.5 font-tech text-amber-400">#${idx + 1}</td>
+                    <td class="p-3.5 font-black text-white flex items-center gap-2"><span>⚡</span> <span>${p.name}</span></td>
+                    <td class="p-3.5 text-slate-400">${p.className}</td>
+                    <td class="p-3.5 text-center font-manga text-xs ${p.hazardState.startsWith('warning') ? 'text-amber-400' : (p.hazardState === 'normal' ? 'text-emerald-400' : 'text-rose-400')}">${statusLabel}</td>
+                    <td class="p-3.5 text-center font-tech text-cyan-300">${p.correctCount} / ${hostState.currentQIndex + 1}</td>
+                    <td class="p-3.5 text-right font-tech font-black text-amber-300 text-sm sm:text-base">${p.altitude} MW</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            hostPublish({
+                type: 'SHOW_LEADERBOARD',
+                rankings: sorted.map((pl, i) => ({
+                    rank: i + 1,
+                    name: pl.name,
+                    altitude: pl.altitude,
+                    score: pl.score
+                }))
+            });
+
+            Sound.tap();
+        }
+
+        function hostContinueToNextQuestion() {
+            hostState.currentQIndex++;
+            if (hostState.currentQIndex >= QUESTIONS_DATA.length) {
+                hostShowFinalResults();
+            } else {
+                hostLoadQuestion();
+            }
+        }
+
+        function hostShowFinalResults() {
+            hostState.isFinished = true;
+            hideAllScreens();
+            document.getElementById('hostFinalScreen').classList.remove('hidden');
+
+            Sound.correct();
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 180, spread: 100, origin: { y: 0.6 } });
+            }
+
+            const sorted = Object.values(hostState.players).sort((a, b) => b.altitude - a.altitude);
+            const champ = sorted[0];
+
+            if (champ) {
+                document.getElementById('hostFinalChampionAnnounce').innerHTML = `
+                    Quán quân kỹ sư: <b class="text-amber-300 text-xl">${champ.name}</b> (${champ.className}) đã xuất sắc đưa công suất động cơ lên <b>${champ.altitude} MW</b>, trả lời đúng <b>${champ.correctCount}/${QUESTIONS_DATA.length} câu</b> và hoàn thành bài thi Phương trình trạng thái khí lý tưởng xuất sắc!
+                `;
+            }
+
+            const tbody = document.getElementById('hostFinalStatsTbody');
+            tbody.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx === 0 ? "bg-amber-950/40" : "";
+                tr.innerHTML = `
+                    <td class="p-3.5 font-tech text-amber-400">#${idx + 1}</td>
+                    <td class="p-3.5 font-black text-white">${p.name} ${idx === 0 ? '👑' : ''}</td>
+                    <td class="p-3.5 text-slate-400">${p.className}</td>
+                    <td class="p-3.5 text-center font-tech text-amber-300 font-black">${p.altitude} MW</td>
+                    <td class="p-3.5 text-center font-tech text-emerald-400">${p.correctCount} / ${QUESTIONS_DATA.length}</td>
+                    <td class="p-3.5 text-center font-tech text-rose-400">${p.popCount}</td>
+                    <td class="p-3.5 text-right font-tech font-black text-cyan-300">${p.score}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            hostPublish({ type: 'QUIZ_FINISHED' });
+        }
+
+        function exportQuizExcel() {
+            const players = Object.values(hostState.players);
+            if (players.length === 0) {
+                showToast("Chưa có dữ liệu để xuất Excel!", false);
+                return;
+            }
+            const excelRows = players.map((p, idx) => ({
+                "STT": idx + 1,
+                "Tên Đội": p.name,
+                "Lớp": p.className,
+                "Công Suất Đạt Được (MW)": p.altitude,
+                "Số Câu Đúng": `${p.correctCount}/${QUESTIONS_DATA.length}`,
+                "Số Lần Sự Cố": p.popCount,
+                "Tổng Điểm Tích Lũy": p.score
+            }));
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            XLSX.utils.book_append_sheet(wb, ws, "KetQua_KhiLyTuong");
+            XLSX.writeFile(wb, "KetQua_TracNghiem_PhuongTrinhTrangThai_VatLi12.xlsx");
+            showToast("✓ Đã xuất file Excel thành công!", true);
+        }
+
+        function generateHostQrCode() {
+            const qrBox = document.getElementById('hostQrCodeBox');
+            const modalBox = document.getElementById('modalQrCodeBox');
+            if (!qrBox) return;
+            qrBox.innerHTML = '';
+            if (modalBox) modalBox.innerHTML = '';
+
+            document.getElementById('modalPinText').innerText = roomPin;
+            const joinUrl = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
+
+            try {
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrBox, { text: joinUrl, width: 140, height: 140, colorDark: "#0284c7", colorLight: "#ffffff" });
+                    if (modalBox) {
+                        new QRCode(modalBox, { text: joinUrl, width: 220, height: 220, colorDark: "#0284c7", colorLight: "#ffffff" });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function copyJoinLink() {
+            const url = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast("✓ Đã sao chép liên kết vào phòng!", true);
+                }).catch(() => {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("✓ Đã sao chép liên kết vào phòng!", true);
+        }
+
+        function openQrModal() {
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+        function closeQrModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+
+        /* =========================================================================
+           LOGIC TAY CẦM ĐIỆN THOẠI HỌC SINH (PLAYER MODE)
+           ========================================================================= */
+        function initPlayerMode() {
+            isHost = false;
+            hideAllScreens();
+            document.getElementById('playerJoinScreen').classList.remove('hidden');
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                document.getElementById('playerPinInput').value = params.get('pin').trim();
+            }
+            const savedName = sessionStorage.getItem('aero_saved_name');
+            const savedClass = sessionStorage.getItem('aero_saved_class');
+            if (savedName) document.getElementById('playerNameInput').value = savedName;
+            if (savedClass) document.getElementById('playerClassInput').value = savedClass;
+        }
+
+        function playerJoinRoom() {
+            const pin = document.getElementById('playerPinInput').value.trim().replace(/\s+/g, '');
+            const name = document.getElementById('playerNameInput').value.trim();
+            const className = document.getElementById('playerClassInput').value.trim() || "12A";
+            const statusMsg = document.getElementById('playerConnectStatusMsg');
+            const submitBtn = document.getElementById('btnPlayerJoinSubmit');
+
+            if (!pin || !name) {
+                showToast("Vui lòng nhập đầy đủ Mã PIN và Tên đội!", false);
+                return;
+            }
+
+            roomPin = pin;
+            playerState.myName = name;
+            playerState.myClass = className;
+            playerState.altitude = 0;
+            playerState.score = 0;
+
+            sessionStorage.setItem('aero_saved_name', name);
+            sessionStorage.setItem('aero_saved_class', className);
+
+            document.getElementById('playerMyNameDisplay').innerText = `${name} (${className})`;
+            document.getElementById('playerNavName').innerText = name;
+            document.getElementById('playerAltHUD').innerText = "0 MW";
+
+            statusMsg.innerText = "Đang kết nối tín hiệu đến Trạm Điều Phối...";
+            statusMsg.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            if (playerState.joinInterval) {
+                clearInterval(playerState.joinInterval);
+                playerState.joinInterval = null;
+            }
+
+            // Kích hoạt đồng bộ tức thời trong nội bộ tab / trình duyệt
+            NetBus.init(roomPin, (msg) => {
+                if (msg && msg._sender === 'host') {
+                    handlePlayerIncomingData(msg.data);
+                }
+            });
+
+            const sendJoin = () => {
+                playerPublish({
+                    type: 'PLAYER_JOIN',
+                    playerId: playerState.playerId,
+                    name: playerState.myName,
+                    className: playerState.myClass
+                });
+            };
+
+            sendJoin();
+
+            // Kết nối Internet qua MQTT cho điện thoại
+            const clientId = "pl_aero_" + roomPin + "_" + playerState.playerId.slice(-6) + "_" + Math.random().toString(36).substring(2, 6);
+            if (mqttClient) try { mqttClient.end(true); } catch(e) {}
+
+            createMqttClient(clientId, (client) => {
+                mqttClient = client;
+                mqttClient.subscribe(`aero_reactor/${roomPin}/host`, { qos: 0 }, (err) => {
+                    if (!err) {
+                        statusMsg.innerText = "Đã tìm thấy phòng, đang xin phép vào trạm...";
+                        sendJoin();
+                    }
+                });
+            }, (topic, message) => {
+                try {
+                    const data = JSON.parse(message.toString());
+                    handlePlayerIncomingData(data);
+                } catch(e) {}
+            });
+
+            let attempts = 0;
+            playerState.joinInterval = setInterval(() => {
+                attempts++;
+                if (attempts > 20) {
+                    clearInterval(playerState.joinInterval);
+                    playerState.joinInterval = null;
+                    statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mã PIN chưa đúng! Vui lòng kiểm tra lại mã PIN của giáo viên.";
+                    submitBtn.disabled = false;
+                    return;
+                }
+                sendJoin();
+            }, 1000);
+        }
+
+        function playerPublish(data) {
+            NetBus.publish(roomPin, { _sender: 'player', data: data });
+            if (mqttClient && mqttClient.connected) {
+                try {
+                    mqttClient.publish(`aero_reactor/${roomPin}/player`, JSON.stringify(data), { qos: 0 });
+                } catch(e) {}
+            }
+        }
+
+        function handlePlayerIncomingData(data) {
+            if (!data || !data.type) return;
+
+            if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
+                if (playerState.joinInterval) {
+                    clearInterval(playerState.joinInterval);
+                    playerState.joinInterval = null;
+                }
+                hideAllScreens();
+                document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                Sound.tap();
+            } else if (data.type === 'QUESTION_START') {
+                if (data.playerId && data.playerId !== playerState.playerId) return;
+
+                hideAllScreens();
+                document.getElementById('playerGamepadScreen').classList.remove('hidden');
+                document.getElementById('playerSubmittedOverlay').classList.add('hidden');
+                document.getElementById('playerMcqContainer').classList.remove('hidden');
+
+                const q = QUESTIONS_DATA[data.qIndex || 0];
+                document.getElementById('playerQCounter').innerText = `CÂU ${(data.qIndex || 0) + 1} / ${QUESTIONS_DATA.length}`;
+                document.getElementById('playerQuestionTitle').innerText = q.title;
+
+                for (let i = 0; i < 4; i++) {
+                    document.getElementById(`playerOptText${i}`).innerHTML = q.options[i];
+                    document.getElementById(`playerBtn${i}`).disabled = false;
+                }
+
+                playerState.selectedChoice = null;
+
+                let timer = 30;
+                document.getElementById('playerTimerText').innerText = `${timer}s`;
+                clearInterval(playerState.timerInterval);
+                playerState.timerInterval = setInterval(() => {
+                    timer--;
+                    if (timer >= 0) {
+                        document.getElementById('playerTimerText').innerText = `${timer}s`;
+                    } else {
+                        clearInterval(playerState.timerInterval);
+                    }
+                }, 1000);
+
+                refreshMathRender();
+            } else if (data.type === 'ROUND_FEEDBACK' && data.playerId === playerState.playerId) {
+                clearInterval(playerState.timerInterval);
+                hideAllScreens();
+                document.getElementById('playerFeedbackScreen').classList.remove('hidden');
+
+                playerState.altitude = data.altitude;
+                playerState.score = data.score;
+                document.getElementById('playerAltHUD').innerText = `${data.altitude} MW`;
+
+                const title = document.getElementById('playerFeedbackTitle');
+                const gain = document.getElementById('playerFeedbackGain');
+                const icon = document.getElementById('playerFeedbackIcon');
+
+                if (data.isCorrect) {
+                    Sound.correct();
+                    icon.innerText = "⚡✨";
+                    title.innerText = "ĐIỀU ÁP CHUẨN XÁC!";
+                    title.className = "text-lg sm:text-2xl font-anime-title font-black text-emerald-400 uppercase";
+                    gain.innerText = `+${data.altGain} MW • Công suất động cơ tăng tốc!`;
+                } else {
+                    if (data.hazardState === 'pop') {
+                        Sound.balloonPop();
+                        icon.innerText = "💥";
+                        title.innerText = "BUỒNG NÉN PHÁT NỔ!";
+                        title.className = "text-lg sm:text-2xl font-anime-title font-black text-rose-500 uppercase";
+                        gain.innerText = `${data.altGain} MW • Tụt áp suất nghiêm trọng!`;
+                    } else if (data.hazardState === 'spike') {
+                        Sound.spikePierce();
+                        icon.innerText = "❄️";
+                        title.innerText = "SẬP CHÂN KHÔNG KẸT PISTON!";
+                        title.className = "text-lg sm:text-2xl font-anime-title font-black text-rose-500 uppercase";
+                        gain.innerText = `${data.altGain} MW • Tụt công suất nặng nề!`;
+                    } else {
+                        Sound.warningAlarm();
+                        icon.innerText = "⚠️";
+                        title.innerText = "CẢNH BÁO MẤT CÂN BẰNG!";
+                        title.className = "text-lg sm:text-2xl font-anime-title font-black text-amber-400 uppercase";
+                        gain.innerText = `${data.altGain} MW • Piston rung lắc mạnh!`;
+                    }
+                }
+
+                document.getElementById('playerMyRankNum').innerText = `#${data.rank || '--'}`;
+                document.getElementById('playerTotalPlayersBadge').innerText = `/ ${data.totalPlayers || '--'} đội`;
+                document.getElementById('playerRankHUD').innerText = `#${data.rank || '--'}`;
+            } else if (data.type === 'SHOW_LEADERBOARD') {
+                hideAllScreens();
+                document.getElementById('playerLeaderboardScreen').classList.remove('hidden');
+
+                const container = document.getElementById('playerTopListContainer');
+                if (container && data.rankings) {
+                    container.innerHTML = '';
+                    let myRankInBoard = null;
+                    data.rankings.forEach(pl => {
+                        const row = document.createElement('div');
+                        const isMe = (pl.name === playerState.myName);
+                        if (isMe) myRankInBoard = pl.rank;
+
+                        row.className = `p-3 rounded-2xl border-2 flex items-center justify-between text-xs sm:text-sm font-bold ${
+                            isMe ? 'bg-cyan-950/90 border-cyan-400 text-cyan-200 shadow-md' : 'bg-slate-900 border-slate-800 text-slate-300'
+                        }`;
+                        row.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <span class="font-tech text-amber-400">#${pl.rank}</span>
+                                <span>⚡</span>
+                                <span class="font-black text-white">${pl.name}</span>
+                            </div>
+                            <span class="font-tech text-amber-300">${pl.altitude} MW</span>
+                        `;
+                        container.appendChild(row);
+                    });
+
+                    document.getElementById('playerMobileMyRankSummary').innerText = `${myRankInBoard ? '#' + myRankInBoard : 'Ngoài bảng'} (${playerState.altitude} MW)`;
+                }
+            } else if (data.type === 'QUIZ_FINISHED') {
+                clearInterval(playerState.timerInterval);
+                hideAllScreens();
+                document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                document.getElementById('playerMyNameDisplay').innerText = `Hoàn thành bài thi: Đạt công suất ${playerState.altitude} MW!`;
+            }
+        }
+
+        function playerSubmitAnswer(choiceIdx) {
+            if (playerState.selectedChoice !== null) return;
+            playerState.selectedChoice = choiceIdx;
+
+            const labels = ['A', 'B', 'C', 'D'];
+            document.getElementById('playerMcqContainer').classList.add('hidden');
+            document.getElementById('playerSubmittedOverlay').classList.remove('hidden');
+            document.getElementById('playerSubmittedLabel').innerText = `Đã chọn phương án [${labels[choiceIdx]}]: Điều chỉnh van áp suất!`;
+
+            Sound.tap();
+
+            playerPublish({
+                type: 'PLAYER_ANSWER',
+                playerId: playerState.playerId,
+                choice: choiceIdx
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            refreshMathRender();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                initPlayerMode();
+            }
+        });
+    </script>
+</body>
+</html>
