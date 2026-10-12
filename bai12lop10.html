@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Artillery-Strike: Pháo Thủ Quỹ Đạo - Vật Lí 10 (Chuyển Động Ném)</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
+                e.preventDefault();
+                console.warn("[BallisticNet] Đã xử lý an toàn ngoại lệ kết nối.");
+                return true;
+            }
+        });
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=Kanit:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Nunito:ital,wght@0,700;0,800;0,900;0,1000;1,800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <!-- KaTeX Công thức Toán/Vật lí -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Thư viện kết nối mạng, xuất file Excel, hiệu ứng pháo hoa, QR Code -->
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.5/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        html { font-size: 16px; }
+        @media (min-width: 640px) { html { font-size: 18px; } }
+        @media (min-width: 1024px) { html { font-size: 20px; } }
+        @media (min-width: 1536px) { html { font-size: 22px; } }
+
+        * {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .font-tech { font-family: 'Orbitron', 'Chakra Petch', monospace, sans-serif; }
+        .font-anime-title { font-family: 'Kanit', 'Chakra Petch', 'Nunito', sans-serif; }
+        .font-manga { font-family: 'Chakra Petch', 'Nunito', sans-serif; }
+
+        .katex { font-size: 1.05em; }
+        .katex .text { font-family: 'Nunito', sans-serif !important; }
+
+        /* Nền Radar Quân sự Chiến lược */
+        .tactical-ballistic-bg {
+            background-color: #040812;
+            background-image:
+                radial-gradient(circle at 18% 22%, rgba(16, 185, 129, 0.22) 0%, transparent 42%),
+                radial-gradient(circle at 82% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(6, 182, 212, 0.18) 0%, transparent 50%),
+                radial-gradient(circle at 78% 80%, rgba(239, 68, 68, 0.16) 0%, transparent 40%),
+                linear-gradient(rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.04) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+            color: #f8fafc;
+        }
+
+        /* Thẻ HUD Tác chiến Emerald Glow với ngàm góc quân sự */
+        .artillery-hud-card {
+            background: rgba(7, 16, 32, 0.94);
+            backdrop-filter: blur(20px);
+            border: 2.5px solid #10b981;
+            box-shadow: 0 10px 0 #020610, 0 0 30px rgba(16, 185, 129, 0.28);
+            border-radius: 1.75rem;
+            position: relative;
+        }
+        .artillery-hud-card::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: 16px; width: 36px; height: 4px;
+            background: #34d399;
+            box-shadow: 0 0 8px #34d399;
+            border-radius: 99px;
+        }
+        .artillery-hud-card::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; right: 16px; width: 36px; height: 4px;
+            background: #f59e0b;
+            box-shadow: 0 0 8px #f59e0b;
+            border-radius: 99px;
+        }
+
+        /* Thẻ HUD Vàng Hổ Phách Danh dự */
+        .artillery-hud-card-gold {
+            background: rgba(24, 18, 8, 0.94);
+            backdrop-filter: blur(20px);
+            border: 2.5px solid #f59e0b;
+            box-shadow: 0 10px 0 #0a0702, 0 0 32px rgba(245, 158, 11, 0.32);
+            border-radius: 1.75rem;
+            position: relative;
+        }
+
+        /* */
+        .btn-choice-anime {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.7);
+        }
+        .btn-choice-anime:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.015);
+            box-shadow: 0 9px 0 rgba(0, 0, 0, 0.85);
+        }
+        .btn-choice-anime:active:not(:disabled) {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.85);
+        }
+
+        /* Phím A: Đỏ Lửa Laser Crimson */
+        .choice-btn-a {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.32), rgba(185, 28, 28, 0.55));
+            border: 2.5px solid #f87171;
+            color: #fff1f2;
+        }
+        /* Phím B: Xanh Dương Laser Cyan */
+        .choice-btn-b {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.32), rgba(2, 132, 199, 0.55));
+            border: 2.5px solid #38bdf8;
+            color: #f0f9ff;
+        }
+        /* Phím C: Vàng Hổ Phách Radar Amber */
+        .choice-btn-c {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.32), rgba(217, 119, 6, 0.55));
+            border: 2.5px solid #fbbf24;
+            color: #fffbeb;
+        }
+        /* Phím D: Xanh Ngọc Lục Bảo Matrix Emerald */
+        .choice-btn-d {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.32), rgba(5, 150, 105, 0.55));
+            border: 2.5px solid #34d399;
+            color: #ecfdf5;
+        }
+
+        @keyframes radarSweep {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .radar-anim { animation: radarSweep 4s linear infinite; }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.35; transform: scale(1); }
+            50% { opacity: 0.95; transform: scale(1.02); }
+            100% { opacity: 0.35; transform: scale(1); }
+        }
+        .pulse-anim { animation: pulseGlow 1.2s ease-in-out infinite; }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: #040812; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb { background: #064e3b; border: 2px solid #10b981; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+    </style>
+</head>
+<body class="tactical-ballistic-bg min-h-screen flex flex-col relative overflow-x-hidden selection:bg-emerald-500/40 selection:text-emerald-100">
+
+    <header class="w-full bg-slate-950/95 border-b-4 border-emerald-500 px-4 sm:px-8 py-3.5 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md shadow-2xl">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-600 to-amber-400 flex items-center justify-center shadow-lg shadow-emerald-500/40 text-white flex-shrink-0 text-3xl border-3 border-emerald-300 transform hover:rotate-6 transition">
+                🎯
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-0.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-manga text-[11px] sm:text-xs font-black uppercase tracking-widest border border-emerald-300 shadow-md">
+                        🎖️ VẬT LÍ 10 • KẾT NỐI TRI THỨC
+                    </span>
+                    <span class="text-emerald-600 text-xs hidden sm:inline">•</span>
+                    <span class="text-xs sm:text-sm text-emerald-300 font-extrabold hidden sm:inline font-anime-title">Bài 12: Chuyển Động Ném Ngang & Ném Xiên</span>
+                </div>
+                <h1 class="font-anime-title text-base sm:text-xl md:text-2xl text-white tracking-wide leading-tight uppercase font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    ARTILLERY-STRIKE: TỔ HỢP TÁC CHIẾN ĐẠN ĐẠO V-10
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-emerald-500/50 text-[11px] font-tech text-emerald-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>RADAR ONLINE</span>
+            </div>
+            <button id="sfxToggleBtn" onclick="toggleAudio()" class="p-2.5 w-11 h-11 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 border-2 border-emerald-400 text-base font-bold flex items-center justify-center transition shadow-[0_4px_0_#022c22]" title="Bật/Tắt âm thanh">
+                <i class="fa-solid fa-volume-high text-emerald-400 text-lg" id="sfxIcon"></i>
+            </button>
+            <button onclick="window.location.reload()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs sm:text-sm font-black border-2 border-white flex items-center gap-2 transition text-white shadow-[0_4px_0_#064e3b] active:translate-y-1 active:shadow-none">
+                <i class="fa-solid fa-rotate text-amber-300"></i>
+                <span class="hidden sm:inline font-manga">TẢI LẠI</span>
+            </button>
+        </div>
+    </header>
+
+    <div id="toastBox" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-3 rounded-2xl text-xs sm:text-sm font-black shadow-2xl transition-all duration-300 opacity-0 pointer-events-none border-3"></div>
+
+    <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-6xl w-full mx-auto justify-center z-10 relative">
+
+        <!-- 0. MÀN HÌNH CHỌN VAI TRÒ -->
+        <section id="roleSelectScreen" class="w-full max-w-5xl mx-auto artillery-hud-card p-6 sm:p-10 text-center my-auto flex flex-col gap-6 relative overflow-hidden">
+            <div>
+                <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-emerald-500/25 via-teal-500/20 to-amber-500/25 border-2 border-emerald-400 text-emerald-200 text-xs sm:text-sm font-black mb-3 shadow-lg">
+                    <i class="fa-solid fa-crosshairs text-amber-400 text-base"></i> TÁC CHIẾN ĐẠN ĐẠO: PHÂN TÍCH CHUYỂN ĐỘNG NÉM
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-anime-title font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-amber-300 to-teal-200 mt-1 tracking-wide uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                    KÍCH HOẠT HỆ THỐNG PHÁO THỦ ĐẠN ĐẠO
+                </h2>
+                <p class="text-sm sm:text-base md:text-lg text-slate-200 max-w-3xl mx-auto mt-3 font-bold leading-relaxed">
+                    Trận địa phòng không phân tích các quy luật ném ngang ($v_x = v_0, v_y = gt$) và ném xiên ($v_{0x} = v_0\cos\alpha, v_{0y} = v_0\sin\alpha$).<br>
+                    Mỗi câu giải đúng giúp nạp tọa độ chuẩn xác, bắn trúng mục tiêu <span class="text-emerald-400 font-black">+100 Điểm (+100m Tầm Xa)</span>.<br>
+                    Nếu giải sai lần 1, pháo rơi vào <span class="text-amber-400 font-black">LỆCH TẦM BẮN TRƯỢT</span> (-25 Điểm). Nếu <span class="text-rose-400 font-black">tiếp tục sai lần 2</span>, nòng pháo sẽ <span class="text-rose-400 font-black">QUÁ ÁP KẸT NÒNG PHÁT NỔ</span> (-75 Điểm)!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+                <button onclick="initHostMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-emerald-950/80 border-3 border-emerald-400 hover:border-emerald-300 shadow-[0_10px_0_#022c22] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-emerald-500/25 text-emerald-300 border-3 border-emerald-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
+                        🖥️
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-emerald-400/20 text-emerald-300 font-manga text-xs font-black uppercase mb-1">COMMAND RADAR CENTER</span>
+                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">TRẠM ĐIỀU PHỐI (MÁY CHIẾU LỚN)</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
+                        Trình chiếu Mã PIN & QR, mô phỏng nòng pháo & quỹ đạo đạn Parabol với thước đo góc $\alpha$, vector $\vec{v}_x, \vec{v}_y$, đếm ngược và bảng xếp hạng.
+                    </p>
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white shadow-lg">
+                        KHAI MỞ TRẠM CHỈ HUY ⚡
+                    </span>
+                </button>
+
+                <button onclick="initPlayerMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-amber-950/80 border-3 border-amber-400 hover:border-amber-300 shadow-[0_10px_0_#1c1003] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-amber-500/25 text-amber-300 border-3 border-amber-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
+                        🎮
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 font-manga text-xs font-black uppercase mb-1">GUNNER CONTROLLER</span>
+                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">PHÁO THỦ CHIẾN LƯỢC (ĐIỆN THOẠI)</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
+                        Gia nhập trạm bằng PIN hoặc QR, điều chỉnh tầm ngắm, khai hỏa giải đáp các bài toán tầm xa, thời gian rơi bằng 4 phím bấm chiến thuật nhạy bén.
+                    </p>
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white shadow-lg">
+                        KẾT NỐI TAY CẦM PHÁO THỦ 🎯
+                    </span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 1. MÀN HÌNH CHỜ MÁY CHIẾU (HOST LOBBY) -->
+        <section id="hostLobbyScreen" class="w-full max-w-5xl mx-auto artillery-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-wrap items-center justify-between border-b-2 border-emerald-900/60 pb-3.5 gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-4 h-4 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="font-anime-title text-lg sm:text-2xl text-emerald-300 uppercase tracking-wider font-black">PHÒNG HUẤN LUYỆN QUỸ ĐẠO BẮN TẦM XA</span>
+                </div>
+                <div class="text-sm sm:text-lg font-black text-slate-200">
+                    <i class="fa-solid fa-users text-emerald-400 mr-2"></i>Đội Pháo Thủ: <span class="text-amber-300 font-tech font-black text-2xl sm:text-3xl" id="hostPlayerCountNum">0</span> đội
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <div class="lg:col-span-5 p-6 rounded-3xl bg-slate-950/95 border-2 border-emerald-900/80 flex flex-col items-center justify-between text-center gap-4 shadow-xl">
+                    <div>
+                        <span class="text-xs sm:text-sm font-black text-emerald-300 uppercase tracking-widest block font-manga">MÃ PHÒNG (PIN CODE)</span>
+                        <div class="flex items-center justify-center gap-3 mt-2.5">
+                            <span id="hostPinDisplay" class="text-5xl sm:text-7xl font-tech font-black text-amber-300 px-7 py-2 rounded-2xl bg-black border-3 border-amber-400 tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                                ----
+                            </span>
+                            <button onclick="copyJoinLink()" class="p-4 sm:p-5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border-2 border-emerald-700 text-lg font-bold transition" title="Sao chép link">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center bg-white p-4 rounded-3xl shadow-2xl border-4 border-emerald-400">
+                        <div onclick="openQrModal()" class="cursor-pointer hover:opacity-90 transition p-1">
+                            <div id="hostQrCodeBox" class="w-[140px] h-[140px] flex items-center justify-center overflow-hidden"></div>
+                        </div>
+                        <button onclick="openQrModal()" class="text-xs sm:text-sm font-black text-slate-950 mt-2.5 flex items-center gap-2 hover:text-emerald-700 font-manga">
+                            <i class="fa-solid fa-expand"></i> Phóng To Mã QR
+                        </button>
+                    </div>
+
+                    <p class="text-xs sm:text-sm text-slate-300 font-bold">Quét mã QR bằng Camera điện thoại hoặc nhập mã PIN để vào phòng tập luyện.</p>
+                </div>
+
+                <div class="lg:col-span-7 flex flex-col justify-between gap-5">
+                    <div class="p-6 rounded-3xl bg-slate-950/95 border-2 border-emerald-900/80 flex-1 flex flex-col shadow-xl">
+                        <div class="flex justify-between items-center border-b border-emerald-900/50 pb-3 mb-3">
+                            <span class="text-xs sm:text-base font-black text-slate-200 uppercase font-anime-title">Danh sách các đội pháo thủ đã điểm danh</span>
+                            <span class="text-xs sm:text-sm font-manga font-black text-amber-400">MỤC TIÊU: 1000m TẦM XA</span>
+                        </div>
+                        <div class="flex-1 min-h-[190px] max-h-[260px] overflow-y-auto p-2 flex flex-col justify-center">
+                            <p class="text-sm sm:text-base text-slate-400 italic text-center font-bold" id="emptyPlayerMsg">Đang chờ tín hiệu từ điện thoại học sinh...</p>
+                            <div class="flex flex-wrap gap-2.5 items-center justify-center" id="hostPlayerListContainer"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                        <div class="flex gap-2.5 w-full sm:w-auto">
+                            <button onclick="addDemoBots(4)" type="button" class="px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-2 flex-1 sm:flex-none justify-center font-manga">
+                                <i class="fa-solid fa-robot text-emerald-400"></i> +4 Đội Mẫu
+                            </button>
+                            <button onclick="clearDemoBots()" type="button" class="px-4 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-1" title="Xóa danh sách">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                        <button onclick="hostStartGame()" id="hostStartBtn" class="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-amber-500 hover:from-emerald-500 hover:to-amber-400 text-white font-anime-title text-sm sm:text-lg uppercase tracking-wider transition shadow-xl disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-2.5 font-black border-2 border-white" disabled>
+                            <span>KHAI HỎA PHÁO ĐÀI</span>
+                            <i class="fa-solid fa-bullseye text-sm text-amber-300"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. MÀN HÌNH CÂU HỎI MÁY CHIẾU (HOST QUESTION) -->
+        <section id="hostQuestionScreen" class="w-full max-w-6xl mx-auto flex flex-col gap-4 hidden">
+            <div class="artillery-hud-card p-4 sm:p-5 border-2 border-emerald-400 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span id="hostQCounterBadge" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-manga font-black uppercase tracking-wider bg-gradient-to-r from-emerald-600 to-teal-700 text-white border border-emerald-300 shadow-md">
+                        CÂU 1 / 10
+                    </span>
+                    <span id="hostQCategory" class="text-sm sm:text-base md:text-lg font-black text-slate-100 font-anime-title">
+                        Nhận biết: Đặc điểm chuyển động ném ngang
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2.5 px-5 py-2 rounded-2xl bg-slate-900 border-2 border-emerald-400">
+                        <i class="fa-solid fa-stopwatch text-amber-400 text-lg sm:text-xl animate-spin"></i>
+                        <span id="hostTimerText" class="font-tech font-black text-2xl sm:text-3xl text-emerald-300">30</span>
+                        <span class="text-xs sm:text-sm font-black text-emerald-400 font-manga">giây</span>
+                    </div>
+                    <div class="px-4 py-2 rounded-2xl bg-slate-900 border-2 border-slate-800 text-xs sm:text-sm font-black text-slate-200 font-manga">
+                        Đã nộp: <span id="hostAnsweredCount" class="text-amber-400 font-tech font-black text-lg sm:text-xl">0</span> / <span id="hostTotalPlayersCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                <!-- Cột trái: Đề bài & 4 phương án -->
+                <div class="lg:col-span-7 flex flex-col gap-4">
+                    <div class="artillery-hud-card p-6 sm:p-7 shadow-2xl flex flex-col gap-4 flex-1 justify-between">
+                        <div>
+                            <span class="text-xs font-manga uppercase tracking-widest text-emerald-300 font-black block mb-1">
+                                <i class="fa-solid fa-crosshairs mr-1 text-amber-400"></i> BÀI TẬP BỔ SUNG CHUYỂN ĐỘNG NÉM
+                            </span>
+                            <h2 id="hostQuestionTitle" class="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed font-anime-title">
+                                Đang tải câu hỏi...
+                            </h2>
+                        </div>
+
+                        <div id="hostMcqGrid" class="grid grid-cols-1 gap-3.5">
+                            <div id="hostOptCard0" class="p-4 sm:p-5 rounded-2xl choice-btn-a flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">A</span>
+                                    <span id="hostOptText0" class="flex-1 break-words">Phương án A</span>
+                                </div>
+                                <span id="hostOptBadge0" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+
+                            <div id="hostOptCard1" class="p-4 sm:p-5 rounded-2xl choice-btn-b flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-cyan-600 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">B</span>
+                                    <span id="hostOptText1" class="flex-1 break-words">Phương án B</span>
+                                </div>
+                                <span id="hostOptBadge1" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+
+                            <div id="hostOptCard2" class="p-4 sm:p-5 rounded-2xl choice-btn-c flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">C</span>
+                                    <span id="hostOptText2" class="flex-1 break-words">Phương án C</span>
+                                </div>
+                                <span id="hostOptBadge2" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+
+                            <div id="hostOptCard3" class="p-4 sm:p-5 rounded-2xl choice-btn-d flex items-center justify-between gap-3 text-sm sm:text-lg font-black btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-10 h-10 rounded-xl bg-emerald-600 border-2 border-white text-white flex items-center justify-center font-tech text-base font-black flex-shrink-0 shadow">D</span>
+                                    <span id="hostOptText3" class="flex-1 break-words">Phương án D</span>
+                                </div>
+                                <span id="hostOptBadge3" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột phải: Mô phỏng đạn đạo chuyển động ném 2D -->
+                <div class="lg:col-span-5 flex flex-col gap-3">
+                    <div class="artillery-hud-card p-4 border-2 border-emerald-400 flex-1 flex flex-col justify-between overflow-hidden relative">
+                        <div class="flex justify-between items-center border-b border-emerald-900/60 pb-2 mb-2">
+                            <span class="text-xs font-anime-title uppercase tracking-wider text-emerald-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-radar text-amber-400"></i> RADAR QUỸ ĐẠO BẮN PARABOL
+                            </span>
+                            <span id="ballisticLiveTelemetry" class="font-tech text-xs text-amber-300 font-bold">v₀ = 20 m/s • g = 10 m/s² • L = 40m</span>
+                        </div>
+
+                        <div class="w-full h-80 sm:h-96 relative bg-slate-950 rounded-2xl border-2 border-emerald-500/40 overflow-hidden shadow-inner flex items-center justify-center">
+                            <canvas id="ballisticSimCanvas" class="w-full h-full block"></canvas>
+
+                            <!-- Báo động 1: Cảnh báo lệch tầm ngắm -->
+                            <div id="ballisticWarningAlert" class="absolute inset-0 bg-amber-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 pulse-anim border-3 border-amber-400">
+                                <span class="text-5xl animate-bounce">⚠️🎯</span>
+                                <h3 class="font-anime-title font-black text-amber-300 text-xl sm:text-2xl uppercase mt-2">LỆCH QUỸ ĐẠO BẮN TRƯỢT!</h3>
+                                <p class="text-xs sm:text-sm text-amber-100 font-bold max-w-xs mt-1">Sai số góc nòng hoặc vận tốc đầu! Tiếp tục sai sẽ gây kẹt nòng pháo!</p>
+                            </div>
+
+                            <!-- Báo động 2: Nổ kẹt nòng pháo -->
+                            <div id="ballisticPopAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-rose-500">
+                                <span class="text-6xl animate-ping">💥</span>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">NÒNG PHÁO PHÁT NỔ!</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Áp suất thuốc phóng quá tải làm nòng pháo vỡ tung, mất khả năng tác chiến!</p>
+                            </div>
+
+                            <!-- Báo động 3: Đạn rơi non chiến hào -->
+                            <div id="ballisticSpikeAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-rose-500">
+                                <span class="text-6xl animate-bounce">⛏️💥</span>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">SẬP HẦO PHÁO CHIẾN ĐẤU!</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Góc ném sai làm đạn rơi ngay trước trận địa công sự!</p>
+                            </div>
+
+                            <!-- Báo động 4: Bắn trúng hồng tâm hoàn hảo -->
+                            <div id="ballisticSuccessAlert" class="absolute inset-0 bg-emerald-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-emerald-400">
+                                <span class="text-5xl animate-bounce">🎯✨</span>
+                                <h3 class="font-anime-title font-black text-emerald-300 text-2xl uppercase mt-2">BẮN TRÚNG HỒNG TÂM!</h3>
+                                <p class="text-xs text-emerald-200 font-bold max-w-xs mt-1">Quỹ đạo ném chuẩn xác: $v_x = v_0, v_y = gt$ $\to$ Tiêu diệt mục tiêu!</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2.5 mt-3 text-center text-xs">
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
+                                <span class="text-[10px] text-emerald-400/70 block font-manga uppercase">TRẠNG THÁI</span>
+                                <span class="font-manga font-black text-emerald-300">PARABOL CHUẨN</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
+                                <span class="text-[10px] text-amber-400/70 block font-manga uppercase">TẦM BẮN TRUNG BÌNH</span>
+                                <span id="hostAvgAltText" class="font-tech font-black text-amber-300 text-sm sm:text-base">0 m</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
+                                <span class="text-[10px] text-cyan-400/70 block font-manga uppercase">NÒNG PHÁO</span>
+                                <span id="hostBallisticStatusTag" class="font-anime-title font-black text-emerald-400 text-xs sm:text-sm">SẴN SÀNG</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khu vực giải thích vật lí -->
+            <div id="hostExplanationArea" class="artillery-hud-card p-5 sm:p-7 border-2 border-emerald-400 shadow-2xl flex flex-col gap-4 hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-emerald-900/60 pb-3">
+                    <div>
+                        <span class="text-xs sm:text-sm font-manga font-black uppercase text-emerald-400 tracking-wider block">PHÂN TÍCH VẬT LÍ: CHUYỂN ĐỘNG NÉM</span>
+                        <p class="text-xs sm:text-base text-slate-300 font-bold">Hệ quy chiếu Des-cartes độc lập trên hai trục Ox (thẳng đều) và Oy (rơi tự do).</p>
+                    </div>
+                    <button onclick="hostShowLeaderboardScreen()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 hover:from-amber-400 hover:to-emerald-500 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl font-black flex items-center gap-2 border-2 border-white">
+                        <span>BẢNG XẾP HẠNG PHÁO THỦ</span>
+                        <i class="fa-solid fa-trophy text-amber-300"></i>
+                    </button>
+                </div>
+                <div id="hostExplanationText" class="text-xs sm:text-sm md:text-base text-slate-100 bg-slate-900/95 border-2 border-slate-800 p-4 sm:p-5 rounded-2xl font-bold leading-relaxed"></div>
+            </div>
+
+            <!-- Lưới trạng thái các đội -->
+            <div class="artillery-hud-card p-4 border-2 border-slate-800">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2 text-xs sm:text-sm">
+                    <span class="font-anime-title font-black text-slate-200 uppercase">Tầm bắn và độ chuẩn xác của các phi đội pháo thủ</span>
+                    <span class="font-manga font-bold text-emerald-400">GUNNER SQUAD RANGE & ACCURACY</span>
+                </div>
+                <div id="hostLiveSquadGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[140px] overflow-y-auto p-1"></div>
+            </div>
+        </section>
+
+        <!-- 3. MÀN HÌNH BẢNG XẾP HẠNG VÒNG (HOST LEADERBOARD) -->
+        <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto artillery-hud-card-gold p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b-2 border-amber-500/40 pb-4 gap-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/25 text-amber-300 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg">
+                        🏆
+                    </div>
+                    <div>
+                        <span class="text-xs sm:text-sm font-manga uppercase font-bold text-amber-400 tracking-wider block">BẢNG XẾP HẠNG TẦM BẮN PHÁO THỦ</span>
+                        <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase" id="hostLeaderboardRoundTitle">
+                            TOP ĐỘI PHÁO THỦ DẪN ĐẦU (CÂU 1)
+                        </h3>
+                    </div>
+                </div>
+
+                <button onclick="hostContinueToNextQuestion()" id="hostLeaderboardNextBtn" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 hover:from-amber-400 hover:to-emerald-500 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl flex items-center gap-2.5 font-black border-2 border-white">
+                    <span id="hostLeaderboardNextBtnText">SANG CÂU TIẾP THEO</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Bục vinh danh Top 3 -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 items-end justify-center py-2 max-w-2xl mx-auto w-full">
+                <!-- Hạng 2 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">🥈</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-2 border-cyan-400 text-center flex flex-col items-center shadow-lg">
+                        <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName2">--</span>
+                        <span class="text-xs font-tech text-cyan-400 font-black" id="podiumAlt2">0 m</span>
+                    </div>
+                    <div class="w-full h-14 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-400 text-base border-2 border-slate-800">#2</div>
+                </div>
+
+                <!-- Hạng 1 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-4xl mb-1 animate-bounce">👑 🥇</span>
+                    <div class="w-full p-4 rounded-2xl bg-amber-950/60 border-3 border-amber-400 text-center flex flex-col items-center shadow-2xl ring-4 ring-amber-400/40">
+                        <span class="text-base sm:text-xl font-black text-amber-300 truncate max-w-full font-anime-title" id="podiumName1">--</span>
+                        <span class="text-sm font-tech text-amber-300 font-black" id="podiumAlt1">0 m</span>
+                    </div>
+                    <div class="w-full h-22 bg-gradient-to-t from-amber-600 to-amber-400 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-950 text-xl shadow-xl">#1</div>
+                </div>
+
+                <!-- Hạng 3 -->
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl mb-1">🥉</span>
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-2 border-orange-500 text-center flex flex-col items-center shadow-lg">
+                        <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName3">--</span>
+                        <span class="text-xs font-tech text-orange-400 font-black" id="podiumAlt3">0 m</span>
+                    </div>
+                    <div class="w-full h-10 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-500 text-sm border-2 border-slate-800">#3</div>
+                </div>
+            </div>
+
+            <!-- Bảng chi tiết điểm -->
+            <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-2 border-slate-800 shadow-2xl overflow-hidden text-xs sm:text-base">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-emerald-300 uppercase font-anime-title">
+                        <tr>
+                            <th class="p-3.5 rounded-l-xl">Hạng</th>
+                            <th class="p-3.5">Đội Pháo Thủ</th>
+                            <th class="p-3.5">Lớp</th>
+                            <th class="p-3.5 text-center">Tình Trạng Nòng Pháo</th>
+                            <th class="p-3.5 text-center">Đúng</th>
+                            <th class="p-3.5 text-right rounded-r-xl">Tầm Xa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hostTopTableBody" class="divide-y-2 divide-slate-800 font-black text-slate-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. MÀN HÌNH TỔNG KẾT CHUNG CUỘC (HOST FINAL) -->
+        <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto artillery-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6 text-center">
+            <div>
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-emerald-500 via-teal-600 to-amber-400 text-white flex items-center justify-center text-6xl shadow-2xl mb-3 animate-bounce border-3 border-white">
+                    🎯
+                </div>
+                <span class="px-5 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 to-amber-500 text-white font-anime-title text-xs sm:text-sm font-black uppercase tracking-widest border border-white">
+                    HOÀN TẤT DIỄN TẬP PHÁO THỦ QUỸ ĐẠO
+                </span>
+                <h2 class="text-2xl sm:text-4xl md:text-5xl font-anime-title font-black text-white uppercase tracking-wider mt-2.5">
+                    VINH DANH CÁC XẠ THỦ QUỸ ĐẠO XUẤT SẮC!
+                </h2>
+                <p class="text-sm sm:text-base md:text-lg text-slate-200 mt-2 font-bold" id="hostFinalChampionAnnounce">
+                    Hệ thống pháo đài đã khai hỏa chính xác theo các quy luật ném ngang và ném xiên!
+                </p>
+            </div>
+
+            <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-2 border-slate-800 overflow-hidden shadow-2xl text-left">
+                <div class="overflow-x-auto max-h-[300px]">
+                    <table class="w-full text-left text-xs sm:text-base">
+                        <thead class="bg-slate-900 text-emerald-300 uppercase font-anime-title sticky top-0">
+                            <tr>
+                                <th class="p-3.5 rounded-l-xl">Hạng</th>
+                                <th class="p-3.5">Tên Đội</th>
+                                <th class="p-3.5">Lớp</th>
+                                <th class="p-3.5 text-center">Tầm Xa (m)</th>
+                                <th class="p-3.5 text-center">Số Câu Đúng</th>
+                                <th class="p-3.5 text-center">Số Lần Lệch/Sự Cố</th>
+                                <th class="p-3.5 text-right rounded-r-xl">Tổng Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hostFinalStatsTbody" class="divide-y-2 divide-slate-800 font-black text-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="exportQuizExcel()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-xl transition flex items-center gap-2.5 font-black border-2 border-white">
+                    <i class="fa-solid fa-file-excel text-lg"></i>
+                    <span>XUẤT BẢNG ĐIỂM (EXCEL)</span>
+                </button>
+                <button onclick="window.location.reload()" class="px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-lg transition flex items-center gap-2.5 font-black border-2 border-slate-700">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>CHƠI LẠI TỪ ĐẦU</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. MÀN HÌNH NHẬP PHÒNG PHÁO THỦ (PLAYER JOIN) -->
+        <section id="playerJoinScreen" class="w-full max-w-lg mx-auto artillery-hud-card p-6 sm:p-9 my-auto hidden text-center flex flex-col gap-4">
+            <div class="w-20 h-20 rounded-3xl bg-emerald-500/25 border-3 border-emerald-400 text-emerald-300 flex items-center justify-center mx-auto text-4xl shadow-xl">
+                🎯
+            </div>
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-anime-title font-black text-white uppercase">TRẠM ĐIỀU KHIỂN PHÁO THỦ</h2>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1.5 font-bold">Nhập mã PIN và tên đội để kết nối trạm pháo kích tầm xa</p>
+            </div>
+
+            <div class="flex flex-col gap-3.5 text-left">
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-emerald-300 uppercase mb-1 font-manga">MÃ PHÒNG (PIN CODE)</label>
+                    <input type="text" id="playerPinInput" placeholder="Ví dụ: 8899" maxlength="6"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-amber-300 font-tech font-black text-3xl border-2 border-emerald-400 focus:outline-none text-center tracking-widest shadow-inner transition">
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">TÊN PHI ĐỘI / HỌ TÊN HỌC SINH</label>
+                    <input type="text" id="playerNameInput" placeholder="Nhập tên phi đội pháo thủ..." maxlength="25"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-sm sm:text-base border-2 border-slate-700 focus:border-emerald-400 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">LỚP HỌC (VÍ DỤ: 10A1)</label>
+                    <input type="text" id="playerClassInput" placeholder="Ví dụ: 10A1..." maxlength="10"
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-xs sm:text-sm border-2 border-slate-700 focus:border-emerald-400 focus:outline-none uppercase transition">
+                </div>
+            </div>
+
+            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-amber-500 hover:from-emerald-500 hover:to-amber-400 text-white font-anime-title text-sm sm:text-base uppercase tracking-wider shadow-xl transition font-black border-2 border-white">
+                KẾT NỐI VÀO TRẬN ĐỊA PHÁO
+            </button>
+            <p id="playerConnectStatusMsg" class="text-xs sm:text-sm text-emerald-400 font-bold hidden font-manga">Đang thiết lập kênh truyền thông đến trạm chỉ huy...</p>
+        </section>
+
+        <!-- 6. PHÒNG CHỜ HỌC SINH (PLAYER LOBBY) -->
+        <section id="playerLobbyScreen" class="w-full max-w-lg mx-auto artillery-hud-card p-6 sm:p-9 my-auto text-center hidden flex flex-col gap-4">
+            <div class="w-22 h-22 rounded-3xl bg-emerald-500/25 border-3 border-emerald-400 text-emerald-300 flex items-center justify-center mx-auto text-5xl shadow-xl">
+                🎯
+            </div>
+            <div>
+                <span class="text-xs sm:text-sm font-manga uppercase text-emerald-400 font-extrabold tracking-wider block">THIẾT BỊ NGẮM BẮN SẴN SÀNG</span>
+                <h2 id="playerMyNameDisplay" class="text-xl sm:text-2xl font-anime-title font-black text-white mt-1 uppercase">ĐỘI PHÁO THỦ</h2>
+                <div class="inline-flex items-center gap-2 mt-2 px-4 py-1.5 rounded-xl bg-slate-900 border-2 border-emerald-400 text-xs sm:text-sm text-amber-300 font-manga font-black shadow">
+                    TẦM BẮN BAN ĐẦU: 0 m (MỤC TIÊU 1000 m)
+                </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed font-bold">
+                Quan sát màn hình máy chiếu trạm chỉ huy.<br>
+                • <b>Đúng:</b> Bắn trúng hồng tâm $\to$ tăng tầm bắn <span class="text-emerald-400 font-black">+100 m</span>.<br>
+                • <b>Sai lần 1:</b> <b>CẢNH BÁO</b> (Lệch góc ném/vận tốc, hụt tầm <span class="text-amber-400 font-black">-25 m</span>)!<br>
+                • <b>Tiếp tục sai:</b> <b>NỔ NÒNG PHÁO</b> hoặc <b>SẬP HẦO</b> tụt tầm <span class="text-rose-400 font-black">-75 m</span>!<br>
+                • Lưu ý các công thức $t = \sqrt{2h/g}, L = v_0t$ và $v_{0y} = v_0\sin\alpha$!
+            </div>
+        </section>
+
+        <!-- 7. MÀN HÌNH TAY CẦM TRẢ LỜI (PLAYER GAMEPAD) -->
+        <section id="playerGamepadScreen" class="w-full max-w-lg mx-auto flex flex-col gap-3 my-auto hidden">
+            <div class="artillery-hud-card p-4 rounded-2xl flex items-center justify-between shadow-xl">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl text-amber-400">🎯</span>
+                    <div>
+                        <div id="playerNavName" class="font-anime-title font-black text-white text-sm sm:text-base truncate max-w-[130px]">Đội Pháo Thủ</div>
+                        <div class="text-xs text-slate-300 font-bold">Tầm bắn: <span id="playerAltHUD" class="font-tech font-black text-amber-300 text-base">0 m</span></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span id="playerRankHUD" class="px-3 py-1 rounded-xl bg-emerald-500/25 text-emerald-300 font-anime-title font-black text-xs sm:text-sm border border-emerald-400">
+                        #--
+                    </span>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border-2 border-emerald-400 text-xs sm:text-sm font-black text-emerald-300">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                        <span id="playerTimerText" class="font-tech">30s</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="artillery-hud-card p-4 rounded-2xl shadow-md text-left flex flex-col gap-1.5">
+                <div class="flex justify-between items-center">
+                    <span id="playerQCounter" class="text-xs sm:text-sm font-manga font-black uppercase text-emerald-400">CÂU 1 / 10</span>
+                    <span class="text-[11px] px-2.5 py-0.5 rounded-lg bg-emerald-500/25 text-emerald-300 font-black uppercase font-manga border border-emerald-400">BALLISTIC MOTION</span>
+                </div>
+                <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-black text-slate-100 leading-snug font-anime-title">
+                    Đang tải câu hỏi...
+                </h3>
+            </div>
+
+            <div class="flex flex-col gap-2.5" id="playerMcqContainer">
+                <button onclick="playerSubmitAnswer(0)" id="playerBtn0" class="choice-btn-a w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">A</span>
+                    <span id="playerOptText0" class="flex-1 break-words leading-tight">Phương án A</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(1)" id="playerBtn1" class="choice-btn-b w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-cyan-600 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">B</span>
+                    <span id="playerOptText1" class="flex-1 break-words leading-tight">Phương án B</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(2)" id="playerBtn2" class="choice-btn-c w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">C</span>
+                    <span id="playerOptText2" class="flex-1 break-words leading-tight">Phương án C</span>
+                </button>
+
+                <button onclick="playerSubmitAnswer(3)" id="playerBtn3" class="choice-btn-d w-full p-4 rounded-2xl flex items-center text-left gap-3.5 font-black text-xs sm:text-base shadow-lg transition btn-choice-anime">
+                    <span class="w-9 h-9 rounded-xl bg-emerald-600 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0">D</span>
+                    <span id="playerOptText3" class="flex-1 break-words leading-tight">Phương án D</span>
+                </button>
+            </div>
+
+            <div id="playerSubmittedOverlay" class="artillery-hud-card p-6 rounded-2xl text-center hidden flex flex-col gap-2.5 shadow-2xl">
+                <div class="text-4xl text-emerald-400 font-black animate-pulse">🎯</div>
+                <h4 class="font-anime-title font-black text-base sm:text-lg text-white uppercase">TỌA ĐỘ ĐÃ ĐƯỢC KHAI HỎA</h4>
+                <p id="playerSubmittedLabel" class="text-xs sm:text-sm font-extrabold text-slate-200">Đang đồng bộ với trận địa pháo chỉ huy...</p>
+                <p class="text-xs text-slate-400 font-bold">Quan sát màn hình trung tâm xem quả pháo bay chuẩn xác hay trượt mục tiêu!</p>
+            </div>
+        </section>
+
+        <!-- 8. MÀN HÌNH KẾT QUẢ TỪNG CÂU CHO HỌC SINH -->
+        <section id="playerFeedbackScreen" class="w-full max-w-lg mx-auto artillery-hud-card p-6 rounded-[2.5rem] text-center my-auto hidden shadow-2xl flex flex-col items-center gap-3">
+            <div id="playerFeedbackIcon" class="text-5xl mb-1">🎯</div>
+            <h2 id="playerFeedbackTitle" class="text-lg sm:text-2xl font-anime-title font-black text-emerald-400 uppercase">
+                BẮN TRÚNG MỤC TIÊU!
+            </h2>
+            <div id="playerFeedbackGain" class="text-sm sm:text-lg font-tech font-black text-amber-300">
+                +100 m • +100 Điểm
+            </div>
+
+            <div class="w-full py-3 px-5 rounded-2xl bg-slate-900 border-2 border-slate-800 flex items-center justify-between shadow-md my-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-500/25 text-emerald-400 flex items-center justify-center font-anime-title font-black text-xl border-2 border-emerald-400">
+                        🚀
+                    </div>
+                    <div class="text-left">
+                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider font-manga">QUÂN HÀM PHÁO THỦ</span>
+                        <span class="text-xs sm:text-sm font-anime-title font-black text-emerald-300" id="playerRankStatusText">Tăng tầm bắn ổn định</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="playerMyRankNum" class="text-2xl font-tech font-black text-amber-400">#--</span>
+                    <span id="playerTotalPlayersBadge" class="text-xs text-slate-400 font-bold block">/ -- đội</span>
+                </div>
+            </div>
+
+            <div class="w-full p-3 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs sm:text-sm text-slate-300 font-bold" id="playerFeedbackSubHint">
+                Theo dõi giải thích công thức trên màn hình máy chiếu!
+            </div>
+        </section>
+
+        <!-- 9. BẢNG XẾP HẠNG TRÊN ĐIỆN THOẠI HỌC SINH -->
+        <section id="playerLeaderboardScreen" class="w-full max-w-lg mx-auto artillery-hud-card p-6 rounded-[2.5rem] my-auto hidden shadow-2xl flex flex-col gap-3.5">
+            <div class="text-center border-b-2 border-slate-800 pb-3">
+                <span class="text-xs sm:text-sm font-manga text-emerald-400 font-extrabold uppercase">BẢNG XẾP HẠNG TRẬN ĐỊA</span>
+                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">TẦM BẮN PHÁO HIỆN TẠI</h3>
+            </div>
+
+            <div class="flex flex-col gap-2 max-h-[280px] overflow-y-auto" id="playerTopListContainer"></div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900 border-2 border-emerald-400 flex items-center justify-between text-xs sm:text-sm">
+                <span class="font-extrabold text-slate-200 font-manga">Vị trí của bạn:</span>
+                <span class="font-tech font-black text-amber-400 text-base" id="playerMobileMyRankSummary">#-- (0 m)</span>
+            </div>
+        </section>
+
+        <!-- CỬA SỔ PHÓNG TO MÃ QR -->
+        <div id="qrModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+            <div class="bg-slate-900 max-w-md w-full p-7 rounded-3xl text-center border-2 border-emerald-400 relative shadow-2xl flex flex-col items-center gap-3.5">
+                <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/25 text-emerald-400 flex items-center justify-center text-2xl border-2 border-emerald-400">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">QUÉT MÃ QR KẾT NỐI</h3>
+                <p class="text-xs sm:text-sm text-slate-300 font-bold">Dùng camera điện thoại để kết nối vào trạm pháo kích</p>
+
+                <div class="p-4 bg-white rounded-3xl border-4 border-emerald-400 shadow-2xl flex items-center justify-center">
+                    <div id="modalQrCodeBox" class="w-[220px] h-[220px] flex items-center justify-center overflow-hidden"></div>
+                </div>
+
+                <div class="flex items-center gap-2.5 text-base font-manga">
+                    <span class="text-slate-200 font-black">MÃ PIN:</span>
+                    <span id="modalPinText" class="text-3xl font-tech font-black text-amber-400 px-4 py-1 bg-black rounded-xl border-2 border-emerald-400">----</span>
+                </div>
+                <button onclick="closeQrModal()" class="w-full py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-black text-slate-200 transition font-manga">
+                    ĐÓNG CỬA SỔ
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /* =========================================================================
+           HỆ THỐNG 10 CÂU HỎI VẬT LÍ 10: CHUYỂN ĐỘNG NÉM (KẾT NỐI TRI THỨC)
+           ========================================================================= */
+        const QUESTIONS_DATA = [
+            {
+                id: 1,
+                category: "Câu 1. Nhận biết - Đặc điểm chuyển động ném ngang",
+                title: "Một vật được ném theo phương ngang từ độ cao $h$. Phát biểu nào sau đây là đúng?",
+                options: [
+                    "Theo phương ngang vật chuyển động nhanh dần đều.",
+                    "Theo phương thẳng đứng vật chuyển động thẳng đều.",
+                    "Theo phương ngang vật chuyển động thẳng đều; theo phương thẳng đứng vật rơi tự do.",
+                    "Vật chuyển động thẳng đều theo cả hai phương."
+                ],
+                correct: 2,
+                v0: 15, angle: 0, h: 45,
+                explanation: "Chuyển động ném ngang là chuyển động phức hợp có thể phân tích thành 2 chuyển động thành phần độc lập:<br>• Theo phương ngang ($Ox$): Không chịu lực cản $\\implies a_x = 0$, vật <b>chuyển động thẳng đều</b> với vận tốc $v_x = v_0$.<br>• Theo phương thẳng đứng ($Oy$): Chỉ chịu tác dụng của trọng lực $\\implies a_y = g$, vật <b>rơi tự do</b> với $v_y = gt$ và $y = \\frac{1}{2}gt^2$."
+            },
+            {
+                id: 2,
+                category: "Câu 2. Thông hiểu - Công thức thời gian rơi",
+                title: "Vật được ném ngang từ độ cao $h$. Công thức tính thời gian chạm đất của vật là công thức nào?",
+                options: [
+                    "$t = \\frac{h}{g}$",
+                    "$t = \\sqrt{\\frac{2h}{g}}$",
+                    "$t = \\frac{v_0}{g}$",
+                    "$t = \\sqrt{\\frac{h}{2g}}$"
+                ],
+                correct: 1,
+                v0: 18, angle: 0, h: 40,
+                explanation: "Xét chuyển động theo phương thẳng đứng hướng xuống gốc tại điểm ném:<br>Phương trình tọa độ: $y = \\frac{1}{2}gt^2$.<br>Khi vật chạm đất thì $y = h \\implies h = \\frac{1}{2}gt^2 \\implies t = \\sqrt{\\frac{2h}{g}}$.<br><i>Lưu ý: Thời gian rơi của vật ném ngang hoàn toàn không phụ thuộc vào vận tốc ném ban đầu $v_0$.</i>"
+            },
+            {
+                id: 3,
+                category: "Câu 3. Vận dụng - Tính thời gian rơi",
+                title: "Một vật được ném ngang từ độ cao $80\\text{ m}$. Lấy $g = 10\\text{ m/s}^2$. Thời gian từ lúc ném đến khi vật chạm đất là:",
+                options: [
+                    "$2\\text{ s}$",
+                    "$3\\text{ s}$",
+                    "$4\\text{ s}$",
+                    "$5\\text{ s}$"
+                ],
+                correct: 2,
+                v0: 20, angle: 0, h: 80,
+                explanation: "Thay số $h = 80\\text{ m}$ và $g = 10\\text{ m/s}^2$ vào công thức tính thời gian rơi:<br>$$t = \\sqrt{\\frac{2h}{g}} = \\sqrt{\\frac{2 \\times 80}{10}} = \\sqrt{16} = 4\\text{ s}$$"
+            },
+            {
+                id: 4,
+                category: "Câu 4. Vận dụng - Tính tầm xa ném ngang",
+                title: "Một quả bóng được ném ngang với vận tốc đầu $15\\text{ m/s}$ từ độ cao $20\\text{ m}$. Lấy $g = 10\\text{ m/s}^2$. Tầm xa $L$ của quả bóng là:",
+                options: [
+                    "$15\\text{ m}$",
+                    "$20\\text{ m}$",
+                    "$30\\text{ m}$",
+                    "$40\\text{ m}$"
+                ],
+                correct: 2,
+                v0: 15, angle: 0, h: 20,
+                explanation: "• Thời gian rơi của quả bóng:<br>$$t = \\sqrt{\\frac{2h}{g}} = \\sqrt{\\frac{2 \\times 20}{10}} = \\sqrt{4} = 2\\text{ s}$$<br>• Tầm xa chuyển động ném ngang:<br>$$L = v_0 \\cdot t = 15 \\times 2 = 30\\text{ m}$$"
+            },
+            {
+                id: 5,
+                category: "Câu 5. Vận dụng - Độ lớn vận tốc khi ném ngang",
+                title: "Vật được ném ngang với vận tốc đầu $12\\text{ m/s}$. Lấy $g = 10\\text{ m/s}^2$. Sau $1,6\\text{ s}$, khi vật còn ở trong không khí, tốc độ của vật là:",
+                options: [
+                    "$16\\text{ m/s}$",
+                    "$18\\text{ m/s}$",
+                    "$20\\text{ m/s}$",
+                    "$24\\text{ m/s}$"
+                ],
+                correct: 2,
+                v0: 12, angle: 0, h: 50,
+                explanation: "Vận tốc của vật tại thời điểm $t$ gồm 2 thành phần vuông góc nhau:<br>• Thành phần nằm ngang: $v_x = v_0 = 12\\text{ m/s}$<br>• Thành phần thẳng đứng: $v_y = g \\cdot t = 10 \\times 1,6 = 16\\text{ m/s}$<br>• Tốc độ tổng hợp của vật:<br>$$v = \\sqrt{v_x^2 + v_y^2} = \\sqrt{12^2 + 16^2} = \\sqrt{144 + 256} = \\sqrt{400} = 20\\text{ m/s}$$"
+            },
+            {
+                id: 6,
+                category: "Câu 6. Nhận biết - Gia tốc chuyển động ném xiên",
+                title: "Một vật được ném xiên lên so với phương ngang. Bỏ qua sức cản không khí, phát biểu nào sau đây là đúng?",
+                options: [
+                    "Vận tốc ngang tăng đều theo thời gian.",
+                    "Vận tốc thẳng đứng không đổi trong suốt quá trình bay.",
+                    "Gia tốc luôn hướng thẳng đứng xuống dưới.",
+                    "Tại điểm cao nhất của quỹ đạo, gia tốc bằng không."
+                ],
+                correct: 2,
+                v0: 22, angle: 45, h: 0,
+                explanation: "Trong suốt quá trình chuyển động (bỏ qua sức cản không khí), vật chỉ chịu tác dụng duy nhất của trọng lực $\\vec{P} = m\\vec{g}$.<br>Theo định luật II Newton: $\\vec{a} = \\frac{\\vec{P}}{m} = \\vec{g}$. Do đó, gia tốc của vật luôn không đổi, bằng gia tốc trọng trường $\\vec{g}$ và <b>luôn hướng thẳng đứng xuống dưới</b> (kể cả tại điểm cao nhất)."
+            },
+            {
+                id: 7,
+                category: "Câu 7. Thông hiểu - Phân tích vận tốc ban đầu ném xiên",
+                title: "Vật được ném xiên lên với vận tốc $v_0 = 20\\text{ m/s}$, góc ném $30^\\circ$ so với phương ngang. Thành phần vận tốc đầu theo phương thẳng đứng $v_{0y}$ bằng:",
+                options: [
+                    "$5\\text{ m/s}$",
+                    "$10\\text{ m/s}$",
+                    "$10\\sqrt{3}\\text{ m/s}$",
+                    "$20\\text{ m/s}$"
+                ],
+                correct: 1,
+                v0: 20, angle: 30, h: 0,
+                explanation: "Chiếu vectơ vận tốc ban đầu $\\vec{v}_0$ lên hai trục tọa độ $Ox$ (nằm ngang) và $Oy$ (thẳng đứng hướng lên):<br>• Thành phần nằm ngang: $v_{0x} = v_0 \\cos\\alpha = 20 \\cos 30^\\circ = 10\\sqrt{3}\\text{ m/s}$<br>• Thành phần thẳng đứng: $v_{0y} = v_0 \\sin\\alpha = 20 \\sin 30^\\circ = 20 \\times 0,5 = 10\\text{ m/s}$"
+            },
+            {
+                id: 8,
+                category: "Câu 8. Vận dụng - Độ cao cực đại của ném xiên",
+                title: "Một vật ném xiên lên từ mặt đất với $v_0 = 20\\text{ m/s}$, góc ném $30^\\circ$. Lấy $g = 10\\text{ m/s}^2$. Độ cao cực đại $H_{\\max}$ so với điểm ném là:",
+                options: [
+                    "$5\\text{ m}$",
+                    "$10\\text{ m}$",
+                    "$15\\text{ m}$",
+                    "$20\\text{ m}$"
+                ],
+                correct: 0,
+                v0: 20, angle: 30, h: 0,
+                explanation: "Tại điểm cao nhất của quỹ đạo, thành phần vận tốc theo phương thẳng đứng triệt tiêu ($v_y = 0$).<br>Áp dụng công thức độ cao cực đại trong chuyển động ném xiên:<br>$$H_{\\max} = \\frac{v_{0y}^2}{2g} = \\frac{(v_0 \\sin\\alpha)^2}{2g} = \\frac{(20 \\sin 30^\\circ)^2}{2 \\times 10} = \\frac{10^2}{20} = 5\\text{ m}$$"
+            },
+            {
+                id: 9,
+                category: "Câu 9. Vận dụng - Tầm xa chuyển động ném xiên",
+                title: "Vật được ném xiên từ mặt đất với $v_0 = 20\\text{ m/s}$, góc ném $45^\\circ$, và rơi về cùng độ cao điểm ném. Lấy $g = 10\\text{ m/s}^2$. Tầm xa $L$ của vật là:",
+                options: [
+                    "$20\\text{ m}$",
+                    "$30\\text{ m}$",
+                    "$40\\text{ m}$",
+                    "$50\\text{ m}$"
+                ],
+                correct: 2,
+                v0: 20, angle: 45, h: 0,
+                explanation: "Vì điểm ném và điểm rơi ở cùng mặt phẳng ngang ($y = 0$), tầm xa được tính theo công thức:<br>$$L = \\frac{v_0^2 \\sin(2\\alpha)}{g}$$<br>Với $\\alpha = 45^\\circ \\implies 2\\alpha = 90^\\circ \\implies \\sin(90^\\circ) = 1$.<br>$$L = \\frac{20^2 \\times 1}{10} = \\frac{400}{10} = 40\\text{ m}$$<br><i>(Góc ném $45^\\circ$ cho tầm xa cực đại khi ném từ mặt đất).</i>"
+            },
+            {
+                id: 10,
+                category: "Câu 10. Vận dụng - So sánh hai chuyển động ném ngang",
+                title: "Hai vật A và B được ném ngang cùng lúc từ cùng một độ cao với vận tốc ban đầu lần lượt là $10\\text{ m/s}$ và $20\\text{ m/s}$. Nhận xét nào sau đây là đúng?",
+                options: [
+                    "Vật B chạm đất trước vật A.",
+                    "Vật A chạm đất trước vật B.",
+                    "Hai vật chạm đất cùng lúc, tầm xa của hai vật bằng nhau.",
+                    "Hai vật chạm đất cùng lúc, tầm xa của vật B gấp đôi vật A."
+                ],
+                correct: 3,
+                v0: 20, angle: 0, h: 45,
+                explanation: "• Vì hai vật ném từ cùng một độ cao $h$, thời gian rơi của cả hai chỉ phụ thuộc vào $h$:<br>$$t_A = t_B = \\sqrt{\\frac{2h}{g}}$$ do đó <b>hai vật chạm đất cùng một lúc</b>.<br>• Tầm xa: $L = v_0 \\cdot t$. Tỉ số tầm xa giữa vật B và vật A là:<br>$$\\frac{L_B}{L_A} = \\frac{v_{0B}}{v_{0A}} = \\frac{20}{10} = 2 \\implies L_B = 2 L_A$$<br>Vậy hai vật chạm đất cùng lúc, tầm xa của vật B gấp đôi vật A."
+            }
+        ];
+
+        /* =========================================================================
+           HỆ THỐNG ÂM THANH WEB AUDIO SYNTHESIZER
+           ========================================================================= */
+        let audioCtx = null;
+        let sfxEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioClass) audioCtx = new AudioClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        const Sound = {
+            playTone(freq, type, duration, gainVal = 0.08, delay = 0) {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = initAudio();
+                    if (!ctx) return;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(gainVal, ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + delay);
+                    osc.stop(ctx.currentTime + delay + duration);
+                } catch(e) {}
+            },
+            tap() { this.playTone(880, 'sine', 0.04, 0.06); },
+            correct() {
+                [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => {
+                    this.playTone(f, 'triangle', 0.22, 0.1, i * 0.06);
+                });
+            },
+            warningAlarm() {
+                if (!sfxEnabled) return;
+                this.playTone(440, 'sawtooth', 0.15, 0.12, 0);
+                this.playTone(587.33, 'sawtooth', 0.15, 0.12, 0.14);
+                this.playTone(440, 'sawtooth', 0.15, 0.12, 0.28);
+                this.playTone(587.33, 'sawtooth', 0.20, 0.14, 0.42);
+            },
+            spikePierce() {
+                if (!sfxEnabled) return;
+                this.playTone(980, 'sawtooth', 0.1, 0.25, 0);
+                this.playTone(260, 'triangle', 0.25, 0.2, 0.05);
+            },
+            cannonFire() {
+                if (!sfxEnabled) return;
+                this.playTone(110, 'sawtooth', 0.35, 0.35);
+                this.playTone(55, 'sine', 0.45, 0.45, 0.05);
+            },
+            timerTick() { this.playTone(1200, 'sine', 0.03, 0.03); }
+        };
+
+        function toggleAudio() {
+            sfxEnabled = !sfxEnabled;
+            const icon = document.getElementById('sfxIcon');
+            if (icon) {
+                icon.className = sfxEnabled ? "fa-solid fa-volume-high text-emerald-400 text-lg" : "fa-solid fa-volume-xmark text-slate-500 text-lg";
+            }
+        }
+
+        function showToast(msg, isPositive = true) {
+            const toast = document.getElementById('toastBox');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-3 rounded-2xl text-xs sm:text-sm font-black shadow-2xl transition-all duration-300 opacity-100 ${
+                isPositive ? 'bg-emerald-950/95 text-emerald-300 border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-rose-950/95 text-rose-300 border-2 border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.3)]'
+            }`;
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2400);
+        }
+
+        function refreshMathRender() {
+            if (typeof renderMathInElement === 'function') {
+                try {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            { left: "$$", right: "$$", display: true },
+                            { left: "$", right: "$", display: false }
+                        ],
+                        throwOnError: false
+                    });
+                } catch(e) {}
+            } else {
+                setTimeout(refreshMathRender, 200);
+            }
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+        }
+
+        /* =========================================================================
+           HỆ THỐNG TRUYỀN THÔNG DỰ PHÒNG KÉP: NETBUS (LOCAL) + MQTT (INTERNET)
+           ========================================================================= */
+        const MQTT_BROKERS = [
+            "wss://broker.emqx.io:8084/mqtt",
+            "wss://broker.hivemq.com:8884/mqtt",
+            "wss://test.mosquitto.org:8081/mqtt"
+        ];
+        let mqttClient = null;
+        let roomPin = "";
+        let isHost = false;
+
+        function createMqttClient(clientId, onConnect, onMessage) {
+            let currentIdx = 0;
+            let client = null;
+            let isConnected = false;
+            let timeoutTimer = null;
+
+            function connect() {
+                if (client) {
+                    try { client.end(true); } catch(e) {}
+                }
+                const url = MQTT_BROKERS[currentIdx];
+
+                try {
+                    client = mqtt.connect(url, {
+                        clientId: clientId,
+                        clean: true,
+                        reconnectPeriod: 2500,
+                        connectTimeout: 5000,
+                        keepalive: 30
+                    });
+
+                    if (timeoutTimer) clearTimeout(timeoutTimer);
+                    timeoutTimer = setTimeout(() => {
+                        if (!isConnected && currentIdx < MQTT_BROKERS.length - 1) {
+                            currentIdx++;
+                            connect();
+                        }
+                    }, 5500);
+
+                    client.on('connect', () => {
+                        isConnected = true;
+                        if (timeoutTimer) clearTimeout(timeoutTimer);
+                        if (onConnect) onConnect(client);
+                    });
+
+                    client.on('message', (t, m) => {
+                        if (onMessage) onMessage(t, m);
+                    });
+
+                    client.on('error', () => {
+                        if (!isConnected && currentIdx < MQTT_BROKERS.length - 1) {
+                            if (timeoutTimer) clearTimeout(timeoutTimer);
+                            currentIdx++;
+                            setTimeout(connect, 400);
+                        }
+                    });
+                } catch(e) {
+                    if (currentIdx < MQTT_BROKERS.length - 1) {
+                        currentIdx++;
+                        setTimeout(connect, 400);
+                    }
+                }
+            }
+
+            connect();
+            return () => client;
+        }
+
+        const NetBus = {
+            bc: null,
+            init(pin, onMessage) {
+                const chName = `artillery_strike_bus_${pin}`;
+                if (typeof BroadcastChannel !== 'undefined') {
+                    try {
+                        if (this.bc) {
+                            try { this.bc.close(); } catch(e) {}
+                        }
+                        this.bc = new BroadcastChannel(chName);
+                        this.bc.onmessage = (e) => {
+                            if (e.data && onMessage) onMessage(e.data);
+                        };
+                    } catch(e) {}
+                }
+
+                window.addEventListener('storage', (e) => {
+                    try {
+                        if (e.key === chName && e.newValue) {
+                            const parsed = JSON.parse(e.newValue);
+                            if (parsed && parsed.payload && onMessage) {
+                                onMessage(parsed.payload);
+                            }
+                        }
+                    } catch(err) {}
+                });
+            },
+            publish(pin, payload) {
+                const chName = `artillery_strike_bus_${pin}`;
+                if (this.bc) {
+                    try { this.bc.postMessage(payload); } catch(e) {}
+                }
+                try {
+                    localStorage.setItem(chName, JSON.stringify({
+                        payload: payload,
+                        _t: Date.now() + Math.random()
+                    }));
+                } catch(e) {}
+            }
+        };
+
+        /* =========================================================================
+           TRẠNG THÁI GAME & PHI ĐỘI PHÁO THỦ
+           ========================================================================= */
+        let hostState = {
+            players: {},
+            currentQIndex: 0,
+            timer: 30,
+            timerInterval: null,
+            startTime: 0,
+            isRoundEnded: false,
+            isGameStarted: false,
+            isFinished: false,
+            botTimers: []
+        };
+
+        let storedPlayerId = sessionStorage.getItem('artillery_player_id');
+        if (!storedPlayerId) {
+            storedPlayerId = "gunner_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 8);
+            sessionStorage.setItem('artillery_player_id', storedPlayerId);
+        }
+
+        let playerState = {
+            playerId: storedPlayerId,
+            myName: "",
+            myClass: "",
+            altitude: 0,
+            score: 0,
+            consecutiveWrong: 0,
+            hazardState: 'normal',
+            selectedChoice: null,
+            timerInterval: null,
+            joinInterval: null
+        };
+
+        /* =========================================================================
+           MÔ PHỎNG CANVAS 2D: CHUYỂN ĐỘNG NÉM & VECTOR VẬN TỐC (Vx, Vy)
+           ========================================================================= */
+        let simAnimFrame = null;
+        let ballisticParticles = [];
+        let trailDots = [];
+
+        function triggerHitSparks(cx, cy) {
+            ballisticParticles = [];
+            for (let i = 0; i < 50; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 8;
+                ballisticParticles.push({
+                    x: cx, y: cy,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1.0,
+                    size: 3 + Math.random() * 4,
+                    color: ['#10b981', '#34d399', '#fbbf24', '#f97316'][Math.floor(Math.random() * 4)]
+                });
+            }
+        }
+
+        function triggerMisfireSmoke(cx, cy) {
+            ballisticParticles = [];
+            for (let i = 0; i < 35; i++) {
+                ballisticParticles.push({
+                    x: cx + (Math.random() - 0.5) * 30,
+                    y: cy + (Math.random() - 0.5) * 20,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: -Math.random() * 3 - 0.5,
+                    life: 1.0,
+                    size: 4 + Math.random() * 6,
+                    color: '#475569'
+                });
+            }
+        }
+
+        function runBallisticCanvas(activeHazard = 'normal', powerVal = 100) {
+            const canvas = document.getElementById('ballisticSimCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+
+            canvas.width = rect.width * (window.devicePixelRatio || 1);
+            canvas.height = rect.height * (window.devicePixelRatio || 1);
+            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+            const w = rect.width;
+            const h = rect.height;
+            let timeProg = 0;
+            trailDots = [];
+
+            if (simAnimFrame) cancelAnimationFrame(simAnimFrame);
+
+            function render() {
+                timeProg += 0.015;
+                if (timeProg > 1.25) {
+                    timeProg = 0;
+                    trailDots = [];
+                }
+
+                ctx.clearRect(0, 0, w, h);
+
+                // Nền radar quân sự sẫm
+                const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+                bgGrad.addColorStop(0, '#030814');
+                bgGrad.addColorStop(1, '#061324');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                // Lưới tọa độ quân sự màu lục bảo siêu mịn
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.09)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < w; x += 32) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+                }
+                for (let y = 0; y < h; y += 32) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                }
+
+                // Mặt đất phòng tuyến
+                const groundY = h * 0.82;
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(0, groundY);
+                ctx.lineTo(w, groundY);
+                ctx.stroke();
+
+                // Các vạch thước đo cự ly thực địa
+                ctx.fillStyle = '#10b981';
+                ctx.font = '10px Orbitron, monospace';
+                for (let xDist = 1; xDist <= 4; xDist++) {
+                    const tickX = w * 0.15 + (w * 0.65 / 4) * xDist;
+                    ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(tickX, groundY - 4);
+                    ctx.lineTo(tickX, groundY + 4);
+                    ctx.stroke();
+                    ctx.fillText(`${xDist * 10}m`, tickX - 10, groundY + 16);
+                }
+
+                // Bệ phóng pháo đài (vị trí bắn ban đầu)
+                const cannonX = w * 0.12;
+                const launchH = h * 0.35;
+                const startY = groundY - launchH;
+
+                const currentQ = QUESTIONS_DATA[hostState.currentQIndex] || QUESTIONS_DATA[0];
+                const isNgang = (currentQ.angle === 0);
+
+                // Vẽ tháp pháo & công sự
+                if (isNgang) {
+                    // Đài pháo cao h (ném ngang)
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(cannonX - 22, startY, 26, launchH);
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(cannonX - 22, startY, 26, launchH);
+
+                    // Nhãn độ cao h
+                    ctx.fillStyle = '#34d399';
+                    ctx.font = '10px Orbitron, monospace';
+                    ctx.fillText(`h=${currentQ.h}m`, cannonX - 35, startY + launchH / 2);
+
+                    // Nòng pháo nằm ngang
+                    ctx.fillStyle = '#10b981';
+                    ctx.fillRect(cannonX, startY - 4, 24, 8);
+                } else {
+                    // Pháo đặt tại mặt đất (ném xiên góc alpha)
+                    const angleRad = (currentQ.angle * Math.PI) / 180;
+                    ctx.save();
+                    ctx.translate(cannonX, groundY);
+                    // Vẽ thước đo góc (Protractor Arc)
+                    ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 26, 0, -angleRad, true);
+                    ctx.stroke();
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.font = '10px Orbitron, monospace';
+                    ctx.fillText(`α=${currentQ.angle}°`, 30, -12);
+
+                    // Nòng pháo chếch góc
+                    ctx.rotate(-angleRad);
+                    ctx.fillStyle = '#10b981';
+                    ctx.fillRect(0, -5, 28, 10);
+                    ctx.strokeStyle = '#34d399';
+                    ctx.strokeRect(0, -5, 28, 10);
+                    ctx.restore();
+                }
+
+                // Khớp xoay tháp pháo
+                const pivotY = isNgang ? startY : groundY;
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(cannonX, pivotY, 9, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Bia mục tiêu hồng tâm (vòng radar sonar)
+                const targetX = w * 0.78;
+                const targetY = groundY - 18;
+
+                // Vòng quét sonar
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.3)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 24 + Math.sin(timeProg * 8) * 4, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 9, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Tính toán quỹ đạo Parabol
+                let projectileX, projectileY;
+                let currentVy;
+
+                if (isNgang) {
+                    const flightT = Math.min(1.0, timeProg);
+                    projectileX = cannonX + flightT * (targetX - cannonX);
+                    projectileY = startY + (groundY - startY) * Math.pow(flightT, 2);
+                    currentVy = 2 * (groundY - startY) * flightT;
+                } else {
+                    const flightT = Math.min(1.0, timeProg);
+                    projectileX = cannonX + flightT * (targetX - cannonX);
+                    const apexH = h * 0.45;
+                    projectileY = groundY - 4 * apexH * flightT * (1 - flightT);
+                    currentVy = -apexH * (1 - 2 * flightT);
+                }
+
+                if (activeHazard === 'warning_short') projectileX *= 0.75;
+                if (activeHazard === 'warning_over') projectileX *= 1.25;
+
+                if (timeProg <= 1.0) {
+                    trailDots.push({ x: projectileX, y: projectileY });
+                }
+
+                // Vẽ vệt sáng Parabol Neon
+                if (trailDots.length > 1) {
+                    ctx.save();
+                    ctx.strokeStyle = '#10b981';
+                    ctx.shadowColor = '#34d399';
+                    ctx.shadowBlur = 8;
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(trailDots[0].x, trailDots[0].y);
+                    for (let i = 1; i < trailDots.length; i++) {
+                        ctx.lineTo(trailDots[i].x, trailDots[i].y);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Vẽ quả đạn pháo & Vector vận tốc Vx, Vy
+                if (timeProg <= 1.0) {
+                    ctx.save();
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.shadowColor = '#f59e0b';
+                    ctx.shadowBlur = 14;
+                    ctx.beginPath();
+                    ctx.arc(projectileX, projectileY, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    // Vector Vx (không đổi - xanh ngọc lục bảo)
+                    ctx.save();
+                    ctx.strokeStyle = '#34d399';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(projectileX, projectileY);
+                    ctx.lineTo(projectileX + 30, projectileY);
+                    ctx.stroke();
+                    ctx.fillStyle = '#34d399';
+                    ctx.font = '10px Orbitron, monospace';
+                    ctx.fillText('vx', projectileX + 33, projectileY + 3);
+
+                    // Vector Vy (biến đổi theo gia tốc g - đỏ hồng laser)
+                    ctx.strokeStyle = '#f43f5e';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(projectileX, projectileY);
+                    const vyLength = Math.max(-26, Math.min(26, currentVy * 0.16));
+                    ctx.lineTo(projectileX, projectileY + vyLength);
+                    ctx.stroke();
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.fillText('vy', projectileX - 18, projectileY + vyLength);
+                    ctx.restore();
+                } else if (timeProg > 1.0 && timeProg < 1.05 && activeHazard === 'normal') {
+                    triggerHitSparks(targetX, targetY);
+                }
+
+                // Vẽ các tia lửa nổ
+                ballisticParticles.forEach(p => {
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, p.life);
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.02;
+                });
+                ballisticParticles = ballisticParticles.filter(p => p.life > 0);
+
+                simAnimFrame = requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        window.addEventListener('resize', () => {
+            const screen = document.getElementById('hostQuestionScreen');
+            if (screen && !screen.classList.contains('hidden')) {
+                const players = Object.values(hostState.players);
+                const avgPower = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+                runBallisticCanvas('normal', avgPower);
+            }
+        });
+
+        function getMilitaryRankTitle(altitude) {
+            if (altitude >= 800) return "👑 TỔNG TƯ LỆNH ĐẠN ĐẠO";
+            if (altitude >= 500) return "⭐ ĐỘI TRƯỞNG PHÁO BINH";
+            if (altitude >= 200) return "🎯 XẠ THỦ TÁC CHIẾN";
+            return "🎖️ BINH NHÌ TẬP SỰ";
+        }
+
+        /* =========================================================================
+           LOGIC MÁY CHIẾU (HOST CONTROLLER)
+           ========================================================================= */
+        function initHostMode() {
+            isHost = true;
+            hideAllScreens();
+            document.getElementById('hostLobbyScreen').classList.remove('hidden');
+
+            roomPin = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('hostPinDisplay').innerText = roomPin;
+
+            generateHostQrCode();
+
+            NetBus.init(roomPin, (msg) => {
+                if (msg && msg._sender === 'player') {
+                    handleHostIncomingData(msg.data);
+                }
+            });
+
+            const clientId = "host_artillery_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
+            createMqttClient(clientId, (client) => {
+                mqttClient = client;
+                mqttClient.subscribe(`artillery_strike/${roomPin}/player`, { qos: 0 });
+            }, (topic, message) => {
+                try {
+                    const data = JSON.parse(message.toString());
+                    handleHostIncomingData(data);
+                } catch(e) {}
+            });
+        }
+
+        function hostPublish(data) {
+            NetBus.publish(roomPin, { _sender: 'host', data: data });
+            if (mqttClient && mqttClient.connected) {
+                try {
+                    mqttClient.publish(`artillery_strike/${roomPin}/host`, JSON.stringify(data), { qos: 0 });
+                } catch(e) {}
+            }
+        }
+
+        function addDemoBots(count = 4) {
+            const presets = [
+                { name: "Pháo Cao Xạ Alpha", class: "10A1" },
+                { name: "Quỹ Đạo Sấm Sét", class: "10A1" },
+                { name: "Tiêm Kích Bắn Tỉa", class: "10A2" },
+                { name: "Pháo Binh Parabol", class: "10A2" }
+            ];
+            for (let i = 0; i < count; i++) {
+                const p = presets[i % presets.length];
+                const botId = "bot_" + (i + 1) + "_" + Math.random().toString(36).substring(2, 6);
+                handleHostIncomingData({
+                    type: 'PLAYER_JOIN',
+                    playerId: botId,
+                    name: p.name,
+                    className: p.class,
+                    isBot: true
+                });
+            }
+            showToast(`✓ Đã bổ sung ${count} đội pháo thủ mẫu!`, true);
+        }
+
+        function clearDemoBots() {
+            hostState.players = {};
+            updateHostLobbyUI();
+            showToast("Đã làm sạch danh sách!", true);
+        }
+
+        function updateHostLobbyUI() {
+            const count = Object.keys(hostState.players).length;
+            document.getElementById('hostPlayerCountNum').innerText = count;
+            const container = document.getElementById('hostPlayerListContainer');
+            const emptyMsg = document.getElementById('emptyPlayerMsg');
+            const startBtn = document.getElementById('hostStartBtn');
+
+            if (emptyMsg) emptyMsg.classList.toggle('hidden', count > 0);
+            if (startBtn) startBtn.disabled = (count === 0);
+
+            if (container) {
+                container.innerHTML = '';
+                Object.values(hostState.players).forEach(p => {
+                    const tag = document.createElement('div');
+                    tag.className = "px-4 py-2 rounded-2xl bg-slate-900 border-2 border-emerald-500/70 text-emerald-300 font-bold text-xs sm:text-sm flex items-center gap-2 shadow";
+                    tag.innerHTML = `<span>🎯</span> <span>${p.name}</span> <span class="text-xs text-slate-400">(${p.className})</span>`;
+                    container.appendChild(tag);
+                });
+            }
+        }
+
+        function handleHostIncomingData(data) {
+            if (!data || !data.type) return;
+
+            if (data.type === 'PLAYER_JOIN') {
+                const pId = data.playerId;
+                if (!pId) return;
+
+                if (!hostState.players[pId]) {
+                    hostState.players[pId] = {
+                        id: pId,
+                        name: data.name || "Pháo thủ",
+                        className: data.className || "10A",
+                        isBot: Boolean(data.isBot),
+                        altitude: 0,
+                        score: 0,
+                        consecutiveWrong: 0,
+                        hazardState: 'normal',
+                        correctCount: 0,
+                        popCount: 0,
+                        currentAnswer: null,
+                        answerHistory: {}
+                    };
+                    Sound.tap();
+                    updateHostLobbyUI();
+                }
+
+                hostPublish({
+                    type: 'JOIN_ACK',
+                    playerId: pId,
+                    roomPin: roomPin
+                });
+
+                if (hostState.isGameStarted && !hostState.isFinished) {
+                    if (!hostState.isRoundEnded) {
+                        hostPublish({
+                            type: 'QUESTION_START',
+                            qIndex: hostState.currentQIndex,
+                            playerId: pId
+                        });
+                    }
+                }
+            } else if (data.type === 'PLAYER_ANSWER') {
+                const p = hostState.players[data.playerId];
+                if (p && p.currentAnswer === null && !hostState.isRoundEnded) {
+                    p.currentAnswer = data.choice;
+                    const q = QUESTIONS_DATA[hostState.currentQIndex];
+                    const isCorrect = (data.choice === q.correct);
+
+                    p.answerHistory[hostState.currentQIndex] = {
+                        choice: data.choice,
+                        isCorrect: isCorrect
+                    };
+
+                    let altGain = 0;
+                    if (isCorrect) {
+                        p.correctCount++;
+                        p.consecutiveWrong = 0;
+                        p.hazardState = 'normal';
+                        altGain = 100;
+                        p.altitude = Math.min(1000, p.altitude + 100);
+                        p.score += 100;
+                    } else {
+                        p.consecutiveWrong++;
+                        if (p.consecutiveWrong === 1) {
+                            p.hazardState = (hostState.currentQIndex % 2 === 0) ? 'warning_short' : 'warning_over';
+                            altGain = -25;
+                            p.altitude = Math.max(0, p.altitude - 25);
+                        } else {
+                            p.popCount++;
+                            p.hazardState = (p.hazardState === 'warning_short') ? 'spike' : 'pop';
+                            altGain = -75;
+                            p.altitude = Math.max(0, p.altitude - 75);
+                        }
+                    }
+
+                    const rankings = Object.values(hostState.players).sort((a, b) => b.altitude - a.altitude);
+                    const myRank = rankings.findIndex(item => item.id === p.id) + 1;
+
+                    hostPublish({
+                        type: 'ROUND_FEEDBACK',
+                        playerId: p.id,
+                        isCorrect: isCorrect,
+                        altGain: altGain,
+                        altitude: p.altitude,
+                        score: p.score,
+                        hazardState: p.hazardState,
+                        rank: myRank,
+                        militaryRank: getMilitaryRankTitle(p.altitude),
+                        totalPlayers: rankings.length
+                    });
+
+                    updateHostAnsweredCounter();
+                    renderHostLiveSquadGrid();
+
+                    const allPlayers = Object.values(hostState.players);
+                    const answeredCount = allPlayers.filter(pl => pl.currentAnswer !== null).length;
+                    if (answeredCount >= allPlayers.length && allPlayers.length > 0) {
+                        hostEndQuestionRound();
+                    }
+                }
+            }
+        }
+
+        function updateHostAnsweredCounter() {
+            const answered = Object.values(hostState.players).filter(pl => pl.currentAnswer !== null).length;
+            document.getElementById('hostAnsweredCount').innerText = answered;
+        }
+
+        function hostStartGame() {
+            hostState.isGameStarted = true;
+            hostState.currentQIndex = 0;
+            hostPublish({ type: 'QUIZ_START' });
+            hostLoadQuestion();
+        }
+
+        function hostLoadQuestion() {
+            hideAllScreens();
+            document.getElementById('hostQuestionScreen').classList.remove('hidden');
+            document.getElementById('hostExplanationArea').classList.add('hidden');
+
+            document.getElementById('ballisticWarningAlert').classList.add('hidden');
+            document.getElementById('ballisticPopAlert').classList.add('hidden');
+            document.getElementById('ballisticSpikeAlert').classList.add('hidden');
+            document.getElementById('ballisticSuccessAlert').classList.add('hidden');
+
+            hostState.isRoundEnded = false;
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+
+            document.getElementById('hostQCounterBadge').innerText = `CÂU ${hostState.currentQIndex + 1} / ${QUESTIONS_DATA.length}`;
+            document.getElementById('hostQCategory').innerText = q.category;
+            document.getElementById('hostQuestionTitle').innerText = q.title;
+
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`hostOptText${i}`).innerHTML = q.options[i];
+                const card = document.getElementById(`hostOptCard${i}`);
+                const badge = document.getElementById(`hostOptBadge${i}`);
+                badge.classList.add('hidden');
+                card.classList.remove('ring-4', 'ring-emerald-400', 'opacity-30');
+            }
+
+            Object.values(hostState.players).forEach(p => {
+                p.currentAnswer = null;
+            });
+
+            document.getElementById('hostTotalPlayersCount').innerText = Object.keys(hostState.players).length;
+            document.getElementById('hostAnsweredCount').innerText = "0";
+
+            renderHostLiveSquadGrid();
+            refreshMathRender();
+
+            const players = Object.values(hostState.players);
+            const avgPower = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+            document.getElementById('hostAvgAltText').innerText = `${avgPower} m`;
+            runBallisticCanvas('normal', avgPower);
+
+            hostPublish({
+                type: 'QUESTION_START',
+                qIndex: hostState.currentQIndex
+            });
+
+            hostState.botTimers.forEach(t => clearTimeout(t));
+            hostState.botTimers = [];
+            const bots = Object.values(hostState.players).filter(p => p.isBot);
+            bots.forEach(bot => {
+                const delay = 2500 + Math.random() * 8000;
+                const isCorrect = Math.random() < 0.8;
+                const botChoice = isCorrect ? q.correct : (q.correct + 1) % 4;
+                const timer = setTimeout(() => {
+                    if (!hostState.isRoundEnded && bot.currentAnswer === null) {
+                        handleHostIncomingData({
+                            type: 'PLAYER_ANSWER',
+                            playerId: bot.id,
+                            choice: botChoice
+                        });
+                    }
+                }, delay);
+                hostState.botTimers.push(timer);
+            });
+
+            hostState.timer = 30;
+            document.getElementById('hostTimerText').innerText = hostState.timer;
+            clearInterval(hostState.timerInterval);
+            hostState.timerInterval = setInterval(() => {
+                hostState.timer--;
+                document.getElementById('hostTimerText').innerText = hostState.timer;
+                if (hostState.timer <= 5 && hostState.timer > 0) Sound.timerTick();
+                if (hostState.timer <= 0) {
+                    hostEndQuestionRound();
+                }
+            }, 1000);
+        }
+
+        function hostEndQuestionRound() {
+            if (hostState.isRoundEnded) return;
+            hostState.isRoundEnded = true;
+            clearInterval(hostState.timerInterval);
+
+            hostState.botTimers.forEach(t => clearTimeout(t));
+            hostState.botTimers = [];
+
+            const q = QUESTIONS_DATA[hostState.currentQIndex];
+
+            for (let i = 0; i < 4; i++) {
+                const card = document.getElementById(`hostOptCard${i}`);
+                const badge = document.getElementById(`hostOptBadge${i}`);
+                if (i === q.correct) {
+                    card.classList.add('ring-4', 'ring-emerald-400');
+                    badge.classList.remove('hidden');
+                } else {
+                    card.classList.add('opacity-30');
+                }
+            }
+
+            const players = Object.values(hostState.players);
+            let worstHazard = 'normal';
+            if (players.some(p => p.hazardState === 'pop')) worstHazard = 'pop';
+            else if (players.some(p => p.hazardState === 'spike')) worstHazard = 'spike';
+            else if (players.some(p => p.hazardState === 'warning_short')) worstHazard = 'warning_short';
+            else if (players.some(p => p.hazardState === 'warning_over')) worstHazard = 'warning_over';
+
+            const avgPower = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+            document.getElementById('hostAvgAltText').innerText = `${avgPower} m`;
+
+            const canvas = document.getElementById('ballisticSimCanvas');
+            const rect = canvas ? canvas.getBoundingClientRect() : { width: 300, height: 300 };
+
+            if (worstHazard === 'pop') {
+                document.getElementById('ballisticPopAlert').classList.remove('hidden');
+                triggerMisfireSmoke(rect.width * 0.12, rect.height * 0.4);
+                Sound.cannonFire();
+            } else if (worstHazard === 'spike') {
+                document.getElementById('ballisticSpikeAlert').classList.remove('hidden');
+                Sound.spikePierce();
+            } else if (worstHazard.startsWith('warning')) {
+                document.getElementById('ballisticWarningAlert').classList.remove('hidden');
+                Sound.warningAlarm();
+            } else {
+                document.getElementById('ballisticSuccessAlert').classList.remove('hidden');
+                triggerHitSparks(rect.width * 0.78, rect.height * 0.8);
+                Sound.correct();
+            }
+
+            runBallisticCanvas(worstHazard, avgPower);
+
+            document.getElementById('hostExplanationText').innerHTML = `<span class="text-amber-300 font-anime-title text-base block mb-1">💡 HƯỚNG DẪN GIẢI CHI TIẾT:</span>${q.explanation}`;
+            document.getElementById('hostExplanationArea').classList.remove('hidden');
+            refreshMathRender();
+        }
+
+        function renderHostLiveSquadGrid() {
+            const grid = document.getElementById('hostLiveSquadGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            Object.values(hostState.players).forEach(p => {
+                const card = document.createElement('div');
+                const isAnswered = p.currentAnswer !== null;
+                card.className = `p-2 rounded-xl border text-xs flex items-center justify-between font-bold ${
+                    isAnswered ? 'bg-slate-900 border-emerald-400 text-emerald-200' : 'bg-slate-950 border-slate-800 text-slate-400'
+                }`;
+                card.innerHTML = `
+                    <span class="truncate max-w-[90px]">🎯 ${p.name}</span>
+                    <span class="font-tech text-amber-300">${p.altitude}m</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function hostShowLeaderboardScreen() {
+            hideAllScreens();
+            document.getElementById('hostLeaderboardScreen').classList.remove('hidden');
+
+            const sorted = Object.values(hostState.players).sort((a, b) => b.altitude - a.altitude);
+
+            document.getElementById('hostLeaderboardRoundTitle').innerText = `TOP ĐỘI PHÁO THỦ DẪN ĐẦU (CÂU ${hostState.currentQIndex + 1})`;
+
+            if (sorted[0]) {
+                document.getElementById('podiumName1').innerText = sorted[0].name;
+                document.getElementById('podiumAlt1').innerText = `${sorted[0].altitude} m`;
+            } else {
+                document.getElementById('podiumName1').innerText = "--";
+                document.getElementById('podiumAlt1').innerText = "0 m";
+            }
+            if (sorted[1]) {
+                document.getElementById('podiumName2').innerText = sorted[1].name;
+                document.getElementById('podiumAlt2').innerText = `${sorted[1].altitude} m`;
+            } else {
+                document.getElementById('podiumName2').innerText = "--";
+                document.getElementById('podiumAlt2').innerText = "0 m";
+            }
+            if (sorted[2]) {
+                document.getElementById('podiumName3').innerText = sorted[2].name;
+                document.getElementById('podiumAlt3').innerText = `${sorted[2].altitude} m`;
+            } else {
+                document.getElementById('podiumName3').innerText = "--";
+                document.getElementById('podiumAlt3').innerText = "0 m";
+            }
+
+            const tbody = document.getElementById('hostTopTableBody');
+            tbody.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx === 0 ? "bg-amber-950/40" : "";
+                let statusLabel = getMilitaryRankTitle(p.altitude);
+
+                tr.innerHTML = `
+                    <td class="p-3.5 font-tech text-amber-400">#${idx + 1}</td>
+                    <td class="p-3.5 font-black text-white flex items-center gap-2"><span>🎯</span> <span>${p.name}</span></td>
+                    <td class="p-3.5 text-slate-400">${p.className}</td>
+                    <td class="p-3.5 text-center font-manga text-xs text-emerald-400">${statusLabel}</td>
+                    <td class="p-3.5 text-center font-tech text-emerald-300">${p.correctCount} / ${hostState.currentQIndex + 1}</td>
+                    <td class="p-3.5 text-right font-tech font-black text-amber-300 text-sm sm:text-base">${p.altitude} m</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            hostPublish({
+                type: 'SHOW_LEADERBOARD',
+                rankings: sorted.map((pl, i) => ({
+                    rank: i + 1,
+                    name: pl.name,
+                    altitude: pl.altitude,
+                    score: pl.score
+                }))
+            });
+
+            Sound.tap();
+        }
+
+        function hostContinueToNextQuestion() {
+            hostState.currentQIndex++;
+            if (hostState.currentQIndex >= QUESTIONS_DATA.length) {
+                hostShowFinalResults();
+            } else {
+                hostLoadQuestion();
+            }
+        }
+
+        function hostShowFinalResults() {
+            hostState.isFinished = true;
+            hideAllScreens();
+            document.getElementById('hostFinalScreen').classList.remove('hidden');
+
+            Sound.correct();
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 180, spread: 100, origin: { y: 0.6 } });
+            }
+
+            const sorted = Object.values(hostState.players).sort((a, b) => b.altitude - a.altitude);
+            const champ = sorted[0];
+
+            if (champ) {
+                document.getElementById('hostFinalChampionAnnounce').innerHTML = `
+                    Tổng tư lệnh xạ thủ: <b class="text-amber-300 text-xl">${champ.name}</b> (${champ.className}) đã xuất sắc đưa tầm bắn pháo kích lên <b>${champ.altitude} m</b>, trả lời đúng <b>${champ.correctCount}/${QUESTIONS_DATA.length} câu</b> và hoàn thành bài tập Chuyển động ném xuất sắc!
+                `;
+            }
+
+            const tbody = document.getElementById('hostFinalStatsTbody');
+            tbody.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx === 0 ? "bg-amber-950/40" : "";
+                tr.innerHTML = `
+                    <td class="p-3.5 font-tech text-amber-400">#${idx + 1}</td>
+                    <td class="p-3.5 font-black text-white">${p.name} ${idx === 0 ? '👑' : ''}</td>
+                    <td class="p-3.5 text-slate-400">${p.className}</td>
+                    <td class="p-3.5 text-center font-tech text-amber-300 font-black">${p.altitude} m</td>
+                    <td class="p-3.5 text-center font-tech text-emerald-400">${p.correctCount} / ${QUESTIONS_DATA.length}</td>
+                    <td class="p-3.5 text-center font-tech text-rose-400">${p.popCount}</td>
+                    <td class="p-3.5 text-right font-tech font-black text-emerald-300">${p.score}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            hostPublish({ type: 'QUIZ_FINISHED' });
+        }
+
+        function exportQuizExcel() {
+            const players = Object.values(hostState.players);
+            if (players.length === 0) {
+                showToast("Chưa có dữ liệu để xuất Excel!", false);
+                return;
+            }
+            const excelRows = players.map((p, idx) => ({
+                "STT": idx + 1,
+                "Tên Đội": p.name,
+                "Lớp": p.className,
+                "Tầm Xa Đạt Được (m)": p.altitude,
+                "Cấp Bậc Quân Hàm": getMilitaryRankTitle(p.altitude),
+                "Số Câu Đúng": `${p.correctCount}/${QUESTIONS_DATA.length}`,
+                "Số Lần Lệch/Sự Cố": p.popCount,
+                "Tổng Điểm Tích Lũy": p.score
+            }));
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            XLSX.utils.book_append_sheet(wb, ws, "KetQua_ChuyenDongNem");
+            XLSX.writeFile(wb, "KetQua_TracNghiem_ChuyenDongNem_VatLi10.xlsx");
+            showToast("✓ Đã xuất file Excel thành công!", true);
+        }
+
+        function generateHostQrCode() {
+            const qrBox = document.getElementById('hostQrCodeBox');
+            const modalBox = document.getElementById('modalQrCodeBox');
+            if (!qrBox) return;
+            qrBox.innerHTML = '';
+            if (modalBox) modalBox.innerHTML = '';
+
+            document.getElementById('modalPinText').innerText = roomPin;
+            const joinUrl = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
+
+            try {
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrBox, { text: joinUrl, width: 140, height: 140, colorDark: "#059669", colorLight: "#ffffff" });
+                    if (modalBox) {
+                        new QRCode(modalBox, { text: joinUrl, width: 220, height: 220, colorDark: "#059669", colorLight: "#ffffff" });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function copyJoinLink() {
+            const url = window.location.origin + window.location.pathname + `?pin=${roomPin}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast("✓ Đã sao chép liên kết vào phòng!", true);
+                }).catch(() => {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("✓ Đã sao chép liên kết vào phòng!", true);
+        }
+
+        function openQrModal() {
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+        function closeQrModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+
+        /* =========================================================================
+           LOGIC TAY CẦM ĐIỆN THOẠI HỌC SINH (PLAYER MODE)
+           ========================================================================= */
+        function initPlayerMode() {
+            isHost = false;
+            hideAllScreens();
+            document.getElementById('playerJoinScreen').classList.remove('hidden');
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                document.getElementById('playerPinInput').value = params.get('pin').trim();
+            }
+            const savedName = sessionStorage.getItem('artillery_saved_name');
+            const savedClass = sessionStorage.getItem('artillery_saved_class');
+            if (savedName) document.getElementById('playerNameInput').value = savedName;
+            if (savedClass) document.getElementById('playerClassInput').value = savedClass;
+        }
+
+        function playerJoinRoom() {
+            const pin = document.getElementById('playerPinInput').value.trim().replace(/\s+/g, '');
+            const name = document.getElementById('playerNameInput').value.trim();
+            const className = document.getElementById('playerClassInput').value.trim() || "10A";
+            const statusMsg = document.getElementById('playerConnectStatusMsg');
+            const submitBtn = document.getElementById('btnPlayerJoinSubmit');
+
+            if (!pin || !name) {
+                showToast("Vui lòng nhập đầy đủ Mã PIN và Tên đội!", false);
+                return;
+            }
+
+            roomPin = pin;
+            playerState.myName = name;
+            playerState.myClass = className;
+            playerState.altitude = 0;
+            playerState.score = 0;
+
+            sessionStorage.setItem('artillery_saved_name', name);
+            sessionStorage.setItem('artillery_saved_class', className);
+
+            document.getElementById('playerMyNameDisplay').innerText = `${name} (${className})`;
+            document.getElementById('playerNavName').innerText = name;
+            document.getElementById('playerAltHUD').innerText = "0 m";
+
+            statusMsg.innerText = "Đang kết nối tín hiệu đến Trạm Chỉ Huy...";
+            statusMsg.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            if (playerState.joinInterval) {
+                clearInterval(playerState.joinInterval);
+                playerState.joinInterval = null;
+            }
+
+            NetBus.init(roomPin, (msg) => {
+                if (msg && msg._sender === 'host') {
+                    handlePlayerIncomingData(msg.data);
+                }
+            });
+
+            const sendJoin = () => {
+                playerPublish({
+                    type: 'PLAYER_JOIN',
+                    playerId: playerState.playerId,
+                    name: playerState.myName,
+                    className: playerState.myClass
+                });
+            };
+
+            sendJoin();
+
+            const clientId = "pl_artillery_" + roomPin + "_" + playerState.playerId.slice(-6) + "_" + Math.random().toString(36).substring(2, 6);
+            if (mqttClient) try { mqttClient.end(true); } catch(e) {}
+
+            createMqttClient(clientId, (client) => {
+                mqttClient = client;
+                mqttClient.subscribe(`artillery_strike/${roomPin}/host`, { qos: 0 }, (err) => {
+                    if (!err) {
+                        statusMsg.innerText = "Đã tìm thấy phòng, đang xin phép vào trận địa...";
+                        sendJoin();
+                    }
+                });
+            }, (topic, message) => {
+                try {
+                    const data = JSON.parse(message.toString());
+                    handlePlayerIncomingData(data);
+                } catch(e) {}
+            });
+
+            let attempts = 0;
+            playerState.joinInterval = setInterval(() => {
+                attempts++;
+                if (attempts > 20) {
+                    clearInterval(playerState.joinInterval);
+                    playerState.joinInterval = null;
+                    statusMsg.innerText = "❌ Không tìm thấy phòng hoặc mã PIN chưa đúng! Vui lòng kiểm tra lại mã PIN của giáo viên.";
+                    submitBtn.disabled = false;
+                    return;
+                }
+                sendJoin();
+            }, 1000);
+        }
+
+        function playerPublish(data) {
+            NetBus.publish(roomPin, { _sender: 'player', data: data });
+            if (mqttClient && mqttClient.connected) {
+                try {
+                    mqttClient.publish(`artillery_strike/${roomPin}/player`, JSON.stringify(data), { qos: 0 });
+                } catch(e) {}
+            }
+        }
+
+        function handlePlayerIncomingData(data) {
+            if (!data || !data.type) return;
+
+            if (data.type === 'JOIN_ACK' && data.playerId === playerState.playerId) {
+                if (playerState.joinInterval) {
+                    clearInterval(playerState.joinInterval);
+                    playerState.joinInterval = null;
+                }
+                hideAllScreens();
+                document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                Sound.tap();
+            } else if (data.type === 'QUESTION_START') {
+                if (data.playerId && data.playerId !== playerState.playerId) return;
+
+                hideAllScreens();
+                document.getElementById('playerGamepadScreen').classList.remove('hidden');
+                document.getElementById('playerSubmittedOverlay').classList.add('hidden');
+                document.getElementById('playerMcqContainer').classList.remove('hidden');
+
+                const q = QUESTIONS_DATA[data.qIndex || 0];
+                document.getElementById('playerQCounter').innerText = `CÂU ${(data.qIndex || 0) + 1} / ${QUESTIONS_DATA.length}`;
+                document.getElementById('playerQuestionTitle').innerText = q.title;
+
+                for (let i = 0; i < 4; i++) {
+                    document.getElementById(`playerOptText${i}`).innerHTML = q.options[i];
+                    document.getElementById(`playerBtn${i}`).disabled = false;
+                }
+
+                playerState.selectedChoice = null;
+
+                let timer = 30;
+                document.getElementById('playerTimerText').innerText = `${timer}s`;
+                clearInterval(playerState.timerInterval);
+                playerState.timerInterval = setInterval(() => {
+                    timer--;
+                    if (timer >= 0) {
+                        document.getElementById('playerTimerText').innerText = `${timer}s`;
+                    } else {
+                        clearInterval(playerState.timerInterval);
+                    }
+                }, 1000);
+
+                refreshMathRender();
+            } else if (data.type === 'ROUND_FEEDBACK' && data.playerId === playerState.playerId) {
+                clearInterval(playerState.timerInterval);
+                hideAllScreens();
+                document.getElementById('playerFeedbackScreen').classList.remove('hidden');
+
+                playerState.altitude = data.altitude;
+                playerState.score = data.score;
+                document.getElementById('playerAltHUD').innerText = `${data.altitude} m`;
+
+                const title = document.getElementById('playerFeedbackTitle');
+                const gain = document.getElementById('playerFeedbackGain');
+                const icon = document.getElementById('playerFeedbackIcon');
+
+                if (data.isCorrect) {
+                    Sound.correct();
+                    icon.innerText = "🎯✨";
+                    title.innerText = "BẮN TRÚNG HỒNG TÂM!";
+                    title.className = "text-lg sm:text-2xl font-anime-title font-black text-emerald-400 uppercase";
+                    gain.innerText = `+${data.altGain} m • Tầm bắn pháo kích gia tăng!`;
+                } else {
+                    if (data.hazardState === 'pop') {
+                        Sound.cannonFire();
+                        icon.innerText = "💥";
+                        title.innerText = "NÒNG PHÁO PHÁT NỔ!";
+                        title.className = "text-lg sm:text-2xl font-anime-title font-black text-rose-500 uppercase";
+                        gain.innerText = `${data.altGain} m • Tổn thất trang bị pháo binh!`;
+                    } else if (data.hazardState === 'spike') {
+                        Sound.spikePierce();
+                        icon.innerText = "⛏️";
+                        title.innerText = "SẬP CÔNG SỰ TRẬN ĐỊA!";
+                        title.className = "text-lg sm:text-2xl font-anime-title font-black text-rose-500 uppercase";
+                        gain.innerText = `${data.altGain} m • Tụt tầm bắn nặng nề!`;
+                    } else {
+                        Sound.warningAlarm();
+                        icon.innerText = "⚠️";
+                        title.innerText = "LỆCH TÂM BẮN TRƯỢT!";
+                        title.className = "text-lg sm:text-2xl font-anime-title font-black text-amber-400 uppercase";
+                        gain.innerText = `${data.altGain} m • Nòng pháo rung chấn cảnh báo!`;
+                    }
+                }
+
+                document.getElementById('playerMyRankNum').innerText = `#${data.rank || '--'}`;
+                document.getElementById('playerTotalPlayersBadge').innerText = `/ ${data.totalPlayers || '--'} đội`;
+                document.getElementById('playerRankHUD').innerText = `#${data.rank || '--'}`;
+                document.getElementById('playerRankStatusText').innerText = data.militaryRank || getMilitaryRankTitle(data.altitude);
+            } else if (data.type === 'SHOW_LEADERBOARD') {
+                hideAllScreens();
+                document.getElementById('playerLeaderboardScreen').classList.remove('hidden');
+
+                const container = document.getElementById('playerTopListContainer');
+                if (container && data.rankings) {
+                    container.innerHTML = '';
+                    let myRankInBoard = null;
+                    data.rankings.forEach(pl => {
+                        const row = document.createElement('div');
+                        const isMe = (pl.name === playerState.myName);
+                        if (isMe) myRankInBoard = pl.rank;
+
+                        row.className = `p-3 rounded-2xl border-2 flex items-center justify-between text-xs sm:text-sm font-bold ${
+                            isMe ? 'bg-emerald-950/90 border-emerald-400 text-emerald-200 shadow-md' : 'bg-slate-900 border-slate-800 text-slate-300'
+                        }`;
+                        row.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <span class="font-tech text-amber-400">#${pl.rank}</span>
+                                <span>🎯</span>
+                                <span class="font-black text-white">${pl.name}</span>
+                            </div>
+                            <span class="font-tech text-amber-300">${pl.altitude} m</span>
+                        `;
+                        container.appendChild(row);
+                    });
+
+                    document.getElementById('playerMobileMyRankSummary').innerText = `${myRankInBoard ? '#' + myRankInBoard : 'Ngoài bảng'} (${playerState.altitude} m)`;
+                }
+            } else if (data.type === 'QUIZ_FINISHED') {
+                clearInterval(playerState.timerInterval);
+                hideAllScreens();
+                document.getElementById('playerLobbyScreen').classList.remove('hidden');
+                document.getElementById('playerMyNameDisplay').innerText = `Hoàn thành đợt bắn: Đạt tầm xa ${playerState.altitude} m!`;
+            }
+        }
+
+        function playerSubmitAnswer(choiceIdx) {
+            if (playerState.selectedChoice !== null) return;
+            playerState.selectedChoice = choiceIdx;
+
+            const labels = ['A', 'B', 'C', 'D'];
+            document.getElementById('playerMcqContainer').classList.add('hidden');
+            document.getElementById('playerSubmittedOverlay').classList.remove('hidden');
+            document.getElementById('playerSubmittedLabel').innerText = `Đã chọn phương án [${labels[choiceIdx]}]: Khai hỏa góc nòng pháo!`;
+
+            Sound.tap();
+
+            playerPublish({
+                type: 'PLAYER_ANSWER',
+                playerId: playerState.playerId,
+                choice: choiceIdx
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            refreshMathRender();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('pin')) {
+                initPlayerMode();
+            }
+        });
+    </script>
+</body>
+</html>
