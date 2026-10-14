@@ -19,11 +19,11 @@
         });
     </script>
 
-    <!-- Font Awesome & Google Fonts hỗ trợ 100% tiếng Việt -->
+    <!-- Font Awesome & Google Fonts chuẩn 100% Tiếng Việt (Be Vietnam Pro, Nunito, JetBrains Mono) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=Kanit:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Nunito:ital,wght@0,700;0,800;0,900;0,1000;1,800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,600;0,700;0,800;0,900;1,700&family=JetBrains+Mono:wght@700;800&family=Nunito:ital,wght@0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
 
     <!-- KaTeX Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -39,27 +39,52 @@
     <style>
         html { font-size: 15px; }
         @media (min-width: 640px) { html { font-size: 16px; } }
-        @media (min-width: 1024px) { html { font-size: 18px; } }
-        @media (min-width: 1536px) { html { font-size: 20px; } }
+        @media (min-width: 1024px) { html { font-size: 17.5px; } }
+        @media (min-width: 1536px) { html { font-size: 19px; } }
 
-        * {
-            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        *, *::before, *::after {
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
         }
         
         body {
+            font-family: 'Nunito', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        .font-tech { font-family: 'Orbitron', 'Chakra Petch', monospace, sans-serif; }
-        .font-anime-title { font-family: 'Kanit', 'Chakra Petch', 'Nunito', sans-serif; }
-        .font-manga { font-family: 'Chakra Petch', 'Nunito', sans-serif; }
+        /* Hệ thống Font hiển thị 100% tiếng Việt mượt mà, không bao giờ lỗi dấu */
+        .font-tech { font-family: 'JetBrains Mono', 'Be Vietnam Pro', monospace; }
+        .font-anime-title { font-family: 'Be Vietnam Pro', 'Nunito', sans-serif; letter-spacing: 0.01em; }
+        .font-manga { font-family: 'Be Vietnam Pro', 'Nunito', sans-serif; }
 
-        .katex { font-size: 1.05em; }
-        .katex .text { font-family: 'Nunito', sans-serif !important; }
+        /* Bảo vệ tuyệt đối Font Toán học của KaTeX khỏi bị ghi đè */
+        .katex {
+            font-size: 1.12em !important;
+            line-height: 1.35 !important;
+            color: inherit;
+        }
+        .katex-display {
+            margin: 0.4em 0 !important;
+        }
+        .katex .mtext {
+            font-family: 'Be Vietnam Pro', 'Nunito', sans-serif !important;
+            font-weight: 700;
+        }
+
+        .math-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1.5px solid rgba(34, 211, 238, 0.5);
+            padding: 0.15rem 0.65rem;
+            border-radius: 0.75rem;
+            color: #67e8f9;
+            font-weight: 800;
+            vertical-align: middle;
+        }
 
         .cyber-ocean-bg {
             background-color: #040d1a;
@@ -153,15 +178,17 @@
                 🌊
             </div>
             <div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-manga text-[10px] sm:text-xs font-black uppercase tracking-widest border border-cyan-200 shadow">
+                <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                    <span class="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-manga text-[10px] sm:text-xs font-extrabold uppercase tracking-wider border border-cyan-200 shadow">
                         ⚡ VẬT LÍ 11 • KẾT NỐI TRI THỨC • BÀI 12
                     </span>
-                    <span class="text-xs text-cyan-300 font-extrabold hidden md:inline font-anime-title">
-                        $\Delta d = k\lambda$ & Khoảng vân $i = \frac{\lambda D}{a}$
+                    <span class="text-xs text-cyan-300 font-bold hidden md:inline-flex items-center gap-2 bg-slate-900/90 px-3 py-0.5 rounded-full border border-cyan-500/40">
+                        <span>Cực đại: $\Delta d = k\lambda$</span>
+                        <span class="text-slate-500">•</span>
+                        <span>Khoảng vân: $i = \frac{\lambda D}{a}$</span>
                     </span>
                 </div>
-                <h1 class="font-anime-title text-sm sm:text-lg md:text-xl text-white tracking-wide leading-tight uppercase font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                <h1 class="font-anime-title text-sm sm:text-lg md:text-xl text-white leading-snug uppercase font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                     CYBER WAVE: HẢI TRÌNH GIAO THOA SÓNG & QUANG HỌC Y-ÂNG
                 </h1>
             </div>
@@ -188,18 +215,18 @@
                 <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-500/30 via-purple-500/30 to-emerald-500/30 border-2 border-cyan-400 text-cyan-200 text-xs sm:text-sm font-black mb-2 shadow-lg">
                     <i class="fa-solid fa-water text-amber-300"></i> ĐẤU TRƯỜNG TƯƠNG TÁC SÓNG CƠ & GIAO THOA ÁNH SÁNG Y-ÂNG
                 </span>
-                <h2 class="text-2xl sm:text-4xl md:text-5xl font-anime-title font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-amber-300 to-purple-300 mt-1 tracking-wide uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                <h2 class="text-2xl sm:text-4xl md:text-5xl font-anime-title font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-amber-300 to-purple-300 mt-1 uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] leading-tight py-1">
                     HẠM ĐỘI CỘNG HƯỞNG VƯỢT BIỂN XOÁY
                 </h2>
-                <p class="text-xs sm:text-base text-slate-200 max-w-3xl mx-auto mt-2.5 font-bold leading-relaxed">
-                    Tàu thám hiểm lượng tử đang vượt qua <span class="text-cyan-300 font-extrabold">Vùng Biển Giao Thoa $S_1 - S_2$</span> và <span class="text-purple-300 font-extrabold">Trạm Laser Khe Y-âng</span>. 
-                    Giải đúng giúp tàu bắt trúng <span class="text-emerald-400 font-extrabold">Gợn Cực Đại ($\Delta d = k\lambda$)</span> tăng tốc vượt 1200 hải lý! 
-                    Nếu sai 1 lần, tàu rơi vào <span class="text-amber-400 font-extrabold">CẢNH BÁO NHIỄU LOẠN</span>. Sai 2 lần liên tiếp sẽ bị <span class="text-rose-400 font-extrabold">XOÁY NƯỚC CỰC TIỂU TRIỆT TIÊU</span> hoặc <span class="text-rose-400 font-extrabold">CHÙM LASER PHÁ HỦY</span>!
+                <p class="text-xs sm:text-base text-slate-200 max-w-3xl mx-auto mt-2 font-bold leading-relaxed">
+                    Tàu thám hiểm lượng tử đang vượt qua <span class="text-cyan-300 font-extrabold">Vùng Biển Giao Thoa $S_1, S_2$</span> và <span class="text-purple-300 font-extrabold">Trạm Laser Khe Y-âng</span>. 
+                    Giải đúng giúp tàu bắt trúng <span class="text-emerald-400 font-extrabold">Gợn Cực Đại ($\Delta d = k\lambda$)</span> tăng tốc vượt 1250 hải lý! 
+                    Nếu sai 1 lần, tàu rơi vào <span class="text-amber-400 font-extrabold">CẢNH BÁO NHIỄU LOẠN</span>. Sai 2 lần liên tiếp sẽ bị <span class="text-rose-400 font-extrabold">XOÁY NƯỚC CỰC TIỂU TRIỆT TIÊU</span> hoặc <span class="text-rose-400 font-extrabold">LẠC VÀO DẢI VÂN TỐI</span>!
                 </p>
-                <div class="flex flex-wrap justify-center gap-2 mt-3 text-xs font-manga">
-                    <span class="px-3 py-1 rounded-xl bg-slate-900 border border-cyan-500/50 text-cyan-300">🎯 10 Chặng Trắc Nghiệm 4 Lựa Chọn</span>
-                    <span class="px-3 py-1 rounded-xl bg-slate-900 border border-amber-500/50 text-amber-300">🔥 2 Chặng BOSS Đúng/Sai (4 mệnh đề a, b, c, d)</span>
-                    <span class="px-3 py-1 rounded-xl bg-slate-900 border border-purple-500/50 text-purple-300">🔬 Tích hợp Mô phỏng Sóng & Laser Y-âng Trực Quan</span>
+                <div class="flex flex-wrap justify-center gap-2 mt-3.5 text-xs font-manga">
+                    <span class="px-3 py-1 rounded-xl bg-slate-900 border border-cyan-500/50 text-cyan-300 font-bold">🎯 10 Chặng Trắc Nghiệm 4 Lựa Chọn</span>
+                    <span class="px-3 py-1 rounded-xl bg-slate-900 border border-amber-500/50 text-amber-300 font-bold">🔥 2 Chặng BOSS Đúng/Sai (4 mệnh đề a, b, c, d)</span>
+                    <span class="px-3 py-1 rounded-xl bg-slate-900 border border-purple-500/50 text-purple-300 font-bold">🔬 Tích hợp Mô phỏng Sóng & Laser Y-âng Trực Quan</span>
                 </div>
             </div>
 
@@ -239,7 +266,7 @@
             <div class="flex flex-wrap items-center justify-between border-b-2 border-slate-800 pb-3 gap-2">
                 <div class="flex items-center gap-3">
                     <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 animate-ping"></span>
-                    <span class="font-anime-title text-base sm:text-2xl text-cyan-300 uppercase tracking-wider font-black">TRẠM ĐIỀU PHỐI HẠM ĐỘI SÓNG</span>
+                    <span class="font-anime-title text-base sm:text-2xl text-cyan-300 uppercase font-black">TRẠM ĐIỀU PHỐI HẠM ĐỘI SÓNG</span>
                 </div>
                 <div class="text-sm sm:text-lg font-black text-slate-200">
                     <i class="fa-solid fa-ship text-cyan-400 mr-2"></i>Hạm Đội Tham Gia: <span class="text-amber-300 font-tech font-black text-xl sm:text-3xl" id="hostPlayerCountNum">0</span> tàu
@@ -340,46 +367,46 @@
                 <div class="lg:col-span-7 flex flex-col gap-3">
                     <div class="anime-hud-card p-5 sm:p-6 shadow-2xl flex flex-col gap-4 flex-1 justify-between">
                         <div>
-                            <span class="text-[11px] font-manga uppercase tracking-widest text-cyan-300 font-black block mb-1" id="hostPhysicsSubHeader">
+                            <span class="text-[11px] font-manga uppercase tracking-widest text-cyan-300 font-black block mb-1.5" id="hostPhysicsSubHeader">
                                 <i class="fa-solid fa-satellite-dish mr-1 text-amber-300"></i> TÍN HIỆU SONAR GIAO THOA VẬT LÍ 11
                             </span>
-                            <h2 id="hostQuestionTitle" class="text-base sm:text-lg md:text-xl font-black text-white leading-relaxed font-anime-title">
+                            <h2 id="hostQuestionTitle" class="text-base sm:text-lg md:text-xl font-bold text-white leading-relaxed">
                                 Đang tải câu hỏi giao thoa sóng...
                             </h2>
                         </div>
 
                         <!-- Lưới 4 phương án A, B, C, D (cho câu MCQ) -->
-                        <div id="hostMcqGrid" class="grid grid-cols-1 gap-2.5">
-                            <div id="hostOptCard0" class="p-3.5 sm:p-4 rounded-2xl choice-btn-a flex items-center justify-between gap-3 text-xs sm:text-base font-black btn-choice-anime">
-                                <div class="flex items-center gap-3 flex-1">
-                                    <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">A</span>
-                                    <span id="hostOptText0" class="flex-1 break-words">Phương án A</span>
+                        <div id="hostMcqGrid" class="grid grid-cols-1 gap-3">
+                            <div id="hostOptCard0" class="p-3.5 sm:p-4 rounded-2xl choice-btn-a flex items-center justify-between gap-3 text-sm sm:text-base font-bold btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-9 h-9 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">A</span>
+                                    <span id="hostOptText0" class="flex-1 break-words leading-relaxed">Phương án A</span>
                                 </div>
-                                <span id="hostOptBadge0" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ CỰC ĐẠI CHUẨN</span>
+                                <span id="hostOptBadge0" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
                             </div>
 
-                            <div id="hostOptCard1" class="p-3.5 sm:p-4 rounded-2xl choice-btn-b flex items-center justify-between gap-3 text-xs sm:text-base font-black btn-choice-anime">
-                                <div class="flex items-center gap-3 flex-1">
-                                    <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">B</span>
-                                    <span id="hostOptText1" class="flex-1 break-words">Phương án B</span>
+                            <div id="hostOptCard1" class="p-3.5 sm:p-4 rounded-2xl choice-btn-b flex items-center justify-between gap-3 text-sm sm:text-base font-bold btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-9 h-9 rounded-xl bg-cyan-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">B</span>
+                                    <span id="hostOptText1" class="flex-1 break-words leading-relaxed">Phương án B</span>
                                 </div>
-                                <span id="hostOptBadge1" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ CỰC ĐẠI CHUẨN</span>
+                                <span id="hostOptBadge1" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
                             </div>
 
-                            <div id="hostOptCard2" class="p-3.5 sm:p-4 rounded-2xl choice-btn-c flex items-center justify-between gap-3 text-xs sm:text-base font-black btn-choice-anime">
-                                <div class="flex items-center gap-3 flex-1">
-                                    <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">C</span>
-                                    <span id="hostOptText2" class="flex-1 break-words">Phương án C</span>
+                            <div id="hostOptCard2" class="p-3.5 sm:p-4 rounded-2xl choice-btn-c flex items-center justify-between gap-3 text-sm sm:text-base font-bold btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-9 h-9 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">C</span>
+                                    <span id="hostOptText2" class="flex-1 break-words leading-relaxed">Phương án C</span>
                                 </div>
-                                <span id="hostOptBadge2" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ CỰC ĐẠI CHUẨN</span>
+                                <span id="hostOptBadge2" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
                             </div>
 
-                            <div id="hostOptCard3" class="p-3.5 sm:p-4 rounded-2xl choice-btn-d flex items-center justify-between gap-3 text-xs sm:text-base font-black btn-choice-anime">
-                                <div class="flex items-center gap-3 flex-1">
-                                    <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">D</span>
-                                    <span id="hostOptText3" class="flex-1 break-words">Phương án D</span>
+                            <div id="hostOptCard3" class="p-3.5 sm:p-4 rounded-2xl choice-btn-d flex items-center justify-between gap-3 text-sm sm:text-base font-bold btn-choice-anime">
+                                <div class="flex items-center gap-3.5 flex-1">
+                                    <span class="w-9 h-9 rounded-xl bg-emerald-500 border-2 border-white text-white flex items-center justify-center font-tech text-sm font-black flex-shrink-0 shadow">D</span>
+                                    <span id="hostOptText3" class="flex-1 break-words leading-relaxed">Phương án D</span>
                                 </div>
-                                <span id="hostOptBadge3" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ CỰC ĐẠI CHUẨN</span>
+                                <span id="hostOptBadge3" class="hidden px-3 py-1 rounded-xl bg-emerald-500 text-white font-anime-title text-xs font-black whitespace-nowrap shadow-lg border-2 border-white animate-bounce">✓ ĐÁP ÁN ĐÚNG</span>
                             </div>
                         </div>
 
@@ -397,9 +424,9 @@
                 <!-- Cột phải: Phòng thí nghiệm Mô phỏng Sóng Nước & Giao Thoa Khe Y-âng -->
                 <div class="lg:col-span-5 flex flex-col gap-3">
                     <div class="anime-hud-card p-4 border-2 border-cyan-400 flex-1 flex flex-col justify-between overflow-hidden relative">
-                        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-2 mb-2">
-                            <span id="simModeHeaderTitle" class="text-xs font-anime-title uppercase tracking-wider text-cyan-300 font-bold flex items-center gap-1.5">
-                                <i class="fa-solid fa-water text-amber-400"></i> MÔ PHỎNG SÓNG NƯỚC ($S_1, S_2$)
+                        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-2 mb-2 gap-2">
+                            <span id="simModeHeaderTitle" class="text-xs font-anime-title uppercase text-cyan-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-water text-amber-400"></i> MÔ PHỎNG SÓNG NƯỚC (S₁, S₂)
                             </span>
                             <span id="waveLiveTelemetry" class="font-tech text-[11px] text-amber-300 font-bold">λ = 2.0 cm • f = 20 Hz</span>
                         </div>
@@ -448,11 +475,11 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2 items-center text-[11px]">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="text-slate-400 whitespace-nowrap" id="slider1Label">Bước sóng $\lambda$:</span>
+                                    <span class="text-slate-300 whitespace-nowrap font-bold">Bước sóng $\lambda$:</span>
                                     <input type="range" id="simLambdaSlider" min="380" max="750" value="600" oninput="onLabSliderChange()" class="w-full accent-cyan-400 cursor-pointer">
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <span class="text-slate-400 whitespace-nowrap" id="slider2Label">Khe $a$ / Nguồn:</span>
+                                    <span class="text-slate-300 whitespace-nowrap font-bold">Khe $a$ / Nguồn:</span>
                                     <input type="range" id="simGapSlider" min="20" max="100" value="50" oninput="onLabSliderChange()" class="w-full accent-amber-400 cursor-pointer">
                                 </div>
                             </div>
@@ -460,8 +487,8 @@
 
                         <div class="grid grid-cols-3 gap-2 mt-2 text-center text-xs">
                             <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                                <span class="text-[10px] text-slate-400 block font-manga uppercase">CHẾ ĐỘ ĐO</span>
-                                <span id="hostSimFormulaTag" class="font-manga font-black text-cyan-300 text-xs">Δd = k·λ</span>
+                                <span class="text-[10px] text-slate-400 block font-manga uppercase">CÔNG THỨC</span>
+                                <span id="hostSimFormulaTag" class="font-tech font-black text-cyan-300 text-xs">Δd = k·λ</span>
                             </div>
                             <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
                                 <span class="text-[10px] text-slate-400 block font-manga uppercase">HẢI TRÌNH TB</span>
@@ -488,7 +515,7 @@
                         <i class="fa-solid fa-trophy text-amber-300"></i>
                     </button>
                 </div>
-                <div id="hostExplanationText" class="text-xs sm:text-sm text-slate-100 bg-slate-900/95 border border-slate-800 p-3.5 rounded-2xl font-bold leading-relaxed"></div>
+                <div id="hostExplanationText" class="text-sm sm:text-base text-slate-100 bg-slate-900/95 border border-slate-800 p-4 rounded-2xl font-bold leading-loose"></div>
             </div>
 
             <!-- Lưới trạng thái các tàu -->
@@ -581,7 +608,7 @@
                 <span class="px-4 py-1 rounded-full bg-gradient-to-r from-cyan-500 to-amber-500 text-white font-anime-title text-xs font-black uppercase tracking-widest border border-white">
                     HOÀN THÀNH HẢI TRÌNH GIAO THOA SÓNG VẬT LÍ 11
                 </span>
-                <h2 class="text-2xl sm:text-4xl font-anime-title font-black text-white uppercase tracking-wider mt-2">
+                <h2 class="text-2xl sm:text-4xl font-anime-title font-black text-white uppercase mt-2">
                     VINH DANH HẠM ĐỘI LÀM CHỦ SÓNG CƠ & ÁNH SÁNG!
                 </h2>
                 <p class="text-xs sm:text-base text-slate-200 mt-1.5 font-bold" id="hostFinalChampionAnnounce">
@@ -700,31 +727,31 @@
                     <span id="playerQCounter" class="text-xs font-manga font-black uppercase text-cyan-400">CHẶNG 1 / 12</span>
                     <span id="playerQTypeBadge" class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/25 text-cyan-300 font-black uppercase font-manga border border-cyan-400">TRẮC NGHIỆM</span>
                 </div>
-                <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-black text-slate-100 leading-snug font-anime-title">
+                <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-bold text-slate-100 leading-relaxed">
                     Đang tải câu hỏi...
                 </h3>
             </div>
 
             <!-- Giao diện 1: 4 nút A, B, C, D -->
-            <div class="flex flex-col gap-2" id="playerMcqContainer">
-                <button onclick="playerSubmitMcqAnswer(0)" id="playerBtn0" class="choice-btn-a w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-black text-xs sm:text-sm shadow-lg transition btn-choice-anime">
+            <div class="flex flex-col gap-2.5" id="playerMcqContainer">
+                <button onclick="playerSubmitMcqAnswer(0)" id="playerBtn0" class="choice-btn-a w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-lg transition btn-choice-anime">
                     <span class="w-8 h-8 rounded-xl bg-rose-500 border-2 border-white text-white flex items-center justify-center font-tech text-xs font-black flex-shrink-0">A</span>
-                    <span id="playerOptText0" class="flex-1 break-words leading-tight">Phương án A</span>
+                    <span id="playerOptText0" class="flex-1 break-words leading-relaxed">Phương án A</span>
                 </button>
 
-                <button onclick="playerSubmitMcqAnswer(1)" id="playerBtn1" class="choice-btn-b w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-black text-xs sm:text-sm shadow-lg transition btn-choice-anime">
+                <button onclick="playerSubmitMcqAnswer(1)" id="playerBtn1" class="choice-btn-b w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-lg transition btn-choice-anime">
                     <span class="w-8 h-8 rounded-xl bg-cyan-500 border-2 border-white text-white flex items-center justify-center font-tech text-xs font-black flex-shrink-0">B</span>
-                    <span id="playerOptText1" class="flex-1 break-words leading-tight">Phương án B</span>
+                    <span id="playerOptText1" class="flex-1 break-words leading-relaxed">Phương án B</span>
                 </button>
 
-                <button onclick="playerSubmitMcqAnswer(2)" id="playerBtn2" class="choice-btn-c w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-black text-xs sm:text-sm shadow-lg transition btn-choice-anime">
+                <button onclick="playerSubmitMcqAnswer(2)" id="playerBtn2" class="choice-btn-c w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-lg transition btn-choice-anime">
                     <span class="w-8 h-8 rounded-xl bg-amber-500 border-2 border-white text-white flex items-center justify-center font-tech text-xs font-black flex-shrink-0">C</span>
-                    <span id="playerOptText2" class="flex-1 break-words leading-tight">Phương án C</span>
+                    <span id="playerOptText2" class="flex-1 break-words leading-relaxed">Phương án C</span>
                 </button>
 
-                <button onclick="playerSubmitMcqAnswer(3)" id="playerBtn3" class="choice-btn-d w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-black text-xs sm:text-sm shadow-lg transition btn-choice-anime">
+                <button onclick="playerSubmitMcqAnswer(3)" id="playerBtn3" class="choice-btn-d w-full p-3.5 rounded-2xl flex items-center text-left gap-3 font-bold text-xs sm:text-sm shadow-lg transition btn-choice-anime">
                     <span class="w-8 h-8 rounded-xl bg-emerald-500 border-2 border-white text-white flex items-center justify-center font-tech text-xs font-black flex-shrink-0">D</span>
-                    <span id="playerOptText3" class="flex-1 break-words leading-tight">Phương án D</span>
+                    <span id="playerOptText3" class="flex-1 break-words leading-relaxed">Phương án D</span>
                 </button>
             </div>
 
@@ -818,7 +845,7 @@
     <script>
         /* =========================================================================
            BỘ DỮ LIỆU 12 THỬ THÁCH VẬT LÍ 11: GIAO THOA SÓNG (BÁM SÁT 100% FILE ĐÍNH KÈM)
-           Gồm 10 câu Trắc nghiệm nhiều lựa chọn (MCQ) + 2 Bài Trắc nghiệm Đúng/Sai (TF)
+           Sử dụng \dfrac để phân số hiển thị rõ ràng, sắc nét trên máy chiếu
            ========================================================================= */
         const QUESTIONS_DATA = [
             {
@@ -861,10 +888,10 @@
                 category: "Chặng 3. Điều kiện cực đại giao thoa",
                 title: "Hai nguồn kết hợp cùng pha có bước sóng $\\lambda$. Điểm $M$ là cực đại giao thoa khi hiệu đường đi $\\Delta d$ thỏa mãn",
                 options: [
-                    "$\\Delta d = k\\lambda$ ($k$ nguyên).",
-                    "$\\Delta d = (k + \\frac{1}{2})\\lambda$ ($k$ nguyên).",
-                    "$\\Delta d = \\frac{\\lambda}{4}$.",
-                    "$\\Delta d = \\frac{\\lambda}{3}$."
+                    "$\\Delta d = k\\lambda$ (với $k \\in \\mathbb{Z}$).",
+                    "$\\Delta d = \\left(k + \\dfrac{1}{2}\\right)\\lambda$ (với $k \\in \\mathbb{Z}$).",
+                    "$\\Delta d = \\dfrac{\\lambda}{4}$.",
+                    "$\\Delta d = \\dfrac{\\lambda}{3}$."
                 ],
                 correct: 0,
                 explanation: "Với hai nguồn kết hợp cùng pha, điểm $M$ dao động với biên độ cực đại khi hiệu đường đi bằng một số nguyên lần bước sóng: $\\Delta d = d_2 - d_1 = k\\lambda$ ($k \\in \\mathbb{Z}$)."
@@ -875,7 +902,7 @@
                 simMode: 'water',
                 simParams: { lambdaCm: 4.0, freqHz: 15 },
                 category: "Chặng 4. Xác định cực đại - cực tiểu",
-                title: "Hai nguồn kết hợp cùng pha, bước sóng $4\\text{ cm}$. Điểm $M$ có hiệu đường đi $\\Delta d = 6\\text{ cm}$. Điểm $M$ thuộc",
+                title: "Hai nguồn kết hợp cùng pha, bước sóng $\\lambda = 4\\text{ cm}$. Điểm $M$ có hiệu đường đi $\\Delta d = 6\\text{ cm}$. Điểm $M$ thuộc",
                 options: [
                     "Cực đại giao thoa.",
                     "Cực tiểu giao thoa.",
@@ -883,7 +910,7 @@
                     "Không thể kết luận vì thiếu tần số."
                 ],
                 correct: 1,
-                explanation: "Ta có tỉ số: $\\frac{\\Delta d}{\\lambda} = \\frac{6}{4} = 1,5 = 1 + \\frac{1}{2} \\implies \\Delta d = 1,5\\lambda$. Do đó điểm $M$ thuộc cực tiểu giao thoa thứ 2."
+                explanation: "Ta có tỉ số: $\\dfrac{\\Delta d}{\\lambda} = \\dfrac{6}{4} = 1,5 = 1 + 0,5 \\implies \\Delta d = 1,5\\lambda$. Do đó điểm $M$ thuộc cực tiểu giao thoa thứ 2."
             },
             {
                 id: 5,
@@ -899,7 +926,7 @@
                     "$4\\text{ cm}$."
                 ],
                 correct: 2,
-                explanation: "Áp dụng công thức bước sóng: $\\lambda = \\frac{v}{f} = \\frac{50}{25} = 2\\text{ cm}$."
+                explanation: "Áp dụng công thức bước sóng: $\\lambda = \\dfrac{v}{f} = \\dfrac{50}{25} = 2\\text{ cm}$."
             },
             {
                 id: 6,
@@ -909,12 +936,12 @@
                 category: "Chặng 6 [BOSS ĐÚNG/SAI]. Phân tích hệ vân sóng mặt nước",
                 title: "Bài 1 (Đúng/Sai): Hai nguồn sóng mặt nước $S_1, S_2$ dao động cùng pha, cùng tần số $f = 20\\text{ Hz}$. Tốc độ truyền sóng là $v = 40\\text{ cm/s}$. Xét các điểm trong vùng giao thoa:",
                 statements: [
-                    { label: "a)", text: "Bước sóng của hai nguồn là $2\\text{ cm}$.", answer: true },
+                    { label: "a)", text: "Bước sóng của hai nguồn là $\\lambda = 2\\text{ cm}$.", answer: true },
                     { label: "b)", text: "Hai điểm có hiệu đường đi lần lượt bằng $4\\text{ cm}$ và $6\\text{ cm}$ đều là các điểm cực đại giao thoa.", answer: true },
                     { label: "c)", text: "Điểm có hiệu đường đi bằng $3\\text{ cm}$ là điểm cực đại giao thoa.", answer: false },
                     { label: "d)", text: "Hai nguồn có cùng tần số nhưng độ lệch pha thay đổi theo thời gian vẫn tạo hệ vân giao thoa ổn định.", answer: false }
                 ],
-                explanation: "<b>Đáp án: a) Đúng | b) Đúng | c) Sai | d) Sai.</b><br>• a) $\\lambda = \\frac{v}{f} = \\frac{40}{20} = 2\\text{ cm}$.<br>• b) $4\\text{ cm} = 2\\lambda$ và $6\\text{ cm} = 3\\lambda$ (số nguyên lần $\\lambda$) nên đều là cực đại.<br>• c) $3\\text{ cm} = 1,5\\lambda$ nên là điểm cực tiểu giao thoa.<br>• d) Độ lệch pha phải không đổi theo thời gian thì hệ vân giao thoa mới ổn định."
+                explanation: "<b>Đáp án: a) Đúng | b) Đúng | c) Sai | d) Sai.</b><br>• a) $\\lambda = \\dfrac{v}{f} = \\dfrac{40}{20} = 2\\text{ cm}$.<br>• b) $4\\text{ cm} = 2\\lambda$ và $6\\text{ cm} = 3\\lambda$ (số nguyên lần $\\lambda$) nên đều là cực đại.<br>• c) $3\\text{ cm} = 1,5\\lambda$ nên là điểm cực tiểu giao thoa.<br>• d) Độ lệch pha phải không đổi theo thời gian thì hệ vân giao thoa mới ổn định."
             },
             {
                 id: 7,
@@ -924,13 +951,13 @@
                 category: "Chặng 7. Công thức khoảng vân Y-âng",
                 title: "Trong thí nghiệm Y-âng về giao thoa ánh sáng, công thức tính khoảng vân $i$ là",
                 options: [
-                    "$i = \\frac{aD}{\\lambda}$",
-                    "$i = \\frac{\\lambda D}{a}$",
-                    "$i = \\frac{\\lambda a}{D}$",
-                    "$i = \\frac{D}{\\lambda a}$"
+                    "$i = \\dfrac{aD}{\\lambda}$",
+                    "$i = \\dfrac{\\lambda D}{a}$",
+                    "$i = \\dfrac{\\lambda a}{D}$",
+                    "$i = \\dfrac{D}{\\lambda a}$"
                 ],
                 correct: 1,
-                explanation: "Khoảng vân $i$ là khoảng cách giữa hai vân sáng (hoặc hai vân tối) liên tiếp: $i = \\frac{\\lambda D}{a}$."
+                explanation: "Khoảng vân $i$ là khoảng cách giữa hai vân sáng (hoặc hai vân tối) liên tiếp: $i = \\dfrac{\\lambda D}{a}$."
             },
             {
                 id: 8,
@@ -946,7 +973,7 @@
                     "$4,0\\text{ mm}$."
                 ],
                 correct: 1,
-                explanation: "Ta có: $i = \\frac{\\lambda D}{a} = \\frac{500 \\times 10^{-9} \\times 2,0}{1,0 \\times 10^{-3}} = 1,0 \\times 10^{-3}\\text{ m} = 1,0\\text{ mm}$."
+                explanation: "Ta có: $i = \\dfrac{\\lambda D}{a} = \\dfrac{500 \\times 10^{-9} \\times 2,0}{1,0 \\times 10^{-3}} = 1,0 \\times 10^{-3}\\text{ m} = 1,0\\text{ mm}$."
             },
             {
                 id: 9,
@@ -978,7 +1005,7 @@
                     "$700\\text{ nm}$."
                 ],
                 correct: 2,
-                explanation: "Từ $i = \\frac{\\lambda D}{a} \\implies \\lambda = \\frac{ia}{D} = \\frac{3,0 \\times 10^{-3} \\times 0,30 \\times 10^{-3}}{1,5} = 6,0 \\times 10^{-7}\\text{ m} = 600\\text{ nm}$."
+                explanation: "Từ $i = \\dfrac{\\lambda D}{a} \\implies \\lambda = \\dfrac{ia}{D} = \\dfrac{3,0 \\times 10^{-3} \\times 0,30 \\times 10^{-3}}{1,5} = 6,0 \\times 10^{-7}\\text{ m} = 600\\text{ nm}$."
             },
             {
                 id: 11,
@@ -994,7 +1021,7 @@
                     "Tăng gấp bốn."
                 ],
                 correct: 1,
-                explanation: "Vì $i = \\frac{\\lambda D}{a}$ nên khoảng vân $i$ tỉ lệ nghịch với $a$. Khi $a$ tăng gấp đôi thì $i$ giảm một nửa."
+                explanation: "Vì $i = \\dfrac{\\lambda D}{a}$ nên khoảng vân $i$ tỉ lệ nghịch với $a$. Khi $a$ tăng gấp đôi thì $i$ giảm một nửa."
             },
             {
                 id: 12,
@@ -1009,7 +1036,7 @@
                     { label: "c)", text: "Giữ nguyên $a$ và $\\lambda$, nếu giảm $D$ còn một nửa thì khoảng vân tăng gấp đôi.", answer: false },
                     { label: "d)", text: "Khoảng cách giữa 5 vân sáng liên tiếp trên màn là $9,6\\text{ mm}$.", answer: true }
                 ],
-                explanation: "<b>Đáp án: a) Đúng | b) Đúng | c) Sai | d) Đúng.</b><br>• a) $i = \\frac{\\lambda D}{a} = \\frac{600 \\times 10^{-9} \\times 2,0}{0,50 \\times 10^{-3}} = 2,4\\text{ mm}$.<br>• b) Vị trí vân sáng bậc 3: $x_3 = 3i = 3 \\times 2,4 = 7,2\\text{ mm}$.<br>• c) $i$ tỉ lệ thuận với $D$, nên giảm $D$ một nửa thì $i$ giảm một nửa.<br>• d) Giữa 5 vân sáng liên tiếp có 4 khoảng vân: $\\Delta x = 4i = 4 \\times 2,4 = 9,6\\text{ mm}$."
+                explanation: "<b>Đáp án: a) Đúng | b) Đúng | c) Sai | d) Đúng.</b><br>• a) $i = \\dfrac{\\lambda D}{a} = \\dfrac{600 \\times 10^{-9} \\times 2,0}{0,50 \\times 10^{-3}} = 2,4\\text{ mm}$.<br>• b) Vị trí vân sáng bậc 3: $x_3 = 3i = 3 \\times 2,4 = 7,2\\text{ mm}$.<br>• c) $i$ tỉ lệ thuận với $D$, nên giảm $D$ một nửa thì $i$ giảm một nửa.<br>• d) Giữa 5 vân sáng liên tiếp có 4 khoảng vân: $\\Delta x = 4i = 4 \\times 2,4 = 9,6\\text{ mm}$."
             }
         ];
 
@@ -1096,7 +1123,7 @@
                     });
                 } catch(e) {}
             } else {
-                setTimeout(refreshMathRender, 300);
+                setTimeout(refreshMathRender, 250);
             }
         }
 
@@ -1248,7 +1275,7 @@
            MÔ PHỎNG CANVAS KÉP: SÓNG NƯỚC (S1, S2) & GIAO THOA KHE Y-ÂNG (LASER)
            ========================================================================= */
         let simAnimFrame = null;
-        let currentSimMode = 'water'; // 'water' hoặc 'young'
+        let currentSimMode = 'water';
         let labState = {
             lambdaNm: 600,
             gapVal: 50,
@@ -1277,7 +1304,7 @@
             if (mode === 'water') {
                 btnW.className = "px-2 py-0.5 rounded bg-cyan-500 text-slate-950 font-black";
                 btnY.className = "px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-black";
-                title.innerHTML = `<i class="fa-solid fa-water text-amber-400"></i> MÔ PHỎNG SÓNG NƯỚC ($S_1, S_2$)`;
+                title.innerHTML = `<i class="fa-solid fa-water text-amber-400"></i> MÔ PHỎNG SÓNG NƯỚC (S₁, S₂)`;
                 fTag.innerText = "Δd = k·λ";
             } else {
                 btnY.className = "px-2 py-0.5 rounded bg-purple-500 text-white font-black";
@@ -1332,7 +1359,6 @@
                 ctx.clearRect(0, 0, w, h);
 
                 if (currentSimMode === 'water') {
-                    // Nền biển sâu
                     const bg = ctx.createLinearGradient(0, 0, 0, h);
                     bg.addColorStop(0, '#041226');
                     bg.addColorStop(1, '#092342');
@@ -1344,7 +1370,6 @@
                     const s2 = { x: 42, y: h / 2 + gap / 2 };
                     const waveSpacing = 14 + ((labState.lambdaNm - 380) / 370) * 18;
 
-                    // Vẽ các vòng sóng tròn đồng tâm từ S1 và S2
                     for (let r = (phase * 3) % waveSpacing; r < w * 1.1; r += waveSpacing) {
                         ctx.strokeStyle = 'rgba(34, 211, 238, 0.32)';
                         ctx.lineWidth = 1.5;
@@ -1358,7 +1383,6 @@
                         ctx.stroke();
                     }
 
-                    // Đường trung trực cực đại k = 0
                     ctx.strokeStyle = '#fbbf24';
                     ctx.lineWidth = 2.5;
                     ctx.beginPath();
@@ -1366,7 +1390,6 @@
                     ctx.lineTo(w - 15, h / 2);
                     ctx.stroke();
 
-                    // Các đường cực đại bậc 1, 2 (hypebol xấp xỉ)
                     [-1, 1].forEach(dir => {
                         ctx.strokeStyle = 'rgba(52, 211, 153, 0.7)';
                         ctx.lineWidth = 1.8;
@@ -1375,7 +1398,6 @@
                         ctx.quadraticCurveTo(w * 0.45, h / 2 + dir * (gap * 0.65), w - 15, h / 2 + dir * (gap * 1.15));
                         ctx.stroke();
 
-                        // Đường cực tiểu nét đứt
                         ctx.save();
                         ctx.setLineDash([5, 5]);
                         ctx.strokeStyle = 'rgba(244, 63, 94, 0.65)';
@@ -1387,18 +1409,16 @@
                         ctx.restore();
                     });
 
-                    // Vẽ 2 nguồn S1, S2
                     [s1, s2].forEach((s, idx) => {
                         ctx.fillStyle = '#f43f5e';
                         ctx.beginPath();
                         ctx.arc(s.x, s.y, 6, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 11px Orbitron, sans-serif';
+                        ctx.font = 'bold 11px "Be Vietnam Pro", sans-serif';
                         ctx.fillText(idx === 0 ? 'S₁' : 'S₂', 12, s.y + 4);
                     });
 
-                    // Vẽ Tàu Thám Hiểm trên đường cực đại trung tâm
                     const progressRatio = Math.min(1, Math.max(0.08, labState.fleetProgress / 1250));
                     let shipX = 75 + progressRatio * (w - 125);
                     let shipY = h / 2 + Math.sin(phase * 1.5) * 4;
@@ -1415,7 +1435,6 @@
                     ctx.restore();
 
                 } else {
-                    // CHẾ ĐỘ THÍ NGHIỆM KHE Y-ÂNG (YOUNG'S DOUBLE SLIT LASER)
                     ctx.fillStyle = '#070614';
                     ctx.fillRect(0, 0, w, h);
 
@@ -1424,7 +1443,6 @@
                     const screenX = w - 55;
                     const slitGap = 18 + (labState.gapVal / 100) * 46;
 
-                    // Chùm tia Laser tới mặt phẳng 2 khe
                     ctx.strokeStyle = laserColor;
                     ctx.lineWidth = 4;
                     ctx.beginPath();
@@ -1432,7 +1450,6 @@
                     ctx.lineTo(slitX, h / 2);
                     ctx.stroke();
 
-                    // Màn chắn 2 khe S1, S2
                     ctx.strokeStyle = '#94a3b8';
                     ctx.lineWidth = 4;
                     ctx.beginPath();
@@ -1444,10 +1461,8 @@
                     ctx.lineTo(slitX, h - 15);
                     ctx.stroke();
 
-                    // Khoảng vân i tỉ lệ thuận với lambda và tỉ lệ nghịch với a
                     const fringeSpacing = Math.max(12, Math.min(42, ((labState.lambdaNm - 350) / 12) * (60 / labState.gapVal)));
 
-                    // Vẽ chùm sáng giao thoa lan từ 2 khe tới màn
                     ctx.save();
                     ctx.globalAlpha = 0.22;
                     ctx.fillStyle = laserColor;
@@ -1460,7 +1475,6 @@
                     ctx.fill();
                     ctx.restore();
 
-                    // Màn quan sát M và hệ vân sáng - vân tối
                     ctx.fillStyle = '#0f172a';
                     ctx.fillRect(screenX, 12, 34, h - 24);
 
@@ -1473,9 +1487,8 @@
                     }
                     ctx.globalAlpha = 1.0;
 
-                    // Đánh dấu vân trung tâm k = 0
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 10px Orbitron, sans-serif';
+                    ctx.font = 'bold 10px "JetBrains Mono", monospace';
                     ctx.fillText('k=0', screenX - 28, h / 2 + 3);
                 }
 
@@ -1642,7 +1655,6 @@
                             }
                         }
                     } else if (q.type === 'tf') {
-                        // Chấm điểm 4 mệnh đề a, b, c, d
                         const arr = Array.isArray(data.answerPayload) ? data.answerPayload : [false, false, false, false];
                         let matchedCount = 0;
                         q.statements.forEach((st, idx) => {
@@ -1758,11 +1770,11 @@
                 q.statements.forEach((st, idx) => {
                     const row = document.createElement('div');
                     row.id = `hostTfRow${idx}`;
-                    row.className = "p-3 rounded-2xl bg-slate-900/95 border-2 border-slate-700 flex items-center justify-between gap-3 text-xs sm:text-sm font-bold";
+                    row.className = "p-3.5 rounded-2xl bg-slate-900/95 border-2 border-slate-700 flex items-center justify-between gap-3 text-xs sm:text-sm font-bold";
                     row.innerHTML = `
                         <div class="flex items-center gap-2.5 flex-1">
                             <span class="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-tech font-black flex items-center justify-center flex-shrink-0">${st.label}</span>
-                            <span class="text-slate-100 flex-1">${st.text}</span>
+                            <span class="text-slate-100 flex-1 leading-relaxed">${st.text}</span>
                         </div>
                         <span id="hostTfAnsBadge${idx}" class="hidden px-3 py-1 rounded-xl font-tech font-black text-xs border"></span>
                     `;
@@ -1770,7 +1782,6 @@
                 });
             }
 
-            // Đồng bộ chế độ mô phỏng theo câu hỏi
             if (q.simMode === 'young') {
                 document.getElementById('simLambdaSlider').value = q.simParams.lambdaNm || 600;
                 document.getElementById('simGapSlider').value = (q.simParams.aMm || 0.5) * 50;
@@ -1798,7 +1809,6 @@
                 qIndex: hostState.currentQIndex
             });
 
-            // Lập lịch cho AI Bots trả lời
             hostState.botTimers.forEach(t => clearTimeout(t));
             hostState.botTimers = [];
             const bots = Object.values(hostState.players).filter(p => p.isBot);
@@ -2224,7 +2234,7 @@
                         const item = document.createElement('div');
                         item.className = "p-3 rounded-2xl bg-slate-900 border border-slate-700 flex flex-col gap-2 text-left";
                         item.innerHTML = `
-                            <div class="text-xs font-bold text-slate-100"><span class="text-cyan-400 font-tech mr-1">${st.label}</span>${st.text}</div>
+                            <div class="text-xs font-bold text-slate-100 leading-relaxed"><span class="text-cyan-400 font-tech mr-1">${st.label}</span>${st.text}</div>
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button" id="plTfBtnTrue_${idx}" onclick="playerToggleTfChoice(${idx}, true)" class="py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-black text-slate-300">✓ ĐÚNG</button>
                                 <button type="button" id="plTfBtnFalse_${idx}" onclick="playerToggleTfChoice(${idx}, false)" class="py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-black text-slate-300">✗ SAI</button>
