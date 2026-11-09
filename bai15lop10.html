@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Maglev-Inertia: Định Luật I Newton & Quán Tính - Vật Lí 10</title>
+    <title>Turbo-Thruster: Định Luật 2 Newton - Vật Lí 10</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,7 @@
         window.addEventListener('error', function(e) {
             if (e && e.message && (e.message.includes('WebSocket') || e.message.includes('SecurityError'))) {
                 e.preventDefault();
-                console.warn("[InertiaNet] Đã xử lý an toàn ngoại lệ kết nối.");
+                console.warn("[ThrusterNet] Đã xử lý an toàn ngoại lệ kết nối.");
                 return true;
             }
         });
@@ -59,46 +59,46 @@
         .katex { font-size: 1.05em; }
         .katex .text { font-family: 'Nunito', sans-serif !important; }
 
-        /* Nền Đường Ray Đệm Từ Siêu Tốc & Quán Tính */
-        .maglev-inertia-bg {
-            background-color: #030914;
+        /* Nền Đường Đua Gia Tốc Phản Lực & Định Luật 2 Newton */
+        .turbo-thruster-bg {
+            background-color: #070612;
             background-image:
-                radial-gradient(circle at 14% 18%, rgba(6, 182, 212, 0.24) 0%, transparent 42%),
-                radial-gradient(circle at 86% 20%, rgba(16, 185, 129, 0.22) 0%, transparent 45%),
-                radial-gradient(circle at 50% 85%, rgba(245, 158, 11, 0.18) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.18) 0%, transparent 40%),
-                linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(16, 185, 129, 0.04) 1px, transparent 1px);
+                radial-gradient(circle at 14% 18%, rgba(244, 63, 94, 0.24) 0%, transparent 42%),
+                radial-gradient(circle at 86% 20%, rgba(245, 158, 11, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 50% 85%, rgba(6, 182, 212, 0.20) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.18) 0%, transparent 40%),
+                linear-gradient(rgba(244, 63, 94, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245, 158, 11, 0.04) 1px, transparent 1px);
             background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 34px 34px, 34px 34px;
             color: #f8fafc;
         }
 
-        .inertia-hud-card {
-            background: rgba(7, 16, 32, 0.94);
+        .thruster-hud-card {
+            background: rgba(14, 12, 28, 0.94);
             backdrop-filter: blur(20px);
-            border: 2.5px solid #06b6d4;
-            box-shadow: 0 10px 0 #02050b, 0 0 30px rgba(6, 182, 212, 0.28);
+            border: 2.5px solid #f43f5e;
+            box-shadow: 0 10px 0 #040309, 0 0 30px rgba(244, 63, 94, 0.28);
             border-radius: 1.75rem;
             position: relative;
         }
-        .inertia-hud-card::before {
+        .thruster-hud-card::before {
             content: '';
             position: absolute;
             top: -2px; left: 18px; width: 42px; height: 4px;
-            background: #10b981;
-            box-shadow: 0 0 10px #10b981;
-            border-radius: 99px;
-        }
-        .inertia-hud-card::after {
-            content: '';
-            position: absolute;
-            bottom: -2px; right: 18px; width: 42px; height: 4px;
             background: #f59e0b;
             box-shadow: 0 0 10px #f59e0b;
             border-radius: 99px;
         }
+        .thruster-hud-card::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; right: 18px; width: 42px; height: 4px;
+            background: #06b6d4;
+            box-shadow: 0 0 10px #06b6d4;
+            border-radius: 99px;
+        }
 
-        .inertia-hud-card-gold {
+        .thruster-hud-card-gold {
             background: rgba(24, 18, 8, 0.94);
             backdrop-filter: blur(20px);
             border: 2.5px solid #fbbf24;
@@ -122,25 +122,25 @@
             box-shadow: 0 3px 0 rgba(0, 0, 0, 0.85);
         }
 
-        /* Phím A: Đỏ Phanh Khẩn Cấp */
+        /* Phím A: Đỏ Lực Đẩy Phản Lực */
         .choice-btn-a {
             background: linear-gradient(135deg, rgba(244, 63, 94, 0.32), rgba(190, 18, 60, 0.55));
             border: 2.5px solid #fb7185;
             color: #fff1f2;
         }
-        /* Phím B: Lam Đệm Từ Không Ma Sát */
+        /* Phím B: Lam Gia Tốc Chuyển Động */
         .choice-btn-b {
             background: linear-gradient(135deg, rgba(6, 182, 212, 0.32), rgba(2, 132, 199, 0.55));
             border: 2.5px solid #38bdf8;
             color: #f0f9ff;
         }
-        /* Phím C: Vàng Vận Tốc Thẳng Đều */
+        /* Phím C: Vàng Cam Hợp Lực F = ma */
         .choice-btn-c {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.32), rgba(194, 65, 12, 0.55));
             border: 2.5px solid #fbbf24;
             color: #fffbeb;
         }
-        /* Phím D: Lục Bảo Cân Bằng Quán Tính */
+        /* Phím D: Lục Bảo Tỉ Số Gia Tốc */
         .choice-btn-d {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.32), rgba(5, 150, 105, 0.55));
             border: 2.5px solid #34d399;
@@ -155,42 +155,42 @@
         .pulse-anim { animation: pulseGlow 1.2s ease-in-out infinite; }
 
         ::-webkit-scrollbar { width: 9px; height: 9px; }
-        ::-webkit-scrollbar-track { background: #030914; border-radius: 99px; }
-        ::-webkit-scrollbar-thumb { background: #0e7490; border: 2px solid #06b6d4; border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+        ::-webkit-scrollbar-track { background: #070612; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb { background: #9f1239; border: 2px solid #f43f5e; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f43f5e; }
     </style>
 </head>
-<body class="maglev-inertia-bg min-h-screen flex flex-col relative overflow-x-hidden selection:bg-cyan-500/40 selection:text-cyan-100">
+<body class="turbo-thruster-bg min-h-screen flex flex-col relative overflow-x-hidden selection:bg-rose-500/40 selection:text-rose-100">
 
-    <header class="w-full bg-slate-950/95 border-b-4 border-cyan-500 px-4 sm:px-8 py-3.5 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md shadow-2xl">
+    <header class="w-full bg-slate-950/95 border-b-4 border-rose-500 px-4 sm:px-8 py-3.5 flex justify-between items-center z-40 sticky top-0 backdrop-blur-md shadow-2xl">
         <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-emerald-500 to-amber-400 flex items-center justify-center shadow-lg shadow-cyan-500/40 text-white flex-shrink-0 text-3xl border-3 border-cyan-200 transform hover:rotate-6 transition">
-                🚄
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-rose-600 via-amber-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-rose-500/40 text-white flex-shrink-0 text-3xl border-3 border-rose-200 transform hover:rotate-6 transition">
+                🚀
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="px-3 py-0.5 rounded-full bg-gradient-to-r from-cyan-700 to-emerald-700 text-white font-manga text-[11px] sm:text-xs font-black uppercase tracking-widest border border-cyan-300 shadow-md">
-                        ⚡ VẬT LÍ 10 • ĐỘNG LỰC HỌC
+                    <span class="px-3 py-0.5 rounded-full bg-gradient-to-r from-rose-700 to-amber-700 text-white font-manga text-[11px] sm:text-xs font-black uppercase tracking-widest border border-rose-300 shadow-md">
+                        🔥 VẬT LÍ 10 • BÀI 15
                     </span>
-                    <span class="text-cyan-400 text-xs hidden sm:inline">•</span>
-                    <span class="text-xs sm:text-sm text-amber-300 font-extrabold hidden sm:inline font-anime-title">Định Luật I Newton & Quán Tính ($\sum\vec{F} = \vec{0} \Rightarrow \vec{v} = \text{const}$)</span>
+                    <span class="text-rose-400 text-xs hidden sm:inline">•</span>
+                    <span class="text-xs sm:text-sm text-amber-300 font-extrabold hidden sm:inline font-anime-title">Định Luật II Newton ($\vec{F} = m\vec{a} \Leftrightarrow \vec{a} = \frac{\vec{F}}{m}$)</span>
                 </div>
                 <h1 class="font-anime-title text-base sm:text-xl md:text-2xl text-white tracking-wide leading-tight uppercase font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                    MAGLEV-INERTIA: ĐƯỜNG RAY ĐỆM TỪ & ĐỊNH LUẬT I NEWTON
+                    TURBO-THRUSTER: ĐƯỜNG ĐUA GIA TỐC & ĐỊNH LUẬT II NEWTON
                 </h1>
             </div>
         </div>
 
         <div class="flex items-center gap-2.5">
-            <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-cyan-500/50 text-[11px] font-tech text-cyan-300">
+            <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-rose-500/50 text-[11px] font-tech text-rose-300">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>FRICTIONLESS TRACK ONLINE</span>
+                <span>THRUSTER DYNO ONLINE</span>
             </div>
-            <button id="sfxToggleBtn" onclick="toggleAudio()" class="p-2.5 w-11 h-11 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 border-2 border-cyan-400 text-base font-bold flex items-center justify-center transition shadow-[0_4px_0_#155e75]" title="Bật/Tắt âm thanh">
-                <i class="fa-solid fa-volume-high text-cyan-400 text-lg" id="sfxIcon"></i>
+            <button id="sfxToggleBtn" onclick="toggleAudio()" class="p-2.5 w-11 h-11 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 border-2 border-rose-400 text-base font-bold flex items-center justify-center transition shadow-[0_4px_0_#881337]" title="Bật/Tắt âm thanh">
+                <i class="fa-solid fa-volume-high text-rose-400 text-lg" id="sfxIcon"></i>
             </button>
-            <button onclick="window.location.reload()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-xs sm:text-sm font-black border-2 border-white flex items-center gap-2 transition text-white shadow-[0_4px_0_#155e75] active:translate-y-1 active:shadow-none">
-                <i class="fa-solid fa-rotate text-amber-300"></i>
+            <button onclick="window.location.reload()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-xs sm:text-sm font-black border-2 border-white flex items-center gap-2 transition text-white shadow-[0_4px_0_#881337] active:translate-y-1 active:shadow-none">
+                <i class="fa-solid fa-rotate text-amber-200"></i>
                 <span class="hidden sm:inline font-manga">TẢI LẠI</span>
             </button>
         </div>
@@ -201,58 +201,58 @@
     <main class="flex-1 flex flex-col p-3 sm:p-6 max-w-6xl w-full mx-auto justify-center z-10 relative">
 
         <!-- 0. MÀN HÌNH CHỌN VAI TRÒ -->
-        <section id="roleSelectScreen" class="w-full max-w-5xl mx-auto inertia-hud-card p-6 sm:p-10 text-center my-auto flex flex-col gap-6 relative overflow-hidden">
+        <section id="roleSelectScreen" class="w-full max-w-5xl mx-auto thruster-hud-card p-6 sm:p-10 text-center my-auto flex flex-col gap-6 relative overflow-hidden">
             <div>
-                <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-cyan-500/25 via-emerald-500/20 to-amber-500/25 border-2 border-cyan-400 text-cyan-200 text-xs sm:text-sm font-black mb-3 shadow-lg">
-                    <i class="fa-solid fa-train-subway text-amber-300 text-base"></i> ĐỊNH LUẬT I NEWTON: $\sum\vec{F} = \vec{0} \Rightarrow \vec{a} = \vec{0} \cdot \vec{v} = \text{const} \cdot s = v \cdot t$
+                <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-rose-500/25 via-amber-500/20 to-cyan-500/25 border-2 border-rose-400 text-rose-200 text-xs sm:text-sm font-black mb-3 shadow-lg">
+                    <i class="fa-solid fa-rocket text-amber-300 text-base"></i> ĐỊNH LUẬT II NEWTON: $\vec{F} = m\vec{a} \cdot a = \frac{F}{m} \cdot v = v_0 + at$
                 </span>
-                <h2 class="text-3xl sm:text-5xl font-anime-title font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-emerald-200 to-amber-300 mt-1 tracking-wide uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-                    KÍCH HOẠT ĐƯỜNG RAY ĐỆM TỪ QUÁN TÍNH
+                <h2 class="text-3xl sm:text-5xl font-anime-title font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-amber-200 to-cyan-300 mt-1 tracking-wide uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                    KÍCH HOẠT BUỒNG ĐẨY GIA TỐC TURBO-THRUSTER
                 </h2>
                 <p class="text-sm sm:text-base md:text-lg text-slate-200 max-w-3xl mx-auto mt-3 font-bold leading-relaxed">
-                    Hệ thống mô phỏng chuyển động thẳng đều không ma sát, cân bằng lực và hiện tượng quán tính trong thực tế.<br>
-                    Mỗi câu giải đúng giúp duy trì vận tốc quán tính chuẩn xác <span class="text-emerald-300 font-black">+100 Điểm (+100 km/h Tốc độ hành trình)</span>.<br>
-                    Nếu giải sai lần 1, khoang tàu rơi vào <span class="text-amber-400 font-black">CẢNH BÁO PHANH GẤP CHÚI NGƯỜI</span> (-25 km/h). Nếu <span class="text-rose-400 font-black">tiếp tục sai lần 2</span>, tàu sẽ <span class="text-rose-400 font-black">MẤT ĐỆM TỪ VA CHẠM ĐƯỜNG RAY</span> (-75 km/h)!
+                    Hệ thống khảo sát mối liên hệ giữa hợp lực tác dụng $\vec{F}$, khối lượng $m$ và gia tốc $\vec{a}$ trên đường chạy phản lực không ma sát.<br>
+                    Mỗi câu giải đúng giúp nạp xung lực chuẩn xác <span class="text-emerald-300 font-black">+100 Điểm (+100 N Lực đẩy)</span>.<br>
+                    Nếu giải sai lần 1, động cơ rơi vào <span class="text-amber-400 font-black">CẢNH BÁO HỤT GIA TỐC</span> (-25 N). Nếu <span class="text-rose-400 font-black">tiếp tục sai lần 2</span>, buồng đốt sẽ <span class="text-rose-400 font-black">QUÁ ÁP NỔ TUA-BIN PHẢN LỰC</span> (-75 N)!
                 </p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
-                <button onclick="initHostMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-cyan-950/80 border-3 border-cyan-400 hover:border-cyan-300 shadow-[0_10px_0_#155e75] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
-                    <div class="w-20 h-20 rounded-3xl bg-cyan-500/25 text-cyan-300 border-3 border-cyan-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
+                <button onclick="initHostMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-rose-950/80 border-3 border-rose-400 hover:border-rose-300 shadow-[0_10px_0_#881337] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-rose-500/25 text-rose-300 border-3 border-rose-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
                         🖥️
                     </div>
-                    <span class="px-3 py-1 rounded-full bg-cyan-400/20 text-cyan-300 font-manga text-xs font-black uppercase mb-1">MAIN MAGLEV CONTROL</span>
+                    <span class="px-3 py-1 rounded-full bg-rose-400/20 text-rose-300 font-manga text-xs font-black uppercase mb-1">MAIN THRUSTER DYNO</span>
                     <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">TRẠM ĐIỀU PHỐI (MÁY CHIẾU LỚN)</h3>
                     <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
-                        Trình chiếu Mã PIN & QR, mô phỏng trực tiếp vật trượt thẳng đều ($v = \text{const}$), vật đứng yên cân bằng lực ($\vec{P} + \vec{N} = \vec{0}$) và quán tính khi xe phanh gấp.
+                        Trình chiếu Mã PIN & QR, mô phỏng trực tiếp vật tăng tốc dưới lực kéo $\vec{F}$, tổng hợp hai lực cùng phương, đồ thị $F-a$ và đua gia tốc 2 khối lượng.
                     </p>
-                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-emerald-500 to-amber-500 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white shadow-lg">
-                        KHAI MỞ TRẠM ĐỆM TỪ ⚡
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 via-amber-500 to-cyan-500 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white shadow-lg">
+                        KHAI MỞ TRẠM PHẢN LỰC ⚡
                     </span>
                 </button>
 
-                <button onclick="initPlayerMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-emerald-950/80 border-3 border-emerald-400 hover:border-emerald-300 shadow-[0_10px_0_#065f46] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
-                    <div class="w-20 h-20 rounded-3xl bg-emerald-500/25 text-emerald-300 border-3 border-emerald-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
+                <button onclick="initPlayerMode()" class="p-8 rounded-3xl bg-gradient-to-b from-slate-900/95 to-cyan-950/80 border-3 border-cyan-400 hover:border-cyan-300 shadow-[0_10px_0_#155e75] transition transform hover:-translate-y-1 active:translate-y-1 active:shadow-none flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 rounded-3xl bg-cyan-500/25 text-cyan-300 border-3 border-cyan-400 flex items-center justify-center text-5xl mb-4 group-hover:scale-110 transition shadow-xl">
                         🎮
                     </div>
-                    <span class="px-3 py-1 rounded-full bg-emerald-400/20 text-emerald-300 font-manga text-xs font-black uppercase mb-1">INERTIA PILOT PAD</span>
-                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">KỸ SƯ QUÁN TÍNH (ĐIỆN THOẠI)</h3>
+                    <span class="px-3 py-1 rounded-full bg-cyan-400/20 text-cyan-300 font-manga text-xs font-black uppercase mb-1">THRUSTER PILOT PAD</span>
+                    <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase">KỸ SƯ GIA TỐC (ĐIỆN THOẠI)</h3>
                     <p class="text-xs sm:text-sm text-slate-300 mt-2.5 mb-6 leading-relaxed font-semibold">
-                        Gia nhập phòng bằng PIN hoặc QR, phân tích hợp lực $\sum\vec{F}$, độ dịch chuyển $s = vt$, gia tốc $a = 0$ và mức quán tính bằng 4 phím bấm chiến thuật.
+                        Gia nhập phòng bằng PIN hoặc QR, tính toán gia tốc $a = F/m$, vận tốc $v = at$, hệ số góc đồ thị $F-a$ bằng 4 phím bấm chiến thuật.
                     </p>
-                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-amber-500 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white shadow-lg">
-                        KẾT NỐI BUỒNG LÁI TÀU 🚄
+                    <span class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-emerald-500 to-amber-500 text-white font-anime-title text-sm uppercase tracking-wider font-black border-2 border-white shadow-lg">
+                        KẾT NỐI BUỒNG LÁI 🚀
                     </span>
                 </button>
             </div>
         </section>
 
         <!-- 1. MÀN HÌNH CHỜ MÁY CHIẾU (HOST LOBBY) -->
-        <section id="hostLobbyScreen" class="w-full max-w-5xl mx-auto inertia-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
-            <div class="flex flex-wrap items-center justify-between border-b-2 border-cyan-900/60 pb-3.5 gap-2">
+        <section id="hostLobbyScreen" class="w-full max-w-5xl mx-auto thruster-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+            <div class="flex flex-wrap items-center justify-between border-b-2 border-rose-900/60 pb-3.5 gap-2">
                 <div class="flex items-center gap-3">
                     <span class="w-4 h-4 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="font-anime-title text-lg sm:text-2xl text-cyan-300 uppercase tracking-wider font-black">TRUNG TÂM ĐIỀU HÀNH ĐƯỜNG RAY ĐỆM TỪ QUÁN TÍNH</span>
+                    <span class="font-anime-title text-lg sm:text-2xl text-rose-300 uppercase tracking-wider font-black">TRUNG TÂM THỬ NGHIỆM GIA TỐC ĐỊNH LUẬT II NEWTON</span>
                 </div>
                 <div class="text-sm sm:text-lg font-black text-slate-200">
                     <i class="fa-solid fa-users text-amber-400 mr-2"></i>Đội Kỹ Sư: <span class="text-amber-300 font-tech font-black text-2xl sm:text-3xl" id="hostPlayerCountNum">0</span> đội
@@ -260,36 +260,36 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <div class="lg:col-span-5 p-6 rounded-3xl bg-slate-950/95 border-2 border-cyan-900/80 flex flex-col items-center justify-between text-center gap-4 shadow-xl">
+                <div class="lg:col-span-5 p-6 rounded-3xl bg-slate-950/95 border-2 border-rose-900/80 flex flex-col items-center justify-between text-center gap-4 shadow-xl">
                     <div>
-                        <span class="text-xs sm:text-sm font-black text-cyan-300 uppercase tracking-widest block font-manga">MÃ PHÒNG ĐỆM TỪ (PIN CODE)</span>
+                        <span class="text-xs sm:text-sm font-black text-rose-300 uppercase tracking-widest block font-manga">MÃ PHÒNG PHẢN LỰC (PIN CODE)</span>
                         <div class="flex items-center justify-center gap-3 mt-2.5">
                             <span id="hostPinDisplay" class="text-5xl sm:text-7xl font-tech font-black text-amber-300 px-7 py-2 rounded-2xl bg-black border-3 border-amber-400 tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.3)]">
                                 ----
                             </span>
-                            <button onclick="copyJoinLink()" class="p-4 sm:p-5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-cyan-400 border-2 border-cyan-700 text-lg font-bold transition" title="Sao chép link">
+                            <button onclick="copyJoinLink()" class="p-4 sm:p-5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-rose-400 border-2 border-rose-700 text-lg font-bold transition" title="Sao chép link">
                                 <i class="fa-solid fa-link"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div class="flex flex-col items-center bg-white p-4 rounded-3xl shadow-2xl border-4 border-cyan-400">
+                    <div class="flex flex-col items-center bg-white p-4 rounded-3xl shadow-2xl border-4 border-rose-400">
                         <div onclick="openQrModal()" class="cursor-pointer hover:opacity-90 transition p-1">
                             <div id="hostQrCodeBox" class="w-[140px] h-[140px] flex items-center justify-center overflow-hidden"></div>
                         </div>
-                        <button onclick="openQrModal()" class="text-xs sm:text-sm font-black text-slate-950 mt-2.5 flex items-center gap-2 hover:text-cyan-700 font-manga">
+                        <button onclick="openQrModal()" class="text-xs sm:text-sm font-black text-slate-950 mt-2.5 flex items-center gap-2 hover:text-rose-700 font-manga">
                             <i class="fa-solid fa-expand"></i> Phóng To Mã QR
                         </button>
                     </div>
 
-                    <p class="text-xs sm:text-sm text-slate-300 font-bold">Quét mã QR bằng Camera điện thoại hoặc nhập mã PIN để đồng bộ cảm biến quán tính.</p>
+                    <p class="text-xs sm:text-sm text-slate-300 font-bold">Quét mã QR bằng Camera điện thoại hoặc nhập mã PIN để đồng bộ buồng đẩy gia tốc.</p>
                 </div>
 
                 <div class="lg:col-span-7 flex flex-col justify-between gap-5">
-                    <div class="p-6 rounded-3xl bg-slate-950/95 border-2 border-cyan-900/80 flex-1 flex flex-col shadow-xl">
-                        <div class="flex justify-between items-center border-b border-cyan-900/50 pb-3 mb-3">
+                    <div class="p-6 rounded-3xl bg-slate-950/95 border-2 border-rose-900/80 flex-1 flex flex-col shadow-xl">
+                        <div class="flex justify-between items-center border-b border-rose-900/50 pb-3 mb-3">
                             <span class="text-xs sm:text-base font-black text-slate-200 uppercase font-anime-title">Danh sách các đội kỹ sư đã kết nối</span>
-                            <span class="text-xs sm:text-sm font-manga font-black text-amber-300">MỤC TIÊU: 1000 km/h QUÁN TÍNH</span>
+                            <span class="text-xs sm:text-sm font-manga font-black text-amber-300">MỤC TIÊU: 1000 N LỰC ĐẨY</span>
                         </div>
                         <div class="flex-1 min-h-[190px] max-h-[260px] overflow-y-auto p-2 flex flex-col justify-center">
                             <p class="text-sm sm:text-base text-slate-400 italic text-center font-bold" id="emptyPlayerMsg">Đang chờ tín hiệu từ điện thoại học sinh...</p>
@@ -300,15 +300,15 @@
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
                         <div class="flex gap-2.5 w-full sm:w-auto">
                             <button onclick="addDemoBots(4)" type="button" class="px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-2 flex-1 sm:flex-none justify-center font-manga">
-                                <i class="fa-solid fa-robot text-cyan-400"></i> +4 Đội Mẫu
+                                <i class="fa-solid fa-robot text-rose-400"></i> +4 Đội Mẫu
                             </button>
                             <button onclick="clearDemoBots()" type="button" class="px-4 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs sm:text-base font-black border-2 border-slate-700 transition flex items-center gap-1" title="Xóa danh sách">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
 
-                        <button onclick="hostStartGame()" id="hostStartBtn" class="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-cyan-600 via-emerald-500 to-amber-500 hover:from-cyan-500 hover:to-amber-400 text-white font-anime-title text-sm sm:text-lg uppercase tracking-wider transition shadow-xl disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-2.5 font-black border-2 border-white" disabled>
-                            <span>KHỞI HÀNH TÀU ĐỆM TỪ</span>
+                        <button onclick="hostStartGame()" id="hostStartBtn" class="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-amber-500 to-cyan-500 hover:from-rose-500 hover:to-cyan-400 text-white font-anime-title text-sm sm:text-lg uppercase tracking-wider transition shadow-xl disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-2.5 font-black border-2 border-white" disabled>
+                            <span>KÍCH HOẠT ĐỘNG CƠ PHẢN LỰC</span>
                             <i class="fa-solid fa-bolt text-sm text-amber-200"></i>
                         </button>
                     </div>
@@ -318,21 +318,21 @@
 
         <!-- 2. MÀN HÌNH CÂU HỎI MÁY CHIẾU (HOST QUESTION) -->
         <section id="hostQuestionScreen" class="w-full max-w-6xl mx-auto flex flex-col gap-4 hidden">
-            <div class="inertia-hud-card p-4 sm:p-5 border-2 border-cyan-400 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+            <div class="thruster-hud-card p-4 sm:p-5 border-2 border-rose-400 shadow-2xl flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <span id="hostQCounterBadge" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-manga font-black uppercase tracking-wider bg-gradient-to-r from-cyan-700 to-emerald-700 text-white border border-cyan-300 shadow-md">
+                    <span id="hostQCounterBadge" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-manga font-black uppercase tracking-wider bg-gradient-to-r from-rose-700 to-amber-700 text-white border border-rose-300 shadow-md">
                         CÂU 1 / 10
                     </span>
                     <span id="hostQCategory" class="text-sm sm:text-base md:text-lg font-black text-slate-100 font-anime-title">
-                        Câu 1. Nội dung Định luật I Newton
+                        Câu 1. Biểu thức vectơ của Định luật 2 Newton
                     </span>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-2.5 px-5 py-2 rounded-2xl bg-slate-900 border-2 border-cyan-400">
+                    <div class="flex items-center gap-2.5 px-5 py-2 rounded-2xl bg-slate-900 border-2 border-rose-400">
                         <i class="fa-solid fa-stopwatch text-amber-400 text-lg sm:text-xl animate-spin"></i>
-                        <span id="hostTimerText" class="font-tech font-black text-2xl sm:text-3xl text-cyan-300">30</span>
-                        <span class="text-xs sm:text-sm font-black text-cyan-400 font-manga">giây</span>
+                        <span id="hostTimerText" class="font-tech font-black text-2xl sm:text-3xl text-rose-300">30</span>
+                        <span class="text-xs sm:text-sm font-black text-rose-400 font-manga">giây</span>
                     </div>
                     <div class="px-4 py-2 rounded-2xl bg-slate-900 border-2 border-slate-800 text-xs sm:text-sm font-black text-slate-200 font-manga">
                         Đã nộp: <span id="hostAnsweredCount" class="text-amber-400 font-tech font-black text-lg sm:text-xl">0</span> / <span id="hostTotalPlayersCount">0</span>
@@ -343,10 +343,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
                 <!-- Cột trái: Đề bài & 4 phương án -->
                 <div class="lg:col-span-7 flex flex-col gap-4">
-                    <div class="inertia-hud-card p-6 sm:p-7 shadow-2xl flex flex-col gap-4 flex-1 justify-between">
+                    <div class="thruster-hud-card p-6 sm:p-7 shadow-2xl flex flex-col gap-4 flex-1 justify-between">
                         <div>
-                            <span class="text-xs font-manga uppercase tracking-widest text-cyan-300 font-black block mb-1">
-                                <i class="fa-solid fa-gauge-high mr-1 text-amber-400"></i> CHỦ ĐỀ: ĐỊNH LUẬT I NEWTON – QUÁN TÍNH
+                            <span class="text-xs font-manga uppercase tracking-widest text-rose-300 font-black block mb-1">
+                                <i class="fa-solid fa-fire-flame-curved mr-1 text-amber-400"></i> BÀI 15: ĐỊNH LUẬT II NEWTON ($\vec{F} = m\vec{a}$)
                             </span>
                             <h2 id="hostQuestionTitle" class="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed font-anime-title">
                                 Đang tải câu hỏi...
@@ -389,60 +389,60 @@
                     </div>
                 </div>
 
-                <!-- Cột phải: Mô phỏng Định luật I Newton & Quán tính -->
+                <!-- Cột phải: Mô phỏng Định luật II Newton & Gia tốc -->
                 <div class="lg:col-span-5 flex flex-col gap-3">
-                    <div class="inertia-hud-card p-4 border-2 border-cyan-400 flex-1 flex flex-col justify-between overflow-hidden relative">
-                        <div class="flex justify-between items-center border-b border-cyan-900/60 pb-2 mb-2">
-                            <span id="inertiaSimHeaderTitle" class="text-xs font-anime-title uppercase tracking-wider text-cyan-300 font-bold flex items-center gap-1.5">
-                                <i class="fa-solid fa-train-subway text-amber-400 animate-pulse"></i> MÔ PHỎNG QUÁN TÍNH & CÂN BẰNG LỰC
+                    <div class="thruster-hud-card p-4 border-2 border-rose-400 flex-1 flex flex-col justify-between overflow-hidden relative">
+                        <div class="flex justify-between items-center border-b border-rose-900/60 pb-2 mb-2">
+                            <span id="thrusterSimHeaderTitle" class="text-xs font-anime-title uppercase tracking-wider text-rose-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-rocket text-amber-400 animate-pulse"></i> MÔ PHỎNG LỰC & GIA TỐC ($\vec{a} = \vec{F}/m$)
                             </span>
-                            <span id="inertiaLiveTelemetry" class="font-tech text-[11px] text-amber-300 font-bold">∑F = 0 ⇒ v = const • a = 0</span>
+                            <span id="thrusterLiveTelemetry" class="font-tech text-[11px] text-amber-300 font-bold">F = m·a • a = F/m</span>
                         </div>
 
-                        <div class="w-full h-80 sm:h-96 relative bg-slate-950 rounded-2xl border-2 border-cyan-500/40 overflow-hidden shadow-inner flex items-center justify-center">
-                            <canvas id="inertiaSimCanvas" class="w-full h-full block"></canvas>
+                        <div class="w-full h-80 sm:h-96 relative bg-slate-950 rounded-2xl border-2 border-rose-500/40 overflow-hidden shadow-inner flex items-center justify-center">
+                            <canvas id="thrusterSimCanvas" class="w-full h-full block"></canvas>
 
-                            <!-- Báo động 1: Cảnh báo phanh gấp chúi người -->
-                            <div id="inertiaWarningAlert" class="absolute inset-0 bg-amber-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 pulse-anim border-3 border-amber-400">
-                                <span class="text-5xl animate-bounce">⚠️🚄</span>
-                                <h3 class="font-anime-title font-black text-amber-300 text-xl sm:text-2xl uppercase mt-2">CẢNH BÁO PHANH ĐỘT NGỘT!</h3>
-                                <p class="text-xs sm:text-sm text-amber-100 font-bold max-w-xs mt-1">Hợp lực khác 0 làm biến đổi vận tốc, hành khách chúi mạnh về phía trước do quán tính!</p>
+                            <!-- Báo động 1: Cảnh báo hụt gia tốc -->
+                            <div id="thrusterWarningAlert" class="absolute inset-0 bg-amber-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 pulse-anim border-3 border-amber-400">
+                                <span class="text-5xl animate-bounce">⚠️🚀</span>
+                                <h3 class="font-anime-title font-black text-amber-300 text-xl sm:text-2xl uppercase mt-2">CẢNH BÁO LỆCH GIA TỐC!</h3>
+                                <p class="text-xs sm:text-sm text-amber-100 font-bold max-w-xs mt-1">Sai số tỉ lệ $F/m$ khiến động cơ phản lực bị trễ pha và rung lắc khung sườn!</p>
                             </div>
 
-                            <!-- Báo động 2: Mất đệm từ ma sát đường ray -->
-                            <div id="inertiaPopAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-rose-500">
+                            <!-- Báo động 2: Quá tải nổ buồng đẩy -->
+                            <div id="thrusterPopAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-rose-500">
                                 <span class="text-6xl animate-ping">💥</span>
-                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">MẤT ĐỆM TỪ ĐƯỜNG RAY!</h3>
-                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Sai số điều khiển liên tiếp làm sập từ trường nâng, khoang tàu va quệt đường ray!</p>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">QUÁ ÁP BUỒNG PHẢN LỰC!</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Sai lệch hợp lực liên tiếp làm quá tải tua-bin đẩy trên đường thử!</p>
                             </div>
 
-                            <!-- Báo động 3: Trượt văng khỏi quỹ đạo -->
-                            <div id="inertiaSpikeAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-rose-500">
+                            <!-- Báo động 3: Kẹt tải trượt ray -->
+                            <div id="thrusterSpikeAlert" class="absolute inset-0 bg-rose-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-rose-500">
                                 <span class="text-6xl animate-bounce">🛑⚠️</span>
-                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">XUNG ĐỘT QUÁN TÍNH!</h3>
-                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Khối tải mất cân bằng lực và trượt khỏi bệ khóa an toàn!</p>
+                                <h3 class="font-anime-title font-black text-rose-400 text-2xl uppercase mt-2">MẤT LỰC KÉO ĐỘT NGỘT!</h3>
+                                <p class="text-xs text-rose-200 font-bold max-w-xs mt-1">Hợp lực ngược pha làm khối tải khựng lại trên sàn thử nghiệm!</p>
                             </div>
 
-                            <!-- Báo động 4: Duy trì quán tính hoàn hảo -->
-                            <div id="inertiaSuccessAlert" class="absolute inset-0 bg-emerald-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-emerald-400">
-                                <span class="text-5xl animate-bounce">🚄✨</span>
-                                <h3 class="font-anime-title font-black text-emerald-300 text-2xl uppercase mt-2">DUY TRÌ QUÁN TÍNH HOÀN HẢO!</h3>
-                                <p class="text-xs text-emerald-100 font-bold max-w-xs mt-1">Hợp lực bằng 0 ($\sum\vec{F} = \vec{0}$), hệ thống bảo toàn trạng thái chuyển động chuẩn xác!</p>
+                            <!-- Báo động 4: Bứt tốc hoàn hảo -->
+                            <div id="thrusterSuccessAlert" class="absolute inset-0 bg-emerald-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 transition-all duration-300 hidden z-20 border-3 border-emerald-400">
+                                <span class="text-5xl animate-bounce">🚀✨</span>
+                                <h3 class="font-anime-title font-black text-emerald-300 text-2xl uppercase mt-2">BỨT TỐC GIA TỐC CHUẨN XÁC!</h3>
+                                <p class="text-xs text-emerald-100 font-bold max-w-xs mt-1">Gia tốc $\vec{a} = \frac{\vec{F}}{m}$ đồng bộ tuyệt đối, động cơ đạt lực đẩy tối đa!</p>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-3 gap-2.5 mt-3 text-center text-xs">
                             <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
-                                <span class="text-[10px] text-cyan-400/80 block font-manga uppercase">HỆ KHẢO SÁT</span>
-                                <span id="hostSimModeText" class="font-manga font-black text-cyan-300">TRƯỢT THẲNG ĐỀU</span>
+                                <span class="text-[10px] text-rose-400/80 block font-manga uppercase">CHẾ ĐỘ THỬ TẢI</span>
+                                <span id="hostSimModeText" class="font-manga font-black text-rose-300">TĂNG TỐC F = ma</span>
                             </div>
                             <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
-                                <span class="text-[10px] text-amber-400/80 block font-manga uppercase">VẬN TỐC TRUNG BÌNH</span>
-                                <span id="hostAvgAltText" class="font-tech font-black text-amber-300 text-sm sm:text-base">0 km/h</span>
+                                <span class="text-[10px] text-amber-400/80 block font-manga uppercase">LỰC ĐẨY TRUNG BÌNH</span>
+                                <span id="hostAvgAltText" class="font-tech font-black text-amber-300 text-sm sm:text-base">0 N</span>
                             </div>
                             <div class="p-2.5 rounded-2xl bg-slate-900 border-2 border-slate-800">
-                                <span class="text-[10px] text-emerald-400/80 block font-manga uppercase">TRẠNG THÁI RAY</span>
-                                <span id="hostInertiaStatusTag" class="font-anime-title font-black text-emerald-400 text-xs sm:text-sm">KHÔNG MA SÁT</span>
+                                <span class="text-[10px] text-emerald-400/80 block font-manga uppercase">TRẠNG THÁI BUỒNG ĐỐT</span>
+                                <span id="hostThrusterStatusTag" class="font-anime-title font-black text-emerald-400 text-xs sm:text-sm">BỨT TỐC TỐT</span>
                             </div>
                         </div>
                     </div>
@@ -450,14 +450,14 @@
             </div>
 
             <!-- Khu vực giải thích vật lí -->
-            <div id="hostExplanationArea" class="inertia-hud-card p-5 sm:p-7 border-2 border-cyan-400 shadow-2xl flex flex-col gap-4 hidden">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-cyan-900/60 pb-3">
+            <div id="hostExplanationArea" class="thruster-hud-card p-5 sm:p-7 border-2 border-rose-400 shadow-2xl flex flex-col gap-4 hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-rose-900/60 pb-3">
                     <div>
-                        <span class="text-xs sm:text-sm font-manga font-black uppercase text-cyan-400 tracking-wider block">PHÂN TÍCH VẬT LÍ: ĐỊNH LUẬT I NEWTON & QUÁN TÍNH</span>
-                        <p class="text-xs sm:text-base text-slate-300 font-bold">Khi $\sum\vec{F} = \vec{0}$: vật đang đứng yên sẽ tiếp tục đứng yên, vật đang chuyển động sẽ tiếp tục chuyển động thẳng đều ($\vec{a} = \vec{0}$).</p>
+                        <span class="text-xs sm:text-sm font-manga font-black uppercase text-rose-400 tracking-wider block">PHÂN TÍCH VẬT LÍ: ĐỊNH LUẬT II NEWTON</span>
+                        <p class="text-xs sm:text-base text-slate-300 font-bold">Gia tốc của một vật cùng hướng với lực tác dụng lên vật, tỉ lệ thuận với độ lớn của lực và tỉ lệ nghịch với khối lượng: $\vec{a} = \frac{\vec{F}}{m}$.</p>
                     </div>
-                    <button onclick="hostShowLeaderboardScreen()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-cyan-600 to-emerald-500 hover:from-amber-400 hover:to-cyan-500 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl font-black flex items-center gap-2 border-2 border-white">
-                        <span>BẢNG XẾP HẠNG TỐC ĐỘ</span>
+                    <button onclick="hostShowLeaderboardScreen()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-600 to-cyan-500 hover:from-amber-400 hover:to-rose-500 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl font-black flex items-center gap-2 border-2 border-white">
+                        <span>BẢNG XẾP HẠNG LỰC ĐẨY</span>
                         <i class="fa-solid fa-trophy text-amber-300"></i>
                     </button>
                 </div>
@@ -465,31 +465,31 @@
             </div>
 
             <!-- Lưới trạng thái các đội -->
-            <div class="inertia-hud-card p-4 border-2 border-slate-800">
+            <div class="thruster-hud-card p-4 border-2 border-slate-800">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2 text-xs sm:text-sm">
-                    <span class="font-anime-title font-black text-slate-200 uppercase">Vận tốc hành trình và trạng thái của các đội kỹ sư</span>
-                    <span class="font-manga font-bold text-cyan-400">SQUAD INERTIA VELOCITY (km/h)</span>
+                    <span class="font-anime-title font-black text-slate-200 uppercase">Lực đẩy tích lũy và trạng thái của các đội kỹ sư</span>
+                    <span class="font-manga font-bold text-rose-400">SQUAD THRUSTER FORCE (N)</span>
                 </div>
                 <div id="hostLiveSquadGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[140px] overflow-y-auto p-1"></div>
             </div>
         </section>
 
         <!-- 3. MÀN HÌNH BẢNG XẾP HẠNG VÒNG (HOST LEADERBOARD) -->
-        <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto inertia-hud-card-gold p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
+        <section id="hostLeaderboardScreen" class="w-full max-w-5xl mx-auto thruster-hud-card-gold p-6 sm:p-9 my-auto hidden flex flex-col gap-6">
             <div class="flex flex-col sm:flex-row items-center justify-between border-b-2 border-amber-500/40 pb-4 gap-3">
                 <div class="flex items-center gap-3.5">
                     <div class="w-14 h-14 rounded-2xl bg-amber-500/25 text-amber-300 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg">
                         🏆
                     </div>
                     <div>
-                        <span class="text-xs sm:text-sm font-manga uppercase font-bold text-amber-400 tracking-wider block">BẢNG XẾP HẠNG VẬN TỐC QUÁN TÍNH</span>
+                        <span class="text-xs sm:text-sm font-manga uppercase font-bold text-amber-400 tracking-wider block">BẢNG XẾP HẠNG LỰC ĐẨY GIA TỐC</span>
                         <h3 class="text-xl sm:text-2xl font-anime-title font-black text-white uppercase" id="hostLeaderboardRoundTitle">
                             TOP ĐỘI KỸ SƯ DẪN ĐẦU (CÂU 1)
                         </h3>
                     </div>
                 </div>
 
-                <button onclick="hostContinueToNextQuestion()" id="hostLeaderboardNextBtn" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-cyan-600 to-emerald-500 hover:from-amber-400 hover:to-cyan-500 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl flex items-center gap-2.5 font-black border-2 border-white">
+                <button onclick="hostContinueToNextQuestion()" id="hostLeaderboardNextBtn" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-600 to-cyan-500 hover:from-amber-400 hover:to-rose-500 text-white font-anime-title text-xs sm:text-base uppercase tracking-wider transition shadow-xl flex items-center gap-2.5 font-black border-2 border-white">
                     <span id="hostLeaderboardNextBtnText">SANG CÂU TIẾP THEO</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
@@ -502,7 +502,7 @@
                     <span class="text-3xl mb-1">🥈</span>
                     <div class="w-full p-3 rounded-2xl bg-slate-900 border-2 border-cyan-400 text-center flex flex-col items-center shadow-lg">
                         <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName2">--</span>
-                        <span class="text-xs font-tech text-cyan-400 font-black" id="podiumAlt2">0 km/h</span>
+                        <span class="text-xs font-tech text-cyan-400 font-black" id="podiumAlt2">0 N</span>
                     </div>
                     <div class="w-full h-14 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-400 text-base border-2 border-slate-800">#2</div>
                 </div>
@@ -512,7 +512,7 @@
                     <span class="text-4xl mb-1 animate-bounce">👑 🥇</span>
                     <div class="w-full p-4 rounded-2xl bg-amber-950/60 border-3 border-amber-400 text-center flex flex-col items-center shadow-2xl ring-4 ring-amber-400/40">
                         <span class="text-base sm:text-xl font-black text-amber-300 truncate max-w-full font-anime-title" id="podiumName1">--</span>
-                        <span class="text-sm font-tech text-amber-300 font-black" id="podiumAlt1">0 km/h</span>
+                        <span class="text-sm font-tech text-amber-300 font-black" id="podiumAlt1">0 N</span>
                     </div>
                     <div class="w-full h-22 bg-gradient-to-t from-amber-600 to-amber-400 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-950 text-xl shadow-xl">#1</div>
                 </div>
@@ -520,9 +520,9 @@
                 <!-- Hạng 3 -->
                 <div class="flex flex-col items-center">
                     <span class="text-3xl mb-1">🥉</span>
-                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-2 border-emerald-500 text-center flex flex-col items-center shadow-lg">
+                    <div class="w-full p-3 rounded-2xl bg-slate-900 border-2 border-rose-500 text-center flex flex-col items-center shadow-lg">
                         <span class="text-sm sm:text-lg font-black text-slate-100 truncate max-w-full font-anime-title" id="podiumName3">--</span>
-                        <span class="text-xs font-tech text-emerald-400 font-black" id="podiumAlt3">0 km/h</span>
+                        <span class="text-xs font-tech text-rose-400 font-black" id="podiumAlt3">0 N</span>
                     </div>
                     <div class="w-full h-10 bg-slate-950 rounded-b-xl flex items-center justify-center font-tech font-black text-slate-500 text-sm border-2 border-slate-800">#3</div>
                 </div>
@@ -531,14 +531,14 @@
             <!-- Bảng chi tiết điểm -->
             <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-2 border-slate-800 shadow-2xl overflow-hidden text-xs sm:text-base">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-900 text-cyan-300 uppercase font-anime-title">
+                    <thead class="bg-slate-900 text-rose-300 uppercase font-anime-title">
                         <tr>
                             <th class="p-3.5 rounded-l-xl">Hạng</th>
                             <th class="p-3.5">Đội Kỹ Sư</th>
                             <th class="p-3.5">Lớp</th>
-                            <th class="p-3.5 text-center">Danh Hiệu Quán Tính</th>
+                            <th class="p-3.5 text-center">Danh Hiệu Phản Lực</th>
                             <th class="p-3.5 text-center">Đúng</th>
-                            <th class="p-3.5 text-right rounded-r-xl">Tốc Độ</th>
+                            <th class="p-3.5 text-right rounded-r-xl">Lực Đẩy</th>
                         </tr>
                     </thead>
                     <tbody id="hostTopTableBody" class="divide-y-2 divide-slate-800 font-black text-slate-100"></tbody>
@@ -547,33 +547,33 @@
         </section>
 
         <!-- 4. MÀN HÌNH TỔNG KẾT CHUNG CUỘC (HOST FINAL) -->
-        <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto inertia-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6 text-center">
+        <section id="hostFinalScreen" class="w-full max-w-5xl mx-auto thruster-hud-card p-6 sm:p-9 my-auto hidden flex flex-col gap-6 text-center">
             <div>
-                <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-cyan-600 via-emerald-500 to-amber-400 text-white flex items-center justify-center text-6xl shadow-2xl mb-3 animate-bounce border-3 border-white">
-                    🚄
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-rose-600 via-amber-500 to-cyan-400 text-white flex items-center justify-center text-6xl shadow-2xl mb-3 animate-bounce border-3 border-white">
+                    🚀
                 </div>
-                <span class="px-5 py-1.5 rounded-full bg-gradient-to-r from-cyan-600 to-emerald-500 text-white font-anime-title text-xs sm:text-sm font-black uppercase tracking-widest border border-white">
-                    HOÀN TẤT HÀNH TRÌNH ĐỊNH LUẬT I NEWTON
+                <span class="px-5 py-1.5 rounded-full bg-gradient-to-r from-rose-600 to-amber-500 text-white font-anime-title text-xs sm:text-sm font-black uppercase tracking-widest border border-white">
+                    HOÀN TẤT THỬ NGHIỆM ĐỊNH LUẬT II NEWTON
                 </span>
                 <h2 class="text-2xl sm:text-4xl md:text-5xl font-anime-title font-black text-white uppercase tracking-wider mt-2.5">
-                    VINH DANH CÁC TỔNG CÔNG TRÌNH SƯ QUÁN TÍNH!
+                    VINH DANH CÁC TỔNG CÔNG TRÌNH SƯ GIA TỐC!
                 </h2>
                 <p class="text-sm sm:text-base md:text-lg text-slate-200 mt-2 font-bold" id="hostFinalChampionAnnounce">
-                    Hệ thống đường ray đệm từ đã vận hành hoàn hảo theo Định luật I Newton ($\sum\vec{F} = \vec{0} \Rightarrow \vec{v} = \text{const}$)!
+                    Hệ thống đường thử đã làm chủ hoàn toàn Định luật II Newton ($\vec{F} = m\vec{a} \Leftrightarrow \vec{a} = \frac{\vec{F}}{m}$)!
                 </p>
             </div>
 
             <div class="bg-slate-950/95 rounded-3xl p-4 sm:p-5 border-2 border-slate-800 overflow-hidden shadow-2xl text-left">
                 <div class="overflow-x-auto max-h-[300px]">
                     <table class="w-full text-left text-xs sm:text-base">
-                        <thead class="bg-slate-900 text-cyan-300 uppercase font-anime-title sticky top-0">
+                        <thead class="bg-slate-900 text-rose-300 uppercase font-anime-title sticky top-0">
                             <tr>
                                 <th class="p-3.5 rounded-l-xl">Hạng</th>
                                 <th class="p-3.5">Tên Đội</th>
                                 <th class="p-3.5">Lớp</th>
-                                <th class="p-3.5 text-center">Tốc Độ (km/h)</th>
+                                <th class="p-3.5 text-center">Lực Đẩy (N)</th>
                                 <th class="p-3.5 text-center">Số Câu Đúng</th>
-                                <th class="p-3.5 text-center">Số Lần Phanh/Sự Cố</th>
+                                <th class="p-3.5 text-center">Số Lần Quá Tải</th>
                                 <th class="p-3.5 text-right rounded-r-xl">Tổng Điểm</th>
                             </tr>
                         </thead>
@@ -583,7 +583,7 @@
             </div>
 
             <div class="flex flex-wrap justify-center gap-4">
-                <button onclick="exportQuizExcel()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-xl transition flex items-center gap-2.5 font-black border-2 border-white">
+                <button onclick="exportQuizExcel()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-rose-600 to-emerald-600 hover:from-rose-500 hover:to-emerald-500 text-white font-anime-title text-xs sm:text-sm uppercase tracking-wider shadow-xl transition flex items-center gap-2.5 font-black border-2 border-white">
                     <i class="fa-solid fa-file-excel text-lg"></i>
                     <span>XUẤT BẢNG ĐIỂM (EXCEL)</span>
                 </button>
@@ -595,86 +595,86 @@
         </section>
 
         <!-- 5. MÀN HÌNH NHẬP PHÒNG KỸ SƯ (PLAYER JOIN) -->
-        <section id="playerJoinScreen" class="w-full max-w-lg mx-auto inertia-hud-card p-6 sm:p-9 my-auto hidden text-center flex flex-col gap-4">
-            <div class="w-20 h-20 rounded-3xl bg-cyan-500/25 border-3 border-cyan-400 text-cyan-300 flex items-center justify-center mx-auto text-4xl shadow-xl">
-                🚄
+        <section id="playerJoinScreen" class="w-full max-w-lg mx-auto thruster-hud-card p-6 sm:p-9 my-auto hidden text-center flex flex-col gap-4">
+            <div class="w-20 h-20 rounded-3xl bg-rose-500/25 border-3 border-rose-400 text-rose-300 flex items-center justify-center mx-auto text-4xl shadow-xl">
+                🚀
             </div>
             <div>
-                <h2 class="text-2xl sm:text-3xl font-anime-title font-black text-white uppercase">BUỒNG LÁI TÀU ĐỆM TỪ</h2>
-                <p class="text-xs sm:text-sm text-slate-300 mt-1.5 font-bold">Nhập mã PIN và tên đội để kết nối vào trạm thử nghiệm quán tính</p>
+                <h2 class="text-2xl sm:text-3xl font-anime-title font-black text-white uppercase">BUỒNG LÁI GIA TỐC PHẢN LỰC</h2>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1.5 font-bold">Nhập mã PIN và tên đội để kết nối vào đường đua Định luật II Newton</p>
             </div>
 
             <div class="flex flex-col gap-3.5 text-left">
                 <div>
-                    <label class="block text-xs sm:text-sm font-black text-cyan-300 uppercase mb-1 font-manga">MÃ PHÒNG (PIN CODE)</label>
+                    <label class="block text-xs sm:text-sm font-black text-rose-300 uppercase mb-1 font-manga">MÃ PHÒNG (PIN CODE)</label>
                     <input type="text" id="playerPinInput" placeholder="Ví dụ: 8899" maxlength="6"
-                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-amber-300 font-tech font-black text-3xl border-2 border-cyan-400 focus:outline-none text-center tracking-widest shadow-inner transition">
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-amber-300 font-tech font-black text-3xl border-2 border-rose-400 focus:outline-none text-center tracking-widest shadow-inner transition">
                 </div>
                 <div>
                     <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">TÊN ĐỘI / HỌ TÊN HỌC SINH</label>
                     <input type="text" id="playerNameInput" placeholder="Nhập tên đội kỹ sư..." maxlength="25"
-                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-sm sm:text-base border-2 border-slate-700 focus:border-cyan-400 focus:outline-none transition">
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-sm sm:text-base border-2 border-slate-700 focus:border-rose-400 focus:outline-none transition">
                 </div>
                 <div>
                     <label class="block text-xs sm:text-sm font-black text-slate-200 uppercase mb-1 font-manga">LỚP HỌC (VÍ DỤ: 10A1)</label>
                     <input type="text" id="playerClassInput" placeholder="Ví dụ: 10A1..." maxlength="10"
-                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-xs sm:text-sm border-2 border-slate-700 focus:border-cyan-400 focus:outline-none uppercase transition">
+                        class="w-full px-5 py-3 rounded-2xl bg-slate-950 text-white font-extrabold text-xs sm:text-sm border-2 border-slate-700 focus:border-rose-400 focus:outline-none uppercase transition">
                 </div>
             </div>
 
-            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-600 via-emerald-500 to-amber-500 hover:from-cyan-500 hover:to-amber-400 text-white font-anime-title text-sm sm:text-base uppercase tracking-wider shadow-xl transition font-black border-2 border-white">
-                ĐỒNG BỘ CẢM BIẾN QUÁN TÍNH
+            <button onclick="playerJoinRoom()" id="btnPlayerJoinSubmit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-amber-500 to-cyan-500 hover:from-rose-500 hover:to-cyan-400 text-white font-anime-title text-sm sm:text-base uppercase tracking-wider shadow-xl transition font-black border-2 border-white">
+                ĐỒNG BỘ BUỒNG ĐẨY GIA TỐC
             </button>
-            <p id="playerConnectStatusMsg" class="text-xs sm:text-sm text-cyan-400 font-bold hidden font-manga">Đang thiết lập kênh truyền dữ liệu đến trạm đệm từ trung tâm...</p>
+            <p id="playerConnectStatusMsg" class="text-xs sm:text-sm text-rose-400 font-bold hidden font-manga">Đang thiết lập kênh truyền dữ liệu đến trạm phản lực trung tâm...</p>
         </section>
 
         <!-- 6. PHÒNG CHỜ HỌC SINH (PLAYER LOBBY) -->
-        <section id="playerLobbyScreen" class="w-full max-w-lg mx-auto inertia-hud-card p-6 sm:p-9 my-auto text-center hidden flex flex-col gap-4">
-            <div class="w-22 h-22 rounded-3xl bg-cyan-500/25 border-3 border-cyan-400 text-cyan-300 flex items-center justify-center mx-auto text-5xl shadow-xl">
-                🚄
+        <section id="playerLobbyScreen" class="w-full max-w-lg mx-auto thruster-hud-card p-6 sm:p-9 my-auto text-center hidden flex flex-col gap-4">
+            <div class="w-22 h-22 rounded-3xl bg-rose-500/25 border-3 border-rose-400 text-rose-300 flex items-center justify-center mx-auto text-5xl shadow-xl">
+                🚀
             </div>
             <div>
-                <span class="text-xs sm:text-sm font-manga uppercase text-cyan-400 font-extrabold tracking-wider block">ĐỆM TỪ KHÔNG MA SÁT SẴN SÀNG</span>
+                <span class="text-xs sm:text-sm font-manga uppercase text-rose-400 font-extrabold tracking-wider block">ĐỘNG CƠ PHẢN LỰC SẴN SÀNG</span>
                 <h2 id="playerMyNameDisplay" class="text-xl sm:text-2xl font-anime-title font-black text-white mt-1 uppercase">ĐỘI KỸ SƯ</h2>
-                <div class="inline-flex items-center gap-2 mt-2 px-4 py-1.5 rounded-xl bg-slate-900 border-2 border-cyan-400 text-xs sm:text-sm text-amber-300 font-manga font-black shadow">
-                    TỐC ĐỘ BAN ĐẦU: 0 km/h (MỤC TIÊU 1000 km/h)
+                <div class="inline-flex items-center gap-2 mt-2 px-4 py-1.5 rounded-xl bg-slate-900 border-2 border-rose-400 text-xs sm:text-sm text-amber-300 font-manga font-black shadow">
+                    LỰC ĐẨY BAN ĐẦU: 0 N (MỤC TIÊU 1000 N)
                 </div>
             </div>
             <div class="p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed font-bold">
-                Quan sát màn hình máy chiếu trạm đệm từ trung tâm.<br>
-                • <b>Đúng:</b> Bảo toàn vận tốc quán tính $\to$ tăng <span class="text-emerald-300 font-black">+100 km/h</span>.<br>
-                • <b>Sai lần 1:</b> <b>CẢNH BÁO PHANH GẤP</b> (Chúi người <span class="text-amber-400 font-black">-25 km/h</span>)!<br>
-                • <b>Tiếp tục sai:</b> <b>MẤT ĐỆM TỪ ĐƯỜNG RAY</b> tụt <span class="text-rose-400 font-black">-75 km/h</span>!<br>
-                • Ghi nhớ: $\sum\vec{F} = \vec{0} \Rightarrow \vec{a} = \vec{0}$ (đứng yên hoặc chuyển động thẳng đều $s = vt$), khối lượng $m$ càng lớn thì quán tính càng lớn!
+                Quan sát màn hình máy chiếu trạm phản lực trung tâm.<br>
+                • <b>Đúng:</b> Nạp xung lực chuẩn xác $\to$ tăng <span class="text-emerald-300 font-black">+100 N</span>.<br>
+                • <b>Sai lần 1:</b> <b>CẢNH BÁO HỤT GIA TỐC</b> (Trễ pha <span class="text-amber-400 font-black">-25 N</span>)!<br>
+                • <b>Tiếp tục sai:</b> <b>QUÁ ÁP BUỒNG ĐỐT</b> tụt <span class="text-rose-400 font-black">-75 N</span>!<br>
+                • Ghi nhớ: $\vec{F} = m\vec{a} \Rightarrow a = \frac{F}{m}$, xuất phát từ nghỉ $v = at$, hệ số góc đồ thị $F-a$ bằng khối lượng $m$!
             </div>
         </section>
 
         <!-- 7. MÀN HÌNH TAY CẦM TRẢ LỜI (PLAYER GAMEPAD) -->
         <section id="playerGamepadScreen" class="w-full max-w-lg mx-auto flex flex-col gap-3 my-auto hidden">
-            <div class="inertia-hud-card p-4 rounded-2xl flex items-center justify-between shadow-xl">
+            <div class="thruster-hud-card p-4 rounded-2xl flex items-center justify-between shadow-xl">
                 <div class="flex items-center gap-3">
-                    <span class="text-3xl text-cyan-400">🚄</span>
+                    <span class="text-3xl text-rose-400">🚀</span>
                     <div>
                         <div id="playerNavName" class="font-anime-title font-black text-white text-sm sm:text-base truncate max-w-[130px]">Đội Kỹ Sư</div>
-                        <div class="text-xs text-slate-300 font-bold">Vận tốc: <span id="playerAltHUD" class="font-tech font-black text-amber-300 text-base">0 km/h</span></div>
+                        <div class="text-xs text-slate-300 font-bold">Lực đẩy: <span id="playerAltHUD" class="font-tech font-black text-amber-300 text-base">0 N</span></div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <span id="playerRankHUD" class="px-3 py-1 rounded-xl bg-cyan-500/25 text-cyan-300 font-anime-title font-black text-xs sm:text-sm border border-cyan-400">
+                    <span id="playerRankHUD" class="px-3 py-1 rounded-xl bg-rose-500/25 text-rose-300 font-anime-title font-black text-xs sm:text-sm border border-rose-400">
                         #--
                     </span>
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border-2 border-cyan-400 text-xs sm:text-sm font-black text-cyan-300">
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border-2 border-rose-400 text-xs sm:text-sm font-black text-rose-300">
                         <i class="fa-solid fa-stopwatch text-amber-400"></i>
                         <span id="playerTimerText" class="font-tech">30s</span>
                     </div>
                 </div>
             </div>
 
-            <div class="inertia-hud-card p-4 rounded-2xl shadow-md text-left flex flex-col gap-1.5">
+            <div class="thruster-hud-card p-4 rounded-2xl shadow-md text-left flex flex-col gap-1.5">
                 <div class="flex justify-between items-center">
-                    <span id="playerQCounter" class="text-xs sm:text-sm font-manga font-black uppercase text-cyan-300">CÂU 1 / 10</span>
-                    <span class="text-[11px] px-2.5 py-0.5 rounded-lg bg-emerald-500/25 text-emerald-300 font-black uppercase font-manga border border-emerald-400">NEWTON'S 1ST LAW</span>
+                    <span id="playerQCounter" class="text-xs sm:text-sm font-manga font-black uppercase text-rose-300">CÂU 1 / 10</span>
+                    <span class="text-[11px] px-2.5 py-0.5 rounded-lg bg-amber-500/25 text-amber-300 font-black uppercase font-manga border border-amber-400">NEWTON'S 2ND LAW</span>
                 </div>
                 <h3 id="playerQuestionTitle" class="text-xs sm:text-sm font-black text-slate-100 leading-snug font-anime-title">
                     Đang tải câu hỏi...
@@ -703,32 +703,32 @@
                 </button>
             </div>
 
-            <div id="playerSubmittedOverlay" class="inertia-hud-card p-6 rounded-2xl text-center hidden flex flex-col gap-2.5 shadow-2xl">
-                <div class="text-4xl text-amber-400 font-black animate-pulse">🚄</div>
-                <h4 class="font-anime-title font-black text-base sm:text-lg text-white uppercase">LỆNH ĐIỀU TỐC ĐÃ KHÓA</h4>
-                <p id="playerSubmittedLabel" class="text-xs sm:text-sm font-extrabold text-slate-200">Đang đồng bộ với trạm đệm từ trung tâm...</p>
-                <p class="text-xs text-slate-400 font-bold">Quan sát màn hình máy chiếu để theo dõi mô phỏng quán tính và cân bằng lực!</p>
+            <div id="playerSubmittedOverlay" class="thruster-hud-card p-6 rounded-2xl text-center hidden flex flex-col gap-2.5 shadow-2xl">
+                <div class="text-4xl text-amber-400 font-black animate-pulse">🚀</div>
+                <h4 class="font-anime-title font-black text-base sm:text-lg text-white uppercase">XUNG LỰC ĐÃ ĐƯỢC KHÓA</h4>
+                <p id="playerSubmittedLabel" class="text-xs sm:text-sm font-extrabold text-slate-200">Đang đồng bộ với trạm phản lực trung tâm...</p>
+                <p class="text-xs text-slate-400 font-bold">Quan sát màn hình máy chiếu để theo dõi mô phỏng gia tốc $\vec{a} = \vec{F}/m$!</p>
             </div>
         </section>
 
         <!-- 8. MÀN HÌNH KẾT QUẢ TỪNG CÂU CHO HỌC SINH -->
-        <section id="playerFeedbackScreen" class="w-full max-w-lg mx-auto inertia-hud-card p-6 rounded-[2.5rem] text-center my-auto hidden shadow-2xl flex flex-col items-center gap-3">
-            <div id="playerFeedbackIcon" class="text-5xl mb-1">🚄</div>
+        <section id="playerFeedbackScreen" class="w-full max-w-lg mx-auto thruster-hud-card p-6 rounded-[2.5rem] text-center my-auto hidden shadow-2xl flex flex-col items-center gap-3">
+            <div id="playerFeedbackIcon" class="text-5xl mb-1">🚀</div>
             <h2 id="playerFeedbackTitle" class="text-lg sm:text-2xl font-anime-title font-black text-emerald-300 uppercase">
-                BẢO TOÀN QUÁN TÍNH!
+                BỨT TỐC CHUẨN XÁC!
             </h2>
             <div id="playerFeedbackGain" class="text-sm sm:text-lg font-tech font-black text-amber-300">
-                +100 km/h • +100 Điểm
+                +100 N • +100 Điểm
             </div>
 
             <div class="w-full py-3 px-5 rounded-2xl bg-slate-900 border-2 border-slate-800 flex items-center justify-between shadow-md my-1">
                 <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-cyan-500/25 text-cyan-300 flex items-center justify-center font-anime-title font-black text-xl border-2 border-cyan-400">
-                        ⚡
+                    <div class="w-11 h-11 rounded-2xl bg-rose-500/25 text-rose-300 flex items-center justify-center font-anime-title font-black text-xl border-2 border-rose-400">
+                        🔥
                     </div>
                     <div class="text-left">
-                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider font-manga">DANH HIỆU QUÁN TÍNH</span>
-                        <span class="text-xs sm:text-sm font-anime-title font-black text-emerald-300" id="playerRankStatusText">Trượt đệm từ ổn định</span>
+                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider font-manga">DANH HIỆU PHẢN LỰC</span>
+                        <span class="text-xs sm:text-sm font-anime-title font-black text-emerald-300" id="playerRankStatusText">Gia tốc ổn định</span>
                     </div>
                 </div>
                 <div class="text-right">
@@ -743,39 +743,39 @@
         </section>
 
         <!-- 9. BẢNG XẾP HẠNG TRÊN ĐIỆN THOẠI HỌC SINH -->
-        <section id="playerLeaderboardScreen" class="w-full max-w-lg mx-auto inertia-hud-card p-6 rounded-[2.5rem] my-auto hidden shadow-2xl flex flex-col gap-3.5">
+        <section id="playerLeaderboardScreen" class="w-full max-w-lg mx-auto thruster-hud-card p-6 rounded-[2.5rem] my-auto hidden shadow-2xl flex flex-col gap-3.5">
             <div class="text-center border-b-2 border-slate-800 pb-3">
-                <span class="text-xs sm:text-sm font-manga text-cyan-400 font-extrabold uppercase">BẢNG XẾP HẠNG ĐƯỜNG RAY ĐỆM TỪ</span>
-                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">VẬN TỐC HÀNH TRÌNH HIỆN TẠI</h3>
+                <span class="text-xs sm:text-sm font-manga text-rose-400 font-extrabold uppercase">BẢNG XẾP HẠNG ĐƯỜNG ĐUA GIA TỐC</span>
+                <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">LỰC ĐẨY PHẢN LỰC HIỆN TẠI</h3>
             </div>
 
             <div class="flex flex-col gap-2 max-h-[280px] overflow-y-auto" id="playerTopListContainer"></div>
 
-            <div class="p-3.5 rounded-2xl bg-slate-900 border-2 border-cyan-400 flex items-center justify-between text-xs sm:text-sm">
+            <div class="p-3.5 rounded-2xl bg-slate-900 border-2 border-rose-400 flex items-center justify-between text-xs sm:text-sm">
                 <span class="font-extrabold text-slate-200 font-manga">Vị trí của bạn:</span>
-                <span class="font-tech font-black text-amber-400 text-base" id="playerMobileMyRankSummary">#-- (0 km/h)</span>
+                <span class="font-tech font-black text-amber-400 text-base" id="playerMobileMyRankSummary">#-- (0 N)</span>
             </div>
         </section>
 
         <!-- CỬA SỔ PHÓNG TO MÃ QR -->
         <div id="qrModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
-            <div class="bg-slate-900 max-w-md w-full p-7 rounded-3xl text-center border-2 border-cyan-400 relative shadow-2xl flex flex-col items-center gap-3.5">
+            <div class="bg-slate-900 max-w-md w-full p-7 rounded-3xl text-center border-2 border-rose-400 relative shadow-2xl flex flex-col items-center gap-3.5">
                 <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-lg">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-                <div class="w-14 h-14 rounded-2xl bg-cyan-500/25 text-cyan-300 flex items-center justify-center text-2xl border-2 border-cyan-400">
+                <div class="w-14 h-14 rounded-2xl bg-rose-500/25 text-rose-300 flex items-center justify-center text-2xl border-2 border-rose-400">
                     <i class="fa-solid fa-qrcode"></i>
                 </div>
                 <h3 class="text-lg sm:text-xl font-anime-title text-white font-black uppercase">QUÉT MÃ QR KẾT NỐI</h3>
-                <p class="text-xs sm:text-sm text-slate-300 font-bold">Dùng camera điện thoại để kết nối vào trạm đệm từ quán tính</p>
+                <p class="text-xs sm:text-sm text-slate-300 font-bold">Dùng camera điện thoại để kết nối vào trạm thử nghiệm Định luật II Newton</p>
 
-                <div class="p-4 bg-white rounded-3xl border-4 border-cyan-400 shadow-2xl flex items-center justify-center">
+                <div class="p-4 bg-white rounded-3xl border-4 border-rose-400 shadow-2xl flex items-center justify-center">
                     <div id="modalQrCodeBox" class="w-[220px] h-[220px] flex items-center justify-center overflow-hidden"></div>
                 </div>
 
                 <div class="flex items-center gap-2.5 text-base font-manga">
                     <span class="text-slate-200 font-black">MÃ PIN:</span>
-                    <span id="modalPinText" class="text-3xl font-tech font-black text-amber-400 px-4 py-1 bg-black rounded-xl border-2 border-cyan-400">----</span>
+                    <span id="modalPinText" class="text-3xl font-tech font-black text-amber-400 px-4 py-1 bg-black rounded-xl border-2 border-rose-400">----</span>
                 </div>
                 <button onclick="closeQrModal()" class="w-full py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-black text-slate-200 transition font-manga">
                     ĐÓNG CỬA SỔ
@@ -787,180 +787,187 @@
 
     <script>
         /* =========================================================================
-           HỆ THỐNG 10 CÂU HỎI TRẮC NGHIỆM VẬT LÍ 10: ĐỊNH LUẬT I NEWTON – QUÁN TÍNH (PHẦN III)
+           HỆ THỐNG 10 CÂU HỎI TRẮC NGHIỆM VẬT LÍ 10: ĐỊNH LUẬT 2 NEWTON (PHẦN C)
            ========================================================================= */
         const QUESTIONS_DATA = [
             {
                 id: 1,
-                category: "Câu 1. Nhận biết - Nội dung Định luật I Newton",
-                title: "Phát biểu nào đúng nhất về định luật I Newton?",
+                category: "Câu 1. Nhận biết - Biểu thức vectơ của Định luật 2 Newton",
+                title: "Biểu thức vectơ đúng của định luật 2 Newton là:",
                 options: [
-                    "Vật luôn chuyển động nếu có lực tác dụng.",
-                    "Nếu hợp lực bằng $0$, vật giữ nguyên trạng thái đứng yên hoặc chuyển động thẳng đều.",
-                    "Không có lực thì vật luôn dừng lại.",
-                    "Vận tốc luôn tăng khi hợp lực bằng $0$."
+                    "$\\vec{F} = m\\vec{a}$.",
+                    "$\\vec{F} = m/v$.",
+                    "$\\vec{a} = m\\vec{F}$.",
+                    "$\\vec{F} = \\vec{a}/m$."
                 ],
-                correct: 1,
-                simMode: "uniform_slide",
-                processLabel: "TRƯỢT THẲNG ĐỀU (v = const)",
-                telemetry: "∑F = 0 ⇒ Đứng yên hoặc Chuyển động thẳng đều",
-                measureHint: "Không cần lực để duy trì vận tốc không đổi",
-                explanation: "Theo <b>Định luật I Newton</b>: Nếu một vật không chịu tác dụng của lực nào hoặc chịu tác dụng của các lực có <b>hợp lực bằng $0$ ($\sum\\vec{F} = \\vec{0}$)</b>, thì vật đang đứng yên sẽ tiếp tục đứng yên, đang chuyển động sẽ tiếp tục <b>chuyển động thẳng đều</b>."
+                correct: 0,
+                simMode: "single_accel",
+                massVal: "m", forceVal: "F", accelVal: "a = F/m",
+                processLabel: "BIỂU THỨC VECTƠ: F⃗ = m·a⃗",
+                telemetry: "a⃗ = F⃗/m ⇔ F⃗ = m·a⃗ (Gia tốc luôn cùng hướng với hợp lực)",
+                measureHint: "Vectơ gia tốc a⃗ luôn cùng hướng với vectơ hợp lực F⃗",
+                explanation: "Theo <b>Định luật 2 Newton</b>, gia tốc của một vật cùng hướng với lực tác dụng lên vật. Độ lớn của gia tốc tỉ lệ thuận với độ lớn của lực và tỉ lệ nghịch với khối lượng của vật:<br>$$\\vec{a} = \\frac{\\vec{F}}{m} \\iff \\vec{F} = m\\vec{a}$$"
             },
             {
                 id: 2,
-                category: "Câu 2. Thông hiểu - Hợp lực tác dụng lên vật chuyển động thẳng đều",
-                title: "Trong hệ quy chiếu quán tính, một vật đang chuyển động thẳng đều thì hợp lực tác dụng lên nó:",
+                category: "Câu 2. Nhận biết - Đơn vị của lực trong hệ SI",
+                title: "Đơn vị SI của lực là:",
                 options: [
-                    "Bằng $0$.",
-                    "Cùng hướng chuyển động.",
-                    "Ngược hướng chuyển động.",
-                    "Luôn tăng theo thời gian."
+                    "$\\text{kg}$.",
+                    "$\\text{N}$.",
+                    "$\\text{m/s}$.",
+                    "$\\text{m/s}^2$."
                 ],
-                correct: 0,
-                simMode: "uniform_slide",
-                processLabel: "HỆ QUY CHIẾU QUÁN TÍNH (∑F = 0)",
-                telemetry: "Chuyển động thẳng đều (v = const) ⇔ ∑F = 0",
-                measureHint: "Trọng lực P và phản lực N tự cân bằng nhau",
-                explanation: "Trong hệ quy chiếu quán tính, khi một vật đang <b>chuyển động thẳng đều</b> ($\vec{v} = \\text{const}, \\vec{a} = \\vec{0}$) thì <b>hợp lực của tất cả các lực tác dụng lên vật bằng $0$</b> ($\sum\\vec{F} = \\vec{0}$)."
+                correct: 1,
+                simMode: "single_accel",
+                massVal: "1 kg", forceVal: "1 N", accelVal: "1 m/s²",
+                processLabel: "ĐƠN VỊ CHUẨN SI: 1 N = 1 kg·m/s²",
+                telemetry: "1 Newton (N) = 1 kg × 1 m/s²",
+                measureHint: "kg: khối lượng • N: lực • m/s: vận tốc • m/s²: gia tốc",
+                explanation: "Trong hệ đơn vị quốc tế SI, đơn vị của lực là <b>Newton</b>, kí hiệu là <b>$\\text{N}$</b> ($1\\text{ N} = 1\\text{ kg}\\cdot\\text{m/s}^2$)."
             },
             {
                 id: 3,
-                category: "Câu 3. Nhận biết - Vật đứng yên chịu hai lực cân bằng",
-                title: "Một vật đang đứng yên chịu tác dụng của hai lực cân bằng. Vật sẽ:",
+                category: "Câu 3. Vận dụng - Tính gia tốc từ hợp lực và khối lượng",
+                title: "Vật có khối lượng $2\\text{ kg}$ chịu hợp lực $10\\text{ N}$. Gia tốc là:",
                 options: [
-                    "Chuyển động nhanh dần.",
-                    "Chuyển động chậm dần.",
-                    "Tiếp tục đứng yên.",
-                    "Chuyển động tròn đều."
+                    "$2\\text{ m/s}^2$.",
+                    "$5\\text{ m/s}^2$.",
+                    "$10\\text{ m/s}^2$.",
+                    "$20\\text{ m/s}^2$."
                 ],
-                correct: 2,
-                simMode: "rest_balance",
-                balanceMode: "vertical_PN",
-                processLabel: "VẬT ĐỨNG YÊN CÂN BẰNG (N + P = 0)",
-                telemetry: "Ban đầu v₀ = 0 và F₁ + F₂ = 0 ⇒ Tiếp tục đứng yên",
-                measureHint: "Hai lực cân bằng triệt tiêu nhau (∑F = 0)",
-                explanation: "Hai lực cân bằng có hợp lực bằng $0$ ($\vec{F}_1 + \\vec{F}_2 = \\vec{0}$). Theo định luật I Newton, vì ban đầu vật đang đứng yên ($v_0 = 0$) nên vật sẽ <b>tiếp tục đứng yên</b>."
+                correct: 1,
+                simMode: "single_accel",
+                massVal: "2 kg", forceVal: "10 N", accelVal: "5 m/s²",
+                processLabel: "TÍNH GIA TỐC: a = F / m",
+                telemetry: "m = 2 kg • F = 10 N ⇒ a = F/m = 10/2 = 5 m/s²",
+                measureHint: "Áp dụng trực tiếp: a = F/m = 10 / 2 = 5 m/s²",
+                explanation: "Áp dụng biểu thức độ lớn của định luật 2 Newton:<br>$$a = \\frac{F}{m} = \\frac{10}{2} = 5\\text{ m/s}^2$$"
             },
             {
                 id: 4,
-                category: "Câu 4. Thông hiểu - Hiện tượng quán tính trong thực tế",
-                title: "Hiện tượng nào thể hiện quán tính rõ nhất?",
+                category: "Câu 4. Thông hiểu - Quan hệ tỉ lệ nghịch giữa gia tốc và khối lượng",
+                title: "Giữ hợp lực không đổi, tăng khối lượng lên $3$ lần thì gia tốc:",
                 options: [
-                    "Nước chảy từ cao xuống thấp.",
-                    "Nam châm hút đinh sắt.",
-                    "Bóng đèn phát sáng.",
-                    "Người chúi về phía trước khi xe phanh gấp."
+                    "tăng $3$ lần.",
+                    "giảm $3$ lần.",
+                    "không đổi.",
+                    "tăng $9$ lần."
                 ],
-                correct: 3,
-                simMode: "braking_car",
-                processLabel: "QUÁN TÍNH KHI XE PHANH GẤP",
-                telemetry: "Xe dừng đột ngột ⇒ Người có xu hướng giữ nguyên vận tốc v",
-                measureHint: "Do quán tính, hành khách chúi về phía trước",
-                explanation: "Khi xe đang chạy mà <b>phanh gấp</b>, phần thân dưới của hành khách giảm tốc cùng với sàn xe, nhưng phần thân trên <b>theo quán tính</b> vẫn có xu hướng bảo toàn vận tốc cũ tiến về phía trước nên <b>người bị chúi về phía trước</b>."
+                correct: 1,
+                simMode: "dual_race",
+                m1Label: "m₁ = m", m2Label: "m₂ = 3m", ratioLabel: "a₂ = a₁ / 3",
+                processLabel: "TĂNG KHỐI LƯỢNG 3 LẦN ⇒ a GIẢM 3 LẦN",
+                telemetry: "F = const • a ~ 1/m ⇒ Khi m tăng 3 lần thì a giảm 3 lần",
+                measureHint: "Gia tốc tỉ lệ nghịch với khối lượng khi hợp lực F không đổi",
+                explanation: "Từ công thức $a = \\frac{F}{m}$, khi giữ hợp lực $F$ không đổi thì gia tốc $a$ <b>tỉ lệ nghịch</b> với khối lượng $m$.<br>Do đó khi khối lượng tăng lên $3$ lần ($m' = 3m$) thì gia tốc <b>giảm $3$ lần</b> ($a' = \\frac{a}{3}$)."
             },
             {
                 id: 5,
-                category: "Câu 5. Vận dụng - Tính độ dịch chuyển trong chuyển động thẳng đều",
-                title: "Một vật chuyển động thẳng đều với tốc độ $3\\text{ m/s}$. Sau $5\\text{ s}$, độ dịch chuyển theo hướng chuyển động là:",
+                category: "Câu 5. Vận dụng - Hai lực cùng phương, cùng chiều gây gia tốc",
+                title: "Hai lực cùng phương, cùng chiều, độ lớn $6\\text{ N}$ và $8\\text{ N}$ tác dụng lên vật $2\\text{ kg}$. Gia tốc là:",
                 options: [
-                    "$8\\text{ m}$.",
-                    "$15\\text{ m}$.",
-                    "$2\\text{ m}$.",
-                    "$0\\text{ m}$."
+                    "$1\\text{ m/s}^2$.",
+                    "$4\\text{ m/s}^2$.",
+                    "$7\\text{ m/s}^2$.",
+                    "$14\\text{ m/s}^2$."
                 ],
-                correct: 1,
-                simMode: "uniform_slide",
-                processLabel: "ĐỘ DỊCH CHUYỂN: d = s = v·t",
-                telemetry: "v = 3 m/s • t = 5 s ⇒ d = v·t = 3 × 5 = 15 m",
-                measureHint: "Chuyển động thẳng không đổi chiều: d = s = v·t",
-                explanation: "Trong chuyển động thẳng đều theo một chiều xác định, độ dịch chuyển bằng quãng đường đi được:<br>$$d = s = v \\cdot t = 3 \\times 5 = 15\\text{ m}$$"
+                correct: 2,
+                simMode: "collinear_forces",
+                sameDir: true, f1: 6, f2: 8, massVal: "2 kg", accelVal: "7 m/s²",
+                processLabel: "HAI LỰC CÙNG CHIỀU: F = F₁ + F₂ = 14 N",
+                telemetry: "F = 6 + 8 = 14 N • m = 2 kg ⇒ a = 14/2 = 7 m/s²",
+                measureHint: "Hợp lực cùng chiều: F = 6 + 8 = 14 N ⇒ a = 14/2 = 7 m/s²",
+                explanation: "Vì hai lực cùng phương, cùng chiều nên độ lớn hợp lực tác dụng lên vật là:<br>$$F = F_1 + F_2 = 6 + 8 = 14\\text{ N}$$<br>Gia tốc của vật khối lượng $m = 2\\text{ kg}$ là:<br>$$a = \\frac{F}{m} = \\frac{14}{2} = 7\\text{ m/s}^2$$"
             },
             {
                 id: 6,
-                category: "Câu 6. Nhận biết - Gia tốc của chuyển động thẳng đều",
-                title: "Khi một vật chuyển động thẳng đều, đại lượng nào bằng $0$?",
+                category: "Câu 6. Vận dụng - Hai lực cùng phương, ngược chiều gây gia tốc",
+                title: "Hai lực ngược chiều $12\\text{ N}$ và $5\\text{ N}$ tác dụng lên vật $4\\text{ kg}$. Độ lớn gia tốc là:",
                 options: [
-                    "Vận tốc.",
-                    "Quãng đường.",
-                    "Gia tốc.",
-                    "Khối lượng."
+                    "$1,75\\text{ m/s}^2$.",
+                    "$4,25\\text{ m/s}^2$.",
+                    "$3\\text{ m/s}^2$.",
+                    "$7\\text{ m/s}^2$."
                 ],
-                correct: 2,
-                simMode: "uniform_slide",
-                processLabel: "GIA TỐC BẰNG KHÔNG (a = 0)",
-                telemetry: "v = const ⇒ Δv = 0 ⇒ a = Δv/Δt = 0",
-                measureHint: "Vận tốc không đổi cả hướng và độ lớn nên a = 0",
-                explanation: "Khi vật <b>chuyển động thẳng đều</b>, vectơ vận tốc $\\vec{v}$ hoàn toàn không thay đổi theo thời gian ($\Delta\\vec{v} = \\vec{0}$), do đó <b>gia tốc của vật bằng $0$</b> ($a = \\frac{\\Delta v}{\\Delta t} = 0$)."
+                correct: 0,
+                simMode: "collinear_forces",
+                sameDir: false, f1: 12, f2: 5, massVal: "4 kg", accelVal: "1,75 m/s²",
+                processLabel: "HAI LỰC NGƯỢC CHIỀU: F = |12 - 5| = 7 N",
+                telemetry: "F = 12 - 5 = 7 N • m = 4 kg ⇒ a = 7/4 = 1,75 m/s²",
+                measureHint: "Hợp lực ngược chiều: F = |12 - 5| = 7 N ⇒ a = 7/4 = 1,75 m/s²",
+                explanation: "Vì hai lực ngược chiều nhau nên độ lớn hợp lực là:<br>$$F = |F_1 - F_2| = 12 - 5 = 7\\text{ N}$$<br>Độ lớn gia tốc của vật ($m = 4\\text{ kg}$) là:<br>$$a = \\frac{F}{m} = \\frac{7}{4} = 1,75\\text{ m/s}^2$$"
             },
             {
                 id: 7,
-                category: "Câu 7. Vận dụng - Vật đứng yên chịu hai lực trực đối 7 N",
-                title: "Một vật chịu hai lực cùng giá, ngược chiều, có độ lớn $7\\text{ N}$ và $7\\text{ N}$. Nếu ban đầu vật đứng yên thì:",
+                category: "Câu 7. Vận dụng tổng hợp - Tính vận tốc sau thời gian t",
+                title: "Vật $5\\text{ kg}$ xuất phát từ nghỉ, chịu hợp lực $15\\text{ N}$ không đổi. Sau $4\\text{ s}$ vận tốc là:",
                 options: [
-                    "Vật vẫn đứng yên.",
-                    "Vật tăng tốc theo lực thứ nhất.",
-                    "Vật tăng tốc theo lực thứ hai.",
-                    "Vật chuyển động tròn."
+                    "$3\\text{ m/s}$.",
+                    "$8\\text{ m/s}$.",
+                    "$12\\text{ m/s}$.",
+                    "$20\\text{ m/s}$."
                 ],
-                correct: 0,
-                simMode: "rest_balance",
-                balanceMode: "horizontal_7N",
-                processLabel: "HAI LỰC CÂN BẰNG 7 N - 7 N",
-                telemetry: "F₁ = 7 N (←) • F₂ = 7 N (→) ⇒ ∑F = 0 (Đứng yên)",
-                measureHint: "Hai lực cùng giá, ngược chiều, cùng độ lớn 7 N triệt tiêu nhau",
-                explanation: "Hai lực có cùng giá, ngược chiều và cùng độ lớn $F_1 = F_2 = 7\\text{ N}$ là hai lực cân bằng nên tổng hợp lực bằng $0$ ($F = |7 - 7| = 0\\text{ N}$). Vì ban đầu vật đứng yên nên <b>vật vẫn đứng yên</b>."
+                correct: 2,
+                simMode: "single_accel",
+                massVal: "5 kg", forceVal: "15 N", accelVal: "3 m/s² (v = 12 m/s)",
+                processLabel: "TĂNG TỐC TỪ NGHỈ: a = F/m ⇒ v = a·t",
+                telemetry: "a = 15/5 = 3 m/s² • t = 4 s ⇒ v = a·t = 3 × 4 = 12 m/s",
+                measureHint: "Bước 1: a = F/m = 3 m/s² • Bước 2: v = at = 3 × 4 = 12 m/s",
+                explanation: "• Gia tốc của vật theo định luật 2 Newton:<br>$$a = \\frac{F}{m} = \\frac{15}{5} = 3\\text{ m/s}^2$$<br>• Vì vật xuất phát từ trạng thái nghỉ ($v_0 = 0$), vận tốc của vật sau $t = 4\\text{ s}$ là:<br>$$v = v_0 + at = 0 + 3 \\times 4 = 12\\text{ m/s}$$"
             },
             {
                 id: 8,
-                category: "Câu 8. Thông hiểu - Mối liên hệ giữa khối lượng và mức quán tính",
-                title: "Vật nào có quán tính lớn hơn nếu xét trong cùng điều kiện?",
+                category: "Câu 8. Vận dụng - Xe hàng được đẩy trên sàn nhẵn",
+                title: "Xe hàng $20\\text{ kg}$ được đẩy bởi lực ngang $50\\text{ N}$ trên sàn nhẵn. Gia tốc là:",
                 options: [
-                    "Vật $1\\text{ kg}$.",
-                    "Vật $2\\text{ kg}$.",
-                    "Vật $5\\text{ kg}$.",
-                    "Vật $10\\text{ kg}$."
+                    "$0,4\\text{ m/s}^2$.",
+                    "$2,5\\text{ m/s}^2$.",
+                    "$4\\text{ m/s}^2$.",
+                    "$10\\text{ m/s}^2$."
                 ],
-                correct: 3,
-                simMode: "mass_compare",
-                processLabel: "KHỐI LƯỢNG ĐẶC TRƯNG CHO QUÁN TÍNH",
-                telemetry: "m càng lớn ⇒ Quán tính càng lớn (10 kg > 5 kg > 2 kg > 1 kg)",
-                measureHint: "Vật 10 kg khó thay đổi vận tốc nhất ⇒ Quán tính lớn nhất",
-                explanation: "<b>Khối lượng</b> là đại lượng đặc trưng cho mức quán tính của vật. Vật có khối lượng càng lớn thì mức quán tính càng lớn (càng khó thay đổi vận tốc), do đó <b>vật $10\\text{ kg}$ có quán tính lớn nhất</b>."
+                correct: 1,
+                simMode: "single_accel",
+                massVal: "20 kg", forceVal: "50 N", accelVal: "2,5 m/s²",
+                processLabel: "XE HÀNG TRÊN SÀN NHẴN: a = F / m",
+                telemetry: "m = 20 kg • F = 50 N ⇒ a = 50/20 = 2,5 m/s²",
+                measureHint: "Trên sàn nhẵn (bỏ qua ma sát): a = F/m = 50/20 = 2,5 m/s²",
+                explanation: "Trên mặt sàn ngang nhẵn (trọng lực $\\vec{P}$ và phản lực $\\vec{N}$ cân bằng nhau), lực đẩy ngang $F = 50\\text{ N}$ chính là hợp lực gây gia tốc:<br>$$a = \\frac{F}{m} = \\frac{50}{20} = 2,5\\text{ m/s}^2$$"
             },
             {
                 id: 9,
-                category: "Câu 9. Thông hiểu - Duy trì chuyển động khi hợp lực bằng 0",
-                title: "Một xe đang chuyển động thẳng đều trên đường ngang. Nếu hợp lực tác dụng lên xe đột ngột bằng $0$ thì xe sẽ:",
+                category: "Câu 9. Thông hiểu - Đọc hệ số góc đồ thị F theo a",
+                title: "Đồ thị độ lớn hợp lực $F$ theo gia tốc $a$ của vật là đường thẳng qua gốc tọa độ có hệ số góc $3\\text{ kg}$. Khối lượng vật là:",
                 options: [
-                    "Dừng ngay lập tức.",
-                    "Tiếp tục chuyển động thẳng đều.",
-                    "Chuyển động nhanh dần.",
-                    "Đổi hướng chuyển động ngay."
+                    "$1\\text{ kg}$.",
+                    "$2\\text{ kg}$.",
+                    "$3\\text{ kg}$.",
+                    "$6\\text{ kg}$."
                 ],
-                correct: 1,
-                simMode: "uniform_slide",
-                processLabel: "BẢO TOÀN VẬN TỐC QUÁN TÍNH",
-                telemetry: "Đang chuyển động (v ≠ 0) và ∑F = 0 ⇒ Tiếp tục thẳng đều",
-                measureHint: "Theo định luật I Newton: Xe giữ nguyên vận tốc hiện tại",
-                explanation: "Theo định luật I Newton, khi xe đang chuyển động mà hợp lực tác dụng lên xe bằng $0$ ($\sum\\vec{F} = \\vec{0}$), không có nguyên nhân nào làm thay đổi vận tốc của xe nên xe sẽ <b>tiếp tục chuyển động thẳng đều</b> với vận tốc ban đầu."
+                correct: 2,
+                simMode: "graph_fa",
+                processLabel: "ĐỒ THỊ F - a: ĐỘ DỐC k = F/a = m",
+                telemetry: "F = m·a ⇒ Hệ số góc đường thẳng F(a) bằng khối lượng m = 3 kg",
+                measureHint: "Trên đồ thị F theo a, hệ số góc (độ dốc) chính bằng khối lượng m",
+                explanation: "Từ hệ thức $F = m \\cdot a$, đồ thị phụ thuộc của $F$ vào $a$ là một đường thẳng đi qua gốc tọa độ $O$, có <b>hệ số góc (độ dốc) bằng chính khối lượng $m$ của vật</b>:<br>$$m = \\frac{F}{a} = 3\\text{ kg}$$"
             },
             {
                 id: 10,
-                category: "Câu 10. Thông hiểu - Phân biệt các nhận định về Định luật I Newton",
-                title: "Chọn nhận định SAI về định luật I Newton:",
+                category: "Câu 10. Vận dụng - Tỉ số gia tốc của hai vật chịu cùng hợp lực",
+                title: "Hai vật có khối lượng $2\\text{ kg}$ và $8\\text{ kg}$ chịu hợp lực cùng độ lớn. Tỉ số $a_1/a_2$ bằng:",
                 options: [
-                    "Định luật I đúng trong hệ quy chiếu quán tính.",
-                    "Vật có thể chuyển động dù hợp lực bằng $0$.",
-                    "Khi hợp lực bằng $0$, vận tốc không đổi.",
-                    "Khi hợp lực bằng $0$, vật luôn có tốc độ bằng $0$."
+                    "$1/4$.",
+                    "$1/2$.",
+                    "$2$.",
+                    "$4$."
                 ],
                 correct: 3,
-                simMode: "uniform_slide",
-                processLabel: "KIỂM ĐỊNH ĐỊNH LUẬT I NEWTON",
-                telemetry: "Khi ∑F = 0: v = 0 (đứng yên) HOẶC v = const ≠ 0 (thẳng đều)",
-                measureHint: "Sai lầm phổ biến: Ngỡ rằng ∑F = 0 thì vật bắt buộc đứng yên",
-                explanation: "Khi hợp lực tác dụng lên vật bằng $0$ ($\sum\\vec{F} = \\vec{0}$), vật có thể đứng yên ($v = 0$) <b>hoặc chuyển động thẳng đều ($v = \\text{const} \\neq 0$)</b>.<br>Do đó nhận định <i>\"Khi hợp lực bằng 0, vật luôn có tốc độ bằng 0\"</i> là <b>SAI</b>."
+                simMode: "dual_race",
+                m1Label: "m₁ = 2 kg", m2Label: "m₂ = 8 kg", ratioLabel: "a₁/a₂ = 8/2 = 4",
+                processLabel: "TỈ SỐ GIA TỐC: a₁ / a₂ = m₂ / m₁ = 4",
+                telemetry: "F₁ = F₂ = F ⇒ a₁/a₂ = m₂/m₁ = 8/2 = 4",
+                measureHint: "Cùng hợp lực F: gia tốc tỉ lệ nghịch với khối lượng (a₁/a₂ = m₂/m₁)",
+                explanation: "Vì hai vật chịu hợp lực có cùng độ lớn ($F_1 = F_2 = F \implies m_1 a_1 = m_2 a_2$), gia tốc tỉ lệ nghịch với khối lượng:<br>$$\\frac{a_1}{a_2} = \\frac{m_2}{m_1} = \\frac{8}{2} = 4$$"
             }
         ];
 
@@ -997,28 +1004,28 @@
                     osc.stop(ctx.currentTime + delay + duration);
                 } catch(e) {}
             },
-            tap() { this.playTone(840, 'sine', 0.04, 0.06); },
+            tap() { this.playTone(860, 'sine', 0.04, 0.06); },
             correct() {
-                [329.63, 440.0, 659.25, 880.0, 1318.51].forEach((f, i) => {
+                [349.23, 440.0, 587.33, 880.0, 1174.66].forEach((f, i) => {
                     this.playTone(f, 'triangle', 0.22, 0.1, i * 0.06);
                 });
             },
             warningAlarm() {
                 if (!sfxEnabled) return;
-                this.playTone(415, 'sawtooth', 0.15, 0.12, 0);
-                this.playTone(370, 'sawtooth', 0.15, 0.12, 0.14);
-                this.playTone(415, 'sawtooth', 0.15, 0.12, 0.28);
-                this.playTone(370, 'sawtooth', 0.20, 0.14, 0.42);
+                this.playTone(420, 'sawtooth', 0.15, 0.12, 0);
+                this.playTone(360, 'sawtooth', 0.15, 0.12, 0.14);
+                this.playTone(420, 'sawtooth', 0.15, 0.12, 0.28);
+                this.playTone(360, 'sawtooth', 0.20, 0.14, 0.42);
             },
-            brakeScreech() {
+            stallDrop() {
                 if (!sfxEnabled) return;
-                this.playTone(720, 'sawtooth', 0.12, 0.22, 0);
-                this.playTone(190, 'triangle', 0.3, 0.2, 0.06);
+                this.playTone(700, 'sawtooth', 0.12, 0.22, 0);
+                this.playTone(180, 'triangle', 0.3, 0.2, 0.06);
             },
-            trackCrash() {
+            turbineBlast() {
                 if (!sfxEnabled) return;
-                this.playTone(115, 'sawtooth', 0.35, 0.35);
-                this.playTone(58, 'sine', 0.45, 0.45, 0.05);
+                this.playTone(120, 'sawtooth', 0.35, 0.35);
+                this.playTone(60, 'sine', 0.45, 0.45, 0.05);
             },
             timerTick() { this.playTone(1150, 'sine', 0.03, 0.03); }
         };
@@ -1027,7 +1034,7 @@
             sfxEnabled = !sfxEnabled;
             const icon = document.getElementById('sfxIcon');
             if (icon) {
-                icon.className = sfxEnabled ? "fa-solid fa-volume-high text-cyan-400 text-lg" : "fa-solid fa-volume-xmark text-slate-500 text-lg";
+                icon.className = sfxEnabled ? "fa-solid fa-volume-high text-rose-400 text-lg" : "fa-solid fa-volume-xmark text-slate-500 text-lg";
             }
         }
 
@@ -1036,7 +1043,7 @@
             if (!toast) return;
             toast.innerText = msg;
             toast.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-3 rounded-2xl text-xs sm:text-sm font-black shadow-2xl transition-all duration-300 opacity-100 ${
-                isPositive ? 'bg-cyan-950/95 text-cyan-200 border-2 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'bg-rose-950/95 text-rose-300 border-2 border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.3)]'
+                isPositive ? 'bg-rose-950/95 text-rose-200 border-2 border-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.3)]' : 'bg-amber-950/95 text-amber-300 border-2 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]'
             }`;
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'pointer-events-none');
@@ -1136,7 +1143,7 @@
         const NetBus = {
             bc: null,
             init(pin, onMessage) {
-                const chName = `maglev_inertia_bus_${pin}`;
+                const chName = `turbo_thruster_bus_${pin}`;
                 if (typeof BroadcastChannel !== 'undefined') {
                     try {
                         if (this.bc) {
@@ -1161,7 +1168,7 @@
                 });
             },
             publish(pin, payload) {
-                const chName = `maglev_inertia_bus_${pin}`;
+                const chName = `turbo_thruster_bus_${pin}`;
                 if (this.bc) {
                     try { this.bc.postMessage(payload); } catch(e) {}
                 }
@@ -1175,7 +1182,7 @@
         };
 
         /* =========================================================================
-           TRẠNG THÁI GAME & ĐỘI KỸ SƯ QUÁN TÍNH
+           TRẠNG THÁI GAME & ĐỘI KỸ SƯ GIA TỐC
            ========================================================================= */
         let hostState = {
             players: {},
@@ -1189,17 +1196,17 @@
             botTimers: []
         };
 
-        let storedPlayerId = sessionStorage.getItem('inertia_player_id');
+        let storedPlayerId = sessionStorage.getItem('thruster_player_id');
         if (!storedPlayerId) {
-            storedPlayerId = "mag_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 8);
-            sessionStorage.setItem('inertia_player_id', storedPlayerId);
+            storedPlayerId = "thr_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 8);
+            sessionStorage.setItem('thruster_player_id', storedPlayerId);
         }
 
         let playerState = {
             playerId: storedPlayerId,
             myName: "",
             myClass: "",
-            altitude: 0, // Vận tốc hành trình (km/h)
+            altitude: 0, // Lực đẩy tích lũy (N)
             score: 0,
             consecutiveWrong: 0,
             hazardState: 'normal',
@@ -1209,7 +1216,7 @@
         };
 
         /* =========================================================================
-           MÔ PHỎNG ĐỊNH LUẬT I NEWTON & QUÁN TÍNH ĐA CHẾ ĐỘ TRÊN CANVAS 2D
+           MÔ PHỎNG ĐỊNH LUẬT II NEWTON 4 CHẾ ĐỘ TRÊN CANVAS 2D
            ========================================================================= */
         let simAnimFrame = null;
         let simSparks = [];
@@ -1261,15 +1268,15 @@
             if (label) {
                 ctx.shadowBlur = 0;
                 ctx.font = 'bold 11.5px Orbitron, monospace';
-                const lx = x2 + Math.cos(angle) * 14 - 12;
+                const lx = x2 + Math.cos(angle) * 14 - 14;
                 const ly = y2 + Math.sin(angle) * 14 + 4;
                 ctx.fillText(label, lx, ly);
             }
             ctx.restore();
         }
 
-        function runInertiaCanvas(activeHazard = 'normal', speedVal = 100) {
-            const canvas = document.getElementById('inertiaSimCanvas');
+        function runThrusterCanvas(activeHazard = 'normal', thrustVal = 100) {
+            const canvas = document.getElementById('thrusterSimCanvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             const rect = canvas.getBoundingClientRect();
@@ -1285,38 +1292,38 @@
             if (simAnimFrame) cancelAnimationFrame(simAnimFrame);
 
             const currentQ = QUESTIONS_DATA[hostState.currentQIndex] || QUESTIONS_DATA[0];
-            const mode = currentQ.simMode || 'uniform_slide';
+            const mode = currentQ.simMode || 'single_accel';
 
-            const headerEl = document.getElementById('inertiaSimHeaderTitle');
+            const headerEl = document.getElementById('thrusterSimHeaderTitle');
             const modeTagEl = document.getElementById('hostSimModeText');
             if (headerEl) {
-                if (mode === 'braking_car') {
-                    headerEl.innerHTML = `<i class="fa-solid fa-car-burst text-amber-400 animate-pulse"></i> QUÁN TÍNH KHI XE PHANH GẤP`;
-                } else if (mode === 'rest_balance') {
-                    headerEl.innerHTML = `<i class="fa-solid fa-scale-balanced text-emerald-400 animate-pulse"></i> VẬT ĐỨNG YÊN & CÁC LỰC CÂN BẰNG`;
-                } else if (mode === 'mass_compare') {
-                    headerEl.innerHTML = `<i class="fa-solid fa-weight-hanging text-cyan-400 animate-pulse"></i> SO SÁNH MỨC QUÁN TÍNH THEO KHỐI LƯỢNG`;
+                if (mode === 'collinear_forces') {
+                    headerEl.innerHTML = `<i class="fa-solid fa-arrows-left-right text-amber-400 animate-pulse"></i> TỔNG HỢP HAI LỰC CÙNG PHƯƠNG GÂY GIA TỐC`;
+                } else if (mode === 'graph_fa') {
+                    headerEl.innerHTML = `<i class="fa-solid fa-chart-line text-cyan-400 animate-pulse"></i> ĐỒ THỊ HỢP LỰC F THEO GIA TỐC a ($F = ma$)`;
+                } else if (mode === 'dual_race') {
+                    headerEl.innerHTML = `<i class="fa-solid fa-flag-checkered text-emerald-400 animate-pulse"></i> SO SÁNH GIA TỐC THEO KHỐI LƯỢNG ($a \\sim 1/m$)`;
                 } else {
-                    headerEl.innerHTML = `<i class="fa-solid fa-train-subway text-cyan-400 animate-pulse"></i> CHUYỂN ĐỘNG THẲNG ĐỀU ($\vec{v} = \text{const}$)`;
+                    headerEl.innerHTML = `<i class="fa-solid fa-rocket text-rose-400 animate-pulse"></i> ĐỊNH LUẬT II NEWTON ($\vec{F} = m\vec{a}$)`;
                 }
             }
             if (modeTagEl) {
-                modeTagEl.innerText = currentQ.processLabel || "TRƯỢT THẲNG ĐỀU";
+                modeTagEl.innerText = currentQ.processLabel || "TĂNG TỐC F = ma";
             }
 
             function render() {
-                simPhase += 0.04;
+                simPhase += 0.035;
                 ctx.clearRect(0, 0, w, h);
 
-                // Nền buồng đệm từ
+                // Nền buồng thử gia tốc
                 const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
-                bgGrad.addColorStop(0, '#040814');
-                bgGrad.addColorStop(1, '#09152b');
+                bgGrad.addColorStop(0, '#070512');
+                bgGrad.addColorStop(1, '#110d26');
                 ctx.fillStyle = bgGrad;
                 ctx.fillRect(0, 0, w, h);
 
                 // Lưới tọa độ kỹ thuật
-                ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+                ctx.strokeStyle = 'rgba(244, 63, 94, 0.08)';
                 ctx.lineWidth = 1;
                 for (let x = 0; x < w; x += 28) {
                     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
@@ -1329,200 +1336,207 @@
                 const jitterX = activeHazard.startsWith('warning') ? (Math.random() - 0.5) * 8 : 0;
                 const jitterY = activeHazard.startsWith('warning') ? (Math.random() - 0.5) * 6 : 0;
 
-                if (mode === 'uniform_slide') {
-                    // CHẾ ĐỘ 1: VẬT TRƯỢT THẲNG ĐỀU TRÊN MẶT PHẲNG NGANG NHẴN (HÌNH 1 TRONG ĐỀ)
-                    ctx.strokeStyle = '#38bdf8';
+                if (mode === 'single_accel') {
+                    // CHẾ ĐỘ 1: KHỐI VẬT / XE HÀNG TĂNG TỐC DƯỚI LỰC KÉO NGANG F (CÂU 1, 2, 3, 7, 8)
+                    ctx.strokeStyle = '#fb7185';
                     ctx.lineWidth = 3.5;
                     ctx.beginPath();
                     ctx.moveTo(24, trackY);
                     ctx.lineTo(w - 24, trackY);
                     ctx.stroke();
 
-                    // Vạch từ trường đệm từ phát sáng dọc theo mặt phẳng nhẵn
-                    for (let mx = 36; mx < w - 36; mx += 32) {
-                        ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
-                        ctx.fillRect(mx, trackY + 4, 16, 4);
-                    }
+                    // Chuyển động nhanh dần đều: x ~ t²
+                    const cycle = (simPhase * 0.55) % 1;
+                    const travelW = w - 195;
+                    const boxX = 36 + (cycle * cycle) * travelW + jitterX;
+                    const boxY = trackY - 48 + jitterY;
 
-                    // Vật trượt với vận tốc không đổi v = const
-                    const travelW = w - 160;
-                    const boxX = 48 + ((simPhase * 42) % travelW) + jitterX;
-                    const boxY = trackY - 46 + jitterY;
+                    // Luồng lửa phản lực phía sau khối vật
+                    ctx.fillStyle = 'rgba(245, 158, 11, 0.75)';
+                    ctx.beginPath();
+                    ctx.moveTo(boxX, boxY + 12);
+                    ctx.lineTo(boxX - 18 - cycle * 22, boxY + 24);
+                    ctx.lineTo(boxX, boxY + 36);
+                    ctx.closePath();
+                    ctx.fill();
 
-                    ctx.fillStyle = '#0284c7';
-                    ctx.fillRect(boxX, boxY, 68, 42);
-                    ctx.strokeStyle = '#e0f2fe';
+                    // Khối vật m
+                    ctx.fillStyle = '#e11d48';
+                    ctx.fillRect(boxX, boxY, 76, 44);
+                    ctx.strokeStyle = '#ffe4e6';
                     ctx.lineWidth = 2.5;
-                    ctx.strokeRect(boxX, boxY, 68, 42);
+                    ctx.strokeRect(boxX, boxY, 76, 44);
 
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 11px Orbitron, monospace';
-                    ctx.fillText('m', boxX + 26, boxY + 25);
+                    ctx.fillText(currentQ.massVal || 'm', boxX + 14, boxY + 26);
 
-                    // Mũi tên vận tốc v = constant
-                    drawVectorArrow(ctx, boxX + 68, boxY + 21, boxX + 150, boxY + 21, '#34d399', 'v = const');
+                    // Vectơ lực kéo F (màu vàng cam) và vectơ gia tốc a (màu lục bảo cùng hướng)
+                    drawVectorArrow(ctx, boxX + 76, boxY + 22, boxX + 158, boxY + 22, '#fbbf24', `F = ${currentQ.forceVal || 'ma'}`);
+                    drawVectorArrow(ctx, boxX + 18, boxY - 14, boxX + 86, boxY - 14, '#34d399', `a = ${currentQ.accelVal || 'F/m'}`, 2.6);
 
-                    // Hai lực cân bằng theo phương đứng P và N
-                    drawVectorArrow(ctx, boxX + 34, boxY, boxX + 34, boxY - 38, '#38bdf8', 'N', 2.2);
-                    drawVectorArrow(ctx, boxX + 34, boxY + 42, boxX + 34, boxY + 80, '#fb7185', 'P', 2.2);
-
-                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillStyle = '#fda4af';
                     ctx.font = 'bold 11px Nunito, sans-serif';
-                    ctx.fillText('Mặt phẳng ngang nhẵn (Không ma sát • ∑F = 0 • a = 0)', 34, trackY + 28);
+                    ctx.fillText('Mặt sàn ngang nhẵn (Chuyển động nhanh dần đều: x = ½at² • v = at)', 28, trackY + 28);
 
-                } else if (mode === 'rest_balance') {
-                    // CHẾ ĐỘ 2: VẬT ĐỨNG YÊN CHỊU CÁC LỰC CÂN BẰNG (HÌNH 2 TRONG ĐỀ & CÂU 3, 7)
-                    ctx.strokeStyle = '#64748b';
+                } else if (mode === 'collinear_forces') {
+                    // CHẾ ĐỘ 2: HAI LỰC CÙNG PHƯƠNG (CÙNG CHIỀU CÂU 5 HOẶC NGƯỢC CHIỀU CÂU 6)
+                    ctx.strokeStyle = '#94a3b8';
                     ctx.lineWidth = 3.5;
                     ctx.beginPath();
-                    ctx.moveTo(40, trackY);
-                    ctx.lineTo(w - 40, trackY);
+                    ctx.moveTo(28, trackY);
+                    ctx.lineTo(w - 28, trackY);
                     ctx.stroke();
 
-                    const cx = w * 0.5 + jitterX;
-                    const cy = trackY - 25 + jitterY;
-                    const breath = 1 + Math.sin(simPhase * 1.5) * 0.03;
+                    const cycle = (simPhase * 0.45) % 1;
+                    const cx = w * 0.42 + (cycle * cycle) * 45 + jitterX;
+                    const cy = trackY - 26 + jitterY;
 
                     ctx.fillStyle = '#0f172a';
-                    ctx.fillRect(cx - 42, cy - 25, 84, 50);
+                    ctx.fillRect(cx - 42, cy - 24, 84, 48);
                     ctx.strokeStyle = '#38bdf8';
                     ctx.lineWidth = 2.8;
-                    ctx.strokeRect(cx - 42, cy - 25, 84, 50);
+                    ctx.strokeRect(cx - 42, cy - 24, 84, 48);
 
                     ctx.fillStyle = '#fde047';
                     ctx.font = 'bold 11px Orbitron, monospace';
-                    ctx.fillText('v = 0', cx - 18, cy + 4);
+                    ctx.fillText(currentQ.massVal || 'm', cx - 18, cy + 4);
 
-                    if (currentQ.balanceMode === 'horizontal_7N') {
-                        // Hai lực ngang 7 N và 7 N cùng giá ngược chiều
-                        const fLen = 84 * breath;
-                        drawVectorArrow(ctx, cx - 42, cy, cx - 42 - fLen, cy, '#38bdf8', 'F₁ = 7 N');
-                        drawVectorArrow(ctx, cx + 42, cy, cx + 42 + fLen, cy, '#fb7185', 'F₂ = 7 N');
+                    if (currentQ.sameDir) {
+                        // Hai lực cùng chiều 6 N và 8 N sang phải
+                        drawVectorArrow(ctx, cx + 42, cy - 10, cx + 104, cy - 10, '#38bdf8', `F₁=${currentQ.f1}N`);
+                        drawVectorArrow(ctx, cx + 42, cy + 10, cx + 124, cy + 10, '#fbbf24', `F₂=${currentQ.f2}N`);
+                        drawVectorArrow(ctx, cx - 20, cy - 38, cx + 65, cy - 38, '#34d399', `a = ${currentQ.accelVal}`);
                     } else {
-                        // Trọng lực P và phản lực N cân bằng (Hình 2)
-                        const fLen = 74 * breath;
-                        drawVectorArrow(ctx, cx, cy, cx, cy - fLen, '#38bdf8', 'N');
-                        drawVectorArrow(ctx, cx, cy, cx, cy + fLen, '#fb7185', 'P');
+                        // Hai lực ngược chiều: F1 = 12 N sang phải, F2 = 5 N sang trái
+                        drawVectorArrow(ctx, cx + 42, cy, cx + 132, cy, '#fbbf24', `F₁=${currentQ.f1}N`);
+                        drawVectorArrow(ctx, cx - 42, cy, cx - 94, cy, '#fb7185', `F₂=${currentQ.f2}N`);
+                        drawVectorArrow(ctx, cx - 15, cy - 38, cx + 55, cy - 38, '#34d399', `a = ${currentQ.accelVal}`);
                     }
 
                     ctx.fillStyle = '#cbd5e1';
                     ctx.font = 'bold 11px Nunito, sans-serif';
-                    ctx.fillText('Vật đứng yên (Object at rest • ∑F = 0)', cx - 105, trackY + 26);
+                    ctx.fillText('Tổng hợp hai lực cùng phương: a⃗ = (F⃗₁ + F⃗₂) / m', 42, trackY + 26);
 
-                } else if (mode === 'braking_car') {
-                    // CHẾ ĐỘ 3: QUÁN TÍNH KHI XE PHANH GẤP (HÌNH 3 TRONG ĐỀ & CÂU 4)
-                    ctx.strokeStyle = '#64748b';
-                    ctx.lineWidth = 3.5;
+                } else if (mode === 'graph_fa') {
+                    // CHẾ ĐỘ 3: ĐỒ THỊ HỢP LỰC F THEO GIA TỐC a (CÂU 9: HỆ SỐ GÓC m = 3 kg)
+                    const ox = 64;
+                    const oy = h - 44;
+                    const axisW = w - 110;
+                    const axisH = h - 105;
+
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 2.5;
                     ctx.beginPath();
-                    ctx.moveTo(24, trackY);
-                    ctx.lineTo(w - 24, trackY);
+                    ctx.moveTo(ox, oy - axisH);
+                    ctx.lineTo(ox, oy);
+                    ctx.lineTo(ox + axisW, oy);
                     ctx.stroke();
 
-                    // Chu kỳ mô phỏng: chạy đều (0 -> 0.55) rồi phanh gấp (0.55 -> 1.0)
-                    const cycle = (simPhase * 0.45) % 1;
-                    const isBraking = cycle > 0.52;
-                    const carX = isBraking
-                        ? 45 + 0.52 * (w - 190) + (cycle - 0.52) * 35
-                        : 45 + cycle * (w - 190);
-                    const carY = trackY - 52;
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 11.5px Orbitron, monospace';
+                    ctx.fillText('F (N)', ox - 22, oy - axisH - 8);
+                    ctx.fillText('a (m/s²)', ox + axisW - 35, oy + 24);
+                    ctx.fillText('O', ox - 18, oy + 16);
 
-                    // Thân xe
-                    ctx.fillStyle = isBraking ? '#be123c' : '#0284c7';
-                    ctx.fillRect(carX, carY, 104, 38);
-                    ctx.strokeStyle = '#f8fafc';
-                    ctx.lineWidth = 2.2;
-                    ctx.strokeRect(carX, carY, 104, 38);
+                    // Đường thẳng F = 3a qua gốc O
+                    const endPlotX = ox + axisW * 0.78;
+                    const endPlotY = oy - axisH * 0.82;
 
-                    // Bánh xe
-                    ctx.fillStyle = '#1e293b';
-                    [carX + 24, carX + 80].forEach(wx => {
+                    ctx.save();
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.shadowColor = '#f59e0b';
+                    ctx.shadowBlur = 10;
+                    ctx.lineWidth = 3.5;
+                    ctx.beginPath();
+                    ctx.moveTo(ox, oy);
+                    ctx.lineTo(endPlotX, endPlotY);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // Điểm khảo sát chạy trên đồ thị
+                    const prog = 0.35 + ((Math.sin(simPhase * 1.5) + 1) * 0.28);
+                    const px = ox + (endPlotX - ox) * prog;
+                    const py = oy + (endPlotY - oy) * prog;
+
+                    ctx.setLineDash([4, 4]);
+                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(px, oy); ctx.lineTo(px, py); ctx.lineTo(ox, py);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    ctx.fillStyle = '#34d399';
+                    ctx.beginPath();
+                    ctx.arc(px, py, 6, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#fde047';
+                    ctx.font = 'bold 11px Orbitron, monospace';
+                    ctx.fillText('Hệ số góc k = F/a = m = 3 kg', ox + 36, oy - axisH * 0.68);
+
+                } else {
+                    // CHẾ ĐỘ 4: ĐUA GIA TỐC HAI VẬT m1 VÀ m2 DƯỚI CÙNG HỢP LỰC F (CÂU 4, 10)
+                    const lane1Y = h * 0.48;
+                    const lane2Y = h * 0.78;
+
+                    [lane1Y, lane2Y].forEach(ly => {
+                        ctx.strokeStyle = '#475569';
+                        ctx.lineWidth = 2.5;
                         ctx.beginPath();
-                        ctx.arc(wx, trackY - 10, 10, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.strokeStyle = '#38bdf8';
+                        ctx.moveTo(28, ly);
+                        ctx.lineTo(w - 28, ly);
                         ctx.stroke();
                     });
 
-                    // Hành khách trên xe (nghiêng chúi về phía trước khi phanh gấp)
-                    const leanAngle = isBraking ? 0.52 : 0.0;
-                    const px = carX + 52;
-                    const py = carY;
+                    const cycle = (simPhase * 0.45) % 1;
+                    const maxRun = w - 180;
 
-                    ctx.save();
-                    ctx.translate(px, py);
-                    ctx.rotate(leanAngle);
-                    ctx.strokeStyle = '#fde047';
-                    ctx.lineWidth = 3.5;
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(0, -28);
-                    ctx.stroke();
-                    ctx.fillStyle = '#fde047';
-                    ctx.beginPath();
-                    ctx.arc(0, -35, 7, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
+                    // Vật 1 nhẹ hơn -> Gia tốc lớn gấp 4 lần (hoặc 3 lần)
+                    const x1 = 38 + (cycle * cycle) * maxRun;
+                    // Vật 2 nặng hơn -> Gia tốc nhỏ hơn
+                    const x2 = 38 + (cycle * cycle) * (maxRun * 0.28);
 
-                    if (isBraking) {
-                        drawVectorArrow(ctx, px + 8, py - 32, px + 68, py - 32, '#fbbf24', 'Quán tính (v)');
-                        ctx.fillStyle = '#fb7185';
-                        ctx.font = 'bold 11px Orbitron, monospace';
-                        ctx.fillText('PHANH GẤP! Người chúi về trước', carX - 10, trackY + 26);
-                    } else {
-                        drawVectorArrow(ctx, carX + 104, carY + 19, carX + 164, carY + 19, '#34d399', 'v trước khi phanh');
-                    }
+                    // Vẽ Vật 1 (Nhẹ - chạy nhanh)
+                    ctx.fillStyle = '#0ea5e9';
+                    ctx.fillRect(x1, lane1Y - 34, 54, 30);
+                    ctx.strokeStyle = '#e0f2fe';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x1, lane1Y - 34, 54, 30);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 10px Orbitron, monospace';
+                    ctx.fillText(currentQ.m1Label || 'm₁=2kg', x1 + 4, lane1Y - 15);
+                    drawVectorArrow(ctx, x1 + 54, lane1Y - 19, x1 + 105, lane1Y - 19, '#fbbf24', 'F');
 
-                } else {
-                    // CHẾ ĐỘ 4: SO SÁNH QUÁN TÍNH THEO KHỐI LƯỢNG (1 kg, 2 kg, 5 kg, 10 kg - CÂU 8)
-                    const masses = [
-                        { m: '1 kg', size: 26, col: '#64748b' },
-                        { m: '2 kg', size: 34, col: '#0284c7' },
-                        { m: '5 kg', size: 44, col: '#059669' },
-                        { m: '10 kg', size: 58, col: '#f59e0b' }
-                    ];
+                    // Vẽ Vật 2 (Nặng - chạy chậm)
+                    ctx.fillStyle = '#e11d48';
+                    ctx.fillRect(x2, lane2Y - 44, 72, 40);
+                    ctx.strokeStyle = '#ffe4e6';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x2, lane2Y - 44, 72, 40);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(currentQ.m2Label || 'm₂=8kg', x2 + 8, lane2Y - 20);
+                    drawVectorArrow(ctx, x2 + 72, lane2Y - 24, x2 + 123, lane2Y - 24, '#fbbf24', 'F');
 
-                    ctx.strokeStyle = '#475569';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(24, trackY + 10);
-                    ctx.lineTo(w - 24, trackY + 10);
-                    ctx.stroke();
-
-                    masses.forEach((item, idx) => {
-                        const bx = 42 + idx * ((w - 84) / 4) + 12;
-                        const by = trackY + 10 - item.size;
-
-                        ctx.fillStyle = item.col;
-                        ctx.fillRect(bx, by, item.size, item.size);
-                        ctx.strokeStyle = idx === 3 ? '#fde047' : '#e2e8f0';
-                        ctx.lineWidth = idx === 3 ? 3 : 1.8;
-                        ctx.strokeRect(bx, by, item.size, item.size);
-
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 10px Orbitron, monospace';
-                        ctx.fillText(item.m, bx + 4, by + item.size / 2 + 4);
-
-                        if (idx === 3) {
-                            ctx.fillStyle = '#fde047';
-                            ctx.font = 'bold 10px Nunito, sans-serif';
-                            ctx.fillText('★ Quán tính MAX', bx - 12, by - 10);
-                        }
-                    });
+                    ctx.fillStyle = '#34d399';
+                    ctx.font = 'bold 11px Orbitron, monospace';
+                    ctx.fillText(currentQ.ratioLabel || 'Cùng F: a₁ / a₂ = m₂ / m₁', 36, h * 0.89);
                 }
 
                 // Bảng Telemetry ở góc trên
-                ctx.fillStyle = 'rgba(6, 10, 28, 0.92)';
+                ctx.fillStyle = 'rgba(10, 8, 28, 0.92)';
                 ctx.fillRect(12, 10, w - 24, 42);
-                ctx.strokeStyle = 'rgba(6, 182, 212, 0.7)';
+                ctx.strokeStyle = 'rgba(244, 63, 94, 0.7)';
                 ctx.lineWidth = 1.5;
                 ctx.strokeRect(12, 10, w - 24, 42);
 
-                ctx.fillStyle = '#67e8f9';
+                ctx.fillStyle = '#fda4af';
                 ctx.font = 'bold 9.5px Orbitron, monospace';
-                ctx.fillText(currentQ.telemetry || '∑F = 0 ⇒ v = const • a = 0', 20, 26);
+                ctx.fillText(currentQ.telemetry || 'F⃗ = m·a⃗ ⇔ a = F/m', 20, 26);
                 ctx.fillStyle = '#fde047';
                 ctx.font = 'bold 10px Nunito, sans-serif';
-                ctx.fillText(`${currentQ.measureHint || 'Định luật I Newton'} • Vận tốc: ${speedVal} km/h`, 20, 44);
+                ctx.fillText(`${currentQ.measureHint || 'Định luật 2 Newton'} • Lực đẩy: ${thrustVal} N`, 20, 44);
 
                 // Cập nhật hạt hiệu ứng nổ/thưởng
                 simSparks.forEach(sp => {
@@ -1548,16 +1562,16 @@
             const screen = document.getElementById('hostQuestionScreen');
             if (screen && !screen.classList.contains('hidden')) {
                 const players = Object.values(hostState.players);
-                const avgSpeed = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
-                runInertiaCanvas('normal', avgSpeed);
+                const avgThrust = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+                runThrusterCanvas('normal', avgThrust);
             }
         });
 
-        function getInertiaRankTitle(altitude) {
-            if (altitude >= 800) return "👑 TỔNG CÔNG TRÌNH SƯ ĐỆM TỪ";
-            if (altitude >= 500) return "⭐ CHUYÊN GIA HỆ QUÁN TÍNH";
-            if (altitude >= 200) return "🚄 KỸ SƯ VẬN HÀNH SIÊU TỐC";
-            return "⚡ TẬP SỰ ĐỘNG LỰC HỌC";
+        function getThrusterRankTitle(altitude) {
+            if (altitude >= 800) return "👑 TỔNG CÔNG TRÌNH SƯ PHẢN LỰC";
+            if (altitude >= 500) return "⭐ CHUYÊN GIA GIA TỐC TRỌNG ĐỘNG";
+            if (altitude >= 200) return "🚀 KỸ SƯ ĐIỀU LỰC TURBO";
+            return "🔥 TẬP SỰ ĐỘNG LỰC HỌC";
         }
 
         /* =========================================================================
@@ -1579,10 +1593,10 @@
                 }
             });
 
-            const clientId = "host_mag_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
+            const clientId = "host_thr_" + roomPin + "_" + Math.random().toString(36).substring(2, 6);
             createMqttClient(clientId, (client) => {
                 mqttClient = client;
-                mqttClient.subscribe(`maglev_inertia/${roomPin}/player`, { qos: 0 });
+                mqttClient.subscribe(`turbo_thruster/${roomPin}/player`, { qos: 0 });
             }, (topic, message) => {
                 try {
                     const data = JSON.parse(message.toString());
@@ -1595,17 +1609,17 @@
             NetBus.publish(roomPin, { _sender: 'host', data: data });
             if (mqttClient && mqttClient.connected) {
                 try {
-                    mqttClient.publish(`maglev_inertia/${roomPin}/host`, JSON.stringify(data), { qos: 0 });
+                    mqttClient.publish(`turbo_thruster/${roomPin}/host`, JSON.stringify(data), { qos: 0 });
                 } catch(e) {}
             }
         }
 
         function addDemoBots(count = 4) {
             const presets = [
-                { name: "Tàu Đệm Từ Alpha", class: "10A1" },
-                { name: "Quán Tính Siêu Tốc", class: "10A1" },
-                { name: "Hệ Quy Chiếu Galileo", class: "10A2" },
-                { name: "Cân Bằng Lực Newton", class: "10A2" }
+                { name: "Phản Lực Mach-5", class: "10A1" },
+                { name: "Tua-Bin Gia Tốc", class: "10A1" },
+                { name: "Chiến Cơ Newton", class: "10A2" },
+                { name: "Động Cơ Lượng Tử", class: "10A2" }
             ];
             for (let i = 0; i < count; i++) {
                 const p = presets[i % presets.length];
@@ -1641,8 +1655,8 @@
                 container.innerHTML = '';
                 Object.values(hostState.players).forEach(p => {
                     const tag = document.createElement('div');
-                    tag.className = "px-4 py-2 rounded-2xl bg-slate-900 border-2 border-cyan-500/70 text-cyan-300 font-bold text-xs sm:text-sm flex items-center gap-2 shadow";
-                    tag.innerHTML = `<span>🚄</span> <span>${p.name}</span> <span class="text-xs text-slate-400">(${p.className})</span>`;
+                    tag.className = "px-4 py-2 rounded-2xl bg-slate-900 border-2 border-rose-500/70 text-rose-300 font-bold text-xs sm:text-sm flex items-center gap-2 shadow";
+                    tag.innerHTML = `<span>🚀</span> <span>${p.name}</span> <span class="text-xs text-slate-400">(${p.className})</span>`;
                     container.appendChild(tag);
                 });
             }
@@ -1735,7 +1749,7 @@
                         score: p.score,
                         hazardState: p.hazardState,
                         rank: myRank,
-                        militaryRank: getInertiaRankTitle(p.altitude),
+                        militaryRank: getThrusterRankTitle(p.altitude),
                         totalPlayers: rankings.length
                     });
 
@@ -1768,10 +1782,10 @@
             document.getElementById('hostQuestionScreen').classList.remove('hidden');
             document.getElementById('hostExplanationArea').classList.add('hidden');
 
-            document.getElementById('inertiaWarningAlert').classList.add('hidden');
-            document.getElementById('inertiaPopAlert').classList.add('hidden');
-            document.getElementById('inertiaSpikeAlert').classList.add('hidden');
-            document.getElementById('inertiaSuccessAlert').classList.add('hidden');
+            document.getElementById('thrusterWarningAlert').classList.add('hidden');
+            document.getElementById('thrusterPopAlert').classList.add('hidden');
+            document.getElementById('thrusterSpikeAlert').classList.add('hidden');
+            document.getElementById('thrusterSuccessAlert').classList.add('hidden');
 
             hostState.isRoundEnded = false;
             const q = QUESTIONS_DATA[hostState.currentQIndex];
@@ -1779,7 +1793,7 @@
             document.getElementById('hostQCounterBadge').innerText = `CÂU ${hostState.currentQIndex + 1} / ${QUESTIONS_DATA.length}`;
             document.getElementById('hostQCategory').innerText = q.category;
             document.getElementById('hostQuestionTitle').innerText = q.title;
-            document.getElementById('inertiaLiveTelemetry').innerText = q.telemetry || "∑F = 0 ⇒ v = const • a = 0";
+            document.getElementById('thrusterLiveTelemetry').innerText = q.telemetry || "F = m·a • a = F/m";
 
             for (let i = 0; i < 4; i++) {
                 document.getElementById(`hostOptText${i}`).innerHTML = q.options[i];
@@ -1800,9 +1814,9 @@
             refreshMathRender();
 
             const players = Object.values(hostState.players);
-            const avgSpeed = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
-            document.getElementById('hostAvgAltText').innerText = `${avgSpeed} km/h`;
-            runInertiaCanvas('normal', avgSpeed);
+            const avgThrust = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+            document.getElementById('hostAvgAltText').innerText = `${avgThrust} N`;
+            runThrusterCanvas('normal', avgThrust);
 
             hostPublish({
                 type: 'QUESTION_START',
@@ -1869,32 +1883,32 @@
             else if (players.some(p => p.hazardState === 'warning_short')) worstHazard = 'warning_short';
             else if (players.some(p => p.hazardState === 'warning_over')) worstHazard = 'warning_over';
 
-            const avgSpeed = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
-            document.getElementById('hostAvgAltText').innerText = `${avgSpeed} km/h`;
+            const avgThrust = players.length > 0 ? Math.round(players.reduce((sum, p) => sum + p.altitude, 0) / players.length) : 0;
+            document.getElementById('hostAvgAltText').innerText = `${avgThrust} N`;
 
-            const canvas = document.getElementById('inertiaSimCanvas');
+            const canvas = document.getElementById('thrusterSimCanvas');
             const rect = canvas ? canvas.getBoundingClientRect() : { width: 300, height: 300 };
 
             if (worstHazard === 'pop') {
-                document.getElementById('inertiaPopAlert').classList.remove('hidden');
+                document.getElementById('thrusterPopAlert').classList.remove('hidden');
                 triggerBurstSparks(rect.width / 2, rect.height / 2, ['#f43f5e', '#fbbf24', '#06b6d4']);
-                Sound.trackCrash();
+                Sound.turbineBlast();
             } else if (worstHazard === 'spike') {
-                document.getElementById('inertiaSpikeAlert').classList.remove('hidden');
-                triggerBurstSparks(rect.width / 2, rect.height / 2, ['#64748b', '#94a3b8', '#38bdf8']);
-                Sound.brakeScreech();
+                document.getElementById('thrusterSpikeAlert').classList.remove('hidden');
+                triggerBurstSparks(rect.width / 2, rect.height / 2, ['#64748b', '#94a3b8', '#fb7185']);
+                Sound.stallDrop();
             } else if (worstHazard.startsWith('warning')) {
-                document.getElementById('inertiaWarningAlert').classList.remove('hidden');
+                document.getElementById('thrusterWarningAlert').classList.remove('hidden');
                 Sound.warningAlarm();
             } else {
-                document.getElementById('inertiaSuccessAlert').classList.remove('hidden');
+                document.getElementById('thrusterSuccessAlert').classList.remove('hidden');
                 triggerBurstSparks(rect.width / 2, rect.height / 2, ['#34d399', '#38bdf8', '#fbbf24']);
                 Sound.correct();
             }
 
-            runInertiaCanvas(worstHazard, avgSpeed);
+            runThrusterCanvas(worstHazard, avgThrust);
 
-            document.getElementById('hostExplanationText').innerHTML = `<span class="text-cyan-300 font-anime-title text-base block mb-1">💡 HƯỚNG DẪN GIẢI CHI TIẾT:</span>${q.explanation}`;
+            document.getElementById('hostExplanationText').innerHTML = `<span class="text-rose-300 font-anime-title text-base block mb-1">💡 HƯỚNG DẪN GIẢI CHI TIẾT:</span>${q.explanation}`;
             document.getElementById('hostExplanationArea').classList.remove('hidden');
             refreshMathRender();
         }
@@ -1907,11 +1921,11 @@
                 const card = document.createElement('div');
                 const isAnswered = p.currentAnswer !== null;
                 card.className = `p-2 rounded-xl border text-xs flex items-center justify-between font-bold ${
-                    isAnswered ? 'bg-slate-900 border-cyan-400 text-cyan-200' : 'bg-slate-950 border-slate-800 text-slate-400'
+                    isAnswered ? 'bg-slate-900 border-rose-400 text-rose-200' : 'bg-slate-950 border-slate-800 text-slate-400'
                 }`;
                 card.innerHTML = `
-                    <span class="truncate max-w-[90px]">🚄 ${p.name}</span>
-                    <span class="font-tech text-amber-300">${p.altitude}km/h</span>
+                    <span class="truncate max-w-[90px]">🚀 ${p.name}</span>
+                    <span class="font-tech text-amber-300">${p.altitude} N</span>
                 `;
                 grid.appendChild(card);
             });
@@ -1927,24 +1941,24 @@
 
             if (sorted[0]) {
                 document.getElementById('podiumName1').innerText = sorted[0].name;
-                document.getElementById('podiumAlt1').innerText = `${sorted[0].altitude} km/h`;
+                document.getElementById('podiumAlt1').innerText = `${sorted[0].altitude} N`;
             } else {
                 document.getElementById('podiumName1').innerText = "--";
-                document.getElementById('podiumAlt1').innerText = "0 km/h";
+                document.getElementById('podiumAlt1').innerText = "0 N";
             }
             if (sorted[1]) {
                 document.getElementById('podiumName2').innerText = sorted[1].name;
-                document.getElementById('podiumAlt2').innerText = `${sorted[1].altitude} km/h`;
+                document.getElementById('podiumAlt2').innerText = `${sorted[1].altitude} N`;
             } else {
                 document.getElementById('podiumName2').innerText = "--";
-                document.getElementById('podiumAlt2').innerText = "0 km/h";
+                document.getElementById('podiumAlt2').innerText = "0 N";
             }
             if (sorted[2]) {
                 document.getElementById('podiumName3').innerText = sorted[2].name;
-                document.getElementById('podiumAlt3').innerText = `${sorted[2].altitude} km/h`;
+                document.getElementById('podiumAlt3').innerText = `${sorted[2].altitude} N`;
             } else {
                 document.getElementById('podiumName3').innerText = "--";
-                document.getElementById('podiumAlt3').innerText = "0 km/h";
+                document.getElementById('podiumAlt3').innerText = "0 N";
             }
 
             const tbody = document.getElementById('hostTopTableBody');
@@ -1952,15 +1966,15 @@
             sorted.forEach((p, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = idx === 0 ? "bg-amber-950/40" : "";
-                let statusLabel = getInertiaRankTitle(p.altitude);
+                let statusLabel = getThrusterRankTitle(p.altitude);
 
                 tr.innerHTML = `
                     <td class="p-3.5 font-tech text-amber-400">#${idx + 1}</td>
-                    <td class="p-3.5 font-black text-white flex items-center gap-2"><span>🚄</span> <span>${p.name}</span></td>
+                    <td class="p-3.5 font-black text-white flex items-center gap-2"><span>🚀</span> <span>${p.name}</span></td>
                     <td class="p-3.5 text-slate-400">${p.className}</td>
-                    <td class="p-3.5 text-center font-manga text-xs text-cyan-300">${statusLabel}</td>
+                    <td class="p-3.5 text-center font-manga text-xs text-rose-300">${statusLabel}</td>
                     <td class="p-3.5 text-center font-tech text-emerald-300">${p.correctCount} / ${hostState.currentQIndex + 1}</td>
-                    <td class="p-3.5 text-right font-tech font-black text-amber-300 text-sm sm:text-base">${p.altitude} km/h</td>
+                    <td class="p-3.5 text-right font-tech font-black text-amber-300 text-sm sm:text-base">${p.altitude} N</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -2004,7 +2018,7 @@
 
             if (champ) {
                 document.getElementById('hostFinalChampionAnnounce').innerHTML = `
-                    Tổng công trình sư đệm từ: <b class="text-amber-300 text-xl">${champ.name}</b> (${champ.className}) đã xuất sắc đạt tốc độ quán tính <b>${champ.altitude} km/h</b>, trả lời đúng <b>${champ.correctCount}/${QUESTIONS_DATA.length} câu</b> và làm chủ hoàn toàn chuyên đề Định luật I Newton – Quán tính!
+                    Tổng công trình sư phản lực: <b class="text-amber-300 text-xl">${champ.name}</b> (${champ.className}) đã xuất sắc đạt lực đẩy tích lũy <b>${champ.altitude} N</b>, trả lời đúng <b>${champ.correctCount}/${QUESTIONS_DATA.length} câu</b> và làm chủ hoàn toàn chuyên đề Định luật II Newton!
                 `;
             }
 
@@ -2017,7 +2031,7 @@
                     <td class="p-3.5 font-tech text-amber-400">#${idx + 1}</td>
                     <td class="p-3.5 font-black text-white">${p.name} ${idx === 0 ? '👑' : ''}</td>
                     <td class="p-3.5 text-slate-400">${p.className}</td>
-                    <td class="p-3.5 text-center font-tech text-amber-300 font-black">${p.altitude} km/h</td>
+                    <td class="p-3.5 text-center font-tech text-amber-300 font-black">${p.altitude} N</td>
                     <td class="p-3.5 text-center font-tech text-cyan-400">${p.correctCount} / ${QUESTIONS_DATA.length}</td>
                     <td class="p-3.5 text-center font-tech text-rose-400">${p.popCount}</td>
                     <td class="p-3.5 text-right font-tech font-black text-emerald-300">${p.score}</td>
@@ -2038,17 +2052,17 @@
                 "STT": idx + 1,
                 "Tên Đội": p.name,
                 "Lớp": p.className,
-                "Vận Tốc Quán Tính (km/h)": p.altitude,
-                "Danh Hiệu Quán Tính": getInertiaRankTitle(p.altitude),
+                "Lực Đẩy Tích Lũy (N)": p.altitude,
+                "Danh Hiệu Phản Lực": getThrusterRankTitle(p.altitude),
                 "Số Câu Đúng": `${p.correctCount}/${QUESTIONS_DATA.length}`,
-                "Số Lần Phanh/Sự Cố": p.popCount,
+                "Số Lần Quá Tải/Sự Cố": p.popCount,
                 "Tổng Điểm Tích Lũy": p.score
             }));
 
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.json_to_sheet(excelRows);
-            XLSX.utils.book_append_sheet(wb, ws, "KetQua_DinhLuat1Newton");
-            XLSX.writeFile(wb, "KetQua_TracNghiem_DinhLuat1Newton_VatLi10.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "KetQua_DinhLuat2Newton");
+            XLSX.writeFile(wb, "KetQua_TracNghiem_DinhLuat2Newton_VatLi10.xlsx");
             showToast("✓ Đã xuất file Excel thành công!", true);
         }
 
@@ -2064,9 +2078,9 @@
 
             try {
                 if (typeof QRCode !== 'undefined') {
-                    new QRCode(qrBox, { text: joinUrl, width: 140, height: 140, colorDark: "#0e7490", colorLight: "#ffffff" });
+                    new QRCode(qrBox, { text: joinUrl, width: 140, height: 140, colorDark: "#be123c", colorLight: "#ffffff" });
                     if (modalBox) {
-                        new QRCode(modalBox, { text: joinUrl, width: 220, height: 220, colorDark: "#0e7490", colorLight: "#ffffff" });
+                        new QRCode(modalBox, { text: joinUrl, width: 220, height: 220, colorDark: "#be123c", colorLight: "#ffffff" });
                     }
                 }
             } catch(e) {}
@@ -2106,8 +2120,8 @@
             if (params.get('pin')) {
                 document.getElementById('playerPinInput').value = params.get('pin').trim();
             }
-            const savedName = sessionStorage.getItem('inertia_saved_name');
-            const savedClass = sessionStorage.getItem('inertia_saved_class');
+            const savedName = sessionStorage.getItem('thruster_saved_name');
+            const savedClass = sessionStorage.getItem('thruster_saved_class');
             if (savedName) document.getElementById('playerNameInput').value = savedName;
             if (savedClass) document.getElementById('playerClassInput').value = savedClass;
         }
@@ -2130,14 +2144,14 @@
             playerState.altitude = 0;
             playerState.score = 0;
 
-            sessionStorage.setItem('inertia_saved_name', name);
-            sessionStorage.setItem('inertia_saved_class', className);
+            sessionStorage.setItem('thruster_saved_name', name);
+            sessionStorage.setItem('thruster_saved_class', className);
 
             document.getElementById('playerMyNameDisplay').innerText = `${name} (${className})`;
             document.getElementById('playerNavName').innerText = name;
-            document.getElementById('playerAltHUD').innerText = "0 km/h";
+            document.getElementById('playerAltHUD').innerText = "0 N";
 
-            statusMsg.innerText = "Đang dò tín hiệu kết nối đến Trạm Đệm Từ...";
+            statusMsg.innerText = "Đang dò tín hiệu kết nối đến Trạm Phản Lực...";
             statusMsg.classList.remove('hidden');
             submitBtn.disabled = true;
 
@@ -2163,14 +2177,14 @@
 
             sendJoin();
 
-            const clientId = "pl_mag_" + roomPin + "_" + playerState.playerId.slice(-6) + "_" + Math.random().toString(36).substring(2, 6);
+            const clientId = "pl_thr_" + roomPin + "_" + playerState.playerId.slice(-6) + "_" + Math.random().toString(36).substring(2, 6);
             if (mqttClient) try { mqttClient.end(true); } catch(e) {}
 
             createMqttClient(clientId, (client) => {
                 mqttClient = client;
-                mqttClient.subscribe(`maglev_inertia/${roomPin}/host`, { qos: 0 }, (err) => {
+                mqttClient.subscribe(`turbo_thruster/${roomPin}/host`, { qos: 0 }, (err) => {
                     if (!err) {
-                        statusMsg.innerText = "Đã bắt được tín hiệu đường ray đệm từ, đang đồng bộ...";
+                        statusMsg.innerText = "Đã bắt được tín hiệu đường đua phản lực, đang đồng bộ...";
                         sendJoin();
                     }
                 });
@@ -2199,7 +2213,7 @@
             NetBus.publish(roomPin, { _sender: 'player', data: data });
             if (mqttClient && mqttClient.connected) {
                 try {
-                    mqttClient.publish(`maglev_inertia/${roomPin}/player`, JSON.stringify(data), { qos: 0 });
+                    mqttClient.publish(`turbo_thruster/${roomPin}/player`, JSON.stringify(data), { qos: 0 });
                 } catch(e) {}
             }
         }
@@ -2254,7 +2268,7 @@
 
                 playerState.altitude = data.altitude;
                 playerState.score = data.score;
-                document.getElementById('playerAltHUD').innerText = `${data.altitude} km/h`;
+                document.getElementById('playerAltHUD').innerText = `${data.altitude} N`;
 
                 const title = document.getElementById('playerFeedbackTitle');
                 const gain = document.getElementById('playerFeedbackGain');
@@ -2262,36 +2276,36 @@
 
                 if (data.isCorrect) {
                     Sound.correct();
-                    icon.innerText = "🚄✨";
-                    title.innerText = "DUY TRÌ QUÁN TÍNH CHUẨN!";
+                    icon.innerText = "🚀✨";
+                    title.innerText = "BỨT TỐC GIA TỐC CHUẨN!";
                     title.className = "text-lg sm:text-2xl font-anime-title font-black text-emerald-300 uppercase";
-                    gain.innerText = `+${data.altGain} km/h • Tàu đệm từ lướt êm không ma sát!`;
+                    gain.innerText = `+${data.altGain} N • Động cơ phản lực tăng tốc tối đa!`;
                 } else {
                     if (data.hazardState === 'pop') {
-                        Sound.trackCrash();
+                        Sound.turbineBlast();
                         icon.innerText = "💥";
-                        title.innerText = "MẤT ĐỆM TỪ ĐƯỜNG RAY!";
+                        title.innerText = "QUÁ ÁP BUỒNG PHẢN LỰC!";
                         title.className = "text-lg sm:text-2xl font-anime-title font-black text-rose-500 uppercase";
-                        gain.innerText = `${data.altGain} km/h • Sập từ trường nâng khoang tàu!`;
+                        gain.innerText = `${data.altGain} N • Sập áp suất tua-bin đẩy!`;
                     } else if (data.hazardState === 'spike') {
-                        Sound.brakeScreech();
+                        Sound.stallDrop();
                         icon.innerText = "🛑";
-                        title.innerText = "XUNG ĐỘT QUÁN TÍNH!";
+                        title.innerText = "MẤT LỰC KÉO ĐỘT NGỘT!";
                         title.className = "text-lg sm:text-2xl font-anime-title font-black text-rose-500 uppercase";
-                        gain.innerText = `${data.altGain} km/h • Khối tải trượt khỏi vị trí cân bằng!`;
+                        gain.innerText = `${data.altGain} N • Khối tải bị khựng lại trên ray!`;
                     } else {
                         Sound.warningAlarm();
                         icon.innerText = "⚠️";
-                        title.innerText = "CẢNH BÁO PHANH GẤP!";
+                        title.innerText = "CẢNH BÁO LỆCH GIA TỐC!";
                         title.className = "text-lg sm:text-2xl font-anime-title font-black text-amber-400 uppercase";
-                        gain.innerText = `${data.altGain} km/h • Chúi người về phía trước do quán tính!`;
+                        gain.innerText = `${data.altGain} N • Sai lệch tỉ số F/m gây rung lắc!`;
                     }
                 }
 
                 document.getElementById('playerMyRankNum').innerText = `#${data.rank || '--'}`;
                 document.getElementById('playerTotalPlayersBadge').innerText = `/ ${data.totalPlayers || '--'} đội`;
                 document.getElementById('playerRankHUD').innerText = `#${data.rank || '--'}`;
-                document.getElementById('playerRankStatusText').innerText = data.militaryRank || getInertiaRankTitle(data.altitude);
+                document.getElementById('playerRankStatusText').innerText = data.militaryRank || getThrusterRankTitle(data.altitude);
             } else if (data.type === 'SHOW_LEADERBOARD') {
                 hideAllScreens();
                 document.getElementById('playerLeaderboardScreen').classList.remove('hidden');
@@ -2306,26 +2320,26 @@
                         if (isMe) myRankInBoard = pl.rank;
 
                         row.className = `p-3 rounded-2xl border-2 flex items-center justify-between text-xs sm:text-sm font-bold ${
-                            isMe ? 'bg-cyan-950/90 border-cyan-400 text-cyan-200 shadow-md' : 'bg-slate-900 border-slate-800 text-slate-300'
+                            isMe ? 'bg-rose-950/90 border-rose-400 text-rose-200 shadow-md' : 'bg-slate-900 border-slate-800 text-slate-300'
                         }`;
                         row.innerHTML = `
                             <div class="flex items-center gap-2">
                                 <span class="font-tech text-amber-400">#${pl.rank}</span>
-                                <span>🚄</span>
+                                <span>🚀</span>
                                 <span class="font-black text-white">${pl.name}</span>
                             </div>
-                            <span class="font-tech text-amber-300">${pl.altitude} km/h</span>
+                            <span class="font-tech text-amber-300">${pl.altitude} N</span>
                         `;
                         container.appendChild(row);
                     });
 
-                    document.getElementById('playerMobileMyRankSummary').innerText = `${myRankInBoard ? '#' + myRankInBoard : 'Ngoài bảng'} (${playerState.altitude} km/h)`;
+                    document.getElementById('playerMobileMyRankSummary').innerText = `${myRankInBoard ? '#' + myRankInBoard : 'Ngoài bảng'} (${playerState.altitude} N)`;
                 }
             } else if (data.type === 'QUIZ_FINISHED') {
                 clearInterval(playerState.timerInterval);
                 hideAllScreens();
                 document.getElementById('playerLobbyScreen').classList.remove('hidden');
-                document.getElementById('playerMyNameDisplay').innerText = `Hoàn thành hành trình: Đạt vận tốc ${playerState.altitude} km/h!`;
+                document.getElementById('playerMyNameDisplay').innerText = `Hoàn thành đường đua: Đạt lực đẩy ${playerState.altitude} N!`;
             }
         }
 
@@ -2336,7 +2350,7 @@
             const labels = ['A', 'B', 'C', 'D'];
             document.getElementById('playerMcqContainer').classList.add('hidden');
             document.getElementById('playerSubmittedOverlay').classList.remove('hidden');
-            document.getElementById('playerSubmittedLabel').innerText = `Đã khóa phương án [${labels[choiceIdx]}]: Đồng bộ cảm biến quán tính!`;
+            document.getElementById('playerSubmittedLabel').innerText = `Đã khóa phương án [${labels[choiceIdx]}]: Kích hoạt xung lực đẩy!`;
 
             Sound.tap();
 
